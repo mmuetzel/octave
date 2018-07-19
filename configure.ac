@@ -641,15 +641,23 @@ fi
 
 ### More configure argument checking related to linking
 
+case $host_os in
+  msdosmsvc | mingw* | AIX | BeOS | OS/2 )
+    DEFAULT_NO_UNDEFINED_LDFLAG="-no-undefined"
+  ;;
+  *)
+    DEFAULT_NO_UNDEFINED_LDFLAG=""
+  ;;
+esac
 AC_ARG_ENABLE([no-undefined],
-  [AS_HELP_STRING([--disable-no-undefined],
-    [don't pass -no-undefined to libtool when linking Octave and its shared libraries])],
+  [AS_HELP_STRING([--enable-no-undefined],
+    [pass -no-undefined to libtool when linking Octave and its shared libraries. This is done by default for msdosmsvc, mingw*, AIX, BeOS, or OS/2 hosts.])],
   [case $enableval in
      yes) NO_UNDEFINED_LDFLAG="-no-undefined" ;;
      no)  NO_UNDEFINED_LDFLAG="" ;;
-     *) AC_MSG_ERROR([bad value $enableval for --disable-no-undefined]) ;;
+     *) AC_MSG_ERROR([bad value $enableval for --enable-no-undefined]) ;;
    esac],
-  [NO_UNDEFINED_LDFLAG="-no-undefined"])
+  [NO_UNDEFINED_LDFLAG="$DEFAULT_NO_UNDEFINED_LDFLAG"])
 AC_SUBST(NO_UNDEFINED_LDFLAG)
 
 AC_ARG_ENABLE([link-all-dependencies],
