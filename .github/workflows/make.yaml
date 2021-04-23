@@ -20,6 +20,6 @@ jobs:
           cd .build && ../configure CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial" --prefix=${HOME}/usr
       - name: build
         run: |
-          make -C ./.build all
+          make -C ./.build -j2 all
       - name: check
         run: make -C ./.build check
