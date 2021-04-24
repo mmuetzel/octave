@@ -11,7 +11,15 @@ jobs:
       - name: install dependencies
         run: |
           sudo apt -qq update
-          sudo apt install -y gcc g++ gfortran make libblas-dev liblapack-dev libpcre3-dev libarpack2-dev libcurl4-gnutls-dev epstool libfftw3-dev fig2dev libfltk1.3-dev libfontconfig1-dev libfreetype6-dev libgl2ps-dev libglpk-dev libreadline-dev gnuplot-x11 libgraphicsmagick++1-dev libhdf5-dev openjdk-8-jdk libsndfile1-dev llvm-dev texinfo libgl1-mesa-dev libosmesa6-dev pstoedit portaudio19-dev libqhull-dev libqrupdate-dev libsuitesparse-dev texlive-latex-extra libxft-dev zlib1g-dev autoconf automake bison flex gperf gzip icoutils librsvg2-bin libtool perl rsync tar qtbase5-dev qttools5-dev qttools5-dev-tools libqscintilla2-qt5-dev libsundials-dev
+          sudo apt install -y gcc g++ gfortran ccache make libblas-dev liblapack-dev libpcre3-dev libarpack2-dev libcurl4-gnutls-dev epstool libfftw3-dev fig2dev libfltk1.3-dev libfontconfig1-dev libfreetype6-dev libgl2ps-dev libglpk-dev libreadline-dev gnuplot-x11 libgraphicsmagick++1-dev libhdf5-dev openjdk-8-jdk libsndfile1-dev llvm-dev texinfo libgl1-mesa-dev libosmesa6-dev pstoedit portaudio19-dev libqhull-dev libqrupdate-dev libsuitesparse-dev texlive-latex-extra libxft-dev zlib1g-dev autoconf automake bison flex gperf gzip icoutils librsvg2-bin libtool perl rsync tar qtbase5-dev qttools5-dev qttools5-dev-tools libqscintilla2-qt5-dev libsundials-dev
+      - name: setup ccache
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/.ccache
+          key: ccache:${{ matrix.os }}:gcc:${{ github.ref }}:${{ github.sha }}
+          restore-keys: |
+            ccache:${{ matrix.os }}:gcc:${{ github.ref }}
+            ccache:${{ matrix.os }}:gcc
       - name: bootstrap
         run: ./bootstrap
       - name: configure
@@ -19,8 +27,9 @@ jobs:
           mkdir .build
           cd .build && ../configure CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial" --prefix=${HOME}/usr
       - name: build
-        run: |
-          make -C ./.build -j2 all
+        run: make -C ./.build -j2 all
+      - name: ccache status
+        run: ccache -s
       - name: check
         run: make -C ./.build check
   ubuntu-clang:
@@ -33,7 +42,15 @@ jobs:
       - name: install dependencies
         run: |
           sudo apt -qq update
-          sudo apt install -y clang gfortran make libblas-dev liblapack-dev libpcre3-dev libarpack2-dev libcurl4-gnutls-dev epstool libfftw3-dev fig2dev libfltk1.3-dev libfontconfig1-dev libfreetype6-dev libgl2ps-dev libglpk-dev libreadline-dev gnuplot-x11 libgraphicsmagick++1-dev libhdf5-dev openjdk-8-jdk libsndfile1-dev llvm-dev texinfo libgl1-mesa-dev libosmesa6-dev pstoedit portaudio19-dev libqhull-dev libqrupdate-dev libsuitesparse-dev texlive-latex-extra libxft-dev zlib1g-dev autoconf automake bison flex gperf gzip icoutils librsvg2-bin libtool perl rsync tar qtbase5-dev qttools5-dev qttools5-dev-tools libqscintilla2-qt5-dev libsundials-dev
+          sudo apt install -y clang gfortran ccache make ccache libblas-dev liblapack-dev libpcre3-dev libarpack2-dev libcurl4-gnutls-dev epstool libfftw3-dev fig2dev libfltk1.3-dev libfontconfig1-dev libfreetype6-dev libgl2ps-dev libglpk-dev libreadline-dev gnuplot-x11 libgraphicsmagick++1-dev libhdf5-dev openjdk-8-jdk libsndfile1-dev llvm-dev texinfo libgl1-mesa-dev libosmesa6-dev pstoedit portaudio19-dev libqhull-dev libqrupdate-dev libsuitesparse-dev texlive-latex-extra libxft-dev zlib1g-dev autoconf automake bison flex gperf gzip icoutils librsvg2-bin libtool perl rsync tar qtbase5-dev qttools5-dev qttools5-dev-tools libqscintilla2-qt5-dev libsundials-dev
+      - name: setup ccache
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/.ccache
+          key: ccache:${{ matrix.os }}:clang:${{ github.ref }}:${{ github.sha }}
+          restore-keys: |
+            ccache:${{ matrix.os }}:clang:${{ github.ref }}
+            ccache:${{ matrix.os }}:clang
       - name: bootstrap
         run: ./bootstrap
       - name: configure
@@ -41,7 +58,8 @@ jobs:
           mkdir .build
           cd .build && ../configure CC=clang CXX=clang++ CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial" --prefix=${HOME}/usr
       - name: build
-        run: |
-          make -C ./.build -j2 all
+        run: make -C ./.build -j2 all
+      - name: ccache status
+        run: ccache -s
       - name: check
         run: make -C ./.build check
