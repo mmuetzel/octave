@@ -1,7 +1,7 @@
 name: make
 on: [push]
 jobs:
-  ubuntu:
+  ubuntu-gcc:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -18,6 +18,28 @@ jobs:
         run: |
           mkdir .build
           cd .build && ../configure CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial" --prefix=${HOME}/usr
+      - name: build
+        run: |
+          make -C ./.build -j2 all
+      - name: check
+        run: make -C ./.build check
+  ubuntu-clang:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, ubuntu-20.04]
+    steps:
+      - uses: actions/checkout@v2
+      - name: install dependencies
+        run: |
+          sudo apt -qq update
+          sudo apt install -y clang clang++ gfortran make libblas-dev liblapack-dev libpcre3-dev libarpack2-dev libcurl4-gnutls-dev epstool libfftw3-dev fig2dev libfltk1.3-dev libfontconfig1-dev libfreetype6-dev libgl2ps-dev libglpk-dev libreadline-dev gnuplot-x11 libgraphicsmagick++1-dev libhdf5-dev openjdk-8-jdk libsndfile1-dev llvm-dev texinfo libgl1-mesa-dev libosmesa6-dev pstoedit portaudio19-dev libqhull-dev libqrupdate-dev libsuitesparse-dev texlive-latex-extra libxft-dev zlib1g-dev autoconf automake bison flex gperf gzip icoutils librsvg2-bin libtool perl rsync tar qtbase5-dev qttools5-dev qttools5-dev-tools libqscintilla2-qt5-dev libsundials-dev
+      - name: bootstrap
+        run: ./bootstrap
+      - name: configure
+        run: |
+          mkdir .build
+          cd .build && ../configure CC=clang CXX=clang++ CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial" --prefix=${HOME}/usr
       - name: build
         run: |
           make -C ./.build -j2 all
