@@ -7,18 +7,23 @@ jobs:
       matrix:
         os: [ubuntu-18.04, ubuntu-20.04]
         compiler: [gcc, clang]
+        include:
+          - compiler: gcc
+            compiler-pkgs: "g++ gcc"
+            cc: "gcc"
+            cxx: "g++"
+          - compiler: clang
+            compiler-pkgs: "clang"
+            cc: "clang"
+            cxx: "clang++"
     steps:
       - uses: actions/checkout@v2
       - name: install dependencies
-        if: ${{ matrix.compiler == 'gcc' }}
+        env:
+          COMPILER_PKGS: ${{ matrix.compiler-pkg }}
         run: |
           sudo apt -qq update
-          sudo apt install -y autoconf automake bison ccache dvipng epstool fig2dev flex g++ gcc gfortran gnuplot-x11 gperf gzip icoutils libarpack2-dev libblas-dev libcurl4-gnutls-dev libfftw3-dev libfltk1.3-dev libfontconfig1-dev libfreetype6-dev libgl1-mesa-dev libgl2ps-dev libglpk-dev libgraphicsmagick++1-dev libhdf5-dev liblapack-dev libosmesa6-dev libpcre3-dev libqhull-dev libqscintilla2-qt5-dev libqrupdate-dev libreadline-dev librsvg2-bin libsndfile1-dev libsuitesparse-dev libsundials-dev libtool libxft-dev llvm-dev make openjdk-8-jdk perl portaudio19-dev pstoedit qtbase5-dev qttools5-dev qttools5-dev-tools rsync tar texinfo texlive-latex-extra xvfb zlib1g-dev           
-      - name: install dependencies
-        if: ${{ matrix.compiler == 'clang' }}
-        run: |
-          sudo apt -qq update
-          sudo apt install -y autoconf automake bison clang ccache dvipng epstool fig2dev flex gfortran gnuplot-x11 gperf gzip icoutils libarpack2-dev libblas-dev libcurl4-gnutls-dev libfftw3-dev libfltk1.3-dev libfontconfig1-dev libfreetype6-dev libgl1-mesa-dev libgl2ps-dev libglpk-dev libgraphicsmagick++1-dev libhdf5-dev liblapack-dev libosmesa6-dev libpcre3-dev libqhull-dev libqrupdate-dev libqscintilla2-qt5-dev libreadline-dev librsvg2-bin libsndfile1-dev libsuitesparse-dev libsundials-dev libtool libxft-dev llvm-dev make openjdk-8-jdk perl portaudio19-dev pstoedit qtbase5-dev qttools5-dev qttools5-dev-tools rsync tar texinfo texlive-latex-extra xvfb zlib1g-dev
+          sudo apt install -y $COMPILER_PKGS autoconf automake bison ccache dvipng epstool fig2dev flex gfortran gnuplot-x11 gperf gzip icoutils libarpack2-dev libblas-dev libcurl4-gnutls-dev libfftw3-dev libfltk1.3-dev libfontconfig1-dev libfreetype6-dev libgl1-mesa-dev libgl2ps-dev libglpk-dev libgraphicsmagick++1-dev libhdf5-dev liblapack-dev libosmesa6-dev libpcre3-dev libqhull-dev libqscintilla2-qt5-dev libqrupdate-dev libreadline-dev librsvg2-bin libsndfile1-dev libsuitesparse-dev libsundials-dev libtool libxft-dev llvm-dev make openjdk-8-jdk perl portaudio19-dev pstoedit qtbase5-dev qttools5-dev qttools5-dev-tools rsync tar texinfo texlive-latex-extra xvfb zlib1g-dev           
       - name: prepare ccache timestamp
         id: ccache_cache_timestamp
         run: echo "::set-output name=TIMESTAMP::$(date +"%Y-%m-%d_%H-%M-%S")"
@@ -33,15 +38,12 @@ jobs:
       - name: bootstrap
         run: ./bootstrap
       - name: configure
-        if: ${{ matrix.compiler == 'gcc' }}
+        env:
+          MY_CC: ${{ matrix.cc }}
+          MY_CXX: ${{ matrix.cxx }}
         run: |
           mkdir .build
-          cd .build && ../configure CC="ccache gcc" CXX="ccache g++" F77="ccache gfortran" CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial" --prefix=${HOME}/usr
-      - name: configure
-        if: ${{ matrix.compiler == 'clang' }}
-        run: |
-          mkdir .build
-          cd .build && ../configure CC="ccache clang" CXX="ccache clang++" F77="ccache gfortran" CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial" --prefix=${HOME}/usr
+          cd .build && ../configure CC="ccache $MY_CC" CXX="ccache $MY_CXX" F77="ccache gfortran" CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial" --prefix=${HOME}/usr
       - name: build
         run: xvfb-run -a -s '-screen 0 640x480x24' make -C ./.build -j2 all
       - name: ccache status
