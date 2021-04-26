@@ -28,6 +28,7 @@ jobs:
         id: ccache_cache_timestamp
         run: |
           echo "::set-output name=TIMESTAMP::$(date +"%Y-%m-%d_%H-%M-%S")"
+          test -d /home/runner/.ccache || mkdir /home/runner/.ccache
           echo "max_size = 2G" >> /home/runner/.ccache/ccache.conf
       - name: setup ccache
         uses: actions/cache@v2
