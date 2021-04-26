@@ -36,7 +36,7 @@ jobs:
         if: ${{ matrix.compiler == 'gcc' }}
         run: |
           mkdir .build
-          cd .build && ../configure CC="ccache clang" CXX="ccache clang++" F77="ccache gfortran" CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial" --prefix=${HOME}/usr
+          cd .build && ../configure CC="ccache gcc" CXX="ccache g++" F77="ccache gfortran" CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial" --prefix=${HOME}/usr
       - name: configure
         if: ${{ matrix.compiler == 'clang' }}
         run: |
