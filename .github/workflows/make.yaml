@@ -66,8 +66,12 @@ jobs:
             CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" \
             LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial"
       - name: build
+        env:
+          XDG_RUNTIME_DIR: '/tmp/runtime-runner'
         run: xvfb-run -a -s '-screen 0 640x480x24' make -C ./.build -j2 all
       - name: ccache status
         run: ccache -s
       - name: check
+        env:
+          XDG_RUNTIME_DIR: '/tmp/runtime-runner'
         run: xvfb-run -a -s '-screen 0 640x480x24' make -C ./.build check
