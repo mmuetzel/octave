@@ -67,7 +67,7 @@ jobs:
             LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial"
       - name: build
         env:
-          XDG_RUNTIME_DIR: "$GITHUB_WORKSPACE/tmp"
+          XDG_RUNTIME_DIR: "/home/runner/tmp"
         run: |
           test -d $XDG_RUNTIME_DIR || mkdir $XDG_RUNTIME_DIR
           xvfb-run -a -s '-screen 0 640x480x24' make -C ./.build -j2 all
@@ -75,5 +75,5 @@ jobs:
         run: ccache -s
       - name: check
         env:
-          XDG_RUNTIME_DIR: "$GITHUB_WORKSPACE/tmp"
+          XDG_RUNTIME_DIR: "/home/runner/tmp"
         run: xvfb-run -a -s '-screen 0 640x480x24' make -C ./.build check
