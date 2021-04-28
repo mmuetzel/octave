@@ -77,3 +77,36 @@ jobs:
         env:
           XDG_RUNTIME_DIR: "/home/runner/tmp"
         run: xvfb-run -a make -C ./.build check V=1
+
+  macos:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-10.15]
+    steps:
+      - uses: actions/checkout@v2
+      - name: install dependencies
+        run: |
+          brew update
+          brew install arpack epstool fftw fig2dev fltk fontconfig freetype gcc \
+            ghostscript gl2ps glpk gnuplot graphicsmagick hdf5 libsndfile \
+            libtool openblas pcre portaudio pstoedit qhull qrupdate qscintilla2 \
+            qt@5 readline suite-sparse sundials texinfo \
+            gnu-sed opennjdk pkg-config
+      - name: bootstrap
+        run: ./bootstrap
+      - name: configure
+        run: |
+          mkdir .build
+          cd .build && ../configure \
+            CC="clang" \
+            CXX="clang++" \
+            CPPFLAGS="-I/opt/X11/include -I/usr/local/opt/gettext/include -I/usr/local/opt/icu4c/include -I/usr/local/opt/openssl/include -I/usr/local/opt/readline/include -I/usr/local/opt/sqlite/include" \
+            LDFLAGS="-L/usr/local/lib -L/opt/X11/lib -L/usr/local/opt/qt/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/texinfo/lib -L/usr/local/opt/bison/lib -L/usr/local/opt/gettext/lib -L/usr/local/opt/icu4c/lib -L/usr/local/opt/libffi/lib -L/usr/local/opt/openblas/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/sqlite/lib" \
+            PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/qt/lib/pkgconfig \
+            --enable-link-all-dependencies \
+            --with-x=no \
+            --without-osmesa \
+            --with-blas=openblas
+      - name: build
+        run: make -C ./.build all V=1
