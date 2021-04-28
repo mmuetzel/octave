@@ -49,7 +49,7 @@ jobs:
       - name: configure ccache
         run: |
           test -d /home/runner/.ccache || mkdir /home/runner/.ccache
-          echo "max_size = 2G" >> /home/runner/.ccache/ccache.conf
+          echo "max_size = 3G" >> /home/runner/.ccache/ccache.conf
           ccache -s
       - name: bootstrap
         run: ./bootstrap
@@ -111,15 +111,17 @@ jobs:
             F77="gfortran" \
             CPPFLAGS="-I/opt/X11/include -I/usr/local/opt/gettext/include -I/usr/local/opt/icu4c/include -I/usr/local/opt/openssl/include -I/usr/local/opt/qt@5/include -I/usr/local/opt/readline/include -I/usr/local/opt/sqlite/include" \
             CXXFLAGS="-O2 -g -std=c++11" \
-            LDFLAGS="-L/usr/local/lib -L/opt/X11/lib -L/usr/local/opt/qt@5/lib -F/usr/local/opt/qt@5/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/texinfo/lib -L/usr/local/opt/bison/lib -L/usr/local/opt/gettext/lib -L/usr/local/opt/icu4c/lib -L/usr/local/opt/libffi/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/sqlite/lib" \
+            LDFLAGS="-L/usr/local/lib -L/usr/local/opt/qt@5/lib -F/usr/local/opt/qt@5/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/bison/lib -L/usr/local/opt/gettext/lib -L/usr/local/opt/icu4c/lib -L/usr/local/opt/libffi/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/sqlite/lib" \
             PKG_CONFIG_PATH="/usr/local/opt/openblas/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/qt@5/lib/pkgconfig" \
             QCOLLECTIONGENERATOR="qhelpgenerator" \
             QT_CPPFLAGS="-I/usr/local/opt/qt@5/include" \
             QT_LDFLAGS="-F/usr/local/opt/qt@5/lib" \
             --enable-link-all-dependencies \
+            --disable-lib-visibility-flags \
             --with-x=no \
-            --with-blas="-L/usr/local/opt/openblas/lib -lopenblas"
+            --with-blas="-L/usr/local/opt/openblas/lib -lopenblas" \
+            --with-java-homedir="/usr/local/opt/openjdk"
       - name: build
         run: |
           export PATH="$MY_PATH:$PATH"
-          make -C ./.build all V=1
+          make -C ./.build all -j3 V=1
