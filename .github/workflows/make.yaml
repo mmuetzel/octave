@@ -101,19 +101,19 @@ jobs:
         id: ccache_cache_timestamp
         run: |
           echo "::set-output name=TIMESTAMP::$(date +"%Y-%m-%d_%H-%M-%S")"
-#      - name: setup ccache
-#        uses: actions/cache@v2
-#        with:
-#          path: /Users/runner/.ccache
-#          key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
-#          restore-keys: |
-#            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}
-#            ccache:${{ matrix.os }}:${{ matrix.compiler }}
+      - name: setup ccache
+        uses: actions/cache@v2
+        with:
+          path: /Users/runner/Library/Caches/ccache
+          key: ccache:${{ matrix.os }}:clang:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
+          restore-keys: |
+            ccache:${{ matrix.os }}:clang:${{ github.ref }}
+            ccache:${{ matrix.os }}:clang
       - name: configure ccache
         run: |
           ccache -s
-#          test -d /Users/runner/.ccache || mkdir /Users/runner/.ccache
-#          echo "max_size = 3G" >> /Users/runner/.ccache/ccache.conf
+          test -d /Users/runner/Library/Preferences/ccache || mkdir /Users/runner/Library/Preferences/ccache
+          echo "max_size = 3G" >> /Users/runner/Library/Preferences/ccache/ccache.conf
       - name: bootstrap
         run: |
           export PATH="$MY_PATH:$PATH"
