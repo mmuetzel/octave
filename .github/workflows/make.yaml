@@ -95,7 +95,8 @@ jobs:
             ghostscript gl2ps glpk gnuplot graphicsmagick hdf5 libsndfile \
             libtool openblas pcre portaudio pstoedit qhull qrupdate qscintilla2 \
             qt@5 readline suite-sparse sundials texinfo \
-            automake autoconf bison gettext gnu-sed icoutils librsvg openjdk pkg-config
+            automake autoconf bison gettext gnu-sed icoutils librsvg mactex-no-gui openjdk pkg-config
+          eval "$(/usr/libexec/path_helper)"
       - name: bootstrap
         run: |
           export PATH="$MY_PATH:$PATH"
