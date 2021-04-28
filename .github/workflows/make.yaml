@@ -92,7 +92,7 @@ jobs:
             ghostscript gl2ps glpk gnuplot graphicsmagick hdf5 libsndfile \
             libtool openblas pcre portaudio pstoedit qhull qrupdate qscintilla2 \
             qt@5 readline suite-sparse sundials texinfo \
-            gnu-sed opennjdk pkg-config
+            gnu-sed openjdk pkg-config
       - name: bootstrap
         run: ./bootstrap
       - name: configure
