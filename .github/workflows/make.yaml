@@ -70,7 +70,7 @@ jobs:
           XDG_RUNTIME_DIR: "/home/runner/tmp"
         run: |
           test -d $XDG_RUNTIME_DIR || mkdir $XDG_RUNTIME_DIR
-          xvfb-run -a make -C ./.build -j2 all V=1
+          xvfb-run -a make -C ./.build all V=1
       - name: ccache status
         run: ccache -s
       - name: check
