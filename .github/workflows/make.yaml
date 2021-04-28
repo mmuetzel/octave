@@ -92,7 +92,7 @@ jobs:
             ghostscript gl2ps glpk gnuplot graphicsmagick hdf5 libsndfile \
             libtool openblas pcre portaudio pstoedit qhull qrupdate qscintilla2 \
             qt@5 readline suite-sparse sundials texinfo \
-            automake autoconf gnu-sed openjdk pkg-config
+            automake autoconf bison gnu-sed icoutils librsvg openjdk pkg-config
       - name: bootstrap
         run: ./bootstrap
       - name: configure
@@ -101,6 +101,7 @@ jobs:
           cd .build && ../configure \
             CC="clang" \
             CXX="clang++" \
+            F77="gfortran" \
             CPPFLAGS="-I/opt/X11/include -I/usr/local/opt/gettext/include -I/usr/local/opt/icu4c/include -I/usr/local/opt/openssl/include -I/usr/local/opt/readline/include -I/usr/local/opt/sqlite/include" \
             LDFLAGS="-L/usr/local/lib -L/opt/X11/lib -L/usr/local/opt/qt@5/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/texinfo/lib -L/usr/local/opt/bison/lib -L/usr/local/opt/gettext/lib -L/usr/local/opt/icu4c/lib -L/usr/local/opt/libffi/lib -L/usr/local/opt/openblas/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/sqlite/lib" \
             PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/qt/lib/pkgconfig \
