@@ -50,7 +50,6 @@ jobs:
         run: |
           test -d /home/runner/.ccache || mkdir /home/runner/.ccache
           echo "max_size = 3G" >> /home/runner/.ccache/ccache.conf
-          ccache --evict-older-than 2d
           ccache -s
       - name: bootstrap
         run: ./bootstrap
