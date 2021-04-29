@@ -114,7 +114,7 @@ jobs:
             libtool openblas pcre portaudio pstoedit qhull qrupdate qscintilla2 \
             qt@5 readline suite-sparse sundials texinfo \
             gnu-sed openjdk pkg-config \
-            automake autoconf bison ccache gettext icoutils librsvg mactex-no-gui
+            automake autoconf basictex bison ccache gettext icoutils librsvg
           eval "$(/usr/libexec/path_helper)"
       - name: prepare ccache
         id: ccache_cache_timestamp
