@@ -101,6 +101,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: install dependencies
         # It looks like "gfortran" isn't working correctly unless it is re-installed as part of "gcc".
+        # The packages are listed in (alphabetically sorted) blocks:
+        # The first block is for "direct" dependencies.
+        # The second block is for dependencies needed when building from a release tarball
+        # The third block is for dependencies needed when building from a repository checkout
         run: |
           brew update
           brew uninstall gfortran
@@ -108,7 +112,8 @@ jobs:
             ghostscript gl2ps glpk gnuplot graphicsmagick hdf5 libsndfile \
             libtool openblas pcre portaudio pstoedit qhull qrupdate qscintilla2 \
             qt@5 readline suite-sparse sundials texinfo \
-            automake autoconf bison ccache gettext gnu-sed icoutils librsvg mactex-no-gui openjdk pkg-config
+            gnu-sed openjdk pkg-config \
+            automake autoconf bison ccache gettext icoutils librsvg mactex-no-gui
           eval "$(/usr/libexec/path_helper)"
       - name: prepare ccache
         id: ccache_cache_timestamp
@@ -137,6 +142,12 @@ jobs:
         env:
           MY_CC: ${{ matrix.cc }}
           MY_CXX: ${{ matrix.cxx }}
+        # This is a hodgepodge of configure flags put together from the buildbot rules:
+        # https://hg.octave.org/octave-buildbot/file/tip/master.cfg#l543
+        # And the homebrew formula:
+        # https://github.com/octave-app/homebrew-octave-app/blob/master/Formula/octave-default.rb
+        # Amended with additional flags that seem to be needed.
+        # I'm not sure if all of those are needed or correct.
         run: |
           export PATH="$MY_PATH:$PATH"
           echo $PATH
@@ -150,8 +161,6 @@ jobs:
             LDFLAGS="-L/usr/local/lib -L/usr/local/opt/qt@5/lib -F/usr/local/opt/qt@5/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/bison/lib -L/usr/local/opt/gettext/lib -L/usr/local/opt/icu4c/lib -L/usr/local/opt/libffi/lib -L/usr/local/opt/openssl/lib -L/usr/local/opt/sqlite/lib" \
             PKG_CONFIG_PATH="/usr/local/opt/openblas/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/qt@5/lib/pkgconfig" \
             QCOLLECTIONGENERATOR="qhelpgenerator" \
-            QT_CPPFLAGS="-I/usr/local/opt/qt@5/include" \
-            QT_LDFLAGS="-F/usr/local/opt/qt@5/lib" \
             --enable-link-all-dependencies \
             --disable-lib-visibility-flags \
             --with-x=no \
