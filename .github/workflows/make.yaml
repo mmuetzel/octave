@@ -145,3 +145,5 @@ jobs:
           make -C ./.build all -j3 V=1
       - name: ccache status
         run: ccache -s
+      - name: check
+        run: make -C ./.build check V=1
