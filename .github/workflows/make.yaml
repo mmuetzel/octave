@@ -153,10 +153,10 @@ jobs:
         run: |
           export PATH="$MY_PATH:$PATH"
           echo $PATH
-          echo %MY_CC --version
-          %MY_CC --version
-          echo %MY_CXX --version
-          %MY_CXX --version
+          echo $MY_CC --version
+          $MY_CC --version
+          echo $MY_CXX --version
+          $MY_CXX --version
           mkdir .build
           cd .build && ../configure \
             CC="ccache $MY_CC" \
