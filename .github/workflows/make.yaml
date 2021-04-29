@@ -78,6 +78,7 @@ jobs:
       - name: ccache status
         run: ccache -s
       - name: check
+        continue-on-error: true
         env:
           XDG_RUNTIME_DIR: "/home/runner/tmp"
         run: xvfb-run -a make -C ./.build check V=1
@@ -173,4 +174,5 @@ jobs:
       - name: ccache status
         run: ccache -s
       - name: check
+        continue-on-error: true
         run: make -C ./.build check V=1
