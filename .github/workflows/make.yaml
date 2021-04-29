@@ -59,6 +59,10 @@ jobs:
           MY_CC: ${{ matrix.cc }}
           MY_CXX: ${{ matrix.cxx }}
         run: |
+          echo $MY_CC --version
+          $MY_CC --version
+          echo $MY_CXX --version
+          $MY_CXX --version
           mkdir .build
           cd .build && ../configure \
             CC="ccache $MY_CC" \
@@ -89,11 +93,11 @@ jobs:
     strategy:
       matrix:
         os: [macos-10.15]
-        compiler: [gcc, clang]
+        compiler: [real-gcc, clang]
         include:
-          - compiler: gcc
-            cc: "gcc"
-            cxx: "g++"
+          - compiler: real-gcc
+            cc: "/usr/local/bin/gcc-10"
+            cxx: "/usr/local/bin/g++-10"
           - compiler: clang
             cc: "clang"
             cxx: "clang++"
@@ -164,7 +168,7 @@ jobs:
             F77="ccache gfortran" \
             CPPFLAGS="-I/usr/local/opt/gettext/include -I/usr/local/opt/icu4c/include -I/usr/local/opt/qt@5/include -I/usr/local/opt/readline/include -I/usr/local/opt/sqlite/include" \
             CXXFLAGS="-O2 -g -std=c++11" \
-            LDFLAGS="-L/usr/local/lib -L/usr/local/opt/bison/lib -L/usr/local/opt/gettext/lib -L/usr/local/opt/icu4c/lib -L/usr/local/opt/qhull/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/sqlite/lib" \
+            LDFLAGS="-L/usr/local/lib -L/usr/local/opt/bison/lib -L/usr/local/opt/gettext/lib -L/usr/local/opt/icu4c/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/sqlite/lib" \
             PKG_CONFIG_PATH="/usr/local/opt/openblas/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/qt@5/lib/pkgconfig" \
             QCOLLECTIONGENERATOR="qhelpgenerator" \
             --enable-link-all-dependencies \
