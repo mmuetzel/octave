@@ -2,12 +2,94 @@ name: make
 on: [push]
 jobs:
 
+  ubuntu:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, ubuntu-18.04]
+        compiler: [gcc, clang]
+        include:
+          - compiler: gcc
+            compiler-pkgs: "g++ gcc"
+            cc: "gcc"
+            cxx: "g++"
+          - compiler: clang
+            compiler-pkgs: "clang"
+            cc: "clang"
+            cxx: "clang++"
+    steps:
+      - uses: actions/checkout@v2
+      - name: install dependencies
+        env:
+          COMPILER_PKGS: ${{ matrix.compiler-pkgs }}
+        run: |
+          sudo apt -qq update
+          sudo apt install -y $COMPILER_PKGS autoconf automake bison ccache \
+            dvipng epstool fig2dev flex gfortran gnuplot-x11 gperf gzip \
+            icoutils libarpack2-dev libblas-dev libcurl4-gnutls-dev \
+            libfftw3-dev libfltk1.3-dev libfontconfig1-dev libfreetype6-dev \
+            libgl1-mesa-dev libgl2ps-dev libglpk-dev libgraphicsmagick++1-dev \
+            libhdf5-dev liblapack-dev libosmesa6-dev libpcre3-dev libqhull-dev \
+            libqscintilla2-qt5-dev libqrupdate-dev libreadline-dev librsvg2-bin \
+            libsndfile1-dev libsuitesparse-dev libsundials-dev libtool \
+            libxft-dev llvm-dev make openjdk-8-jdk perl portaudio19-dev \
+            pstoedit qtbase5-dev qttools5-dev qttools5-dev-tools rsync tar \
+            texinfo texlive-latex-extra xvfb zlib1g-dev           
+      - name: prepare ccache
+        id: ccache_cache_timestamp
+        run: |
+          echo "::set-output name=TIMESTAMP::$(date +"%Y-%m-%d_%H-%M-%S")"
+      - name: setup ccache
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/.ccache
+          key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:build:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
+          restore-keys: |
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}:build:${{ github.ref }}
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}:build
+      - name: configure ccache
+        run: |
+          test -d /home/runner/.ccache || mkdir /home/runner/.ccache
+          echo "max_size = 3G" >> /home/runner/.ccache/ccache.conf
+          ccache -s
+      - name: bootstrap
+        run: ./bootstrap
+      - name: configure
+        env:
+          MY_CC: ${{ matrix.cc }}
+          MY_CXX: ${{ matrix.cxx }}
+        run: |
+          mkdir .build
+          cd .build && ../configure \
+            CC="ccache $MY_CC" \
+            CXX="ccache $MY_CXX" \
+            F77="ccache gfortran" \
+            CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" \
+            LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial"
+      - name: build
+        env:
+          XDG_RUNTIME_DIR: "/home/runner/tmp"
+        # Parallel make seems to fail repeatedly when creating the figures for
+        # the manual. The error message says it fails to connect to a display.
+        # Maybe an xvfb issue?
+        # Use single job make for now.
+        run: |
+          test -d $XDG_RUNTIME_DIR || mkdir $XDG_RUNTIME_DIR
+          xvfb-run -a make -C ./.build all V=1
+      - name: ccache status
+        run: ccache -s
+      - name: check
+        continue-on-error: true
+        env:
+          XDG_RUNTIME_DIR: "/home/runner/tmp"
+        run: xvfb-run -a make -C ./.build check V=1
+
   macos:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-11.0]
-        compiler: [clang]
+        os: [macos-10.15]
+        compiler: [gcc, clang]
         include:
           - compiler: gcc
             cc: "gcc"
@@ -82,6 +164,7 @@ jobs:
             PKG_CONFIG_PATH="/usr/local/opt/openblas/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/qt@5/lib/pkgconfig" \
             QCOLLECTIONGENERATOR="qhelpgenerator" \
             --enable-link-all-dependencies \
+            --disable-lib-visibility-flags \
             --with-x=no \
             --with-blas="-L/usr/local/opt/openblas/lib -lopenblas" \
             --with-java-homedir="/usr/local/opt/openjdk"
