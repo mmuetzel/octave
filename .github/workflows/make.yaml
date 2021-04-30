@@ -93,7 +93,10 @@ jobs:
     strategy:
       matrix:
         os: [macos-10.15]
-        compiler: [real-gcc, clang]
+        # Most (or all) homebrew packages are compiled with clang and link against libc++.
+        # So we also use clang to avoid symbol clashes.
+        # compiler: [real-gcc, clang]
+        compiler: [clang]
         include:
           - compiler: real-gcc
             cc: "/usr/local/bin/gcc-10"
