@@ -11,7 +11,6 @@ jobs:
         # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners
         os: [ubuntu-20.04, ubuntu-18.04]
         compiler: [gcc, clang]
-        ccache-max: [3G]
         include:
           - compiler: gcc
             compiler-pkgs: "g++ gcc"
@@ -22,6 +21,7 @@ jobs:
             cc: "clang"
             cxx: "clang++"
           # "ccache" on Ubuntu 20.04 with gcc seems to require much more cache storage than on the other runners.
+          - ccache-max: 3G
           - os: ubuntu-20.04
             compiler: gcc
             ccache-max: 6G
