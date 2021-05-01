@@ -31,12 +31,13 @@ jobs:
             icoutils libarpack2-dev libblas-dev libcurl4-gnutls-dev \
             libfftw3-dev libfltk1.3-dev libfontconfig1-dev libfreetype6-dev \
             libgl1-mesa-dev libgl2ps-dev libglpk-dev libgraphicsmagick++1-dev \
-            libhdf5-dev liblapack-dev libosmesa6-dev libpcre3-dev libqhull-dev \
-            libqscintilla2-qt5-dev libqrupdate-dev libreadline-dev librsvg2-bin \
-            libsndfile1-dev libsuitesparse-dev libsundials-dev libtool \
-            libxft-dev llvm-dev make openjdk-8-jdk perl portaudio19-dev \
-            pstoedit qtbase5-dev qttools5-dev qttools5-dev-tools rsync tar \
-            texinfo texlive-latex-extra xvfb zlib1g-dev           
+            libhdf5-dev liblapack-dev libosmesa6-dev libpcre3-dev \
+            libqhull-dev libqscintilla2-qt5-dev libqrupdate-dev \
+            libreadline-dev librsvg2-bin libsndfile1-dev libsuitesparse-dev \
+            libsundials-dev libtool libxft-dev llvm-dev make openjdk-8-jdk \
+            perl portaudio19-dev pstoedit qtbase5-dev qttools5-dev \
+            qttools5-dev-tools rsync tar texinfo texlive-latex-extra xvfb \
+            zlib1g-dev
       - name: prepare ccache
         # create human readable timestamp
         id: ccache_cache_timestamp
@@ -105,8 +106,9 @@ jobs:
       matrix:
         # For available GitHub-hosted runners, see: https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners
         os: [macos-10.15]
-        # Most (or all) homebrew packages are compiled with clang and link against libc++.
-        # So we also use clang to avoid symbol issues.
+        # Most (or all) homebrew packages are compiled with clang and link
+        # against libc++.  So we also use clang to avoid issues with symbols
+        # that don't match.
         # compiler: [real-gcc, clang]
         compiler: [clang]
         include:
@@ -123,7 +125,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: install dependencies
-        # It looks like "gfortran" isn't working correctly unless it is re-installed as part of "gcc".
+        # It looks like "gfortran" isn't working correctly unless it is
+        # re-installed as part of "gcc".
+
         # See also: https://formulae.brew.sh/formula/octave#default
         # The packages are listed in (alphabetically sorted) blocks:
         # The first block is for "direct" dependencies.
@@ -132,10 +136,10 @@ jobs:
         run: |
           brew update
           brew uninstall gfortran
-          brew install arpack epstool fftw fig2dev fltk fontconfig freetype gcc \
-            ghostscript gl2ps glpk gnuplot graphicsmagick hdf5 libsndfile \
-            libtool openblas pcre portaudio pstoedit qhull qrupdate qscintilla2 \
-            qt@5 readline suite-sparse sundials texinfo \
+          brew install arpack epstool fftw fig2dev fltk fontconfig freetype \
+            gcc ghostscript gl2ps glpk gnuplot graphicsmagick hdf5 libsndfile \
+            libtool openblas pcre portaudio pstoedit qhull qrupdate \
+            qscintilla2 qt@5 readline suite-sparse sundials texinfo \
             ccache gnu-sed openjdk pkg-config \
             automake autoconf bison gettext icoutils librsvg mactex-no-gui
             eval "$(/usr/libexec/path_helper)"
@@ -170,12 +174,13 @@ jobs:
           MY_CXX: ${{ matrix.cxx }}
           MY_CPPFLAGS: ${{ matrix.cppflags }}
           MY_LDFLAGS: ${{ matrix.ldflags }}
-        # This is a hodgepodge of configure flags put together from the buildbot rules:
+        # This is a hodgepodge of configure flags put together from the
+        # buildbot rules:
         # https://hg.octave.org/octave-buildbot/file/tip/master.cfg#l543
         # And the homebrew formula:
         # https://github.com/Homebrew/homebrew-core/blob/HEAD/Formula/octave.rb
         # Amended with additional flags that seem to be needed.
-        # I'm not sure if all of those are needed or correct.
+        # Not all of those might be needed needed or be correct.
         run: |
           export PATH="$MY_PATH:$PATH"
           echo $PATH
@@ -207,7 +212,7 @@ jobs:
       - name: check
         # Continuing on error in this step means that jobs will be "green" even
         # if the test suite crashes.  But if we don't continue, we'll loose the
-        # ccache and other jobs will be cancelled.
+        # ccache and other jobs will be cancelled, too.
         # It would be nice if we could mark the job as "yellow" (and continue)
         # in that case.
         # It would also be nice if we could analyze the test suite results
