@@ -319,7 +319,7 @@ Compute the inverse sine in radians for each element of @var{x}.
 ## Test values on either side of branch cut
 %!test
 %! rval = pi/2;
-%! ival = 1.31695789692481635;
+%! ival = 1.31695789692481671;
 %! obs = asin ([2, 2-i*eps, 2+i*eps]);
 %! exp = [rval - ival*i, rval - ival*i, rval + ival*i];
 %! assert (obs, exp, 2*eps);
