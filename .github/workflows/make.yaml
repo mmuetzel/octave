@@ -11,6 +11,7 @@ jobs:
         # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners
         os: [ubuntu-20.04, ubuntu-18.04]
         compiler: [gcc, clang]
+        ccache-max: [3G]
         include:
           - compiler: gcc
             compiler-pkgs: "g++ gcc"
@@ -20,6 +21,10 @@ jobs:
             compiler-pkgs: "clang"
             cc: "clang"
             cxx: "clang++"
+          # "ccache" on Ubuntu 20.04 with gcc seems to require much more cache storage than on the other runners.
+          - os: ubuntu-20.04
+            compiler: gcc
+            ccache-max: 6G
 
     steps:
       - name: checkout repository
@@ -60,9 +65,11 @@ jobs:
             ccache:${{ matrix.os }}:${{ matrix.compiler }}
 
       - name: configure ccache
+        env:
+          CCACHE_MAX: ${{ matrix.ccache-max }}
         run: |
           test -d /home/runner/.ccache || mkdir /home/runner/.ccache
-          echo "max_size = 3G" >> /home/runner/.ccache/ccache.conf
+          echo "max_size = $CCACHE_MAX" >> /home/runner/.ccache/ccache.conf
           ccache -s
 
       - name: bootstrap
