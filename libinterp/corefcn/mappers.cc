@@ -163,7 +163,7 @@ Compute the inverse hyperbolic cosine for each element of @var{x}.
 %! v = [0, pi/2*i, pi*i, pi/2*i];
 %! assert (acosh (x), v, sqrt (eps));
 
-%!test ; ismac () <52627>
+%!testif ; ismac () <52627>
 %! ## Same test code as above, but intended only for test statistics on Mac.
 %! ## Mac trig/hyperbolic functions have huge tolerances.
 %! x = [1, 0, -1, 0];
