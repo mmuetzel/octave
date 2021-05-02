@@ -666,11 +666,14 @@ AC_ARG_ENABLE([link-all-dependencies],
   [case $enableval in
      yes) link_all_deps=yes ;;
      no)  link_all_deps=no ;;
-     *) AC_MSG_ERROR([bad value $enableval for --enable-link-all-depenencies])
+     *) AC_MSG_ERROR([bad value $enableval for --enable-link-all-dependencies])
      ;;
    esac],
   [link_all_deps=no])
 AM_CONDITIONAL([AMCOND_LINK_ALL_DEPS], [test $link_all_deps = yes])
+if test $AMCOND_LINK_ALL_DEPS = yes; then
+  AC_DEFINE(OCTAVE_LINK_ALL_DEPS, 1, [Link with all dependencies.])
+fi
 
 ### Check for BLAS and LAPACK libraries:
 
