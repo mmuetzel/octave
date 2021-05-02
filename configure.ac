@@ -671,9 +671,6 @@ AC_ARG_ENABLE([link-all-dependencies],
    esac],
   [link_all_deps=no])
 AM_CONDITIONAL([AMCOND_LINK_ALL_DEPS], [test $link_all_deps = yes])
-if test $AMCOND_LINK_ALL_DEPS = yes; then
-  AC_DEFINE(OCTAVE_LINK_ALL_DEPS, 1, [Link with all dependencies.])
-fi
 
 ### Check for BLAS and LAPACK libraries:
 
@@ -2926,7 +2923,9 @@ OCT_GUI_LINK_DEPS=""
 OCT_LINK_OPTS="$LDFLAGS"
 OCT_GUI_LINK_OPTS="$LDFLAGS"
 
-if test $link_all_deps = yes; then
+if test $AMCOND_LINK_ALL_DEPS = yes; then
+  AC_DEFINE(OCTAVE_LINK_ALL_DEPS, 1, [Link with all dependencies.])
+
   OCT_LINK_DEPS="libinterp/liboctinterp.la liboctave/liboctave.la"
   OCT_GUI_LINK_DEPS="libgui/liboctgui.la libinterp/liboctinterp.la liboctave/liboctave.la"
 
