@@ -95,6 +95,9 @@ jobs:
             CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" \
             LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial"
 
+      - name: display config.log
+        run: cat ./.build/config.log
+
       - name: build
         env:
           XDG_RUNTIME_DIR: "/home/runner/tmp"
@@ -236,6 +239,9 @@ jobs:
             --with-blas="-L/usr/local/opt/openblas/lib -lopenblas" \
             --with-java-homedir="/usr/local/opt/openjdk" \
             --prefix="${HOME}/usr"
+
+      - name: display config.log
+        run: cat ./.build/config.log
 
       - name: build
         run: |
