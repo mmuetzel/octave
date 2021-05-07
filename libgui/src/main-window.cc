@@ -95,26 +95,14 @@
 
 namespace octave
 {
-  static file_editor_interface *
-  create_default_editor (QWidget *p, base_qobject& oct_qobj)
-  {
-#if defined (HAVE_QSCINTILLA)
-    return new file_editor (p, oct_qobj);
-#else
-    octave_unused_parameter (p);
-    octave_unused_parameter (oct_qobj);
-
-    return 0;
-#endif
-  }
-
   main_window::main_window (base_qobject& oct_qobj)
     : QMainWindow (), m_octave_qobj (oct_qobj),
-      m_workspace_model (nullptr),
-      m_status_bar (nullptr), m_command_window (nullptr),
-      m_history_window (nullptr), m_file_browser_window (nullptr),
-      m_doc_browser_window (nullptr), m_editor_window (nullptr),
-      m_workspace_window (nullptr), m_variable_editor_window (nullptr),
+      m_status_bar (nullptr),
+      m_command_window (nullptr),
+      m_history_window (nullptr),
+      m_file_browser_window (nullptr),
+      m_editor_window (nullptr),
+      m_workspace_window (nullptr),
       m_external_editor (new external_editor_interface (this, m_octave_qobj)),
       m_active_editor (m_external_editor), m_settings_dlg (nullptr),
       m_find_files_dlg (nullptr), m_set_path_dlg (nullptr),
@@ -167,8 +155,6 @@ namespace octave
     shortcut_manager& scmgr = m_octave_qobj.get_shortcut_manager ();
     scmgr.init_data ();
 
-    m_workspace_model = m_octave_qobj.get_workspace_model ();
-
     construct_central_widget ();
 
     m_status_bar = new QStatusBar (this);
@@ -178,12 +164,93 @@ namespace octave
     m_status_bar->addPermanentWidget (m_profiler_status_indicator);
 
     m_command_window = new terminal_dock_widget (this, m_octave_qobj);
-    m_history_window = new history_dock_widget (this, m_octave_qobj);
-    m_file_browser_window = new files_dock_widget (this, m_octave_qobj);
-    m_doc_browser_window = new documentation_dock_widget (this, m_octave_qobj);
-    m_editor_window = create_default_editor (this, m_octave_qobj);
-    m_variable_editor_window = new variable_editor (this, m_octave_qobj);
-    m_workspace_window = new workspace_view (this, m_octave_qobj);
+
+    make_dock_widget_connections (m_command_window);
+
+    connect (this, &main_window::settings_changed,
+             m_command_window, &terminal_dock_widget::notice_settings);
+
+    m_doc_browser_window = m_octave_qobj.documentation_widget (this);
+
+    make_dock_widget_connections (m_doc_browser_window);
+
+    m_file_browser_window = m_octave_qobj.file_browser_widget (this);
+
+    make_dock_widget_connections (m_file_browser_window);
+
+    connect (m_file_browser_window, &files_dock_widget::open_file,
+             this, QOverload<const QString&>::of (&main_window::open_file_signal));
+    connect (m_file_browser_window,
+             &files_dock_widget::displayed_directory_changed,
+             this, &main_window::set_current_working_directory);
+    connect (m_file_browser_window, &files_dock_widget::modify_path_signal,
+             this, &main_window::modify_path);
+    connect (m_file_browser_window, &files_dock_widget::run_file_signal,
+             this, &main_window::run_file_in_terminal);
+
+    m_history_window = m_octave_qobj.history_widget (this);
+
+    make_dock_widget_connections (m_history_window);
+
+    connect (m_history_window, &history_dock_widget::command_create_script,
+             this, &main_window::new_file_signal);
+
+    connect (m_history_window, &history_dock_widget::information,
+             this, &main_window::report_status_message);
+
+    connect (m_history_window, &history_dock_widget::command_double_clicked,
+             this, &main_window::execute_command_in_terminal);
+
+    m_workspace_window = m_octave_qobj.workspace_widget (this);
+
+    make_dock_widget_connections (m_workspace_window);
+
+    connect (m_workspace_window, &workspace_view::command_requested,
+             this, &main_window::execute_command_in_terminal);
+
+    connect (m_workspace_window, &workspace_view::edit_variable_signal,
+             this, &main_window::edit_variable);
+
+#if defined (HAVE_QSCINTILLA)
+    file_editor *editor = new file_editor (this, m_octave_qobj);
+
+    make_dock_widget_connections (editor);
+
+    connect (editor, &file_editor::request_settings_dialog,
+             this, QOverload<const QString&>::of (&main_window::process_settings_dialog_request));
+
+    connect (editor, &file_editor::request_dbcont_signal,
+             this, &main_window::debug_continue);
+
+    connect (this, &main_window::update_gui_lexer_signal,
+             editor, &file_editor::update_gui_lexer_signal);
+
+    connect (editor, &file_editor::execute_command_in_terminal_signal,
+             this, &main_window::execute_command_in_terminal);
+
+    connect (editor, &file_editor::focus_console_after_command_signal,
+             this, &main_window::focus_console_after_command);
+
+    connect (editor, &file_editor::run_file_signal,
+             this, &main_window::run_file_in_terminal);
+
+    connect (editor, &file_editor::edit_mfile_request,
+             this, &main_window::handle_edit_mfile_request);
+
+    connect (editor, &file_editor::debug_quit_signal,
+             this, &main_window::debug_quit);
+
+    m_editor_window = editor;
+#else
+    m_editor_window = nullptr;
+#endif
+
+    m_variable_editor_window = m_octave_qobj.variable_editor_widget (this);
+
+    make_dock_widget_connections (m_variable_editor_window);
+
+    connect (m_variable_editor_window, &variable_editor::command_signal,
+             this, &main_window::execute_command_in_terminal);
 
     m_previous_dock = m_command_window;
 
@@ -252,6 +319,43 @@ namespace octave
 #endif
 
     focus_command_window ();
+  }
+
+  main_window::~main_window (void)
+  {
+    // Prevent floating dock widgets from being deleted.
+
+    if (m_history_window->isFloating ())
+      m_history_window.clear ();
+
+    if (m_file_browser_window->isFloating ())
+      m_file_browser_window.clear ();
+
+    if (m_doc_browser_window->isFloating ())
+      m_doc_browser_window.clear ();
+
+#if 0
+    if (m_editor_window->isFloating ())
+      m_editor_window.clear ();
+#endif
+
+    if (m_workspace_window->isFloating ())
+      m_workspace_window.clear ();
+
+    if (m_variable_editor_window->isFloating ())
+      m_variable_editor_window.clear ();
+  }
+
+  void main_window::make_dock_widget_connections (octave_dock_widget *dw)
+  {
+    connect (this, &main_window::init_window_menu,
+             dw, &octave_dock_widget::init_window_menu_entry);
+
+    connect (this, &main_window::settings_changed,
+             dw, &octave_dock_widget::handle_settings);
+
+    connect (this, &main_window::active_dock_changed,
+             dw, &octave_dock_widget::handle_active_dock_changed);
   }
 
   bool main_window::command_window_has_focus (void) const
@@ -1639,22 +1743,6 @@ namespace octave
       emit selectAll_signal ();
   }
 
-  void main_window::handle_show_doc (const QString& file)
-  {
-    m_doc_browser_window->setVisible (true);
-    emit show_doc_signal (file);
-  }
-
-  void main_window::handle_register_doc (const QString& file)
-  {
-    emit register_doc_signal (file);
-  }
-
-  void main_window::handle_unregister_doc (const QString& file)
-  {
-    emit unregister_doc_signal (file);
-  }
-
   void main_window::handle_gui_status_update (const QString& feature,
                                               const QString& status)
   {
@@ -1879,7 +1967,6 @@ namespace octave
         m_variable_editor_window->show ();
         m_variable_editor_window->raise ();
       }
-
   }
 
   void main_window::refresh_variable_editor (void)
@@ -2010,11 +2097,6 @@ namespace octave
   void main_window::construct (void)
   {
     setWindowIcon (QIcon (":/actions/icons/logo.png"));
-
-    m_workspace_window->setModel (m_workspace_model);
-
-    connect (m_workspace_model, &workspace_model::model_changed,
-             m_workspace_window, &workspace_view::handle_model_changed);
 
     interpreter_qobject *interp_qobj = m_octave_qobj.interpreter_qobj ();
 
@@ -2181,12 +2263,6 @@ namespace octave
                  m_command_window, &terminal_dock_widget::update_prompt);
       }
 
-    connect (qt_link, &qt_interpreter_events::set_workspace_signal,
-             m_workspace_model, &workspace_model::set_workspace);
-
-    connect (qt_link, &qt_interpreter_events::clear_workspace_signal,
-             m_workspace_model, &workspace_model::clear_workspace);
-
     connect (qt_link, &qt_interpreter_events::directory_changed_signal,
              this, &main_window::update_octave_directory);
 
@@ -2198,15 +2274,6 @@ namespace octave
 
     connect (qt_link, &qt_interpreter_events::execute_command_in_terminal_signal,
              this, &main_window::execute_command_in_terminal);
-
-    connect (qt_link, &qt_interpreter_events::set_history_signal,
-             m_history_window, &history_dock_widget::set_history);
-
-    connect (qt_link, &qt_interpreter_events::append_history_signal,
-             m_history_window, &history_dock_widget::append_history);
-
-    connect (qt_link, &qt_interpreter_events::clear_history_signal,
-             m_history_window, &history_dock_widget::clear_history);
 
     connect (qt_link, &qt_interpreter_events::enter_debugger_signal,
              this, &main_window::handle_enter_debugger);
@@ -2230,15 +2297,6 @@ namespace octave
 
     connect (qt_link, &qt_interpreter_events::update_breakpoint_marker_signal,
              this, &main_window::handle_update_breakpoint_marker_request);
-
-    connect (qt_link, &qt_interpreter_events::show_doc_signal,
-             this, &main_window::handle_show_doc);
-
-    connect (qt_link, &qt_interpreter_events::register_doc_signal,
-             this, &main_window::handle_register_doc);
-
-    connect (qt_link, &qt_interpreter_events::unregister_doc_signal,
-             this, &main_window::handle_unregister_doc);
 
     connect (qt_link, &qt_interpreter_events::gui_status_update_signal,
              this, &main_window::handle_gui_status_update);

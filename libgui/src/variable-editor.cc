@@ -101,8 +101,6 @@ namespace octave
              this, &variable_dock_widget::change_existence);
     connect (this, &variable_dock_widget::topLevelChanged,
              this, &variable_dock_widget::toplevel_change);
-    connect (p, SIGNAL (visibilityChanged (bool)),
-             this, SLOT (setVisible (bool)));
 
 #define DOCKED_FULLSCREEN_BUTTON_TOOLTIP "Fullscreen undock"
 #define UNDOCKED_FULLSCREEN_BUTTON_TOOLTIP "Fullscreen"
@@ -1149,9 +1147,6 @@ namespace octave
     m_main->setCentralWidget (central_mdiarea);
 
     setWidget (m_main);
-
-    connect (this, SIGNAL (command_signal (const QString&)),
-             p, SLOT (execute_command_in_terminal (const QString&)));
   }
 
   void variable_editor::focusInEvent (QFocusEvent *ev)
@@ -1186,6 +1181,18 @@ namespace octave
               setFocus();
           }
       }
+  }
+
+  variable_editor::~variable_editor (void)
+  {
+    // FIXME: Maybe toolbar actions could be handled with signals and
+    // slots so that deleting the toolbar here would disconnect all
+    // toolbar actions and any other slots that might try to access the
+    // toolbar would work properly (I'm looking at you,
+    // handle_focus_change).
+
+    delete m_tool_bar;
+    m_tool_bar = nullptr;
   }
 
   void
@@ -1228,13 +1235,21 @@ namespace octave
     page->setObjectName (name);
     m_main->addDockWidget (Qt::LeftDockWidgetArea, page);
 
-    connect (qApp, &QApplication::focusChanged,
-             page, &variable_dock_widget::handle_focus_change);
+    // The old-style signal/slot connection appears to be needed here to
+    // prevent a crash when closing a variable_dock_widget object.
+    connect (qApp, SIGNAL (focusChanged (QWidget*, QWidget*)),
+             page, SLOT (handle_focus_change (QWidget*, QWidget*)));
+
+    connect (this, &variable_editor::visibilityChanged,
+             page, &variable_dock_widget::setVisible);
+
+    // Notify the variable editor for page actions.
     connect (page, &variable_dock_widget::destroyed,
              this, &variable_editor::variable_destroyed);
     connect (page, &variable_dock_widget::variable_focused_signal,
              this, &variable_editor::variable_focused);
-// See  Octave bug #53807 and https://bugreports.qt.io/browse/QTBUG-44813
+
+    // See  Octave bug #53807 and https://bugreports.qt.io/browse/QTBUG-44813
 #if (QT_VERSION >= 0x050302) && (QT_VERSION <= QTBUG_44813_FIX_VERSION)
     connect (page, SIGNAL (queue_unfloat_float ()),
              page, SLOT (unfloat_float ()), Qt::QueuedConnection);
@@ -1344,11 +1359,16 @@ namespace octave
 
     model->update_data (val);
 
-    QList<QTableView *> viewlist = findChildren<QTableView *> ();
-    if (viewlist.size () == 1)
-      m_tool_bar->setEnabled (true);
+    if (m_tool_bar)
+      {
+        QList<QTableView *> viewlist = findChildren<QTableView *> ();
+        if (viewlist.size () == 1 && m_tool_bar)
+          m_tool_bar->setEnabled (true);
+      }
 
-    m_main->parentWidget ()->show ();
+    make_window ();
+
+    show ();
     page->show ();
     page->raise ();
     page->activateWindow ();
@@ -1359,18 +1379,25 @@ namespace octave
   void
   variable_editor::tab_to_front (void)
   {
-    if (parent () != nullptr)
+    QWidget *parent = parentWidget ();
+
+    if (parent)
       {
-        QList<QTabBar *> barlist = main_win ()->findChildren<QTabBar *> ();
+        QList<QTabBar *> barlist = parent->findChildren<QTabBar *> ();
+
         QVariant this_value (reinterpret_cast<quintptr> (this));
 
         for (auto *tbar : barlist)
-          for (int i = 0; i < tbar->count (); i++)
-            if (tbar->tabData (i) == this_value)
+          {
+            for (int i = 0; i < tbar->count (); i++)
               {
-                tbar->setCurrentIndex (i);
-                return;
+                if (tbar->tabData (i) == this_value)
+                  {
+                    tbar->setCurrentIndex (i);
+                    return;
+                  }
               }
+          }
       }
   }
 
@@ -1432,12 +1459,15 @@ namespace octave
 
     // Icon size in the toolbar.
 
-    int size_idx = settings->value (global_icon_size).toInt ();
-    size_idx = (size_idx > 0) - (size_idx < 0) + 1;  // Make valid index from 0 to 2
+    if (m_tool_bar)
+      {
+        int size_idx = settings->value (global_icon_size).toInt ();
+        size_idx = (size_idx > 0) - (size_idx < 0) + 1;  // Make valid index from 0 to 2
 
-    QStyle *st = style ();
-    int icon_size = st->pixelMetric (global_icon_sizes[size_idx]);
-    m_tool_bar->setIconSize (QSize (icon_size, icon_size));
+        QStyle *st = style ();
+        int icon_size = st->pixelMetric (global_icon_sizes[size_idx]);
+        m_tool_bar->setIconSize (QSize (icon_size, icon_size));
+      }
 
     // Shortcuts (same as file editor)
     shortcut_manager& scmgr = m_octave_qobj.get_shortcut_manager ();
@@ -1462,10 +1492,13 @@ namespace octave
         m_focus_widget_vdw = nullptr;
       }
 
-    // If no variable pages remain, deactivate the tool bar.
-    QList<variable_dock_widget *> vdwlist = findChildren<variable_dock_widget *> ();
-    if (vdwlist.isEmpty ())
-      m_tool_bar->setEnabled (false);
+    if (m_tool_bar)
+      {
+        // If no variable pages remain, deactivate the tool bar.
+        QList<variable_dock_widget *> vdwlist = findChildren<variable_dock_widget *> ();
+        if (vdwlist.isEmpty ())
+          m_tool_bar->setEnabled (false);
+      }
 
     QFocusEvent ev (QEvent::FocusIn);
     focusInEvent (&ev);

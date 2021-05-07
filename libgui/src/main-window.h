@@ -60,7 +60,6 @@
 #include "set-path-dialog.h"
 #include "terminal-dock-widget.h"
 #include "variable-editor.h"
-#include "workspace-model.h"
 #include "workspace-view.h"
 
 class octave_value;
@@ -84,7 +83,9 @@ namespace octave
 
     main_window (base_qobject& oct_qobj);
 
-    ~main_window (void) = default;
+    ~main_window (void);
+
+    void make_dock_widget_connections (octave_dock_widget *dw);
 
     bool command_window_has_focus (void) const;
 
@@ -109,9 +110,6 @@ namespace octave
     void open_file_signal (const QString& file, const QString& enc, int line);
     void step_into_file_signal (void);
 
-    void show_doc_signal (const QString&);
-    void register_doc_signal (const QString&);
-    void unregister_doc_signal (const QString&);
     void update_gui_lexer_signal (bool);
 
     void insert_debugger_pointer_signal (const QString& file, int line);
@@ -213,9 +211,6 @@ namespace octave
     void handle_gui_status_update (const QString& feature, const QString& status);
 
     void focus_console_after_command (void);
-    void handle_show_doc (const QString& file);
-    void handle_register_doc (const QString& file);
-    void handle_unregister_doc (const QString& file);
 
     void profiler_session (void);
     void profiler_session_resume (void);
@@ -312,8 +307,6 @@ namespace octave
 
     base_qobject& m_octave_qobj;
 
-    workspace_model *m_workspace_model;
-
     QHash<QMenu*, QStringList> m_hash_menu_text;
 
     QString m_default_encoding;
@@ -327,13 +320,14 @@ namespace octave
 
     //! Dock widgets.
     //!@{
-    terminal_dock_widget *m_command_window;
-    history_dock_widget *m_history_window;
-    files_dock_widget *m_file_browser_window;
-    documentation_dock_widget *m_doc_browser_window;
-    file_editor_interface *m_editor_window;
-    workspace_view *m_workspace_window;
-    variable_editor *m_variable_editor_window;
+    QPointer<terminal_dock_widget> m_command_window;
+
+    QPointer<history_dock_widget> m_history_window;
+    QPointer<files_dock_widget> m_file_browser_window;
+    QPointer<documentation_dock_widget> m_doc_browser_window;
+    QPointer<file_editor_interface> m_editor_window;
+    QPointer<workspace_view> m_workspace_window;
+    QPointer<variable_editor> m_variable_editor_window;
     //!@}
 
     external_editor_interface *m_external_editor;

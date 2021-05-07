@@ -106,18 +106,6 @@ namespace octave
 
     setWidget (container);
 
-    connect (this, SIGNAL (open_file (const QString&)),
-             main_win (), SIGNAL (open_file_signal (const QString&)));
-
-    connect (this, SIGNAL (displayed_directory_changed (const QString&)),
-             main_win (),
-             SLOT (set_current_working_directory (const QString&)));
-
-    connect (this,
-             SIGNAL (modify_path_signal (const octave_value_list&, bool, bool)),
-             main_win (),
-             SLOT (modify_path (const octave_value_list&, bool, bool)));
-
     // Create a toolbar
     m_navigation_tool_bar = new QToolBar ("", container);
     m_navigation_tool_bar->setAllowedAreas (Qt::TopToolBarArea);
@@ -303,9 +291,6 @@ namespace octave
     connect (m_current_directory, SIGNAL (activated (const QString &)),
              this, SLOT (set_current_directory (const QString &)));
 
-    connect (this, SIGNAL (run_file_signal (const QFileInfo&)),
-             main_win (), SLOT (run_file_in_terminal (const QFileInfo&)));
-
     QCompleter *completer = new QCompleter (m_file_system_model, this);
     m_current_directory->setCompleter (completer);
 
@@ -313,6 +298,9 @@ namespace octave
 
     m_sync_octave_dir = true;   // default, overwritten with notice_settings ()
     m_octave_dir = "";
+
+    if (! p)
+      make_window ();
   }
 
   void files_dock_widget::save_settings (void)

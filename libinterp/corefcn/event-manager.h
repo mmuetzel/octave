@@ -148,7 +148,16 @@ namespace octave
 
     virtual void apply_preferences (void) { }
 
-    virtual void show_doc (const std::string& /*file*/) { }
+    virtual bool show_documentation (const std::string& /*file*/)
+    {
+      return false;
+    }
+
+    virtual void show_file_browser (void) { }
+
+    virtual void show_command_history (void) { }
+
+    virtual void show_workspace (void) { }
 
     virtual bool edit_file (const std::string& /*file*/) { return false; }
 
@@ -204,9 +213,9 @@ namespace octave
     virtual void
     execute_command_in_terminal (const std::string& /*command*/) { }
 
-    virtual void register_doc (const std::string& /*file*/) { }
+    virtual void register_documentation (const std::string& /*file*/) { }
 
-    virtual void unregister_doc (const std::string& /*file*/) { }
+    virtual void unregister_documentation (const std::string& /*file*/) { }
 
     virtual void interpreter_output (const std::string& /*msg*/) { }
 
@@ -307,6 +316,19 @@ namespace octave
     {
       return link_enabled;
     }
+
+    // Make the Qt actions available for others.  This is a temporary
+    // solution to allow Qt actions like opening the documentation
+    // browser when the primary interpreter_events object is not the one
+    // defined for the Qt GUI.
+    void
+    install_qt_event_handlers (const std::shared_ptr<interpreter_events>& obj)
+    {
+      m_qt_event_handlers = obj;
+    }
+
+    std::shared_ptr<interpreter_events>
+    qt_event_handlers (void) const { return m_qt_event_handlers; }
 
     // If disable is TRUE, then no additional events will be processed
     // other than exit.
@@ -432,15 +454,27 @@ namespace octave
         return false;
     }
 
-    bool show_doc (const std::string& file)
+    bool show_documentation (const std::string& file)
+    {
+      return enabled () ? instance->show_documentation (file) : false;
+    }
+
+    void show_file_browser (void)
     {
       if (enabled ())
-        {
-          instance->show_doc (file);
-          return true;
-        }
-      else
-        return false;
+        instance->show_file_browser ();
+    }
+
+    void show_command_history (void)
+    {
+      if (enabled ())
+        instance->show_command_history ();
+    }
+
+    void show_workspace (void)
+    {
+      if (enabled ())
+        instance->show_workspace ();
     }
 
     bool edit_file (const std::string& file)
@@ -512,22 +546,22 @@ namespace octave
         instance->execute_command_in_terminal (command);
     }
 
-    bool register_doc (const std::string& file)
+    bool register_documentation (const std::string& file)
     {
       if (enabled ())
         {
-          instance->register_doc (file);
+          instance->register_documentation (file);
           return true;
         }
       else
         return false;
     }
 
-    bool unregister_doc (const std::string& file)
+    bool unregister_documentation (const std::string& file)
     {
       if (enabled ())
         {
-          instance->unregister_doc (file);
+          instance->unregister_documentation (file);
           return true;
         }
       else
@@ -697,6 +731,8 @@ namespace octave
     // will be valid until it is no longer needed.
 
     std::shared_ptr<interpreter_events> instance;
+
+    std::shared_ptr<interpreter_events> m_qt_event_handlers;
 
   protected:
 

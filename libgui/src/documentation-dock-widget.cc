@@ -44,14 +44,8 @@ namespace octave
 
     setWidget (m_docs);
 
-    connect (p, SIGNAL (show_doc_signal (const QString&)),
-             this, SLOT (showDoc (const QString&)));
-
-    connect (p, SIGNAL (register_doc_signal (const QString&)),
-             this, SLOT (registerDoc (const QString&)));
-
-    connect (p, SIGNAL (unregister_doc_signal (const QString&)),
-             this, SLOT (unregisterDoc (const QString&)));
+    if (! p)
+      make_window ();
   }
 
   void documentation_dock_widget::notice_settings (const gui_settings *settings)
