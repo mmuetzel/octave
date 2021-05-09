@@ -39,6 +39,7 @@
 %!   tmp_dir = tempname ();
 %!   mkdir (tmp_dir);
 %!   a_dir = fullfile (tmp_dir, "a");
+%!   disp (a_dir);
 %!   a_private_dir = fullfile (a_dir, "private");
 %!   mkdir (a_dir);
 %!   mkdir (a_private_dir);
@@ -66,6 +67,7 @@
 %!                        "endfunction");
 %!
 %!   ## Force new functions to be found.
+%!   pause (1);  # Does the pause make a difference?
 %!   rehash ();
 %!
 %!   assert (main_40117 (), "new function!");
