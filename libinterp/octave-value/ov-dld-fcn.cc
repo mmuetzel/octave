@@ -52,7 +52,7 @@ octave_dld_function::octave_dld_function
 
   std::string file_name = fcn_file_name ();
 
-  static const std::string oct_file_dir
+  const std::string oct_file_dir
     = octave::sys::canonicalize_file_name (octave::config::oct_file_dir ());
 
   system_fcn_file
@@ -69,7 +69,7 @@ octave_dld_function::octave_dld_function
 
   std::string file_name = fcn_file_name ();
 
-  static const std::string oct_file_dir
+  const std::string oct_file_dir
     = octave::sys::canonicalize_file_name (octave::config::oct_file_dir ());
 
   system_fcn_file
