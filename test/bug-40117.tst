@@ -36,10 +36,13 @@
 
 %!test <*40117>
 %! unwind_protect
+%!   fprintf('\nfcnfiledir: "%s"\n', __octave_config_info__ ("fcnfiledir"));
+%!   fprintf('fcnfiledir (canonicalized): "%s"\n', canonicalize_file_name (__octave_config_info__ ("fcnfiledir")));
 %!   tmp_dir = tempname ();
 %!   mkdir (tmp_dir);
 %!   a_dir = fullfile (tmp_dir, "a");
-%!   disp (a_dir);
+%!   fprintf('\na_dir: "%s"\n', a_dir);
+%!   fprintf('a_dir (canonicalized): "%s"\n', canonicalize_file_name (a_dir));
 %!   a_private_dir = fullfile (a_dir, "private");
 %!   mkdir (a_dir);
 %!   mkdir (a_private_dir);
