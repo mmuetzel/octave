@@ -13,18 +13,12 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        shell: msys2 {0}
+        shell: bash
 
     strategy:
       fail-fast: false
 
     steps:
-      - uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          update: true
-          install: git mingw-w64-x86_64-toolchain
-
       - name: download build
         id: download
         shell: bash
