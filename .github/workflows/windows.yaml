@@ -23,7 +23,7 @@ jobs:
         with:
           msystem: MINGW64
           update: true
-          install: git mingw-w64-x86_64-toolchain
+          # install: git mingw-w64-x86_64-toolchain
 
       - name: download build
         id: download
@@ -44,12 +44,12 @@ jobs:
         env:
           FILE7Z: ${{ steps.download.outputs.file7z }}
         run: |
-          cd $(echo ${file7z} | grep -o -P "octave-[0-9\-]*")w64
+          cd $(echo ${FILE7Z} | grep -o -P "octave-[0-9\-]*")w64
           ./post-install.bat
 
       - name: run test suite
         env:
           FILE7Z: ${{ steps.download.outputs.file7z }}
         run: |
-          cd $(echo ${file7z} | grep -o -P "octave-[0-9\-]*")w64
+          cd $(echo ${FILE7Z} | grep -o -P "octave-[0-9\-]*")w64
           ./mingw64/bin/octave.bat --no-init-file --silent --no-history --eval __run_test_suite__
