@@ -1,0 +1,45 @@
+name: "windows"
+
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    # Run job every Monday and Thursday at 16:30 UTC
+    - cron: '30 16 * * 1,4'
+
+jobs:
+  analyze:
+    name: Windows test suite
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: download build
+        id: download
+        run: |
+          BUILDID=$(curl -s "https://buildbot.octave.space/api/v2/builders/octave/builds?state_string__eq=build%20successful&order=-started_at&limit=1" | grep "buildid" | grep -o "[0-9]*")
+          HGID=$(curl -s https://buildbot.octave.space/api/v2/builds/${BUILDID}/properties | grep -A1 "OCTAVE_HG_ID" | grep -o "[0-9a-f]*")
+          wget --no-check-certificate -O index.html "https://www.octave.space/data/stable/${HGID}/"
+          grep -r "\-default-w64.7z" index.html | grep -o -P "octave-[0-9\-]*-default-w64.7z"
+          FILE7Z=$(grep -r "\-default-w64.7z" index.html | grep -o -P -m 1 "octave-[0-9\-]*-default-w64.7z" | head -n1 -)
+          wget --no-check-certificate -O octave-default-w64.7z "https://www.octave.space/data/stable/${HGID}/${FILE7Z}"
+          echo "::set-output name=FILE7Z::${FILE7Z}"
+
+      - name: unpack
+        run: "C:\Program Files\7-Zip\7z.exe" x -y octave-default-w64.7z
+
+      - name: prepare
+        env:
+          FILE7Z: ${{ steps.download.outputs.file7z }}
+        run: |
+          cd $(echo ${file7z} | grep -o -P "octave-[0-9\-]*")w64
+          ./post-install.bat
+
+      - name: run test suite
+        env:
+          FILE7Z: ${{ steps.download.outputs.file7z }}
+        run: |
+          cd $(echo ${file7z} | grep -o -P "octave-[0-9\-]*")w64
+          ./mingw64/bin/octave.bat --no-init-file --silent --no-history --eval __run_test_suite__
