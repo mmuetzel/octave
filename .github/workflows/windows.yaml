@@ -28,7 +28,7 @@ jobs:
           echo "::set-output name=FILE7Z::${FILE7Z}"
 
       - name: unpack
-        run: "C:\Program Files\7-Zip\7z.exe" x -y octave-default-w64.7z
+        run: 7z.exe x -y octave-default-w64.7z
 
       - name: prepare
         env:
