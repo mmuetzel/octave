@@ -11,13 +11,23 @@ jobs:
   analyze:
     name: Windows test suite
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
 
     strategy:
       fail-fast: false
 
     steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: git mingw-w64-x86_64-toolchain
+
       - name: download build
         id: download
+        shell: bash
         run: |
           BUILDID=$(curl -s "https://buildbot.octave.space/api/v2/builders/octave/builds?state_string__eq=build%20successful&order=-started_at&limit=1" | grep "buildid" | grep -o "[0-9]*")
           HGID=$(curl -s https://buildbot.octave.space/api/v2/builds/${BUILDID}/properties | grep -A1 "OCTAVE_HG_ID" | grep -o "[0-9a-f]*")
@@ -33,6 +43,7 @@ jobs:
       - name: prepare
         env:
           FILE7Z: ${{ steps.download.outputs.file7z }}
+        shell: bash
         run: |
           cd $(echo ${file7z} | grep -o -P "octave-[0-9\-]*")w64
           ./post-install.bat
@@ -40,6 +51,7 @@ jobs:
       - name: run test suite
         env:
           FILE7Z: ${{ steps.download.outputs.file7z }}
+        shell: bash
         run: |
           cd $(echo ${file7z} | grep -o -P "octave-[0-9\-]*")w64
           ./mingw64/bin/octave.bat --no-init-file --silent --no-history --eval __run_test_suite__
