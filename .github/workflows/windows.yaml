@@ -53,3 +53,10 @@ jobs:
         run: |
           cd $(echo ${FILE7Z} | grep -o -P "octave-[0-9\-]*")w64
           ./mingw64/bin/octave.bat --no-init-file --silent --no-history --eval __run_test_suite__
+
+      - name: display log
+        env:
+          FILE7Z: ${{ steps.download.outputs.file7z }}
+        run: |
+          cd $(echo ${FILE7Z} | grep -o -P "octave-[0-9\-]*")w64
+          cat ./fntests.log
