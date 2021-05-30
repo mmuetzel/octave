@@ -325,10 +325,18 @@ jobs:
             texinfo
 
       - name: set global configuration
+        env:
+          MY_CC: ${{ matrix.cc }}
+          MY_CXX: ${{ matrix.cxx }}
+          MY_F77: ${{ matrix.f77 }}
+        # perl uses cmd shell by default
         run: |
           git config --global core.autocrlf false
           # git config --global core.eol lf
           echo "PERL5SHELL=bash -l -c" >> $GITHUB_ENV
+          echo "CC=$MY_CC" >> $GITHUB_ENV
+          echo "CXX=$MY_CXX" >> $GITHUB_ENV
+          echo "F77=$MY_F77" >> $GITHUB_ENV
 
       - name: checkout repository
         uses: actions/checkout@v2
@@ -373,8 +381,10 @@ jobs:
           echo "max_size = 5G" >> /home/runneradmin/.config/ccache/ccache.conf
           ccache -s
           test -d /usr/lib/ccache/bin ||  mkdir -p /usr/lib/ccache/bin
-          for compiler in c++ cc cpp gcc g++ gfortran {i686,x86_64}-{pc-msys,w64-mingw32}-{g++,c++,gcc,gfortran}; do
-            MSYS='winsymlinks:lnk' ln -sf /mingw64/bin/ccache /usr/lib/ccache/bin/${compiler}
+          cd /usr/lib/ccache/bin
+          scripts=($CC $CXX $F77)
+          for fn in ${scripts[*]}; do
+            echo -e '#!/bin/bash\n\nccache /mingw64/bin/'$fn' "$@"' > $fn
           done
           echo "/usr/lib/ccache/bin" >> $GITHUB_PATH
 
@@ -383,23 +393,16 @@ jobs:
           ./bootstrap
 
       - name: configure
-        env:
-          MY_CC: ${{ matrix.cc }}
-          MY_CXX: ${{ matrix.cxx }}
-          MY_F77: ${{ matrix.f77 }}
         # FIXME: How do we get a working TeX environment in msys2? Disable building the documentation for now.
         run: |
-          echo $MY_CC --version
-          $MY_CC --version
-          echo $MY_CXX --version
-          $MY_CXX --version
-          echo $MY_F77 --version
-          $MY_F77 --version
+          echo $CC --version
+          $CC --version
+          echo $CXX --version
+          $CXX --version
+          echo $F77 --version
+          $F77 --version
           mkdir .build
           cd .build && ../configure \
-            CC="$MY_CC" \
-            CXX="$MY_CXX" \
-            F77="$MY_F77" \
             PORTAUDIO_LDFLAGS="-L/mingw64/lib -L/usr/lib" \
             --disable-docs \
             ac_cv_search_tputs=-ltermcap \
@@ -407,9 +410,8 @@ jobs:
 
       - name: build
         # msys2's "fltk-config" returns wrong LDFLAGS
-        # perl uses cmd shell by default
         run: |
-          make -C ./.build all V=1 \
+          make -C ./.build all -j1 V=1 \
             FLTK_LIBS="-lfltk_gl -lopengl32 -lglu32 -lfltk -lpthread"
 
       - name: ccache status
