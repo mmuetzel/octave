@@ -366,9 +366,11 @@ jobs:
           echo "max_size = 5G" >> /home/runneradmin/.config/ccache/ccache.conf
           ccache -s
           test -d /usr/lib/ccache/bin ||  mkdir -p /usr/lib/ccache/bin
+          sleep 1
           cd /usr/lib/ccache/bin
           scripts=($CC $CXX $F77)
           for fn in ${scripts[*]}; do
+            sleep 1
             echo -e '#!/bin/bash\n\nccache /mingw64/bin/'$fn' "$@"' > $fn
           done
           echo "/usr/lib/ccache/bin" >> $GITHUB_PATH
@@ -413,7 +415,9 @@ jobs:
       - name: install
         # Install Octave prior to running the test suite for "mkoctfile" to
         # work correctly.
-        run: make -C ./.build install V=1
+        run: |
+          make -C ./.build install V=1
+          ln -sf /mingw64/libexec/octave/7.0.0/exec/x86_64-w64-mingw32/octave-gui.exe /mingw64/bin/octave-gui.exe
 
       - name: check
         # Continuing on error in this step means that jobs will be "green" even
