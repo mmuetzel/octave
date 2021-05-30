@@ -324,10 +324,11 @@ jobs:
             ${{ matrix.target_prefix }}-librsvg
             texinfo
 
-      - name: set git to use LF
+      - name: set global configuration
         run: |
           git config --global core.autocrlf false
           # git config --global core.eol lf
+          echo "PERL5SHELL=bash -l -c" >> $GITHUB_ENV
 
       - name: checkout repository
         uses: actions/checkout@v2
@@ -366,10 +367,16 @@ jobs:
       - name: configure ccache
         # Limit the maximum size to avoid exceeding the total cache limits.
         run: |
+          which ccache
           test -d /home/runneradmin/.config/ccache || mkdir -p /home/runneradmin/.config/ccache
           test -d /home/runneradmin/.cache/ccache || mkdir -p /home/runneradmin/.cache/ccache
           echo "max_size = 5G" >> /home/runneradmin/.config/ccache/ccache.conf
           ccache -s
+          test -d /usr/lib/ccache/bin ||  mkdir -p /usr/lib/ccache/bin
+          for compiler in c++ cc cpp gcc g++ gfortran {i686,x86_64}-{pc-msys,w64-mingw32}-{g++,c++,gcc,gfortran}; do
+            MSYS='winsymlinks:lnk' ln -sf /mingw64/bin/ccache /usr/lib/ccache/bin/${compiler}
+          done
+          echo "/usr/lib/ccache/bin" >> $GITHUB_PATH
 
       - name: bootstrap
         run: |
@@ -402,9 +409,8 @@ jobs:
         # msys2's "fltk-config" returns wrong LDFLAGS
         # perl uses cmd shell by default
         run: |
-          make -C ./.build all -j8 V=1 \
-            FLTK_LIBS="-lfltk_gl -lopengl32 -lglu32 -lfltk -lpthread" \
-            PERL5SHELL="bash -l -c"
+          make -C ./.build all V=1 \
+            FLTK_LIBS="-lfltk_gl -lopengl32 -lglu32 -lfltk -lpthread"
 
       - name: ccache status
         run: ccache -s
@@ -433,7 +439,6 @@ jobs:
           TERM: cygwin
           GNUTERM: wxt
           GS: gs.exe
-          PERL5SHELL: bash -l -c
 
         # Also, install .bat file for "makeinfo" so that it can be called from that shell.
         run: |
