@@ -357,7 +357,7 @@ jobs:
         # setup the github cache used to maintain the ccache from one job to the next
         uses: actions/cache@v2
         with:
-          path: /Users/runner/Library/Caches/ccache
+          path: /home/runneradmin/.cache/ccache
           key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
           restore-keys: |
             ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}
@@ -367,6 +367,7 @@ jobs:
         # Limit the maximum size to avoid exceeding the total cache limits.
         run: |
           test -d /home/runneradmin/.config/ccache || mkdir -p /home/runneradmin/.config/ccache
+          test -d /home/runneradmin/.cache/ccache || mkdir -p /home/runneradmin/.cache/ccache
           echo "max_size = 5G" >> /home/runneradmin/.config/ccache/ccache.conf
           ccache -s
 
@@ -389,9 +390,9 @@ jobs:
           $MY_F77 --version
           mkdir .build
           cd .build && ../configure \
-            CC="ccache $MY_CC" \
-            CXX="ccache $MY_CXX" \
-            F77="ccache $MY_F77" \
+            CC="$MY_CC" \
+            CXX="$MY_CXX" \
+            F77="$MY_F77" \
             PORTAUDIO_LDFLAGS="-L/mingw64/lib -L/usr/lib" \
             --disable-docs \
             ac_cv_search_tputs=-ltermcap \
