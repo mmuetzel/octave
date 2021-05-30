@@ -342,13 +342,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: prepare ccache
-        # create human readable timestamp
+        # Create human readable timestamp
         id: ccache_cache_timestamp
         run: |
           echo "::set-output name=TIMESTAMP::$(date +"%Y-%m-%d_%H-%M-%S")"
 
       - name: setup ccache
-        # setup the github cache used to maintain the ccache from one job to the next
+        # Setup the github cache used to maintain the ccache from one job to the next
         uses: actions/cache@v2
         with:
           path: /home/runneradmin/.cache/ccache
@@ -359,6 +359,7 @@ jobs:
 
       - name: configure ccache
         # Limit the maximum size to avoid exceeding the total cache limits.
+        # Create helper scripts that call the compiler with ccache.
         run: |
           which ccache
           test -d /home/runneradmin/.config/ccache || mkdir -p /home/runneradmin/.config/ccache
@@ -381,7 +382,7 @@ jobs:
           ./bootstrap
 
       - name: configure
-        # FIXME: How do we get a working TeX environment in msys2? Disable building the documentation for now.
+        # FIXME: How do we get a working TeX environment in MSYS2? Disable building the documentation for now.
         run: |
           echo $CC --version
           $CC --version
@@ -400,17 +401,19 @@ jobs:
         run: cat ./.build/config.log
 
       - name: build
-        # msys2's "fltk-config" returns wrong LDFLAGS
+        # Spawning processes seems to have a big overhead on this platform. Use a somewhat larger number of parallel processes to compensate for that.
+        # MSYS2's "fltk-config" returns wrong LDFLAGS
         run: |
           make -C ./.build all -j8 V=1 \
             FLTK_LIBS="-lfltk_gl -lopengl32 -lglu32 -lfltk -lpthread"
 
-      - name: ccache status
-        run: ccache -s
+      # This step crashes with "/bin/bash: warning: shell level (1000) too high, resetting to 1". Why?
+      # - name: ccache status
+      #   run: ccache -s
 
       - name: install
         # Install Octave
-        # create symlinks to the libexec binaries in bin (or they won't find their libraries?)
+        # Create symlinks to the libexec binaries in bin (or they won't find their libraries?)
         run: |
           make -C ./.build install V=1
           ln -sf /mingw64/libexec/octave/7.0.0/exec/x86_64-w64-mingw32/octave-gui.exe /mingw64/bin/octave-gui.exe
