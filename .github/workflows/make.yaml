@@ -331,7 +331,7 @@ jobs:
           MY_F77: ${{ matrix.f77 }}
         # perl uses cmd shell by default
         run: |
-          git config --global core.autocrlf false
+          # git config --global core.autocrlf false
           # git config --global core.eol lf
           echo "PERL5SHELL=bash -l -c" >> $GITHUB_ENV
           echo "CC=$MY_CC" >> $GITHUB_ENV
@@ -340,21 +340,6 @@ jobs:
 
       - name: checkout repository
         uses: actions/checkout@v2
-
-#      - name: install dependencies
-#        env:
-#          MY_PFX: ${{ matrix.target_prefix }}
-#        # The packages are listed in (alphabetically sorted) blocks:
-#        # The first block is for mandatory dependencies.
-#        # The second block is for optional dependencies needed when building from a release tarball (followed by packages with missing configure checks).
-#        # The third block is for additional dependencies needed when building from a repository checkout.
-#        run: |
-#          pacman -Syyu
-#          pacman -S base-devel ${MY_PFX}-toolchain \
-#            ${MY_PFX}-lapack ${MY_PFX}-openblas ${MY_PFX}-pcre \
-#            ${MY_PFX}-arpack ${MY_PFX}-curl ${MY_PFX}-cvode ${MY_PFX}-fftw ${MY_PFX}-fltk ${MY_PFX}-gl2ps ${MY_PFX}-glpk ${MY_PFX}-ghostscript ${MY_PFX}-gnuplot ${MY_PFX}-graphicsmagick ${MY_PFX}-hdf5 ${MY_PFX}-libsndfile ${MY_PFX}-portaudio ${MY_PFX}-qhull ${MY_PFX}-qrupdate ${MY_PFX}-qscintilla ${MY_PFX}-qt5 ${MY_PFX}-rapidjson ${MY_PFX}-suitesparse \
-#            libutil-linux-devel ${MY_PFX}-glew \
-#            ccache git mercurial ${MY_PFX}-icoutils ${MY_PFX}-librsvg texinfo
 
       - name: prepare ccache
         # create human readable timestamp
@@ -405,10 +390,18 @@ jobs:
           cd .build && ../configure \
             PORTAUDIO_LDFLAGS="-L/mingw64/lib -L/usr/lib" \
             --disable-docs \
-            ac_cv_search_tputs=-ltermcap \
-            --prefix="${HOME}/usr"
+            ac_cv_search_tputs=-ltermcap
+
+      - name: display config.log
+        run: cat ./.build/config.log
+
+      - name: display subst-config-vals.sh
+        run: |
+          echo build-aux/subst-config-vals.sh
+          cat ./.build/build-aux/subst-config-vals.sh
 
       - name: build
+        continue-on-error: true
         # msys2's "fltk-config" returns wrong LDFLAGS
         run: |
           make -C ./.build all -j1 V=1 \
@@ -436,7 +429,7 @@ jobs:
         # Instead, use the CMD shell and set up the environment to pick up what we just built.
         shell: cmd
         env:
-          PATH: D:\a\_temp\msys\msys64\mingw64\bin;D:\a\_temp\msys\msys64\usr\bin;$env:PATH
+          MY_PATH: D:\a\_temp\msys\msys64\mingw64\bin;D:\a\_temp\msys\msys64\usr\bin
           MSYSTEM: MINGW64
           TERM: cygwin
           GNUTERM: wxt
@@ -444,6 +437,7 @@ jobs:
 
         # Also, install .bat file for "makeinfo" so that it can be called from that shell.
         run: |
+          set PATH=%MY_PATH%;%PATH%
           set
           echo "@echo off" > D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
           echo "%%~d0" > D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
