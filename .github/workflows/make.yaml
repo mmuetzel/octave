@@ -259,3 +259,180 @@ jobs:
         # automatically.
         continue-on-error: true
         run: make -C ./.build check V=1
+
+
+  windows:
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    strategy:
+      matrix:
+        # For available GitHub-hosted runners, see: https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners
+        os: [windows-2019]
+        compiler: [gcc]
+        target: [x86_64]
+        include:
+          - compiler: gcc
+            target: x86_64
+            cc: "x86_64-w64-mingw32-gcc"
+            cxx: "x86_64-w64-mingw32-g++"
+            f77: "x86_64-w64-mingw32-gfortran"
+            target_prefix: "mingw-w64-x86_64"
+
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          # The packages are listed in (alphabetically sorted) blocks:
+          # The first block is for mandatory dependencies.
+          # The second block is for optional dependencies needed when building from a release tarball (followed by packages with missing configure checks).
+          # The third block is for additional dependencies needed when building from a repository checkout.
+          install: >-
+            base-devel
+            ${{ matrix.target_prefix }}-toolchain
+            ${{ matrix.target_prefix }}-lapack
+            ${{ matrix.target_prefix }}-openblas
+            ${{ matrix.target_prefix }}-pcre
+            ${{ matrix.target_prefix }}-arpack
+            ${{ matrix.target_prefix }}-curl
+            ${{ matrix.target_prefix }}-cvode
+            ${{ matrix.target_prefix }}-fftw
+            ${{ matrix.target_prefix }}-fltk
+            ${{ matrix.target_prefix }}-gl2ps
+            ${{ matrix.target_prefix }}-glpk
+            ${{ matrix.target_prefix }}-ghostscript
+            ${{ matrix.target_prefix }}-gnuplot
+            ${{ matrix.target_prefix }}-graphicsmagick
+            ${{ matrix.target_prefix }}-hdf5
+            ${{ matrix.target_prefix }}-libsndfile
+            ${{ matrix.target_prefix }}-portaudio
+            ${{ matrix.target_prefix }}-qhull
+            ${{ matrix.target_prefix }}-qrupdate
+            ${{ matrix.target_prefix }}-qscintilla
+            ${{ matrix.target_prefix }}-qt5
+            ${{ matrix.target_prefix }}-rapidjson
+            ${{ matrix.target_prefix }}-suitesparse
+            libutil-linux-devel
+            ccache
+            git
+            mercurial
+            ${{ matrix.target_prefix }}-icoutils
+            ${{ matrix.target_prefix }}-librsvg
+            texinfo
+
+      - name: checkout repository
+        uses: actions/checkout@v2
+
+#      - name: install dependencies
+#        env:
+#          MY_PFX: ${{ matrix.target_prefix }}
+#        # The packages are listed in (alphabetically sorted) blocks:
+#        # The first block is for mandatory dependencies.
+#        # The second block is for optional dependencies needed when building from a release tarball (followed by packages with missing configure checks).
+#        # The third block is for additional dependencies needed when building from a repository checkout.
+#        run: |
+#          pacman -Syyu
+#          pacman -S base-devel ${MY_PFX}-toolchain \
+#            ${MY_PFX}-lapack ${MY_PFX}-openblas ${MY_PFX}-pcre \
+#            ${MY_PFX}-arpack ${MY_PFX}-curl ${MY_PFX}-cvode ${MY_PFX}-fftw ${MY_PFX}-fltk ${MY_PFX}-gl2ps ${MY_PFX}-glpk ${MY_PFX}-ghostscript ${MY_PFX}-gnuplot ${MY_PFX}-graphicsmagick ${MY_PFX}-hdf5 ${MY_PFX}-libsndfile ${MY_PFX}-portaudio ${MY_PFX}-qhull ${MY_PFX}-qrupdate ${MY_PFX}-qscintilla ${MY_PFX}-qt5 ${MY_PFX}-rapidjson ${MY_PFX}-suitesparse \
+#            libutil-linux-devel ${MY_PFX}-glew \
+#            ccache git mercurial ${MY_PFX}-icoutils ${MY_PFX}-librsvg texinfo
+
+      - name: prepare ccache
+        # create human readable timestamp
+        id: ccache_cache_timestamp
+        run: |
+          echo "::set-output name=TIMESTAMP::$(date +"%Y-%m-%d_%H-%M-%S")"
+
+      - name: setup ccache
+        # setup the github cache used to maintain the ccache from one job to the next
+        uses: actions/cache@v2
+        with:
+          path: /Users/runner/Library/Caches/ccache
+          key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
+          restore-keys: |
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}
+
+      - name: configure ccache
+        # Limit the maximum size to avoid exceeding the total cache limits.
+          # test -d /Users/runner/Library/Preferences/ccache || mkdir /Users/runner/Library/Preferences/ccache
+          # echo "max_size = 5G" >> /Users/runner/Library/Preferences/ccache/ccache.conf
+        run: |
+          ccache -s
+
+      - name: bootstrap
+        run: |
+          ./bootstrap
+
+      - name: configure
+        env:
+          MY_CC: ${{ matrix.cc }}
+          MY_CXX: ${{ matrix.cxx }}
+          MY_F77: ${{ matrix.f77 }}
+        # FIXME: How do we get a working TeX environment in msys2? Disable building the documentation for now.
+        run: |
+          echo $MY_CC --version
+          $MY_CC --version
+          echo $MY_CXX --version
+          $MY_CXX --version
+          echo $MY_F77 --version
+          $MY_F77 --version
+          mkdir .build
+          cd .build && ../configure \
+            CC="ccache $MY_CC" \
+            CXX="ccache $MY_CXX" \
+            F77="ccache $MY_F77" \
+            PORTAUDIO_LDFLAGS="-L/mingw64/lib -L/usr/lib" \
+            --disable-docs \
+            ac_cv_search_tputs=-ltermcap \
+            --prefix="${HOME}/usr"
+
+      - name: build
+        # msys2's "fltk-config" returns wrong LDFLAGS
+        # perl uses cmd shell by default
+        run: |
+          make all -j8 V=1 \
+            FLTK_LIBS="-lfltk_gl -lopengl32 -lglu32 -lfltk -lpthread" \
+            PERL5SHELL="bash -l -c"
+
+      - name: ccache status
+        run: ccache -s
+
+      - name: install
+        # Install Octave prior to running the test suite for "mkoctfile" to
+        # work correctly.
+        run: make -C ./.build install V=1
+
+      - name: check
+        # Continuing on error in this step means that jobs will be "green" even
+        # if the test suite crashes.  But if we don't continue, we'll loose the
+        # ccache and other jobs will be cancelled, too.
+        # It would be nice if we could mark the job as "yellow" (and continue)
+        # in that case.
+        # It would also be nice if we could analyze the test suite results
+        # automatically.
+        continue-on-error: true
+
+        # We cannot run "make check" in the MSYS2 shell because readline doesn't work with it.
+        # Instead, use the CMD shell and set up the environment to pick up what we just built.
+        shell: cmd
+        env:
+          PATH: C:\msys64\mingw64\bin;C:\msys64\usr\bin;%PATH%
+          MSYSTEM: MINGW64
+          TERM: cygwin
+          GNUTERM: wxt
+          GS: gs.exe
+          PERL5SHELL: bash -l -c
+
+        # Also, install .bat file for "makeinfo" so that it can be called from that shell.
+        run: |
+          echo "@echo off" > C:/msys64/usr/bin/makeinfo.bat
+          echo "%%~d0" > C:/msys64/usr/bin/makeinfo.bat
+          echo "cd "%%~dp0"" > C:/msys64/usr/bin/makeinfo.bat
+          echo "perl "%~n0" %*" > C:/msys64/usr/bin/makeinfo.bat
+          octave-cli --eval "__run_test_suite__"
