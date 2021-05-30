@@ -283,7 +283,8 @@ jobs:
             target_prefix: "mingw-w64-x86_64"
 
     steps:
-      - uses: msys2/setup-msys2@v2
+      - name: setup MSYS2
+        uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
           update: true
@@ -351,7 +352,7 @@ jobs:
         # Setup the github cache used to maintain the ccache from one job to the next
         uses: actions/cache@v2
         with:
-          path: D:/a/_temp/msys/home/runneradmin/.cache/ccache
+          path: D:/a/_temp/msys/msys64/home/runneradmin/.cache/ccache
           key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
           restore-keys: |
             ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}:${{ github.ref }}
