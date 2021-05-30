@@ -366,6 +366,7 @@ jobs:
       - name: configure ccache
         # Limit the maximum size to avoid exceeding the total cache limits.
         run: |
+          test -d /home/runneradmin/.config || mkdir /home/runneradmin/.config
           test -d /home/runneradmin/.config/ccache || mkdir /home/runneradmin/.config/ccache
           echo "max_size = 5G" >> /home/runneradmin/.config/ccache/ccache.conf
           ccache -s
