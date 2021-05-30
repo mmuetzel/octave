@@ -402,7 +402,7 @@ jobs:
         # msys2's "fltk-config" returns wrong LDFLAGS
         # perl uses cmd shell by default
         run: |
-          make all -j8 V=1 \
+          make -C ./.build all -j8 V=1 \
             FLTK_LIBS="-lfltk_gl -lopengl32 -lglu32 -lfltk -lpthread" \
             PERL5SHELL="bash -l -c"
 
@@ -428,7 +428,7 @@ jobs:
         # Instead, use the CMD shell and set up the environment to pick up what we just built.
         shell: cmd
         env:
-          PATH: C:\msys64\mingw64\bin;C:\msys64\usr\bin;%PATH%
+          PATH: D:\a\_temp\msys\msys64\mingw64\bin;D:\a\_temp\msys\msys64\usr\bin;$env:PATH
           MSYSTEM: MINGW64
           TERM: cygwin
           GNUTERM: wxt
@@ -437,8 +437,9 @@ jobs:
 
         # Also, install .bat file for "makeinfo" so that it can be called from that shell.
         run: |
-          echo "@echo off" > C:/msys64/usr/bin/makeinfo.bat
-          echo "%%~d0" > C:/msys64/usr/bin/makeinfo.bat
-          echo "cd "%%~dp0"" > C:/msys64/usr/bin/makeinfo.bat
-          echo "perl "%~n0" %*" > C:/msys64/usr/bin/makeinfo.bat
+          set
+          echo "@echo off" > D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
+          echo "%%~d0" > D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
+          echo "cd "%%~dp0"" > D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
+          echo "perl "%~n0" %*" > D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
           octave-cli --eval "__run_test_suite__"
