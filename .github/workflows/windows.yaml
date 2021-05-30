@@ -1,7 +1,7 @@
 name: "windows"
 
 on:
-  push:
+  # push:
   workflow_dispatch:
   schedule:
     # Run job every Monday and Thursday at 16:30 UTC
