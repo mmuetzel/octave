@@ -352,10 +352,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: D:/a/_temp/msys/home/runneradmin/.cache/ccache
-          key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:{{ matrix.target }}:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
+          key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
           restore-keys: |
-            ccache:${{ matrix.os }}:${{ matrix.compiler }}:{{ matrix.target }}:${{ github.ref }}
-            ccache:${{ matrix.os }}:${{ matrix.compiler }}:{{ matrix.target }}
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}:${{ github.ref }}
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}
 
       - name: configure ccache
         # Limit the maximum size to avoid exceeding the total cache limits.
