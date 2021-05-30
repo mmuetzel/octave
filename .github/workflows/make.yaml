@@ -365,6 +365,7 @@ jobs:
           test -d /home/runneradmin/.cache/ccache || mkdir -p /home/runneradmin/.cache/ccache
           echo "max_size = 5G" >> /home/runneradmin/.config/ccache/ccache.conf
           ccache -s
+          # slow down creating the ccache helper scripts to avoid "Device or resource busy"
           test -d /usr/lib/ccache/bin ||  mkdir -p /usr/lib/ccache/bin
           sleep 1
           cd /usr/lib/ccache/bin
@@ -398,26 +399,22 @@ jobs:
       - name: display config.log
         run: cat ./.build/config.log
 
-      - name: display subst-config-vals.sh
-        run: |
-          echo build-aux/subst-config-vals.sh
-          cat ./.build/build-aux/subst-config-vals.sh
-
       - name: build
         # msys2's "fltk-config" returns wrong LDFLAGS
         run: |
-          make -C ./.build all -j1 V=1 \
+          make -C ./.build all -j8 V=1 \
             FLTK_LIBS="-lfltk_gl -lopengl32 -lglu32 -lfltk -lpthread"
 
       - name: ccache status
         run: ccache -s
 
       - name: install
-        # Install Octave prior to running the test suite for "mkoctfile" to
-        # work correctly.
+        # Install Octave
+        # create symlinks to the libexec binaries in bin (or they won't find their libraries?)
         run: |
           make -C ./.build install V=1
           ln -sf /mingw64/libexec/octave/7.0.0/exec/x86_64-w64-mingw32/octave-gui.exe /mingw64/bin/octave-gui.exe
+          ln -sf /mingw64/libexec/octave/7.0.0/exec/x86_64-w64-mingw32/octave-svgconvert.exe /mingw64/bin/octave-svgconvert.exe
 
       - name: check
         # Continuing on error in this step means that jobs will be "green" even
@@ -429,11 +426,11 @@ jobs:
         # automatically.
         continue-on-error: true
 
-        # We cannot run "make check" in the MSYS2 shell because readline doesn't work with it.
+        # We cannot run "make check" in the MSYS2 shell because readline doesn't work with it. (Why?)
         # Instead, use the CMD shell and set up the environment to pick up what we just built.
         shell: cmd
         env:
-          MY_PATH: D:\a\_temp\msys\msys64\mingw64\bin;D:\a\_temp\msys\msys64\usr\bin
+          MSYS_PATH: D:\a\_temp\msys\msys64\mingw64\bin;D:\a\_temp\msys\msys64\usr\bin
           MSYSTEM: MINGW64
           TERM: cygwin
           GNUTERM: wxt
@@ -441,10 +438,11 @@ jobs:
 
         # Also, install .bat file for "makeinfo" so that it can be called from that shell.
         run: |
-          set PATH=%MY_PATH%;%PATH%
+          set PATH=%MSYS_PATH%;%PATH%
           set
           echo "@echo off" > D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
           echo "%%~d0" > D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
           echo "cd "%%~dp0"" > D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
           echo "perl "%~n0" %*" > D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
-          octave-cli --eval "__run_test_suite__"
+          rem Start Octave and run test suite
+          octave-gui --eval "__run_test_suite__"
