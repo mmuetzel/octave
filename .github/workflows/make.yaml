@@ -389,6 +389,7 @@ jobs:
           mkdir .build
           cd .build && ../configure \
             PORTAUDIO_LDFLAGS="-L/mingw64/lib -L/usr/lib" \
+            JAVA_HOME="" \
             --disable-docs \
             ac_cv_search_tputs=-ltermcap
 
@@ -401,7 +402,6 @@ jobs:
           cat ./.build/build-aux/subst-config-vals.sh
 
       - name: build
-        continue-on-error: true
         # msys2's "fltk-config" returns wrong LDFLAGS
         run: |
           make -C ./.build all -j1 V=1 \
