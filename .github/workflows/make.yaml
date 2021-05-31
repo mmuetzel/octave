@@ -352,7 +352,7 @@ jobs:
         # Setup the github cache used to maintain the ccache from one job to the next
         uses: actions/cache@v2
         with:
-          path: D:/a/_temp/msys/msys64/home/runneradmin/.cache/ccache
+          path: D:/a/_temp/msys/msys64/home/runneradmin/.ccache
           key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
           restore-keys: |
             ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}:${{ github.ref }}
@@ -363,22 +363,11 @@ jobs:
         # Create helper scripts that call the compiler with ccache.
         run: |
           which ccache
-          test -d ~/.config/ccache || mkdir -p ~/.config/ccache
-          test -d ~/.cache/ccache || mkdir -p ~/.cache/ccache
-          echo "max_size = 5G" > ~/.config/ccache/ccache.conf
+          test -d ~/.ccache || mkdir -p ~/.ccache
+          echo "max_size = 5G" > ~/.ccache/ccache.conf
           ccache -s
-          # slow down creating the ccache helper scripts to avoid "Device or resource busy"
-          #test -d /usr/lib/ccache/bin ||  mkdir -p /usr/lib/ccache/bin
-          #sleep 1
-          #cd /usr/lib/ccache/bin
-          #scripts=($CC $CXX $F77)
-          #for fn in ${scripts[*]}; do
-          #  sleep 1
-          #  #MSYS='winsymlinks:lnk' ln -sf /mingw64/bin/ccache /usr/lib/ccache/bin/${compiler}
-          #  echo -e '#!/bin/bash\nccache /mingw64/bin/'$fn' "$@"' > $fn
-          #  echo ${fn}:
-          #  cat $fn
-          #done
+          # create ccache helper script for Fortran compiler
+          echo -e '#!/bin/bash\nccache /mingw64/bin/'$F77' "$@"' > /mingw64/lib/ccache/bin/$F77
           echo 'export PATH="/mingw64/lib/ccache/bin:$PATH"' >> ~/.bash_profile
 
       - name: bootstrap
