@@ -266,7 +266,7 @@ jobs:
 
     defaults:
       run:
-        shell: msys2 {0}
+        shell: C:/msys64/usr/bin/bash.exe --login -eo pipefail "{0}"
 
     strategy:
       matrix:
@@ -275,188 +275,28 @@ jobs:
         compiler: [gcc]
         target: [x86_64]
         include:
-          - target: x86_64
+          - compiler: gcc
+            target: x86_64
             target-triplet: x86_64-w64-mingw32
             target-prefix: mingw-w64-x86_64
             msystem: MINGW64
             mingw-prefix: mingw64
-          - compiler: gcc
-            cc: ${{ matrix.target-triplet }}-gcc
-            cxx: ${{ matrix.target-triplet }}-g++
-            f77: ${{ matrix.target-triplet }}-gfortran
+            cc: x86_64-w64-mingw32-gcc
+            cxx: x86_64-w64-mingw32-g++
+            f77: x86_64-w64-mingw32-gfortran
+
+    env:
+      MSYSTEM: ${{ matrix.msystem }}
+      CHERE_INVOKING: 1
+      CC:  ${{ matrix.cc }}
+      CXX:  ${{ matrix.cxx }}
+      F77:  ${{ matrix.f77 }}
+      TARGET_TRIPLET:  ${{ matrix.target-triplet }}
+      TARGET_PREFIX:  ${{ matrix.target-prefix }}
+      # perl uses cmd shell by default
+      PERL5SHELL: bash -l -c
 
     steps:
-      - name: setup MSYS2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{ matrix.msystem }}
-          update: true
-          # The packages are listed in (alphabetically sorted) blocks:
-          # The first block is for mandatory dependencies.
-          # The second block is for optional dependencies needed when building from a release tarball (followed by packages with missing configure checks).
-          # The third block is for additional dependencies needed when building from a repository checkout.
-          install: >-
-            base-devel
-            ${{ matrix.target-prefix }}-toolchain
-            ${{ matrix.target-prefix }}-lapack
-            ${{ matrix.target-prefix }}-openblas
-            ${{ matrix.target-prefix }}-pcre
-            ${{ matrix.target-prefix }}-arpack
-            ${{ matrix.target-prefix }}-curl
-            ${{ matrix.target-prefix }}-cvode
-            ${{ matrix.target-prefix }}-fftw
-            ${{ matrix.target-prefix }}-fltk
-            ${{ matrix.target-prefix }}-gl2ps
-            ${{ matrix.target-prefix }}-glpk
-            ${{ matrix.target-prefix }}-ghostscript
-            ${{ matrix.target-prefix }}-gnuplot
-            ${{ matrix.target-prefix }}-graphicsmagick
-            ${{ matrix.target-prefix }}-hdf5
-            ${{ matrix.target-prefix }}-libsndfile
-            ${{ matrix.target-prefix }}-portaudio
-            ${{ matrix.target-prefix }}-qhull
-            ${{ matrix.target-prefix }}-qrupdate
-            ${{ matrix.target-prefix }}-qscintilla
-            ${{ matrix.target-prefix }}-qt5
-            ${{ matrix.target-prefix }}-rapidjson
-            ${{ matrix.target-prefix }}-suitesparse
-            libutil-linux-devel
-            git
-            ${{ matrix.target-prefix }}-ccache
-            ${{ matrix.target-prefix }}-icoutils
-            ${{ matrix.target-prefix }}-librsvg
-            texinfo
-
-      - name: set global configuration
-        env:
-          MY_CC: ${{ matrix.cc }}
-          MY_CXX: ${{ matrix.cxx }}
-          MY_F77: ${{ matrix.f77 }}
-          MY_TARGET_TRIPLET: ${{ matrix.target-triplet }}
-        # perl uses cmd shell by default
+      - name: install dependencies
         run: |
-          # git config --global core.autocrlf false
-          # git config --global core.eol lf
-          echo "PERL5SHELL=bash -l -c" >> $GITHUB_ENV
-          echo "CC=$MY_CC" >> $GITHUB_ENV
-          echo "CXX=$MY_CXX" >> $GITHUB_ENV
-          echo "F77=$MY_F77" >> $GITHUB_ENV
-          echo "TARGET_TRIPLET=$MY_TARGET_TRIPLET" >> $GITHUB_ENV
-
-      - name: checkout repository
-        uses: actions/checkout@v2
-
-      - name: prepare ccache
-        # Create human readable timestamp
-        id: ccache_cache_timestamp
-        run: |
-          echo "::set-output name=TIMESTAMP::$(date +"%Y-%m-%d_%H-%M-%S")"
-
-      - name: setup ccache
-        # Setup the github cache used to maintain the ccache from one job to the next
-        uses: actions/cache@v2
-        with:
-          path: ${{ runner.temp }}/msys/${{ matrix.mingw-prefix }}/home/runneradmin/.ccache
-          key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
-          restore-keys: |
-            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}:${{ github.ref }}
-            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}
-
-      - name: configure ccache
-        # Limit the maximum size and switch on compression to avoid exceeding the total disk or cache quota.
-        run: |
-          which ccache
-          test -d ~/.ccache || mkdir -p ~/.ccache
-          echo "max_size = 1.2G" > ~/.ccache/ccache.conf
-          echo "compression = true" >> ~/.ccache/ccache.conf
-          ccache -s
-          # create ccache helper script for Fortran compiler
-          echo -e '#!/bin/bash\nccache '$MINGW_PREFIX'/bin/'$F77' "$@"' > $MINGW_PREFIX/lib/ccache/bin/$F77
-          # prepend path to helper scripts to PATH
-          echo 'export PATH="$MINGW_PREFIX/lib/ccache/bin:$PATH"' >> ~/.bash_profile
-
-      - name: bootstrap
-        run: |
-          echo PATH:
           echo $PATH
-          ./bootstrap
-
-      - name: configure
-        # PortAudio requires linking to libuuid. But its pkg-config file doesn't reference the path to that library.
-        # FIXME: Fix building with Java support. Override JAVA_HOME for now.
-        # FIXME: How do we get a working TeX environment in MSYS2? Disable building the documentation for now.
-        # Linking with ncurses fails. Use termcap library instead.
-        run: |
-          which $CC
-          echo $CC --version
-          $CC --version
-          which $CXX
-          echo $CXX --version
-          $CXX --version
-          which $F77
-          echo $F77 --version
-          $F77 --version
-          mkdir .build
-          cd .build && ../configure \
-            PORTAUDIO_LDFLAGS="-L${MINGW_PREFIX}/lib -L/usr/lib" \
-            JAVA_HOME="" \
-            --disable-docs \
-            ac_cv_search_tputs=-ltermcap
-
-      - name: build
-        # Spawning processes seems to have a big overhead on this platform. Use a somewhat larger number of parallel processes to compensate for that.
-        # MSYS2's "fltk-config" returns wrong LIBS. Override them for make.
-        run: |
-          make -C ./.build all -j8 V=1 \
-            FLTK_LIBS="-lfltk_gl -lopengl32 -lglu32 -lfltk -lpthread"
-
-      - name: ccache status
-        continue-on-error: true
-        run: ccache -s
-
-      - name: install
-        # Install Octave
-        # Create symlinks to the libexec binaries in bin (or they won't find their libraries?)
-        run: |
-          make -C ./.build install V=1
-          ln -sf ${MINGW_PREFIX}/libexec/octave/7.0.0/exec/${TARGET_TRIPLET}/octave-gui.exe ${MINGW_PREFIX}/bin/octave-gui.exe
-          ln -sf ${MINGW_PREFIX}/libexec/octave/7.0.0/exec/${TARGET_TRIPLET}/octave-svgconvert.exe ${MINGW_PREFIX}/bin/octave-svgconvert.exe
-
-      - name: check
-        # Continuing on error in this step means that jobs will be "green" even
-        # if the test suite crashes.  But if we don't continue, we'll loose the
-        # ccache and other jobs will be cancelled, too.
-        # It would be nice if we could mark the job as "yellow" (and continue)
-        # in that case.
-        # It would also be nice if we could analyze the test suite results
-        # automatically.
-        continue-on-error: true
-
-        # We cannot run "make check" in the MSYS2 shell because readline doesn't work with it. (Why?)
-        # Instead, use the CMD shell and set up the environment to pick up what we just built.
-        shell: cmd
-        env:
-          MSYS_PATH: ${{ runner.temp }}\msys\msys64\${{ matrix.mingw-prefix }}\bin;${{ runner.temp }}\msys\msys64\usr\bin
-          MSYSTEM: ${{ matrix.msystem }}
-          TERM: cygwin
-          GNUTERM: wxt
-          GS: gs.exe
-
-        # Also, install .bat file for "makeinfo" so that it can be called from that shell.
-        run: |
-          set PATH=%MSYS_PATH%;%PATH%
-          set
-          echo "@echo off" > %RUNNER_TEMP%/msys/msys64/usr/bin/makeinfo.bat
-          echo "%~d0" >> %RUNNER_TEMP%/msys/msys64/usr/bin/makeinfo.bat
-          echo "cd "%~dp0"" >> %RUNNER_TEMP%/msys/msys64/usr/bin/makeinfo.bat
-          echo "perl "%~n0" %*" >> %RUNNER_TEMP%/msys/msys64/usr/bin/makeinfo.bat
-          echo makeinfo.bat:
-          more makeinfo.bat
-          rem Start Octave and run test suite
-          octave-gui --eval "__run_test_suite__"
-
-      - name: display test results
-        continue-on-error: true
-        # Displaying the log shouldn't take long. Cancel the step if it does.
-        timeout-minutes: 5
-        run: cat fntests.log
