@@ -376,8 +376,11 @@ jobs:
           echo "compression = true" >> ~/.ccache/ccache.conf
           ccache -s
           # create ccache helper script for Fortran compiler
-          echo -e '#!/bin/bash\nccache /${MINGW_PREFIX}/bin/'$F77' "$@"' > /${MINGW_PREFIX}/lib/ccache/bin/$F77
-          echo 'export PATH="/${MINGW_PREFIX}/lib/ccache/bin:$PATH"' >> ~/.bash_profile
+          echo -e '#!/bin/bash\nccache /'$MINGW_PREFIX'/bin/'$F77' "$@"'
+          echo /$MINGW_PREFIX/lib/ccache/bin/$F77
+          echo -e '#!/bin/bash\nccache /'$MINGW_PREFIX'/bin/'$F77' "$@"' > /$MINGW_PREFIX/lib/ccache/bin/$F77
+          cat /$MINGW_PREFIX/lib/ccache/bin/$F77
+          echo 'export PATH="/$MINGW_PREFIX/lib/ccache/bin:$PATH"' >> ~/.bash_profile
 
       - name: bootstrap
         run: |
