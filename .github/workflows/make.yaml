@@ -275,15 +275,15 @@ jobs:
         compiler: [gcc]
         target: [x86_64]
         include:
-          - compiler: gcc
-            target: x86_64
-            cc: "x86_64-w64-mingw32-gcc"
-            cxx: "x86_64-w64-mingw32-g++"
-            f77: "x86_64-w64-mingw32-gfortran"
-            target-prefix: "mingw-w64-x86_64"
+          - target: x86_64
             target-triplet: x86_64-w64-mingw32
+            target-prefix: mingw-w64-x86_64
             msystem: MINGW64
             mingw-prefix: mingw64
+          - compiler: gcc
+            cc: ${{ matrix.target-triplet }}-gcc
+            cxx: ${{ matrix.target-triplet }}-g++
+            f77: ${{ matrix.target-triplet }}-gfortran
 
     steps:
       - name: setup MSYS2
