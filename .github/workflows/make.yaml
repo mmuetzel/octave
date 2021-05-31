@@ -318,9 +318,9 @@ jobs:
             ${{ matrix.target_prefix }}-rapidjson
             ${{ matrix.target_prefix }}-suitesparse
             libutil-linux-devel
-            ccache
             git
             mercurial
+            ${{ matrix.target_prefix }}-ccache
             ${{ matrix.target_prefix }}-icoutils
             ${{ matrix.target_prefix }}-librsvg
             texinfo
@@ -368,17 +368,18 @@ jobs:
           echo "max_size = 5G" > ~/.config/ccache/ccache.conf
           ccache -s
           # slow down creating the ccache helper scripts to avoid "Device or resource busy"
-          test -d /usr/lib/ccache/bin ||  mkdir -p /usr/lib/ccache/bin
-          sleep 1
-          cd /usr/lib/ccache/bin
-          scripts=($CC $CXX $F77)
-          for fn in ${scripts[*]}; do
-            sleep 1
-            echo -e '#!/bin/bash\n\nccache /mingw64/bin/'$fn' "$@"' > $fn
-            echo ${fn}:
-            cat $fn
-          done
-          echo 'export PATH="/usr/lib/ccache/bin:$PATH"' >> ~/.bash_profile
+          #test -d /usr/lib/ccache/bin ||  mkdir -p /usr/lib/ccache/bin
+          #sleep 1
+          #cd /usr/lib/ccache/bin
+          #scripts=($CC $CXX $F77)
+          #for fn in ${scripts[*]}; do
+          #  sleep 1
+          #  #MSYS='winsymlinks:lnk' ln -sf /mingw64/bin/ccache /usr/lib/ccache/bin/${compiler}
+          #  echo -e '#!/bin/bash\nccache /mingw64/bin/'$fn' "$@"' > $fn
+          #  echo ${fn}:
+          #  cat $fn
+          #done
+          echo 'export PATH="/mingw64/lib/ccache/bin:$PATH"' >> ~/.bash_profile
 
       - name: bootstrap
         run: |
