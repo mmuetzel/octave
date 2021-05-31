@@ -375,11 +375,15 @@ jobs:
           for fn in ${scripts[*]}; do
             sleep 1
             echo -e '#!/bin/bash\n\nccache /mingw64/bin/'$fn' "$@"' > $fn
+            echo ${fn}:
+            cat $fn
           done
           echo 'export PATH="/usr/lib/ccache/bin:$PATH"' >> ~/.bashrc
 
       - name: bootstrap
         run: |
+          echo PATH:
+          echo $PATH
           ./bootstrap
 
       - name: configure
