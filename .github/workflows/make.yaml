@@ -457,5 +457,4 @@ jobs:
 
       - name: display test results
         continue-on-error: true
-        shell: cmd
-        run: more fntests.log
+        run: cat fntests.log
