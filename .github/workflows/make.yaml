@@ -365,7 +365,7 @@ jobs:
           which ccache
           test -d ~/.config/ccache || mkdir -p ~/.config/ccache
           test -d ~/.cache/ccache || mkdir -p ~/.cache/ccache
-          echo "max_size = 5G" >~/.config/ccache/ccache.conf
+          echo "max_size = 5G" > ~/.config/ccache/ccache.conf
           ccache -s
           # slow down creating the ccache helper scripts to avoid "Device or resource busy"
           test -d /usr/lib/ccache/bin ||  mkdir -p /usr/lib/ccache/bin
@@ -378,7 +378,7 @@ jobs:
             echo ${fn}:
             cat $fn
           done
-          echo 'export PATH="/usr/lib/ccache/bin:$PATH"' >> ~/.bashrc
+          echo 'export PATH="/usr/lib/ccache/bin:$PATH"' >> ~/.bash_profile
 
       - name: bootstrap
         run: |
