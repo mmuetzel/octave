@@ -385,10 +385,13 @@ jobs:
       - name: configure
         # FIXME: How do we get a working TeX environment in MSYS2? Disable building the documentation for now.
         run: |
+          which $CC
           echo $CC --version
           $CC --version
+          which $CXX
           echo $CXX --version
           $CXX --version
+          which $F77
           echo $F77 --version
           $F77 --version
           mkdir .build
@@ -398,19 +401,20 @@ jobs:
             --disable-docs \
             ac_cv_search_tputs=-ltermcap
 
-      - name: display config.log
-        run: cat ./.build/config.log
+      # - name: display config.log
+      #   run: cat ./.build/config.log
 
       - name: build
         # Spawning processes seems to have a big overhead on this platform. Use a somewhat larger number of parallel processes to compensate for that.
-        # MSYS2's "fltk-config" returns wrong LDFLAGS
+        # MSYS2's "fltk-config" returns wrong LIBS. Override them for make.
         run: |
           make -C ./.build all -j8 V=1 \
             FLTK_LIBS="-lfltk_gl -lopengl32 -lglu32 -lfltk -lpthread"
 
       # This step crashes with "/bin/bash: warning: shell level (1000) too high, resetting to 1". Why?
-      # - name: ccache status
-      #   run: ccache -s
+      - name: ccache status
+        continue-on-error: true
+        run: ccache -s
 
       - name: install
         # Install Octave
@@ -445,8 +449,15 @@ jobs:
           set PATH=%MSYS_PATH%;%PATH%
           set
           echo "@echo off" > D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
-          echo "%%~d0" > D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
-          echo "cd "%%~dp0"" > D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
-          echo "perl "%~n0" %*" > D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
+          echo "%~d0" >> D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
+          echo "cd "%~dp0"" >> D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
+          echo "perl "%~n0" %*" >> D:/a/_temp/msys/msys64/usr/bin/makeinfo.bat
+          echo makeinfo.bat:
+          more makeinfo.bat
           rem Start Octave and run test suite
           octave-gui --eval "__run_test_suite__"
+
+      - name: display fntests.log
+        continue-on-error: true
+        shell: cmd
+        run: more fntests.log
