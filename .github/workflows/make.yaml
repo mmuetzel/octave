@@ -363,9 +363,9 @@ jobs:
         # Create helper scripts that call the compiler with ccache.
         run: |
           which ccache
-          test -d /home/runneradmin/.config/ccache || mkdir -p /home/runneradmin/.config/ccache
-          test -d /home/runneradmin/.cache/ccache || mkdir -p /home/runneradmin/.cache/ccache
-          echo "max_size = 5G" >> /home/runneradmin/.config/ccache/ccache.conf
+          test -d ~/.config/ccache || mkdir -p ~/.config/ccache
+          test -d ~/.cache/ccache || mkdir -p ~/.cache/ccache
+          echo "max_size = 5G" >~/.config/ccache/ccache.conf
           ccache -s
           # slow down creating the ccache helper scripts to avoid "Device or resource busy"
           test -d /usr/lib/ccache/bin ||  mkdir -p /usr/lib/ccache/bin
@@ -376,7 +376,7 @@ jobs:
             sleep 1
             echo -e '#!/bin/bash\n\nccache /mingw64/bin/'$fn' "$@"' > $fn
           done
-          echo "/usr/lib/ccache/bin" >> $GITHUB_PATH
+          echo 'export PATH="/usr/lib/ccache/bin:$PATH"' >> ~/.bashrc
 
       - name: bootstrap
         run: |
@@ -384,6 +384,8 @@ jobs:
 
       - name: configure
         # FIXME: How do we get a working TeX environment in MSYS2? Disable building the documentation for now.
+        # PortAudio requires linking to libuuid. But its pkg-config file doesn't reference the path to that library.
+        # FIXME: Fix building with Java support. Override JAVA_HOME for now.
         run: |
           which $CC
           echo $CC --version
@@ -457,7 +459,7 @@ jobs:
           rem Start Octave and run test suite
           octave-gui --eval "__run_test_suite__"
 
-      - name: display fntests.log
+      - name: display test results
         continue-on-error: true
         shell: cmd
         run: more fntests.log
