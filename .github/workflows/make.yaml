@@ -322,7 +322,7 @@ jobs:
         # Setup the github cache used to maintain the ccache from one job to the next
         uses: actions/cache@v2
         with:
-          path: ${{ runner.temp }}/msys/${{ matrix.mingw-prefix }}/home/runneradmin/.ccache
+          path: C:/msys64/home/runneradmin/.ccache
           key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
           restore-keys: |
             ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}:${{ github.ref }}
