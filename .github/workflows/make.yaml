@@ -352,8 +352,6 @@ jobs:
 
       - name: bootstrap
         run: |
-          echo PATH:
-          echo $PATH
           ./bootstrap
 
       - name: configure
@@ -380,6 +378,7 @@ jobs:
       - name: build
         # Spawning processes seems to have a big overhead on this platform. Use a somewhat larger number of parallel processes to compensate for that.
         # MSYS2's "fltk-config" returns wrong LIBS. Override them for make.
+        # See: https://github.com/msys2/MINGW-packages/issues/8806
         # MSYS2's "portaudio" doesn't depend on uuid. But its package-config file still contains "-luuid". Override the flags for make.
         # See: https://github.com/msys2/MINGW-packages/issues/8805
         run: |
@@ -422,13 +421,10 @@ jobs:
         # Also, install .bat file for "makeinfo" so that it can be called from that shell.
         run: |
           set PATH=%MSYS_PATH%;%PATH%
-          set
           echo @echo off > C:/msys64/usr/bin/makeinfo.bat
           echo %%~d0 >> C:/msys64/usr/bin/makeinfo.bat
           echo cd "%%~dp0" >> C:/msys64/usr/bin/makeinfo.bat
           echo perl "%%~n0" %%* >> C:/msys64/usr/bin/makeinfo.bat
-          echo makeinfo.bat:
-          more C:/msys64/usr/bin/makeinfo.bat
           rem Start Octave and run test suite
           octave-gui --eval "__run_test_suite__"
 
