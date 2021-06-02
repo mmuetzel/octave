@@ -703,6 +703,7 @@ The optional output @var{filelist} is a list of the compressed files.
 %!    if (! mkdir (test_dir))
 %!      error ("unable to create directory for tests");
 %!    endif
+%!    test_dir = canonicalize_file_name (test_dir);
 %!    unwind_protect
 %!      test_function (test_dir, z)
 %!    unwind_protect_cleanup
@@ -736,7 +737,6 @@ The optional output @var{filelist} is a list of the compressed files.
 %!function test_large_file (test_dir, z)
 %!  test_file = tempname (test_dir);
 %!  create_file (test_file, rand (500000, 1));
-%!  test_file = canonicalize_file_name (test_file);
 %!  md5 = hash ("md5", fileread (test_file));
 %!
 %!  z_file = [test_file z.ext];
@@ -755,7 +755,6 @@ The optional output @var{filelist} is a list of the compressed files.
 %!function test_z_z (test_dir, z)
 %!  ori_file = tempname (test_dir);
 %!  create_file (ori_file, rand (100, 1));
-%!  ori_file = canonicalize_file_name (ori_file);
 %!  md5_ori = hash ("md5", fileread (ori_file));
 %!
 %!  z_file = [ori_file z.ext];
@@ -824,7 +823,6 @@ The optional output @var{filelist} is a list of the compressed files.
 %!  filename = "test-file";
 %!  filepath = fullfile (test_dir, filename);
 %!  create_file (filepath, rand (100, 1));
-%!  filepath = canonicalize_file_name (filepath);
 %!  md5 = hash ("md5", fileread (filepath));
 %!
 %!  ## test with existing and non-existing directory
