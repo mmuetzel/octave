@@ -307,6 +307,10 @@ jobs:
       PERL5SHELL: bash -l -c
 
     steps:
+      - name: update MSYS2
+        # This step might update the runtime which requires a console restart
+        run: pacman --noconfirm -Syu || true
+
       - name: install dependencies
         # The packages are listed in (alphabetically sorted) blocks:
         # The first block is for mandatory dependencies.
