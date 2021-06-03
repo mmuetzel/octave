@@ -313,6 +313,7 @@ jobs:
         # The second block is for optional dependencies needed when building from a release tarball.
         # The third block is for additional dependencies needed when building from a repository checkout.
         run: |
+          pacman --noconfirm -Syu
           pacman --noconfirm -S --needed --overwrite * \
             base-devel ${TARGET_PREFIX}-toolchain ${TARGET_PREFIX}-lapack ${TARGET_PREFIX}-openblas ${TARGET_PREFIX}-pcre \
             ${TARGET_PREFIX}-arpack ${TARGET_PREFIX}-curl ${TARGET_PREFIX}-cvode ${TARGET_PREFIX}-fftw ${TARGET_PREFIX}-fltk ${TARGET_PREFIX}-gl2ps ${TARGET_PREFIX}-glpk ${TARGET_PREFIX}-ghostscript ${TARGET_PREFIX}-gnuplot ${TARGET_PREFIX}-graphicsmagick ${TARGET_PREFIX}-hdf5 ${TARGET_PREFIX}-libsndfile ${TARGET_PREFIX}-portaudio ${TARGET_PREFIX}-qhull ${TARGET_PREFIX}-qrupdate ${TARGET_PREFIX}-qscintilla ${TARGET_PREFIX}-qt5 ${TARGET_PREFIX}-rapidjson ${TARGET_PREFIX}-suitesparse \
