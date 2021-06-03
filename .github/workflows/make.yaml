@@ -309,7 +309,9 @@ jobs:
     steps:
       - name: update MSYS2
         # This step might update the runtime which requires a console restart
-        run: pacman --noconfirm -Syu || true
+        # In this case, it will kill the console which shouldn't count as an error.
+        continue-on-error: true
+        run: pacman --noconfirm -Syu
 
       - name: install dependencies
         # The packages are listed in (alphabetically sorted) blocks:
