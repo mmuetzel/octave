@@ -264,6 +264,9 @@ jobs:
   windows:
     runs-on: ${{ matrix.os }}
 
+    strategy:
+      fail-fast: false
+
     defaults:
       run:
         # Use pre-installed MSYS2 as default shell
@@ -354,7 +357,7 @@ jobs:
           ccache -s
           # create ccache helper script for Fortran compiler
           echo -e '#!/bin/bash\nccache '$MINGW_PREFIX'/bin/'$F77' "$@"' > $MINGW_PREFIX/lib/ccache/bin/$F77
-          # prepend path to helper scripts to PATH
+          # prepend path to ccache helper scripts to PATH
           echo 'export PATH="$MINGW_PREFIX/lib/ccache/bin:$PATH"' >> ~/.bash_profile
 
       - name: bootstrap
@@ -362,6 +365,9 @@ jobs:
           ./bootstrap
 
       - name: configure
+        # configure sometimes hangs while compiling 32bit Fortran.
+        # It should take much less than 30 minutes. Cancel the step if it takes longer.
+        timeout-minutes: 30
         # PortAudio requires linking to libuuid. But its pkg-config file doesn't reference the path to that library.
         # FIXME: Fix building with Java support. Override JAVA_HOME for now.
         # FIXME: How do we get a working TeX environment in MSYS2? Disable building the documentation for now.
@@ -415,7 +421,7 @@ jobs:
         # automatically.
         continue-on-error: true
 
-        # We cannot run "make check" in the MSYS2 shell because readline doesn't work with it. (Why?)
+        # We cannot run "make check" in the MSYS2 shell because it will fail with backslash as a file separator.
         # Instead, use the CMD shell and set up the environment to pick up what we just built.
         shell: cmd
         env:
