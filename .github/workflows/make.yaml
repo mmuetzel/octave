@@ -264,15 +264,13 @@ jobs:
   windows:
     runs-on: ${{ matrix.os }}
 
-    strategy:
-      fail-fast: false
-
     defaults:
       run:
         # Use pre-installed MSYS2 as default shell
         shell: C:/msys64/usr/bin/bash.exe --login -eo pipefail "{0}"
 
     strategy:
+      fail-fast: false
       matrix:
         # For available GitHub-hosted runners, see: https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners
         os: [windows-2019]
