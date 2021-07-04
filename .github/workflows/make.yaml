@@ -391,6 +391,8 @@ jobs:
           $F77 --version
           mkdir .build
           cd .build && ../configure \
+            BLAS_LIBS="-lblas" \
+            LAPACK_LIBS="-llapack" \
             JAVA_HOME="" \
             --disable-docs \
             ac_cv_search_tputs=-ltermcap
