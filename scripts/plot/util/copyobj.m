@@ -221,14 +221,20 @@ endfunction
 %!   axes (ax(2));
 %!   text (4.5, 80, "Right Axis", ...
 %!         "color", [0 0.5 0], "horizontalalignment", "center");
+%!   disp ("converting graphics to structure");
 %!   s1 = hdl2struct (h1);
+%!   disp ("re-creating graphics from structure");
 %!   h2 = struct2hdl (s1);
 %!   png1 = [tempname() ".png"];
 %!   png2 = [tempname() ".png"];
 %!   unwind_protect
+%!     disp ("printing original grpahics");
 %!     print (h1, png1);
+%!     disp ("loading first image");
 %!     [img1, map1, alpha1] = imread (png1);
+%!     disp ("printing copied graphics");
 %!     print (h2, png2);
+%!     disp ("loading second image");
 %!     [img2, map2, alpha2] = imread (png2);
 %!   unwind_protect_cleanup
 %!     unlink (png1);
