@@ -228,22 +228,34 @@ endfunction
 %!   png1 = [tempname() ".png"];
 %!   png2 = [tempname() ".png"];
 %!   unwind_protect
-%!     disp ("printing original grpahics");
+%!     disp ("printing original graphics");
 %!     print (h1, png1);
+%!     stat (png1)
 %!     disp ("loading first image");
 %!     [img1, map1, alpha1] = imread (png1);
+%!     size (img1)
+%!     size (map1)
+%!     size (alpha1)
 %!     disp ("printing copied graphics");
 %!     print (h2, png2);
+%!     stat (png2)
 %!     disp ("loading second image");
 %!     [img2, map2, alpha2] = imread (png2);
+%!     size (img2)
+%!     size (map2)
+%!     size (alpha2)
 %!   unwind_protect_cleanup
 %!     unlink (png1);
 %!     unlink (png2);
 %!   end_unwind_protect
+%!   disp ("asserting images are the same");
 %!   assert (img1, img2);
+%!   disp ("asserting maps are the same");
 %!   assert (map1, map2);
+%!   disp ("asserting alpha channels are the same");
 %!   assert (alpha1, alpha2);
 %! unwind_protect_cleanup
+%!   disp ("closing figures");
 %!   close (h1);
 %!   close (h2);
 %!   graphics_toolkit (toolkit);
