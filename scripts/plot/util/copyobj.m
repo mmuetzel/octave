@@ -229,7 +229,7 @@ endfunction
 %!   png2 = [tempname() ".png"];
 %!   unwind_protect
 %!     disp ("printing original graphics");
-%!     print (h1, png1);
+%!     print (h1, "-r100", png1);
 %!     stat (png1)
 %!     disp ("loading first image");
 %!     [img1, map1, alpha1] = imread (png1);
@@ -237,7 +237,7 @@ endfunction
 %!     size (map1)
 %!     size (alpha1)
 %!     disp ("printing copied graphics");
-%!     print (h2, png2);
+%!     print (h2, "-r100", png2);
 %!     stat (png2)
 %!     disp ("loading second image");
 %!     [img2, map2, alpha2] = imread (png2);
