@@ -105,12 +105,14 @@ jobs:
 
       - name: build
         env:
-          XDG_RUNTIME_DIR: "/home/runner/tmp"
+          XDG_RUNTIME_DIR: ${{ env.RUNNER_TEMP }}
         # Parallel make seems to fail intermittently when creating the figures
         # for the manual. The error message says it fails to connect to a
         # display. Maybe an xvfb issue?
         # Use single job make for now which seems to work more reliably.
         run: |
+          echo $RUNNER_TEMP
+          echo $XDG_RUNTIME_DIR
           test -d $XDG_RUNTIME_DIR || mkdir $XDG_RUNTIME_DIR
           xvfb-run -a make -C ./.build all V=1
 
@@ -120,7 +122,7 @@ jobs:
       - name: check
         timeout-minutes: 60
         env:
-          XDG_RUNTIME_DIR: "/home/runner/tmp"
+          XDG_RUNTIME_DIR: ${{ env.RUNNER_TEMP }}
         run: xvfb-run -a make -C ./.build check | tee ./test-suite.log
         
       - name: display test results
