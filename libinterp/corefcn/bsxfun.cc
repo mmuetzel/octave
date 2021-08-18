@@ -320,6 +320,8 @@ update_index (Array<int>& idx, const dim_vector& dv, octave_idx_type i)
     }
 }
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFMETHOD (bsxfun, interp,args, ,
            doc: /* -*- texinfo -*-
 @deftypefn {} {} bsxfun (@var{f}, @var{A}, @var{B})
@@ -346,7 +348,7 @@ as the other array.
     {
       std::string name = func.string_value ();
 
-      octave::symbol_table& symtab = interp.get_symbol_table ();
+      symbol_table& symtab = interp.get_symbol_table ();
 
       func = symtab.find_function (name);
 
@@ -412,14 +414,14 @@ as the other array.
           octave_value_list inputs (2);
           inputs(0) = A;
           inputs(1) = B;
-          retval = octave::feval (func, inputs, 1);
+          retval = feval (func, inputs, 1);
         }
       else if (dvc.numel () < 1)
         {
           octave_value_list inputs (2);
           inputs(0) = A.resize (dvc);
           inputs(1) = B.resize (dvc);
-          retval = octave::feval (func, inputs, 1);
+          retval = feval (func, inputs, 1);
         }
       else
         {
@@ -461,7 +463,7 @@ as the other array.
               if (maybe_update_column (Bc, B, dvb, dvc, i, idxB))
                 inputs(1) = Bc;
 
-              octave_value_list tmp = octave::feval (func, inputs, 1);
+              octave_value_list tmp = feval (func, inputs, 1);
 
 #define BSXINIT(T, CLS, EXTRACTOR)                                      \
               (result_type == CLS)                                      \
@@ -540,7 +542,7 @@ as the other array.
                         {
                           have_NDArray = false;
                           C = result_NDArray;
-                          C = octave::cat_op (C, tmp(0), ra_idx);
+                          C = cat_op (C, tmp(0), ra_idx);
                         }
                       else if (tmp(0).isreal ())
                         result_NDArray.insert (tmp(0).array_value (), ra_idx);
@@ -560,7 +562,7 @@ as the other array.
                         {
                           have_FloatNDArray = false;
                           C = result_FloatNDArray;
-                          C = octave::cat_op (C, tmp(0), ra_idx);
+                          C = cat_op (C, tmp(0), ra_idx);
                         }
                       else if (tmp(0).isreal ())
                         result_FloatNDArray.insert
@@ -583,7 +585,7 @@ as the other array.
                         {                                               \
                           have_ ## T = false;                           \
                           C = result_ ## T;                             \
-                          C = octave::cat_op (C, tmp(0), ra_idx);       \
+                          C = cat_op (C, tmp(0), ra_idx);       \
                         }                                               \
                       else                                              \
                         result_ ## T .insert (tmp(0). EXTRACTOR ## _array_value (), ra_idx); \
@@ -601,7 +603,7 @@ as the other array.
                   else if BSXLOOP(uint32NDArray, "uint32", uint32)
                   else if BSXLOOP(uint64NDArray, "uint64", uint64)
                   else
-                    C = octave::cat_op (C, tmp(0), ra_idx);
+                    C = cat_op (C, tmp(0), ra_idx);
                 }
             }
 
@@ -812,3 +814,5 @@ as the other array.
 %! assert (r(:,:,1), repmat (single ([0, 0, 1+i, 1+i]), [4, 1]));
 
 */
+
+OCTAVE_NAMESPACE_END

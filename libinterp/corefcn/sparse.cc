@@ -42,6 +42,8 @@
 #include "ov-cx-sparse.h"
 #include "ov-bool-sparse.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFUN (issparse, args, ,
        doc: /* -*- texinfo -*-
 @deftypefn {} {} issparse (@var{x})
@@ -153,7 +155,7 @@ sparse (@var{i}, @var{j}, @var{sv}, 3, 4, "unique")
   octave_value retval;
 
   // Temporarily disable sparse_auto_mutate if set (it's obsolete anyway).
-  octave::unwind_protect_var<bool> restore_var (Vsparse_auto_mutate, false);
+  unwind_protect_var<bool> restore_var (Vsparse_auto_mutate, false);
 
   if (nargin == 1)
     {
@@ -172,7 +174,7 @@ sparse (@var{i}, @var{j}, @var{sv}, 3, 4, "unique")
       octave_idx_type m = 0;
       octave_idx_type n = 0;
 
-      octave::get_dimensions (args(0), args(1), "sparse", m, n);
+      get_dimensions (args(0), args(1), "sparse", m, n);
 
       if (m < 0 || n < 0)
         error ("sparse: dimensions must be non-negative");
@@ -205,7 +207,7 @@ sparse (@var{i}, @var{j}, @var{sv}, 3, 4, "unique")
 
       if (nargin == 5)
         {
-          octave::get_dimensions (args(3), args(4), "sparse", m, n);
+          get_dimensions (args(3), args(4), "sparse", m, n);
 
           if (m < 0 || n < 0)
             error ("sparse: dimensions must be non-negative");
@@ -214,9 +216,9 @@ sparse (@var{i}, @var{j}, @var{sv}, 3, 4, "unique")
       int k = 0;    // index we're checking when index_vector throws
       try
         {
-          octave::idx_vector i = args(0).index_vector ();
+          idx_vector i = args(0).index_vector ();
           k = 1;
-          octave::idx_vector j = args(1).index_vector ();
+          idx_vector j = args(1).index_vector ();
 
           if (args(2).islogical ())
             retval = SparseBoolMatrix (args(2).bool_array_value (), i,j,
@@ -230,7 +232,7 @@ sparse (@var{i}, @var{j}, @var{sv}, 3, 4, "unique")
           else
             err_wrong_type_arg ("sparse", args(2));
         }
-      catch (octave::index_exception& ie)
+      catch (index_exception& ie)
         {
           // Rethrow to allow more info to be reported later.
           ie.set_pos_if_unset (2, k+1);
@@ -324,3 +326,5 @@ even if @var{nz} is 0.
 %!error <M, N, and NZ must be non-negative> spalloc (1, -1, 1)
 %!error <M, N, and NZ must be non-negative> spalloc (1, 1, -1)
 */
+
+OCTAVE_NAMESPACE_END

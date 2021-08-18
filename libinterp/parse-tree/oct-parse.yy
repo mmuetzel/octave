@@ -249,6 +249,7 @@ static void yyerror (octave::base_parser& parser, const char *s);
 %type <dummy_type> parsing_local_fcns parse_error at_first_executable_stmt
 %type <comment_type> stash_comment
 %type <tok_val> function_beg classdef_beg arguments_beg
+%type <tok_val> properties_beg methods_beg events_beg enumeration_beg
 %type <punct_type> sep_no_nl opt_sep_no_nl nl opt_nl sep opt_sep
 %type <tree_type> input
 %type <tree_constant_type> string constant magic_colon
@@ -416,19 +417,22 @@ input           : simple_list '\n'
                     OCTAVE_YYUSE ($2);
 
                     $$ = nullptr;
-                    std::shared_ptr<octave::tree_statement_list> tmp_lst ($1);
-                    parser.statement_list (tmp_lst);
-                    YYACCEPT;
+
+                    if (! parser.finish_input ($1))
+                      YYABORT;
+                    else
+                      YYACCEPT;
                   }
                 | simple_list END_OF_INPUT
                   {
                     OCTAVE_YYUSE ($2);
 
                     $$ = nullptr;
-                    lexer.m_end_of_input = true;
-                    std::shared_ptr<octave::tree_statement_list> tmp_lst ($1);
-                    parser.statement_list (tmp_lst);
-                    YYACCEPT;
+
+                    if (! parser.finish_input ($1, true))
+                      YYABORT;
+                    else
+                      YYACCEPT;
                   }
                 | parse_error
                   {
@@ -1450,7 +1454,7 @@ param_list_beg  : '('
                     if (lexer.m_looking_at_function_handle)
                       {
                         // Will get a real name later.
-                        lexer.m_symtab_context.push (octave::symbol_scope ("parser:param_lsit_beg"));
+                        lexer.m_symtab_context.push (octave::symbol_scope ("parser:param_list_beg"));
                         lexer.m_looking_at_function_handle--;
                         lexer.m_looking_at_anon_fcn_args = true;
                       }
@@ -1629,6 +1633,9 @@ file            : begin_file opt_nl opt_list END_OF_INPUT
                         lexer.m_symtab_context.pop ();
 
                         delete $3;
+
+                        if (! parser.validate_primary_fcn ())
+                          YYABORT;
                       }
                     else
                       {
@@ -1637,6 +1644,9 @@ file            : begin_file opt_nl opt_list END_OF_INPUT
                                              $4->beg_pos (), $4->end_pos ());
 
                         parser.make_script ($3, end_of_script);
+
+                        if (! parser.validate_primary_fcn ())
+                          YYABORT;
                       }
 
                     $$ = nullptr;
@@ -1650,7 +1660,8 @@ file            : begin_file opt_nl opt_list END_OF_INPUT
                     // Unused symbol table context.
                     lexer.m_symtab_context.pop ();
 
-                    parser.finish_classdef_file ($3, $6);
+                    if (! parser.finish_classdef_file ($3, $6))
+                      YYABORT;
 
                     $$ = nullptr;
                   }
@@ -1841,7 +1852,6 @@ arguments_beg   : ARGUMENTS
                   }
                 ;
 
-
 args_attr_list  : // empty
                   { $$ = nullptr; }
                 | '(' identifier ')'
@@ -1954,6 +1964,7 @@ classdef_beg    : CLASSDEF
                     lexer.m_symtab_context.push (octave::symbol_scope ());
                     lexer.m_parsing_classdef = true;
                     lexer.m_parsing_classdef_decl = true;
+                    lexer.m_classdef_element_names_are_keywords = true;
 
                     $$ = $1;
                   }
@@ -2056,11 +2067,15 @@ superclass      : FQ_IDENT
                 ;
 
 class_body      : // empty
-                  { $$ = nullptr; }
+                  {
+                    lexer.m_classdef_element_names_are_keywords = false;
+                    $$ = nullptr;
+                  }
                 | class_body1 opt_sep
                   {
                     OCTAVE_YYUSE ($2);
 
+                    lexer.m_classdef_element_names_are_keywords = false;
                     $$ = $1;
                   }
                 ;
@@ -2104,7 +2119,7 @@ class_body1     : properties_block
                 ;
 
 properties_block
-                : PROPERTIES stash_comment opt_sep attr_list property_list END
+                : properties_beg stash_comment opt_sep attr_list property_list END
                   {
                     OCTAVE_YYUSE ($3);
 
@@ -2121,12 +2136,23 @@ properties_block
                   }
                 ;
 
+properties_beg  : PROPERTIES
+                  {
+                    lexer.m_classdef_element_names_are_keywords = false;
+                    $$ = $1;
+                  }
+                ;
+
 property_list   : // empty
-                  { $$ = nullptr; }
+                  {
+                    lexer.m_classdef_element_names_are_keywords = true;
+                    $$ = nullptr;
+                  }
                 | property_list1 opt_sep
                   {
                     OCTAVE_YYUSE ($2);
 
+                    lexer.m_classdef_element_names_are_keywords = true;
                     $$ = $1;
                   }
                 ;
@@ -2183,7 +2209,7 @@ class_property  : stash_comment identifier arg_validation
                   }
                 ;
 
-methods_block   : METHODS stash_comment opt_sep attr_list methods_list END
+methods_block   : methods_beg stash_comment opt_sep attr_list methods_list END
                   {
                     OCTAVE_YYUSE ($3);
 
@@ -2197,6 +2223,13 @@ methods_block   : METHODS stash_comment opt_sep attr_list methods_list END
                         // LC, and TC.
                         YYABORT;
                       }
+                  }
+                ;
+
+methods_beg     : METHODS
+                  {
+                    lexer.m_classdef_element_names_are_keywords = false;
+                    $$ = $1;
                   }
                 ;
 
@@ -2237,11 +2270,15 @@ method          : method_decl
                 ;
 
 methods_list    : // empty
-                  { $$ = nullptr; }
+                  {
+                    lexer.m_classdef_element_names_are_keywords = true;
+                    $$ = nullptr;
+                  }
                 | methods_list1 opt_sep
                   {
                     OCTAVE_YYUSE ($2);
 
+                    lexer.m_classdef_element_names_are_keywords = true;
                     $$ = $1;
                   }
                 ;
@@ -2268,7 +2305,7 @@ methods_list1   : method
                   }
                 ;
 
-events_block    : EVENTS stash_comment opt_sep attr_list events_list END
+events_block    : events_beg stash_comment opt_sep attr_list events_list END
                   {
                     OCTAVE_YYUSE ($3);
 
@@ -2285,12 +2322,23 @@ events_block    : EVENTS stash_comment opt_sep attr_list events_list END
                   }
                 ;
 
+events_beg      : EVENTS
+                  {
+                    lexer.m_classdef_element_names_are_keywords = false;
+                    $$ = $1;
+                  }
+                ;
+
 events_list     : // empty
-                  { $$ = nullptr; }
+                  {
+                    lexer.m_classdef_element_names_are_keywords = true;
+                    $$ = nullptr;
+                  }
                 | events_list1 opt_sep
                   {
                     OCTAVE_YYUSE ($2);
 
+                    lexer.m_classdef_element_names_are_keywords = true;
                     $$ = $1;
                   }
                 ;
@@ -2310,7 +2358,7 @@ class_event     : stash_comment identifier
                   { $$ = new octave::tree_classdef_event ($2, $1); }
                 ;
 
-enum_block      : ENUMERATION stash_comment opt_sep attr_list enum_list END
+enum_block      : enumeration_beg stash_comment opt_sep attr_list enum_list END
                   {
                     OCTAVE_YYUSE ($3);
 
@@ -2327,12 +2375,23 @@ enum_block      : ENUMERATION stash_comment opt_sep attr_list enum_list END
                   }
                 ;
 
+enumeration_beg : ENUMERATION
+                  {
+                    lexer.m_classdef_element_names_are_keywords = false;
+                    $$ = $1;
+                  }
+                ;
+
 enum_list       : // empty
-                  { $$ = nullptr; }
+                  {
+                    lexer.m_classdef_element_names_are_keywords = true;
+                    $$ = nullptr;
+                  }
                 | enum_list1 opt_sep
                   {
                     OCTAVE_YYUSE ($2);
 
+                    lexer.m_classdef_element_names_are_keywords = true;
                     $$ = $1;
                   }
                 ;
@@ -2504,8 +2563,133 @@ yyerror (octave::base_parser& parser, const char *s)
   parser.bison_error (s);
 }
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
+  class parse_exception : public std::runtime_error
+  {
+  public:
+
+    parse_exception (const std::string& message,
+                     const std::string& fcn_name = "",
+                     const std::string& file_name = "",
+                     int line = -1, int column = -1)
+      : runtime_error (message), m_message (message),
+        m_fcn_name (fcn_name), m_file_name (file_name),
+        m_line (line), m_column (column)
+    { }
+
+    parse_exception (const parse_exception&) = default;
+
+    parse_exception& operator = (const parse_exception&) = default;
+
+    ~parse_exception (void) = default;
+
+    std::string message (void) const { return m_message; }
+
+    // Provided for std::exception interface.
+    const char * what (void) const noexcept { return m_message.c_str (); }
+
+    std::string fcn_name (void) const { return m_fcn_name; }
+    std::string file_name (void) const { return m_file_name; }
+
+    int line (void) const { return m_line; }
+    int column (void) const { return m_column; }
+
+    // virtual void display (std::ostream& os) const;
+
+  private:
+
+    std::string m_message;
+
+    std::string m_fcn_name;
+    std::string m_file_name;
+    int m_line;
+    int m_column;
+  };
+
+  class parse_tree_validator : public tree_walker
+  {
+  public:
+
+    parse_tree_validator (void)
+      : m_scope (), m_error_list ()
+    { }
+
+    parse_tree_validator (const parse_tree_validator&) = delete;
+
+    parse_tree_validator& operator = (const parse_tree_validator&) = delete;
+
+    ~parse_tree_validator (void) = default;
+
+    symbol_scope get_scope (void) const { return m_scope; }
+
+    bool ok (void) const { return m_error_list.empty (); }
+
+    std::list<parse_exception> error_list (void) const
+    {
+      return m_error_list;
+    }
+
+    void visit_octave_user_script (octave_user_script& script)
+    {
+      unwind_protect_var<symbol_scope> restore_var (m_scope, script.scope ());
+
+      tree_statement_list *stmt_list = script.body ();
+
+      if (stmt_list)
+        stmt_list->accept (*this);
+    }
+
+    void visit_octave_user_function (octave_user_function& fcn)
+    {
+      unwind_protect_var<symbol_scope> restore_var (m_scope, fcn.scope ());
+
+      tree_statement_list *stmt_list = fcn.body ();
+
+      if (stmt_list)
+        stmt_list->accept (*this);
+
+      std::map<std::string, octave_value> subfcns = fcn.subfunctions ();
+
+      if (! subfcns.empty ())
+        {
+          for (auto& nm_val : subfcns)
+            {
+              octave_user_function *subfcn
+                = nm_val.second.user_function_value ();
+
+              if (subfcn)
+                subfcn->accept (*this);
+            }
+        }
+    }
+
+    void visit_index_expression (tree_index_expression& idx_expr)
+    {
+      if (idx_expr.is_word_list_cmd ())
+        {
+          std::string sym_nm = idx_expr.name ();
+
+          if (m_scope.is_variable (sym_nm))
+            {
+              std::string message
+                = sym_nm + ": invalid use of symbol as both variable and command";
+              parse_exception pe (message, m_scope.fcn_name (),
+                                  m_scope.fcn_file_name (),
+                                  idx_expr.line (), idx_expr.column ());
+
+              m_error_list.push_back (pe);
+            }
+        }
+    }
+
+  private:
+
+    symbol_scope m_scope;
+
+    std::list<parse_exception> m_error_list;
+  };
+
   std::size_t
   base_parser::parent_scope_info::size (void) const
   {
@@ -3379,6 +3563,8 @@ namespace octave
           {
             tree_expression *tmp = lhs->remove_front ();
 
+            m_lexer.mark_as_variable (tmp->name ());
+
             retval = new tree_simple_for_command (parfor, tmp, expr, maxproc,
                                                   body, lc, tc, l, c);
 
@@ -3395,9 +3581,11 @@ namespace octave
 
                 bison_error ("invalid syntax for parfor statement");
               }
-            else
-              retval = new tree_complex_for_command (lhs, expr, body,
-                                                     lc, tc, l, c);
+
+            m_lexer.mark_as_variables (lhs->variable_names ());
+
+            retval = new tree_complex_for_command (lhs, expr, body,
+                                                   lc, tc, l, c);
           }
       }
     else
@@ -3720,6 +3908,8 @@ namespace octave
 
         delete lhs;
 
+        m_lexer.mark_as_variable (tmp->name ());
+
         return new tree_simple_assignment (tmp, rhs, false, l, c, t);
       }
     else
@@ -3740,11 +3930,11 @@ namespace octave
               }
           }
 
+        m_lexer.mark_as_variables (names);
+
         return new tree_multi_assignment (lhs, rhs, false, l, c);
       }
   }
-
-  // Define a script.
 
   void
   base_parser::make_script (tree_statement_list *cmds,
@@ -4512,12 +4702,39 @@ namespace octave
     return new tree_function_def (fcn, l, c);
   }
 
-  void
+  bool
   base_parser::finish_classdef_file (tree_classdef *cls,
                                      tree_statement_list *local_fcns)
   {
-    if (m_lexer.m_reading_classdef_file)
-      m_classdef_object = std::shared_ptr<tree_classdef> (cls);
+    parse_tree_validator validator;
+
+    cls->accept (validator);
+
+    if (local_fcns)
+      {
+        for (tree_statement *elt : *local_fcns)
+          {
+            tree_command *cmd = elt->command ();
+
+            tree_function_def *fcn_def
+              = dynamic_cast<tree_function_def *> (cmd);
+
+            fcn_def->accept (validator);
+          }
+      }
+
+    if (! validator.ok ())
+      {
+        delete cls;
+        delete local_fcns;
+
+        bison_error (validator.error_list ());
+
+        return false;
+      }
+
+    // Require all validations to succeed before installing any local
+    // functions or defining the classdef object for later use.
 
     if (local_fcns)
       {
@@ -4532,7 +4749,8 @@ namespace octave
               = dynamic_cast<tree_function_def *> (cmd);
 
             octave_value ov_fcn = fcn_def->function ();
-            octave_function *fcn = ov_fcn.function_value ();
+            octave_user_function *fcn = ov_fcn.user_function_value ();
+
             std::string nm = fcn->name ();
             std::string file = fcn->fcn_file_name ();
 
@@ -4541,6 +4759,12 @@ namespace octave
 
         delete local_fcns;
       }
+
+    // FIXME: Is it possible for the following condition to be false?
+    if (m_lexer.m_reading_classdef_file)
+      m_classdef_object = std::shared_ptr<tree_classdef> (cls);
+
+    return true;
   }
 
   // Make an index expression.
@@ -5100,6 +5324,23 @@ namespace octave
     m_parse_error_msg = output_buf.str ();
   }
 
+  void
+  base_parser::bison_error (const parse_exception& pe)
+  {
+    bison_error (pe.message (), pe.line (), pe.column ());
+  }
+
+  void
+  base_parser::bison_error (const std::list<parse_exception>& pe_list)
+  {
+    // For now, we just report the first error found.  Reporting all
+    // errors will require a bit more refactoring.
+
+    parse_exception pe = pe_list.front ();
+
+    bison_error (pe.message (), pe.line (), pe.column ());
+  }
+
   int
   parser::run (void)
   {
@@ -5295,7 +5536,7 @@ namespace octave
     unwind_action act ([=] (void) { ::fclose (ffile); });
 
     // get the encoding for this folder
-    octave::input_system& input_sys = interp.get_input_system ();
+    input_system& input_sys = interp.get_input_system ();
     parser parser (ffile, interp, input_sys.dir_encoding (dir_name));
 
     parser.m_curr_class_name = dispatch_type;
@@ -5354,6 +5595,57 @@ namespace octave
       }
 
     return octave_value ();
+  }
+
+  bool
+  base_parser::finish_input (tree_statement_list *lst, bool at_eof)
+  {
+    m_lexer.m_end_of_input = at_eof;
+
+    if (lst)
+      {
+        parse_tree_validator validator;
+
+        lst->accept (validator);
+
+        if (! validator.ok ())
+          {
+            delete lst;
+
+            bison_error (validator.error_list ());
+
+            return false;
+          }
+      }
+
+    std::shared_ptr<tree_statement_list> tmp_lst (lst);
+
+    statement_list (tmp_lst);
+
+    return true;
+  }
+
+  // Check script or function for semantic errors.
+  bool
+  base_parser::validate_primary_fcn (void)
+  {
+    octave_user_code *code = m_primary_fcn.user_code_value ();
+
+    if (code)
+      {
+        parse_tree_validator validator;
+
+        code->accept (validator);
+
+        if (! validator.ok ())
+          {
+            bison_error (validator.error_list ());
+
+            return false;
+          }
+      }
+
+    return true;
   }
 
   // Maybe print a warning if an assignment expression is used as the
@@ -5560,7 +5852,6 @@ namespace octave
 
     return retval;
   }
-}
 
 DEFMETHOD (autoload, interp, args, ,
            doc: /* -*- texinfo -*-
@@ -5607,7 +5898,7 @@ not loaded anymore during the current Octave session.
   if (nargin == 1 || nargin > 3)
     print_usage ();
 
-  octave::tree_evaluator& tw = interp.get_evaluator ();
+  tree_evaluator& tw = interp.get_evaluator ();
 
   if (nargin == 0)
     return octave_value (tw.get_autoload_map ());
@@ -5662,8 +5953,6 @@ the filename and the extension.
   return octave_value (interp.mfilename (opt));
 }
 
-namespace octave
-{
   // Execute the contents of a script file.  For compatibility with
   // Matlab, also execute a function file by calling the function it
   // defines with no arguments and nargout = 0.
@@ -5676,7 +5965,6 @@ namespace octave
 
     interp.source_file (file_name, context, verbose, require_file);
   }
-}
 
 DEFMETHOD (source, interp, args, ,
            doc: /* -*- texinfo -*-
@@ -5711,8 +5999,6 @@ context of the function that called the present function
   return octave_value_list ();
 }
 
-namespace octave
-{
   //! Evaluate an Octave function (built-in or interpreted) and return
   //! the list of result values.
   //!
@@ -5761,7 +6047,6 @@ namespace octave
 
     return interp.feval (args, nargout);
   }
-}
 
 DEFMETHOD (feval, interp, args, nargout,
            doc: /* -*- texinfo -*-
@@ -5842,7 +6127,7 @@ builtin ("sin", 0)
 
   const std::string name (args(0).xstring_value ("builtin: function name (F) must be a string"));
 
-  octave::symbol_table& symtab = interp.get_symbol_table ();
+  symbol_table& symtab = interp.get_symbol_table ();
 
   octave_value fcn = symtab.builtin_find (name);
 
@@ -5854,8 +6139,6 @@ builtin ("sin", 0)
   return retval;
 }
 
-namespace octave
-{
   void
   cleanup_statement_list (tree_statement_list **lst)
   {
@@ -5865,7 +6148,6 @@ namespace octave
         *lst = nullptr;
       }
   }
-}
 
 DEFMETHOD (eval, interp, args, nargout,
            doc: /* -*- texinfo -*-
@@ -6093,7 +6375,7 @@ s = evalc ("t = 42"), t
   // the eval, then the message is stored in the exception object and we
   // will display it later, after the buffers have been restored.
 
-  octave::unwind_action act ([=] (void)
+  unwind_action act ([=] (void)
                              {
                                octave_stdout.rdbuf (old_out_buf);
                                std::cerr.rdbuf (old_err_buf);
@@ -6236,9 +6518,9 @@ Undocumented internal function.
   std::string file
     = args(0).xstring_value ("__parse_file__: expecting filename as argument");
 
-  std::string full_file = octave::sys::file_ops::tilde_expand (file);
+  std::string full_file = sys::file_ops::tilde_expand (file);
 
-  full_file = octave::sys::env::make_absolute (full_file);
+  full_file = sys::env::make_absolute (full_file);
 
   std::string dir_name;
 
@@ -6248,10 +6530,10 @@ Undocumented internal function.
       || (file_len > 4 && file.substr (file_len-4) == ".mex")
       || (file_len > 2 && file.substr (file_len-2) == ".m"))
     {
-      file = octave::sys::env::base_pathname (file);
+      file = sys::env::base_pathname (file);
       file = file.substr (0, file.find_last_of ('.'));
 
-      std::size_t pos = file.find_last_of (octave::sys::file_ops::dir_sep_str ());
+      std::size_t pos = file.find_last_of (sys::file_ops::dir_sep_str ());
       if (pos != std::string::npos)
         {
           dir_name = file.substr (0, pos);
@@ -6268,3 +6550,5 @@ Undocumented internal function.
 
   return retval;
 }
+
+OCTAVE_NAMESPACE_END

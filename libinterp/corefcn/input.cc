@@ -94,8 +94,8 @@ bool Vdrawnow_requested = false;
 // the terminal.
 bool Vtrack_line_num = true;
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   static std::string
   quoting_filename (const std::string& text, int, char quote)
   {
@@ -908,7 +908,7 @@ namespace octave
     file_reader (interpreter& interp, FILE *f_arg)
       : base_reader (interp), m_file (f_arg)
     {
-      octave::input_system& input_sys = interp.get_input_system ();
+      input_system& input_sys = interp.get_input_system ();
       m_encoding = input_sys.mfile_encoding ();
     }
 
@@ -1045,7 +1045,7 @@ namespace octave
 
     eof = false;
 
-    std::string src_str = octave_fgets (m_file, eof);
+    std::string src_str = fgets (m_file, eof);
 
     std::string mfile_encoding;
 
@@ -1127,7 +1127,6 @@ namespace octave
 
     return retval;
   }
-}
 
 DEFMETHOD (input, interp, args, nargout,
            doc: /* -*- texinfo -*-
@@ -1173,7 +1172,7 @@ your prompt.
   if (nargin < 1 || nargin > 2)
     print_usage ();
 
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   return input_sys.get_user_input (args, std::max (nargout, 1));
 }
@@ -1197,7 +1196,7 @@ string @samp{(yes or no) } to it.  The user must confirm the answer with
   if (nargin > 1)
     print_usage ();
 
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   std::string prompt;
 
@@ -1230,7 +1229,7 @@ If @code{keyboard} is invoked without arguments, a default prompt of
   if (nargin > 1)
     print_usage ();
 
-  octave::tree_evaluator& tw = interp.get_evaluator ();
+  tree_evaluator& tw = interp.get_evaluator ();
 
   if (nargin == 1)
     {
@@ -1271,7 +1270,7 @@ a feature, not a bug.
 
   for (;;)
     {
-      std::string cmd = octave::generate_completion (hint, k);
+      std::string cmd = generate_completion (hint, k);
 
       if (! cmd.empty ())
         {
@@ -1348,12 +1347,12 @@ for details.
     print_usage ();
 
   if (nargin == 0)
-    octave::command_editor::read_init_file ();
+    command_editor::read_init_file ();
   else
     {
       std::string file = args(0).string_value ();
 
-      octave::command_editor::read_init_file (file);
+      command_editor::read_init_file (file);
     }
 
   return ovl ();
@@ -1372,7 +1371,7 @@ for details.
   if (args.length () != 0)
     print_usage ();
 
-  octave::command_editor::re_read_init_file ();
+  command_editor::re_read_init_file ();
 
   return ovl ();
 }
@@ -1407,9 +1406,9 @@ list of input hook functions.
   if (nargin == 2)
     user_data = args(1);
 
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
-  octave::hook_function hook_fcn (args(0), user_data);
+  hook_function hook_fcn (args(0), user_data);
 
   input_sys.add_input_event_hook (hook_fcn);
 
@@ -1435,7 +1434,7 @@ for input.
 
   bool warn = (nargin < 2);
 
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   if (! input_sys.remove_input_event_hook (hook_fcn_id) && warn)
     warning ("remove_input_event_hook: %s not found in list",
@@ -1483,7 +1482,7 @@ The original variable value is restored when exiting the function.
 @seealso{PS2, PS4}
 @end deftypefn */)
 {
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   return input_sys.PS1 (args, nargout);
 }
@@ -1507,7 +1506,7 @@ The original variable value is restored when exiting the function.
 @seealso{PS1, PS4}
 @end deftypefn */)
 {
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   return input_sys.PS2 (args, nargout);
 }
@@ -1527,7 +1526,7 @@ variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
 @end deftypefn */)
 {
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   return input_sys.completion_append_char (args, nargout);
 }
@@ -1558,7 +1557,7 @@ DEFMETHOD (__gud_mode__, interp, args, nargout,
 Undocumented internal function.
 @end deftypefn */)
 {
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   return input_sys.gud_mode (args, nargout);
 }
@@ -1569,7 +1568,7 @@ DEFMETHOD (__mfile_encoding__, interp, args, nargout,
 Set and query the codepage that is used for reading .m files.
 @end deftypefn */)
 {
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   return input_sys.mfile_encoding (args, nargout);
 }
@@ -1624,7 +1623,7 @@ with the command @code{clear all}.
 
   octave_value retval;
 
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   if (nargout > 0)
     retval = input_sys.dir_encoding (dir);
@@ -1655,7 +1654,9 @@ variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
 @end deftypefn */)
 {
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   return input_sys.auto_repeat_debug_command (args, nargout);
 }
+
+OCTAVE_NAMESPACE_END

@@ -3194,6 +3194,8 @@ octave_print_internal (std::ostream&, const octave_value&, bool)
   panic_impossible ();
 }
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFUN (rats, args, ,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{s} =} rats (@var{x})
@@ -3242,7 +3244,7 @@ x = str2num (r)
       arg = arg.reshape (dv);
     }
 
-  octave::unwind_protect frame;
+  unwind_protect frame;
 
   frame.protect_var (rat_string_len);
 
@@ -3388,11 +3390,11 @@ Note that the output from @code{fdisp} always ends with a newline.
   if (args.length () != 2)
     print_usage ();
 
-  octave::stream_list& streams = interp.get_stream_list ();
+  stream_list& streams = interp.get_stream_list ();
 
   int fid = streams.get_file_number (args(0));
 
-  octave::stream os = streams.lookup (fid, "fdisp");
+  stream os = streams.lookup (fid, "fdisp");
 
   std::ostream *osp = os.output_stream ();
 
@@ -3514,12 +3516,12 @@ of properly displaying the object's name.  This can be done by using the
   // disp is done.
 
   bool print_newlines = false;
-  if (octave::valid_identifier (name))
+  if (valid_identifier (name))
     print_newlines = value.print_name_tag (octave_stdout, name);
 
   // Use feval so that dispatch will also work for disp.
 
-  octave::feval ("disp", ovl (value));
+  feval ("disp", ovl (value));
 
   if (print_newlines)
     octave_stdout << std::endl;
@@ -3588,7 +3590,7 @@ set_format_style (int argc, const string_vector& argv)
   int idx = 1;
   std::string format;
 
-  octave::unwind_protect frame;
+  unwind_protect frame;
 
   frame.protect_var (bank_format);
   frame.protect_var (bit_format);
@@ -4091,7 +4093,8 @@ The original variable value is restored when exiting the function.
 @seealso{format, output_precision}
 @end deftypefn */)
 {
-  return SET_INTERNAL_VARIABLE (fixed_point_format);
+  return set_internal_variable (Vfixed_point_format, args, nargout,
+                                "fixed_point_format");
 }
 
 DEFUN (print_empty_dimensions, args, nargout,
@@ -4121,7 +4124,8 @@ The original variable value is restored when exiting the function.
 @seealso{format}
 @end deftypefn */)
 {
-  return SET_INTERNAL_VARIABLE (print_empty_dimensions);
+  return set_internal_variable (Vprint_empty_dimensions, args, nargout,
+                                "print_empty_dimensions");
 }
 
 DEFUN (split_long_rows, args, nargout,
@@ -4160,5 +4164,8 @@ The original variable value is restored when exiting the function.
 @seealso{format}
 @end deftypefn */)
 {
-  return SET_INTERNAL_VARIABLE (split_long_rows);
+  return set_internal_variable (Vsplit_long_rows, args, nargout,
+                                "split_long_rows");
 }
+
+OCTAVE_NAMESPACE_END

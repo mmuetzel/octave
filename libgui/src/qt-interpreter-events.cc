@@ -259,6 +259,11 @@ namespace octave
     emit apply_new_settings ();
   }
 
+  void qt_interpreter_events::show_terminal_window (void)
+  {
+    emit show_terminal_window_signal ();
+  }
+
   bool qt_interpreter_events::show_documentation (const std::string& file)
   {
     emit show_documentation_signal (QString::fromStdString (file));
@@ -279,6 +284,16 @@ namespace octave
   void qt_interpreter_events::show_workspace (void)
   {
     emit show_workspace_signal ();
+  }
+
+  void qt_interpreter_events::show_community_news (int serial)
+  {
+    emit show_community_news_signal (serial);
+  }
+
+  void qt_interpreter_events::show_release_notes (void)
+  {
+    emit show_release_notes_signal ();
   }
 
   bool qt_interpreter_events::edit_file (const std::string& file)
@@ -480,7 +495,7 @@ namespace octave
   void qt_interpreter_events::interpreter_output (const std::string& msg)
   {
     if (m_octave_qobj.experimental_terminal_widget ()
-        && m_octave_qobj.gui_running ())
+        && m_octave_qobj.have_terminal_window ())
       emit interpreter_output_signal (QString::fromStdString (msg));
     else
       {
@@ -493,7 +508,7 @@ namespace octave
                                                  bool beep)
   {
     if (m_octave_qobj.experimental_terminal_widget ()
-        && m_octave_qobj.gui_running ())
+        && m_octave_qobj.have_terminal_window ())
       {
         std::ostringstream buf;
         ee.display (buf);

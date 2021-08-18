@@ -86,6 +86,8 @@ octave_qhull_dims_ok (octave_idx_type dim, octave_idx_type n, const char *who)
 
 #endif
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFUN_DLD (convhulln, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{h} =} convhulln (@var{pts})
@@ -178,8 +180,8 @@ convex hull is calculated.
 
   int exitcode = qh_new_qhull (qh, dim, num_points, points.fortran_vec (),
                                ismalloc, &cmd[0], outfile, errfile);
- 
-  octave::unwind_action free_memory ([qh] () { free_qhull_memory (qh); });
+
+  unwind_action free_memory ([qh] () { free_qhull_memory (qh); });
 
   if (exitcode)
     error ("convhulln: qhull failed");
@@ -329,3 +331,5 @@ convex hull is calculated.
 %! h = convhulln (triangle);
 %! assert (size (h), [3 2]);
 */
+
+OCTAVE_NAMESPACE_END

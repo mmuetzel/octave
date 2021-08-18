@@ -70,8 +70,8 @@ extern OCTINTERP_API bool octave_initialized;
 
 #include "oct-time.h"
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   class profiler;
   class child_list;
   class push_parser;
@@ -538,11 +538,29 @@ namespace octave
 
     bool remove_atexit_fcn (const std::string& fname);
 
+  private:
+
+    // Remove when corresponding public deprecated function is removed.
+    static void add_atexit_function_deprecated (const std::string& fname);
+
+    // Remove when corresponding public deprecated function is removed.
+    static bool remove_atexit_function_deprecated (const std::string& fname);
+
+  public:
+
+#if defined (OCTAVE_PROVIDE_DEPRECATED_SYMBOLS)
     OCTAVE_DEPRECATED (6, "use interpreter::add_atexit_fcn member function instead")
-    static void add_atexit_function (const std::string& fname);
+    static void add_atexit_function (const std::string& fname)
+    {
+      add_atexit_function_deprecated (fname);
+    }
 
     OCTAVE_DEPRECATED (6, "use interpreter::remove_atexit_fcn member function instead")
-    static bool remove_atexit_function (const std::string& fname);
+    static bool remove_atexit_function (const std::string& fname)
+    {
+      return remove_atexitfunction_deprecated (fname);
+    }
+    #endif
 
     static interpreter * the_interpreter (void) { return instance; }
 
@@ -651,6 +669,7 @@ namespace octave
 
     void execute_pkg_add (const std::string& dir);
   };
-}
+
+OCTAVE_NAMESPACE_END
 
 #endif

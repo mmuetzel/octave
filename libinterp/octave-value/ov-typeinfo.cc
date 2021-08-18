@@ -35,12 +35,13 @@
 #include "error.h"
 #include "interpreter.h"
 #include "interpreter-private.h"
-#include "ops.h"
 #include "ov-typeinfo.h"
 #include "ov.h"
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
+  extern void install_ops (type_info& ti);
+
   // FIXME: we should also store all class names and provide a
   // way to list them (calling class with nargin == 0?).
 
@@ -758,7 +759,8 @@ namespace octave
 
     return retval;
   }
-}
+
+OCTAVE_NAMESPACE_END
 
 namespace octave_value_typeinfo
 {
@@ -900,6 +902,8 @@ namespace octave_value_typeinfo
   }
 }
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFMETHOD (typeinfo, interp, args, ,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {} typeinfo ()
@@ -919,7 +923,7 @@ currently installed data types.
 
   if (nargin == 0)
     {
-      octave::type_info& type_info = interp.get_type_info ();
+      type_info& type_info = interp.get_type_info ();
 
       return ovl (Cell (type_info.installed_type_names ()));
     }
@@ -943,10 +947,10 @@ currently installed data types.
 %!assert (typeinfo (diag ([i, 2])), "complex diagonal matrix")
 
 %!test
-%! if (disable_range ())
-%!   assert (typeinfo (1:2), "matrix")
-%! else
+%! if (optimize_range ())
 %!   assert (typeinfo (1:2), "range")
+%! else
+%!   assert (typeinfo (1:2), "matrix")
 %! endif
 
 %!assert (typeinfo (false), "bool")
@@ -1035,7 +1039,9 @@ Undocumented internal function.
   if (args.length () > 0)
     print_usage ();
 
-  octave::type_info& type_info = interp.get_type_info ();
+  type_info& type_info = interp.get_type_info ();
 
   return ovl (type_info.installed_type_info ());
 }
+
+OCTAVE_NAMESPACE_END

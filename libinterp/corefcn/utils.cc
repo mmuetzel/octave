@@ -70,8 +70,8 @@
 #include "utils.h"
 #include "variables.h"
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   // Return TRUE if S is a valid identifier.
 
   bool valid_identifier (const char *s)
@@ -90,7 +90,6 @@ namespace octave
   {
     return valid_identifier (s.c_str ());
   }
-}
 
 DEFUN (isvarname, args, ,
        doc: /* -*- texinfo -*-
@@ -111,8 +110,8 @@ and the first character must not be a digit.
     {
       std::string varname = args(0).string_value ();
 
-      retval = (octave::valid_identifier (varname)
-                && ! octave::iskeyword (varname));
+      retval = (valid_identifier (varname)
+                && ! iskeyword (varname));
     }
 
   return retval;
@@ -131,8 +130,6 @@ and the first character must not be a digit.
 %!error isvarname ("foo", "bar")
 */
 
-namespace octave
-{
   bool
   make_valid_name (std::string& str, const make_valid_name_options& options)
   {
@@ -244,8 +241,8 @@ namespace octave
           {
             m_prefix = args(i + 1).xstring_value ("makeValidName: "
               "'Prefix' value must be a string");
-            if (! octave::valid_identifier (m_prefix)
-                || octave::iskeyword (m_prefix))
+            if (! valid_identifier (m_prefix)
+                || iskeyword (m_prefix))
               error ("makeValidName: invalid 'Prefix' value '%s'",
                      m_prefix.c_str ());
           }
@@ -253,7 +250,6 @@ namespace octave
           error ("makeValidName: unknown property '%s'", parameter.c_str ());
       }
   }
-}
 
 DEFUN (__make_valid_name__, args, ,
        doc: /* -*- texinfo -*-
@@ -272,12 +268,12 @@ For more documentation, see @code{matlab.lang.makeValidName}.
   if (nargin < 1)
     print_usage ();
 
-  octave::make_valid_name_options options (args.slice (1, nargin - 1));
+  make_valid_name_options options (args.slice (1, nargin - 1));
 
   if (args(0).is_string ())
     {
       std::string varname = args(0).string_value ();
-      bool is_modified = octave::make_valid_name (varname, options);
+      bool is_modified = make_valid_name (varname, options);
       return ovl (varname, is_modified);
     }
   else if (args(0).iscellstr ())
@@ -285,22 +281,19 @@ For more documentation, see @code{matlab.lang.makeValidName}.
       Array<std::string> varnames = args(0).cellstr_value ();
       Array<bool> is_modified (varnames.dims ());
       for (auto i = 0; i < varnames.numel (); i++)
-        is_modified(i) = octave::make_valid_name (varnames(i), options);
+        is_modified(i) = make_valid_name (varnames(i), options);
       return ovl (varnames, is_modified);
     }
   else
     error ("makeValidName: STR must be a string or cellstr");
 }
 
-namespace octave
-{
   // Return TRUE if F and G are both names for the same file.
 
   bool same_file (const std::string& f, const std::string& g)
   {
     return same_file_internal (f, g);
   }
-}
 
 DEFUN (is_same_file, args, ,
        doc: /* -*- texinfo -*-
@@ -342,7 +335,7 @@ return true.
       std::string file1 = args(0).string_value ();
       std::string file2 = args(1).string_value ();
 
-      retval = octave::same_file (file1, file2);
+      retval = same_file (file1, file2);
     }
   else if ((s1_string && s2_cellstr) || (s1_cellstr && s2_string))
     {
@@ -365,7 +358,7 @@ return true.
       boolNDArray output (cellstr.dims (), false);
 
       for (octave_idx_type idx = 0; idx < cellstr.numel (); idx++)
-        output(idx) = octave::same_file (str, cellstr(idx));
+        output(idx) = same_file (str, cellstr(idx));
 
       retval = output;
     }
@@ -383,7 +376,7 @@ return true.
       boolNDArray output (size1, false);
 
       for (octave_idx_type idx = 0; idx < cellstr1.numel (); idx++)
-        output(idx) = octave::same_file (cellstr1(idx), cellstr2(idx));
+        output(idx) = same_file (cellstr1(idx), cellstr2(idx));
 
       retval = output;
     }
@@ -412,9 +405,6 @@ return true.
 %!error <arrays .* must be the same size> is_same_file ({"1", "2"}, {"1"; "2"})
 */
 
-
-namespace octave
-{
   int almost_match (const std::string& std, const std::string& s,
                     int min_match_len, int case_sens)
   {
@@ -554,7 +544,6 @@ namespace octave
 
     return retval;
   }
-}
 
 DEFMETHOD (file_in_loadpath, interp, args, ,
            doc: /* -*- texinfo -*-
@@ -589,10 +578,10 @@ If no files are found, return an empty cell array.
   if (names.empty ())
     error ("file_in_loadpath: FILE argument must not be empty");
 
-  octave::load_path& lp = interp.get_load_path ();
+  load_path& lp = interp.get_load_path ();
 
   if (nargin == 1)
-    return ovl (octave::sys::env::make_absolute (lp.find_first_of (names)));
+    return ovl (sys::env::make_absolute (lp.find_first_of (names)));
   else
     {
       std::string opt = args(1).xstring_value ("file_in_loadpath: optional second argument must be a string");
@@ -600,7 +589,7 @@ If no files are found, return an empty cell array.
       if (opt != "all")
         error (R"(file_in_loadpath: "all" is only valid second argument)");
 
-      return ovl (Cell (octave::make_absolute (lp.find_all_first_of (names))));
+      return ovl (Cell (make_absolute (lp.find_all_first_of (names))));
     }
 }
 
@@ -663,7 +652,7 @@ If no files are found, return an empty cell array.
     error ("file_in_path: FILE argument must not be empty");
 
   if (nargin == 2)
-    return ovl (octave::search_path_for_file (path, names));
+    return ovl (search_path_for_file (path, names));
   else
     {
       std::string opt = args(2).xstring_value ("file_in_path: optional third argument must be a string");
@@ -671,7 +660,7 @@ If no files are found, return an empty cell array.
       if (opt != "all")
         error (R"(file_in_path: "all" is only valid third argument)");
 
-      return ovl (Cell (octave::make_absolute (octave::search_path_for_all_files (path, names))));
+      return ovl (Cell (make_absolute (search_path_for_all_files (path, names))));
     }
 }
 
@@ -697,8 +686,6 @@ If no files are found, return an empty cell array.
 %!error file_in_path (path (), "plot.m", "bar")
 */
 
-namespace octave
-{
   std::string file_in_path (const std::string& name, const std::string& suffix)
   {
     std::string nm = name;
@@ -936,7 +923,6 @@ namespace octave
 
     return retval;
   }
-}
 
 DEFUN (do_string_escapes, args, ,
        doc: /* -*- texinfo -*-
@@ -954,7 +940,7 @@ Escape sequences begin with a leading backslash
 
   std::string str = args(0).xstring_value ("do_string_escapes: STRING argument must be of type string");
 
-  return ovl (octave::do_string_escapes (str));
+  return ovl (do_string_escapes (str));
 }
 
 /*
@@ -994,8 +980,6 @@ Escape sequences begin with a leading backslash
 %!warning <unrecognized escape sequence> do_string_escapes ('\G');
 */
 
-namespace octave
-{
   const char * undo_string_escape (char c)
   {
     if (! c)
@@ -1052,7 +1036,6 @@ namespace octave
 
     return retval;
   }
-}
 
 DEFUN (undo_string_escapes, args, ,
        doc: /* -*- texinfo -*-
@@ -1090,7 +1073,7 @@ replaces the unprintable alert character with its printable representation.
 
   std::string str = args(0).xstring_value ("undo_string_escapes: S argument must be a string");
 
-  return ovl (octave::undo_string_escapes (str));
+  return ovl (undo_string_escapes (str));
 }
 
 /*
@@ -1126,7 +1109,7 @@ Return true if @var{file} is an absolute filename.
     print_usage ();
 
   return ovl (args(0).is_string ()
-              && octave::sys::env::absolute_pathname (args(0).string_value ()));
+              && sys::env::absolute_pathname (args(0).string_value ()));
 }
 
 /*
@@ -1147,7 +1130,7 @@ Return true if @var{file} is a rooted-relative filename.
     print_usage ();
 
   return ovl (args(0).is_string ()
-              && octave::sys::env::rooted_relative_pathname (args(0).string_value ()));
+              && sys::env::rooted_relative_pathname (args(0).string_value ()));
 }
 
 /*
@@ -1173,7 +1156,7 @@ No check is done for the existence of @var{file}.  No tilde expansion of
 
   std::string nm = args(0).xstring_value ("make_absolute_filename: FILE argument must be a filename");
 
-  return ovl (octave::sys::env::make_absolute (nm));
+  return ovl (sys::env::make_absolute (nm));
 }
 
 /*
@@ -1215,7 +1198,7 @@ all name matches rather than just the first.
 
   dir = args(0).xstring_value ("dir_in_loadpath: DIR must be a directory name");
 
-  octave::load_path& lp = interp.get_load_path ();
+  load_path& lp = interp.get_load_path ();
 
   if (nargin == 1)
     return ovl (lp.find_dir (dir));
@@ -1322,8 +1305,6 @@ Return a structure containing the system-dependent errno values.
 %!error errno_list ("foo")
 */
 
-namespace octave
-{
   static void check_dimensions (octave_idx_type& nr, octave_idx_type& nc,
                                 const char *warnfor)
   {
@@ -1644,7 +1625,6 @@ namespace octave
           }
       }
   }
-}
 
 DEFMETHOD (isindex, interp, args, ,
            doc: /* -*- texinfo -*-
@@ -1677,14 +1657,14 @@ character @nospell{"@backslashchar{}0"}, it will always be a valid index.
 
   try
     {
-      octave::idx_vector idx = args(0).index_vector (true);
+      idx_vector idx = args(0).index_vector (true);
 
       if (nargin == 2)
         retval = idx.extent (n) <= n;
       else
         retval = true;
     }
-  catch (const octave::execution_exception&)
+  catch (const execution_exception&)
     {
       interp.recover_from_exception ();
 
@@ -1704,8 +1684,6 @@ character @nospell{"@backslashchar{}0"}, it will always be a valid index.
 %!error isindex (1:3, 2, 3)
 */
 
-namespace octave
-{
   octave_value_list
   do_simple_cellfun (octave_value_list (*fun) (const octave_value_list&, int),
                      const char *fun_name, const octave_value_list& args,
@@ -1787,7 +1765,6 @@ namespace octave
 
     return retval;
   }
-}
 
 DEFUN (isstudent, args, ,
        doc: /* -*- texinfo -*-
@@ -1809,3 +1786,5 @@ Return true if running in the student edition of @sc{matlab}.
 
 %!error isstudent (1)
 */
+
+OCTAVE_NAMESPACE_END

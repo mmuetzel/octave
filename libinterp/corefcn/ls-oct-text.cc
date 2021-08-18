@@ -457,6 +457,8 @@ save_three_d (std::ostream& os, const octave_value& tc, bool parametric)
   return (static_cast<bool> (os));
 }
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFUN (save_precision, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} save_precision ()
@@ -478,6 +480,9 @@ The original variable value is restored when exiting the function.
 @seealso{save_default_options}
 @end deftypefn */)
 {
-  return SET_INTERNAL_VARIABLE_WITH_LIMITS (save_precision, -1,
-                                            std::numeric_limits<int>::max ());
+  return set_internal_variable (Vsave_precision, args, nargout,
+                                "save_precision", -1,
+                                std::numeric_limits<int>::max ());
 }
+
+OCTAVE_NAMESPACE_END

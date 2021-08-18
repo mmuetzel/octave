@@ -1524,6 +1524,8 @@ called_from_builtin (void)
   return (fcn && fcn->name () == "builtin");
 }
 
+OCTAVE_NAMESPACE_BEGIN
+
 void
 install_base_type_conversions (octave::type_info& ti)
 {
@@ -1574,7 +1576,8 @@ variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
 @end deftypefn */)
 {
-  return SET_INTERNAL_VARIABLE (sparse_auto_mutate);
+  return set_internal_variable (Vsparse_auto_mutate, args, nargout,
+                                "sparse_auto_mutate");
 }
 
 /*
@@ -1588,3 +1591,5 @@ The original variable value is restored when exiting the function.
 %! assert (typeinfo (s), "matrix");
 %! sparse_auto_mutate (false);
 */
+
+OCTAVE_NAMESPACE_END

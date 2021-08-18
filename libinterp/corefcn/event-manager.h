@@ -42,8 +42,8 @@
 class octave_value;
 class string_vector;
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   typedef std::function<void (void)> fcn_callback;
   typedef std::function<void (interpreter&)> meth_callback;
 
@@ -148,6 +148,8 @@ namespace octave
 
     virtual void apply_preferences (void) { }
 
+    virtual void show_terminal_window (void) { }
+
     virtual bool show_documentation (const std::string& /*file*/)
     {
       return false;
@@ -158,6 +160,9 @@ namespace octave
     virtual void show_command_history (void) { }
 
     virtual void show_workspace (void) { }
+
+    virtual void show_community_news (int /*serial*/) { }
+    virtual void show_release_notes (void) { }
 
     virtual bool edit_file (const std::string& /*file*/) { return false; }
 
@@ -454,6 +459,12 @@ namespace octave
         return false;
     }
 
+    void show_terminal_window (void)
+    {
+      if (enabled ())
+        instance->show_terminal_window ();
+    }
+
     bool show_documentation (const std::string& file)
     {
       return enabled () ? instance->show_documentation (file) : false;
@@ -475,6 +486,18 @@ namespace octave
     {
       if (enabled ())
         instance->show_workspace ();
+    }
+
+    void show_community_news (int serial = -1)
+    {
+      if (enabled ())
+        instance->show_community_news (serial);
+    }
+
+    void show_release_notes (void)
+    {
+      if (enabled ())
+        instance->show_release_notes ();
     }
 
     bool edit_file (const std::string& file)
@@ -653,6 +676,8 @@ namespace octave
         instance->update_prompt (prompt);
     }
 
+    OCTINTERP_API void set_history (void);
+
     void set_history (const string_vector& hist)
     {
       if (enabled ())
@@ -754,6 +779,7 @@ namespace octave
     bool debugging;
     bool link_enabled;
   };
-}
+
+OCTAVE_NAMESPACE_END
 
 #endif

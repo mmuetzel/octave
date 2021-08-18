@@ -92,7 +92,8 @@ octinclude_HEADERS += \
   $(PARSER_INC)
 
 noinst_HEADERS += \
-  %reldir%/options-usage.h \
+  %reldir%/options.h \
+  %reldir%/usage.h \
   $(NOINSTALL_LIBINTERP_OPERATORS_INC)
 
 nodist_octinclude_HEADERS += \
@@ -150,7 +151,7 @@ endif
 ## Increment the following version numbers as needed and according
 ## to the rules in the etc/HACKING.md file:
 
-%canon_reldir%_liboctinterp_current = 8
+%canon_reldir%_liboctinterp_current = 9
 %canon_reldir%_liboctinterp_revision = 0
 %canon_reldir%_liboctinterp_age = 0
 

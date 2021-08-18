@@ -63,7 +63,7 @@ function [s, iters] = logm (A, opt_iters = 100)
   if (isscalar (A))
     s = log (A);
     return;
-  elseif (strfind (typeinfo (A), "diagonal matrix"))
+  elseif (isdiag (A))
     s = diag (log (diag (A)));
     return;
   endif
@@ -75,52 +75,63 @@ function [s, iters] = logm (A, opt_iters = 100)
   endif
 
   eigv = diag (s);
-  if (any (eigv < 0))
+  n = rows(A);
+  tol = n * eps (max (abs (eigv)));
+  real_neg_eigv = (real (eigv) < -tol) & (imag (eigv) <= tol);
+  if (any (real_neg_eigv))
     warning ("Octave:logm:non-principal",
              "logm: principal matrix logarithm is not defined for matrices with negative eigenvalues; computing non-principal logarithm");
   endif
 
-  real_eig = all (eigv >= 0);
+  real_eig = ! any (real_neg_eigv);
 
-  k = 0;
-  ## Algorithm 11.9 in "Function of matrices", by N. Higham
-  theta = [0, 0, 1.61e-2, 5.38e-2, 1.13e-1, 1.86e-1, 2.6429608311114350e-1];
-  p = 0;
-  m = 7;
-  while (k < opt_iters)
-    tau = norm (s - eye (size (s)),1);
-    if (tau <= theta (7))
-      p += 1;
-      j(1) = find (tau <= theta, 1);
-      j(2) = find (tau / 2 <= theta, 1);
-      if (j(1) - j(2) <= 1 || p == 2)
-        m = j(1);
-        break;
+  if (max (abs (triu (s,1))(:)) < tol)
+    ## Will run for Hermitian matrices as Schur decomposition is diagonal.
+    ## This way is faster and more accurate but only works on a diagonal matrix.
+    logeigv = log (eigv);
+    logeigv(isinf (logeigv)) = -log (realmax ());
+    s = u * diag (logeigv) * u';
+    iters = 0;
+  else
+    k = 0;
+    ## Algorithm 11.9 in "Function of matrices", by N. Higham
+    theta = [0, 0, 1.61e-2, 5.38e-2, 1.13e-1, 1.86e-1, 2.6429608311114350e-1];
+    p = 0;
+    m = 7;
+    while (k < opt_iters)
+      tau = norm (s - eye (n), 1);
+      if (tau <= theta (7))
+        p += 1;
+        j(1) = find (tau <= theta, 1);
+        j(2) = find (tau / 2 <= theta, 1);
+        if (j(1) - j(2) <= 1 || p == 2)
+          m = j(1);
+          break;
+        endif
       endif
+      k += 1;
+      s = sqrtm (s);
+    endwhile
+
+    if (k >= opt_iters)
+      warning ("logm: maximum number of square roots exceeded; results may still be accurate");
     endif
-    k += 1;
-    s = sqrtm (s);
-  endwhile
 
-  if (k >= opt_iters)
-    warning ("logm: maximum number of square roots exceeded; results may still be accurate");
+    s -= eye (n);
+
+    if (m > 1)
+      s = logm_pade_pf (s, m);
+    endif
+
+    s = 2^k * u * s * u';
+
+    if (nargout == 2)
+      iters = k;
+    endif
   endif
-
-  s -= eye (size (s));
-
-  if (m > 1)
-    s = logm_pade_pf (s, m);
-  endif
-
-  s = 2^k * u * s * u';
-
   ## Remove small complex values (O(eps)) which may have entered calculation
   if (real_eig && isreal (A))
     s = real (s);
-  endif
-
-  if (nargout == 2)
-    iters = k;
   endif
 
 endfunction
@@ -180,6 +191,20 @@ endfunction
 %!assert (full (logm (eye (3))), logm (full (eye (3))))
 %!assert (full (logm (10*eye (3))), logm (full (10*eye (3))), 8*eps)
 %!assert (logm (expm ([0 1i; -1i 0])), [0 1i; -1i 0], 10 * eps)
+%!test <*60738>
+%! A = [0.2510, 1.2808, -1.2252; ...
+%!      0.2015, 1.0766, 0.5630; ...
+%!      -1.9769, -1.0922, -0.5831];
+%! if (ismac ())
+%!   ## The math libraries on macOS seem to require larger tolerances
+%!   tol = 60*eps;
+%! else
+%!   tol = 40*eps;
+%! endif
+%! warning ("off", "Octave:logm:non-principal", "local");
+%! assert (expm (logm (A)), A, tol);
+%!assert (expm (logm (eye (3))), eye (3));
+%!assert (expm (logm (zeros (3))), zeros (3));
 
 ## Test input validation
 %!error <Invalid call> logm ()

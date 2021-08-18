@@ -47,10 +47,7 @@
 
 namespace octave
 {
-  // FIXME: this class needs a different name and should probably be
-  // defined in a separate file.
-
-  command_widget::command_widget (base_qobject& oct_qobj, QWidget *p)
+  command_widget::command_widget (base_qobject&, QWidget *p)
     : QWidget (p), m_incomplete_parse (false),
       m_prompt (new QLabel ("", this)),
       m_line_edit (new QLineEdit (this)),
@@ -90,19 +87,18 @@ namespace octave
              m_line_edit, &QLineEdit::clear);
 
     connect (pause_button, &QPushButton::clicked,
-             &oct_qobj, &base_qobject::interpreter_pause);
-
-    connect (stop_button, &QPushButton::clicked,
-             &oct_qobj, &base_qobject::interpreter_stop);
+             this, &command_widget::interpreter_pause);
 
     connect (resume_button, &QPushButton::clicked,
-             &oct_qobj, &base_qobject::interpreter_resume);
+             this, &command_widget::interpreter_resume);
 
-    connect (p, SIGNAL (update_prompt_signal (const QString&)),
-             m_prompt, SLOT (setText (const QSTring&)));
+    connect (stop_button, &QPushButton::clicked,
+             this, &command_widget::interpreter_stop);
+  }
 
-    connect (p, SIGNAL (interpreter_output_signal (const QString&)),
-             this, SLOT (insert_interpreter_output (const QString&)));
+  void command_widget::update_prompt (const QString& prompt)
+  {
+    m_prompt->setText (prompt);
   }
 
   void command_widget::insert_interpreter_output (const QString& msg)

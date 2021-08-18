@@ -54,6 +54,8 @@
 #include "errwarn.h"
 #include "ov.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFUN_DLD (__fltk_uigetfile__, args, ,
            doc: /* -*- texinfo -*-
 @deftypefn {} {} __fltk_uigetfile__ (@dots{})
@@ -134,10 +136,10 @@ Undocumented internal function.
         }
 
       if (multi_type == Fl_File_Chooser::DIRECTORY)
-        retval(0) = octave::sys::file_ops::native_separator_path (std::string (fc.value ()));
+        retval(0) = sys::file_ops::native_separator_path (std::string (fc.value ()));
       else
         {
-          retval(1) = octave::sys::file_ops::native_separator_path (std::string (fc.directory ()) + sep);
+          retval(1) = sys::file_ops::native_separator_path (std::string (fc.directory ()) + sep);
           retval(2) = fc.filter_value () + 1;
         }
     }
@@ -160,3 +162,5 @@ Undocumented internal function.
 ## No test needed for internal helper function.
 %!assert (1)
 */
+
+OCTAVE_NAMESPACE_END

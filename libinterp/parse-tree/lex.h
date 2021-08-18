@@ -276,6 +276,7 @@ namespace octave
         m_looking_for_object_index (false),
         m_looking_at_indirect_ref (false),
         m_arguments_is_keyword (false),
+        m_classdef_element_names_are_keywords (false),
         m_parsing_anon_fcn_body (false),
         m_parsing_class_method (false),
         m_parsing_classdef (false),
@@ -312,7 +313,6 @@ namespace octave
         m_package_name (),
         m_looking_at_object_index (),
         m_parsed_function_name (),
-        m_pending_local_variables (),
         m_symtab_context (interp),
         m_nesting_level (),
         m_tokens ()
@@ -345,8 +345,6 @@ namespace octave
     bool previous_token_is_keyword (void) const;
 
     bool previous_token_may_be_command (void) const;
-
-    void maybe_mark_previous_token_as_variable (void);
 
     void mark_as_variable (const std::string& nm);
     void mark_as_variables (const std::list<std::string>& lst);
@@ -389,6 +387,10 @@ namespace octave
 
     // true means arguments is handled as keyword.
     bool m_arguments_is_keyword;
+
+    // true means "properties", "methods", "events", and "enumeration"
+    // are treated like keywords.
+    bool m_classdef_element_names_are_keywords;
 
     // true means we are parsing the body of an anonymous function.
     bool m_parsing_anon_fcn_body;
@@ -509,9 +511,6 @@ namespace octave
     // of the current function.  should only matter if
     // current_function_level > 0
     std::stack<bool> m_parsed_function_name;
-
-    // set of identifiers that might be local variable names.
-    std::set<std::string> m_pending_local_variables;
 
     // Track current symbol table scope and context.
     symbol_table_context m_symtab_context;
@@ -651,8 +650,6 @@ namespace octave
     bool looking_at_space (void);
 
     bool inside_any_object_index (void);
-
-    bool is_variable (const std::string& name);
 
     int make_keyword_token (const std::string& s);
 

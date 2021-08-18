@@ -120,45 +120,7 @@ is_valid_function (const octave_value& arg,
   return ans;
 }
 
-octave_function *
-extract_function (const octave_value& arg, const std::string& warn_for,
-                  const std::string& fname, const std::string& header,
-                  const std::string& trailer)
-{
-  octave_function *retval = is_valid_function (arg, warn_for, 0);
-
-  if (! retval)
-    {
-      std::string s = arg.xstring_value ("%s: argument must be a string",
-                                         warn_for.c_str ());
-
-      std::string cmd = header;
-      cmd.append (s);
-      cmd.append (trailer);
-
-      int parse_status;
-
-      octave::interpreter& interp
-        = octave::__get_interpreter__ ("extract_function");
-
-      interp.eval_string (cmd, true, parse_status, 0);
-
-      if (parse_status != 0)
-        error ("%s: '%s' is not valid as a function",
-               warn_for.c_str (), fname.c_str ());
-
-      retval = is_valid_function (fname, warn_for, 0);
-
-      if (! retval)
-        error ("%s: '%s' is not valid as a function",
-               warn_for.c_str (), fname.c_str ());
-
-      warning ("%s: passing function body as a string is obsolete; please use anonymous functions",
-               warn_for.c_str ());
-    }
-
-  return retval;
-}
+OCTAVE_NAMESPACE_BEGIN
 
 DEFMETHOD (isglobal, interp, args, ,
            doc: /* -*- texinfo -*-
@@ -197,10 +159,10 @@ isglobal ("x")
 */
 
 static int
-symbol_exist (octave::interpreter& interp, const std::string& name,
+symbol_exist (interpreter& interp, const std::string& name,
               const std::string& type = "any")
 {
-  if (octave::iskeyword (name))
+  if (iskeyword (name))
     return 0;
 
   bool search_any = type == "any";
@@ -214,7 +176,7 @@ symbol_exist (octave::interpreter& interp, const std::string& name,
          || search_builtin || search_class))
     error (R"(exist: unrecognized type argument "%s")", type.c_str ());
 
-  octave::symbol_table& symtab = interp.get_symbol_table ();
+  symbol_table& symtab = interp.get_symbol_table ();
 
   if (search_any || search_var)
     {
@@ -257,7 +219,7 @@ symbol_exist (octave::interpreter& interp, const std::string& name,
 
       if (search_any || search_file)
         {
-          octave::load_path& lp = interp.get_load_path ();
+          load_path& lp = interp.get_load_path ();
 
           // Class constructor.
           file_name = lp.find_method (xname, xname);
@@ -288,7 +250,7 @@ symbol_exist (octave::interpreter& interp, const std::string& name,
 
           if (! have_fcn_ext && file_name.empty ())
             {
-              octave::tree_evaluator& tw = interp.get_evaluator ();
+              tree_evaluator& tw = interp.get_evaluator ();
 
               file_name = tw.lookup_autoload (name);
             }
@@ -313,16 +275,16 @@ symbol_exist (octave::interpreter& interp, const std::string& name,
             }
         }
 
-      file_name = octave::file_in_path (name, "");
+      file_name = file_in_path (name, "");
 
       if (file_name.empty ())
         file_name = name;
 
       // "stat" doesn't work on UNC shares and drive letters.
-      if ((search_any || search_file) && octave::drive_or_unc_share (file_name))
+      if ((search_any || search_file) && drive_or_unc_share (file_name))
         return 7;
 
-      octave::sys::file_stat fs (file_name);
+      sys::file_stat fs (file_name);
 
       if (fs)
         {
@@ -359,7 +321,7 @@ symbol_exist (const std::string& name, const std::string& type)
 {
   octave::interpreter& interp = octave::__get_interpreter__ ("symbol_exist");
 
-  return symbol_exist (interp, name, type);
+  return octave::symbol_exist (interp, name, type);
 }
 
 
@@ -979,7 +941,7 @@ name_matches_any_pattern (const std::string& nm, const string_vector& argv,
         {
           if (have_regexp)
             {
-              if (octave::regexp::is_match (patstr, nm))
+              if (regexp::is_match (patstr, nm))
                 {
                   retval = true;
                   break;
@@ -1009,7 +971,7 @@ maybe_warn_exclusive (bool exclusive)
 }
 
 static void
-do_clear_functions (octave::interpreter& interp,
+do_clear_functions (interpreter& interp,
                     const string_vector& argv, int argc, int idx,
                     bool exclusive = false)
 {
@@ -1036,7 +998,7 @@ do_clear_functions (octave::interpreter& interp,
 }
 
 static void
-do_clear_globals (octave::interpreter& interp,
+do_clear_globals (interpreter& interp,
                   const string_vector& argv, int argc, int idx,
                   bool exclusive = false)
 {
@@ -1079,7 +1041,7 @@ do_clear_globals (octave::interpreter& interp,
 }
 
 static void
-do_clear_variables (octave::interpreter& interp,
+do_clear_variables (interpreter& interp,
                     const string_vector& argv, int argc, int idx,
                     bool exclusive = false, bool have_regexp = false)
 {
@@ -1111,7 +1073,7 @@ do_clear_variables (octave::interpreter& interp,
 }
 
 static void
-do_clear_symbols (octave::interpreter& interp,
+do_clear_symbols (interpreter& interp,
                   const string_vector& argv, int argc, int idx,
                   bool exclusive = false)
 {
@@ -1140,7 +1102,7 @@ do_clear_symbols (octave::interpreter& interp,
 }
 
 static void
-do_matlab_compatible_clear (octave::interpreter& interp,
+do_matlab_compatible_clear (interpreter& interp,
                             const string_vector& argv, int argc, int idx)
 {
   // This is supposed to be mostly Matlab compatible.
@@ -1278,7 +1240,7 @@ variables.
     {
       do_clear_variables (interp, argv, argc, true);
 
-      octave::event_manager& evmgr = interp.get_event_manager ();
+      event_manager& evmgr = interp.get_event_manager ();
 
       evmgr.clear_workspace ();
     }
@@ -1440,7 +1402,8 @@ The original variable value is restored when exiting the function.
 @seealso{missing_component_hook}
 @end deftypefn */)
 {
-  return SET_INTERNAL_VARIABLE (missing_function_hook);
+  return set_internal_variable (Vmissing_function_hook, args, nargout,
+                                "missing_function_hook");
 }
 
 std::string
@@ -1516,9 +1479,9 @@ of input arguments to a function and is used by @code{inputname} internally.
   // We need this kluge to implement inputname in a .m file.
   if (name == ".argn.")
     {
-      octave::tree_evaluator& tw = interp.get_evaluator ();
+      tree_evaluator& tw = interp.get_evaluator ();
 
-      return tw.get_auto_fcn_var (octave::stack_frame::ARG_NAMES);
+      return tw.get_auto_fcn_var (stack_frame::ARG_NAMES);
     }
 
   return interp.varval (name);
@@ -1554,5 +1517,50 @@ should return an error message to be displayed.
 @seealso{missing_function_hook}
 @end deftypefn */)
 {
-  return SET_INTERNAL_VARIABLE (missing_component_hook);
+  return set_internal_variable (Vmissing_component_hook, args, nargout,
+                                "missing_component_hook");
+}
+
+OCTAVE_NAMESPACE_END
+
+// DEPRECATED in Octave 6
+
+octave_function *
+extract_function (const octave_value& arg, const std::string& warn_for,
+                  const std::string& fname, const std::string& header,
+                  const std::string& trailer)
+{
+  octave_function *retval = is_valid_function (arg, warn_for, 0);
+
+  if (! retval)
+    {
+      std::string s = arg.xstring_value ("%s: argument must be a string",
+                                         warn_for.c_str ());
+
+      std::string cmd = header;
+      cmd.append (s);
+      cmd.append (trailer);
+
+      int parse_status;
+
+      octave::interpreter& interp
+        = octave::__get_interpreter__ ("extract_function");
+
+      interp.eval_string (cmd, true, parse_status, 0);
+
+      if (parse_status != 0)
+        error ("%s: '%s' is not valid as a function",
+               warn_for.c_str (), fname.c_str ());
+
+      retval = is_valid_function (fname, warn_for, 0);
+
+      if (! retval)
+        error ("%s: '%s' is not valid as a function",
+               warn_for.c_str (), fname.c_str ());
+
+      warning ("%s: passing function body as a string is obsolete; please use anonymous functions",
+               warn_for.c_str ());
+    }
+
+  return retval;
 }

@@ -84,8 +84,8 @@ DEFINE_OV_TYPEID_FUNCTIONS_AND_DATA (octave_fcn_handle,
 
 const std::string octave_fcn_handle::anonymous ("@<anonymous>");
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   class invalid_fcn_handle : public base_fcn_handle
   {
   public:
@@ -2808,7 +2808,8 @@ namespace octave
     else
       return false;
   }
-}
+
+OCTAVE_NAMESPACE_END
 
 octave_fcn_handle::octave_fcn_handle (void)
   : octave_base_value (), m_rep (new octave::invalid_fcn_handle ())
@@ -3394,8 +3395,8 @@ is_equal_to (const octave_fcn_handle& fh1, const octave_fcn_handle& fh2)
     return false;
 }
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   // DEPRECATED in Octave 6.
 
   octave_value
@@ -3405,7 +3406,6 @@ namespace octave
 
     return tw.make_fcn_handle (nm);
   }
-}
 
 DEFUN (functions, args, ,
        doc: /* -*- texinfo -*-
@@ -3548,7 +3548,7 @@ functions.  This option is no longer supported.
         warning_with_id ("Octave:str2func-global-argument",
                          "str2func: second argument ignored");
 
-      octave::tree_evaluator& tw = interp.get_evaluator ();
+      tree_evaluator& tw = interp.get_evaluator ();
 
       return tw.make_fcn_handle (nm);
     }
@@ -3637,3 +3637,5 @@ Return true if @var{x} is a function handle.
 %! x = [1,2;3,4];
 %! assert (__f (@(i) x(:,i), 1), [1;3]);
 */
+
+OCTAVE_NAMESPACE_END

@@ -141,7 +141,7 @@ handle_message (error_fun f, const char *id, const char *msg,
 
       if (have_fmt)
         {
-          octave_value_list tmp = Fsprintf (args, 1);
+          octave_value_list tmp = octave::Fsprintf (args, 1);
           arg = tmp(0);
         }
       else
@@ -233,8 +233,8 @@ maybe_extract_message_id (const std::string& caller,
   return have_fmt;
 }
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   static octave_scalar_map
   init_warning_options (const std::string& state)
   {
@@ -934,7 +934,8 @@ namespace octave
 
     evmgr.display_exception (ee, m_beep_on_error);
   }
-}
+
+OCTAVE_NAMESPACE_END
 
 void
 vmessage (const char *name, const char *fmt, va_list args)
@@ -1051,13 +1052,6 @@ error_with_id_cfn (const char *id, const char *fmt, ...)
   va_end (args);
 }
 
-int warning_enabled (const std::string& id)
-{
-  octave::error_system& es = octave::__get_error_system__ ("warning_enabled");
-
-  return es.warning_enabled (id);
-}
-
 void
 vwarning (const char *fmt, va_list args)
 {
@@ -1137,10 +1131,12 @@ panic (const char *fmt, ...)
   va_end (args);
 }
 
+OCTAVE_NAMESPACE_BEGIN
+
 void
 defun_usage_message (const std::string& msg)
 {
-  defun_usage_message ("%s", msg.c_str ());
+  ::defun_usage_message ("%s", msg.c_str ());
 }
 
 DEFMETHOD (rethrow, interp, args, ,
@@ -1166,12 +1162,12 @@ error.  Typically @var{err} is returned from @code{lasterror}.
   std::string msg = err.contents ("message").string_value ();
   std::string id = err.contents ("identifier").string_value ();
 
-  octave_map err_stack = octave::init_error_stack (interp);
+  octave_map err_stack = init_error_stack (interp);
 
   if (err.contains ("stack"))
     err_stack = err.contents ("stack").xmap_value ("ERR.STACK must be a struct");
 
-  octave::error_system& es = interp.get_error_system ();
+  error_system& es = interp.get_error_system ();
 
   es.rethrow_error (id, msg, err_stack);
 
@@ -1276,7 +1272,7 @@ disable escape sequence expansion use a second backslash before the sequence
 
   std::string id;
   std::string message;
-  std::list<octave::frame_info> stack_info;
+  std::list<frame_info> stack_info;
 
   bool have_fmt = false;
 
@@ -1314,7 +1310,7 @@ disable escape sequence expansion use a second backslash before the sequence
 
           if (c.isstruct ())
             stack_info
-              = octave::error_system::make_stack_frame_list (c.map_value ());
+              = error_system::make_stack_frame_list (c.map_value ());
         }
     }
   else
@@ -1350,7 +1346,7 @@ disable escape sequence expansion use a second backslash before the sequence
   if (message.empty ())
     return retval;
 
-  octave::error_system& es = interp.get_error_system ();
+  error_system& es = interp.get_error_system ();
 
   es.throw_error ("error", id, message, stack_info);
 
@@ -1484,7 +1480,7 @@ expansion use a second backslash before the sequence (e.g.,
   int nargin = args.length ();
   bool done = false;
 
-  octave::error_system& es = interp.get_error_system ();
+  error_system& es = interp.get_error_system ();
 
   if (nargin > 0 && args.all_strings_p ())
     {
@@ -1524,10 +1520,10 @@ expansion use a second backslash before the sequence (e.g.,
                   octave_value curr_state = val.contents ("state");
 
                   // FIXME: this might be better with a dictionary object.
-                  octave::tree_evaluator& tw = interp.get_evaluator ();
+                  tree_evaluator& tw = interp.get_evaluator ();
 
                   octave_value curr_warning_states
-                    = tw.get_auto_fcn_var (octave::stack_frame::SAVED_WARNING_STATES);
+                    = tw.get_auto_fcn_var (stack_frame::SAVED_WARNING_STATES);
 
                   octave_map m;
 
@@ -1575,7 +1571,7 @@ expansion use a second backslash before the sequence (e.g.,
                   m.contents ("identifier") = ids;
                   m.contents ("state") = states;
 
-                  tw.set_auto_fcn_var (octave::stack_frame::SAVED_WARNING_STATES, m);
+                  tw.set_auto_fcn_var (stack_frame::SAVED_WARNING_STATES, m);
 
                   // Now ignore the "local" argument,
                   // and continue to handle the current setting.
@@ -1827,8 +1823,7 @@ set_warning_state (const std::string& id, const std::string& state)
   args(1) = id;
   args(0) = state;
 
-  octave::interpreter& interp
-    = octave::__get_interpreter__ ("set_warning_state");
+  interpreter& interp = __get_interpreter__ ("set_warning_state");
 
   return Fwarning (interp, args, 1);
 }
@@ -1836,16 +1831,23 @@ set_warning_state (const std::string& id, const std::string& state)
 octave_value_list
 set_warning_state (const octave_value_list& args)
 {
-  octave::interpreter& interp
-    = octave::__get_interpreter__ ("set_warning_state");
+  interpreter& interp = __get_interpreter__ ("set_warning_state");
 
   return Fwarning (interp, args, 1);
+}
+
+int
+warning_enabled (const std::string& id)
+{
+  error_system& es = __get_error_system__ ("warning_enabled");
+
+  return es.warning_enabled (id);
 }
 
 void
 disable_warning (const std::string& id)
 {
-  octave::error_system& es = octave::__get_error_system__ ("disable_warning");
+  error_system& es = __get_error_system__ ("disable_warning");
 
   es.disable_warning (id);
 }
@@ -1902,7 +1904,7 @@ fields are set to their default values.
   if (nargin > 1)
     print_usage ();
 
-  octave::error_system& es = interp.get_error_system ();
+  error_system& es = interp.get_error_system ();
 
   octave_scalar_map err;
 
@@ -1913,7 +1915,7 @@ fields are set to their default values.
 
   if (nargin == 1)
     {
-      octave::tree_evaluator& tw = interp.get_evaluator ();
+      tree_evaluator& tw = interp.get_evaluator ();
 
       if (args(0).is_string ())
         {
@@ -2048,7 +2050,7 @@ With two arguments, also set the last message identifier.
   if (nargin > 2)
     print_usage ();
 
-  octave::error_system& es = interp.get_error_system ();
+  error_system& es = interp.get_error_system ();
 
   string_vector argv = args.make_argv ("lasterr");
 
@@ -2093,7 +2095,7 @@ With two arguments, also set the last message identifier.
   if (nargin > 2)
     print_usage ();
 
-  octave::error_system& es = interp.get_error_system ();
+  error_system& es = interp.get_error_system ();
 
   string_vector argv = args.make_argv ("lastwarn");
 
@@ -2130,7 +2132,7 @@ variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
 @end deftypefn */)
 {
-  octave::error_system& es = interp.get_error_system ();
+  error_system& es = interp.get_error_system ();
 
   return es.beep_on_error (args, nargout);
 }
@@ -2152,7 +2154,7 @@ The original variable value is restored when exiting the function.
 @seealso{debug_on_warning, debug_on_interrupt}
 @end deftypefn */)
 {
-  octave::error_system& es = interp.get_error_system ();
+  error_system& es = interp.get_error_system ();
 
   return es.debug_on_error (args, nargout);
 }
@@ -2171,64 +2173,20 @@ The original variable value is restored when exiting the function.
 @seealso{debug_on_error, debug_on_interrupt}
 @end deftypefn */)
 {
-  octave::error_system& es = interp.get_error_system ();
+  error_system& es = interp.get_error_system ();
 
   return es.debug_on_warning (args, nargout);
 }
 
-std::string
-last_error_message (void)
-{
-  octave::error_system& es
-    = octave::__get_error_system__ ("last_error_message");
-
-  return es.last_error_message ();
-}
-
-std::string
-last_error_id (void)
-{
-  octave::error_system& es
-    = octave::__get_error_system__ ("last_error_id");
-
-  return es.last_error_id ();
-}
-
-octave_map
-last_error_stack (void)
-{
-  octave::error_system& es
-    = octave::__get_error_system__ ("last_error_stack");
-
-  return es.last_error_stack ();
-}
-
-std::string
-last_warning_message (void)
-{
-  octave::error_system& es
-    = octave::__get_error_system__ ("last_warning_message");
-
-  return es.last_warning_message ();
-}
-
-std::string
-last_warning_id (void)
-{
-  octave::error_system& es
-    = octave::__get_error_system__ ("last_warning_id");
-
-  return es.last_warning_id ();
-}
-
 void
-interpreter_try (octave::unwind_protect& frame)
+interpreter_try (unwind_protect& frame)
 {
-  octave::error_system& es
-    = octave::__get_error_system__ ("interpreter_try");
+  error_system& es = __get_error_system__ ("interpreter_try");
 
   es.interpreter_try (frame);
 }
+
+OCTAVE_NAMESPACE_END
 
 // Deprecated variables and functions.
 

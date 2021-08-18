@@ -47,8 +47,8 @@
 
 #include "default-defs.h"
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   namespace config
   {
     // Variables that name directories or files are substituted into source
@@ -447,8 +447,6 @@ namespace octave
       return s_site_defaults_file;
     }
   }
-}
-
 
 DEFUN (OCTAVE_HOME, args, ,
        doc: /* -*- texinfo -*-
@@ -461,7 +459,7 @@ OCTAVE_HOME corresponds to the configuration variable @var{prefix}.
   if (args.length () != 0)
     print_usage ();
 
-  return ovl (octave::config::octave_home ());
+  return ovl (config::octave_home ());
 }
 
 /*
@@ -482,7 +480,7 @@ configuration variable @var{exec_prefix}.
   if (args.length () != 0)
     print_usage ();
 
-  return ovl (octave::config::octave_exec_home ());
+  return ovl (config::octave_exec_home ());
 }
 
 /*
@@ -518,7 +516,7 @@ Return the (platform-specific) directory for user configuration.
   if (args.length () != 0)
     print_usage ();
 
-  return ovl (octave::sys::env::get_user_config_directory ());
+  return ovl (sys::env::get_user_config_directory ());
 }
 
 /*
@@ -536,7 +534,7 @@ Return the (platform-specific) directory for user data.
   if (args.length () != 0)
     print_usage ();
 
-  return ovl (octave::sys::env::get_user_data_directory ());
+  return ovl (sys::env::get_user_data_directory ());
 }
 
 /*
@@ -544,3 +542,4 @@ Return the (platform-specific) directory for user data.
 %!error user_data_dir (1)
 */
 
+OCTAVE_NAMESPACE_END

@@ -38,6 +38,8 @@
 #include "ov-flt-cx-diag.h"
 #include "ov-perm.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFUN (inv, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{x} =} inv (@var{A})
@@ -212,7 +214,7 @@ sparse matrix if possible.
     }
 
   if (nargout < 2 && (info == -1 || rcond_plus_one_eq_one))
-    octave::warn_singular_matrix (isfloat ? frcond : rcond);
+    warn_singular_matrix (isfloat ? frcond : rcond);
 
   return retval;
 }
@@ -265,3 +267,5 @@ sparse matrix if possible.
 */
 
 DEFALIAS (inverse, inv);
+
+OCTAVE_NAMESPACE_END

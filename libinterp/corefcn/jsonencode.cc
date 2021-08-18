@@ -185,7 +185,7 @@ encode_string (T& writer, const octave_value& obj,
               octave_value_list args (obj);
               args.append (conversion_dims);
 
-              Cell sub_arrays = Fnum2cell (args)(0).cell_value ();
+              Cell sub_arrays = octave::Fnum2cell (args)(0).cell_value ();
 
               writer.StartArray ();
 
@@ -368,7 +368,7 @@ encode_array (T& writer, const octave_value& obj, const bool& ConvertInfAndNaN,
               octave_value_list args (obj);
               args.append (conversion_dims);
 
-              Cell sub_arrays = Fnum2cell (args)(0).cell_value ();
+              Cell sub_arrays = octave::Fnum2cell (args)(0).cell_value ();
 
               writer.StartArray ();
 
@@ -420,8 +420,8 @@ encode (T& writer, const octave_value& obj, const bool& ConvertInfAndNaN)
       octave::unwind_action restore_warning_state
         ([] (const octave_value_list& old_warning_state)
          {
-           set_warning_state (old_warning_state);
-         }, set_warning_state ("Octave:classdef-to-struct", "off"));
+           octave::set_warning_state (old_warning_state);
+         }, octave::set_warning_state ("Octave:classdef-to-struct", "off"));
 
       encode_struct (writer, obj.scalar_map_value ().getfield ("map"),
                      ConvertInfAndNaN);
@@ -431,8 +431,8 @@ encode (T& writer, const octave_value& obj, const bool& ConvertInfAndNaN)
       octave::unwind_action restore_warning_state
         ([] (const octave_value_list& old_warning_state)
          {
-           set_warning_state (old_warning_state);
-         }, set_warning_state ("Octave:classdef-to-struct", "off"));
+           octave::set_warning_state (old_warning_state);
+         }, octave::set_warning_state ("Octave:classdef-to-struct", "off"));
 
       encode_struct (writer, obj.scalar_map_value (), ConvertInfAndNaN);
     }
@@ -441,6 +441,8 @@ encode (T& writer, const octave_value& obj, const bool& ConvertInfAndNaN)
 }
 
 #endif
+
+OCTAVE_NAMESPACE_BEGIN
 
 DEFUN (jsonencode, args, ,
        doc: /* -*- texinfo -*-
@@ -600,9 +602,9 @@ jsonencode (containers.Map(@{'foo'; 'bar'; 'baz'@}, [1, 2, 3]))
         error ("jsonencode: option value must be a logical scalar");
 
       std::string option_name = args(i++).string_value ();
-      if (octave::string::strcmpi (option_name, "ConvertInfAndNaN"))
+      if (string::strcmpi (option_name, "ConvertInfAndNaN"))
         ConvertInfAndNaN = args(i).bool_value ();
-      else if (octave::string::strcmpi (option_name, "PrettyPrint"))
+      else if (string::strcmpi (option_name, "PrettyPrint"))
         PrettyPrint = args(i).bool_value ();
       else
         error ("jsonencode: "
@@ -668,3 +670,5 @@ Functional BIST tests are located in test/json/jsonencode_BIST.tst
 %!       "warning", 'the "PrettyPrint" option of RapidJSON was unavailable');
 
 */
+
+OCTAVE_NAMESPACE_END

@@ -157,6 +157,8 @@ arpack_errno2str (const octave_idx_type& errnum, const std::string& fcn_name)
       else if (fcn_name.compare ("dseupd") == 0)
         msg = "DSAUPD did not find any eigenvalues to sufficient accuracy.";
 
+      msg += "  Consider changing tolerance (TOL), maximum iterations (MAXIT), number of Lanzcos basis vectors (P), or starting vector (V0) in OPTS structure.";
+
       break;
 
     case -15:
@@ -207,9 +209,8 @@ arpack_errno2str (const octave_idx_type& errnum, const std::string& fcn_name)
 
     }
 
-  if ((errno != -9) & (errno != -14) & (errno != -9999))
-    // This is a bug in Octave interface to ARPACK
-    msg.append (bug_msg);
+  if ((errnum != -9) && (errnum != -14) && (errnum != -9999))
+    msg.append (bug_msg);  // This is a bug in Octave interface to ARPACK
 
   return msg;
 }
@@ -244,7 +245,7 @@ ltsolve (const SM& L, const ColumnVector& Q, const M& m)
   double rcond;
   MatrixType ltyp (MatrixType::Lower);
   M retval (n, b_nc);
-  const double *qv = Q.fortran_vec ();
+  const double *qv = Q.data ();
   for (octave_idx_type j = 0; j < b_nc; j++)
     {
       for (octave_idx_type i = 0; i < n; i++)
@@ -265,7 +266,7 @@ utsolve (const SM& U, const ColumnVector& Q, const M& m)
   MatrixType utyp (MatrixType::Upper);
   M tmp = U.solve (utyp, m, err, rcond, nullptr);
   M retval;
-  const double *qv = Q.fortran_vec ();
+  const double *qv = Q.data ();
 
   if (! err)
     {
@@ -536,7 +537,7 @@ LuAminusSigmaB (const Matrix& m, const Matrix& b,
           if (cholB)
             {
               Matrix tmp = sigma * b.transpose () * b;
-              const double *pB = permB.fortran_vec ();
+              const double *pB = permB.data ();
               double *p = AminusSigmaB.fortran_vec ();
 
               if (permB.numel ())
@@ -718,7 +719,7 @@ LuAminusSigmaB (const ComplexMatrix& m, const ComplexMatrix& b,
           if (cholB)
             {
               ComplexMatrix tmp = sigma * b.hermitian () * b;
-              const double *pB = permB.fortran_vec ();
+              const double *pB = permB.data ();
               Complex *p = AminusSigmaB.fortran_vec ();
 
               if (permB.numel ())

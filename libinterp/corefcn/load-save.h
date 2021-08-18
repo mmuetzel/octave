@@ -35,8 +35,8 @@
 
 #include "ovl.h"
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   class interpreter;
   class load_save_format;
   class symbol_info;
@@ -291,8 +291,10 @@ namespace octave
     load_save_system::format_type m_type;
     int m_options;
   };
-}
 
+OCTAVE_NAMESPACE_END
+
+OCTAVE_DEPRECATED (7, "use 'load_save_system::dump_octave_core' instead")
 extern OCTINTERP_API void dump_octave_core (void);
 
 #endif

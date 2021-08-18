@@ -49,6 +49,8 @@
 
 #include "LSODE-opts.cc"
 
+OCTAVE_NAMESPACE_BEGIN
+
 // Global pointer for user defined function required by lsode.
 static octave_value lsode_fcn;
 
@@ -62,7 +64,7 @@ static bool warned_jac_imaginary = false;
 // Is this a recursive call?
 static int call_depth = 0;
 
-ColumnVector
+static ColumnVector
 lsode_user_function (const ColumnVector& x, double t)
 {
   ColumnVector retval;
@@ -102,7 +104,7 @@ lsode_user_function (const ColumnVector& x, double t)
   return retval;
 }
 
-Matrix
+static Matrix
 lsode_user_jacobian (const ColumnVector& x, double t)
 {
   Matrix retval;
@@ -258,6 +260,22 @@ other than 2 and @var{msg} will contain additional information.
 
 You can use the function @code{lsode_options} to set optional
 parameters for @code{lsode}.
+
+See @nospell{Alan C. Hindmarsh},
+@cite{ODEPACK, A Systematized Collection of ODE Solvers},
+in Scientific Computing, @nospell{R. S. Stepleman}, editor, (1983)
+or @url{https://computing.llnl.gov/projects/odepack}
+for more information about the inner workings of @code{lsode}.
+
+Example: Solve the @nospell{Van der Pol} equation
+
+@example
+@group
+fvdp = @@(@var{y},@var{t}) [@var{y}(2); (1 - @var{y}(1)^2) * @var{y}(2) - @var{y}(1)];
+@var{t} = linspace (0, 20, 100);
+@var{y} = lsode (fvdp, [2; 0], @var{t});
+@end group
+@end example
 @seealso{daspk, dassl, dasrt}
 @end deftypefn */)
 {
@@ -269,13 +287,13 @@ parameters for @code{lsode}.
   warned_fcn_imaginary = false;
   warned_jac_imaginary = false;
 
-  octave::unwind_protect_var<int> restore_var (call_depth);
+  unwind_protect_var<int> restore_var (call_depth);
   call_depth++;
 
   if (call_depth > 1)
     error ("lsode: invalid recursive call");
 
-  octave::symbol_table& symtab = interp.get_symbol_table ();
+  symbol_table& symtab = interp.get_symbol_table ();
 
   std::string fcn_name, fname, jac_name, jname;
 
@@ -293,13 +311,11 @@ parameters for @code{lsode}.
         f_arg = c(0);
       else if (c.numel () == 2)
         {
-          lsode_fcn = octave::get_function_handle (interp, c(0),
-                                                   parameter_names);
+          lsode_fcn = get_function_handle (interp, c(0), parameter_names);
 
           if (lsode_fcn.is_defined ())
             {
-              lsode_jac = octave::get_function_handle (interp, c(1),
-                                                       parameter_names);
+              lsode_jac = get_function_handle (interp, c(1), parameter_names);
 
               if (lsode_jac.is_undefined ())
                 lsode_fcn = octave_value ();
@@ -318,21 +334,20 @@ parameters for @code{lsode}.
           switch (f_arg.rows ())
             {
             case 1:
-              lsode_fcn = octave::get_function_handle (interp, f_arg,
-                                                       parameter_names);
+              lsode_fcn = get_function_handle (interp, f_arg, parameter_names);
               break;
 
             case 2:
               {
                 string_vector tmp = f_arg.string_vector_value ();
 
-                lsode_fcn = octave::get_function_handle (interp, tmp(0),
-                                                         parameter_names);
+                lsode_fcn = get_function_handle (interp, tmp(0),
+                                                 parameter_names);
 
                 if (lsode_fcn.is_defined ())
                   {
-                    lsode_jac = octave::get_function_handle (interp, tmp(1),
-                                                             parameter_names);
+                    lsode_jac = get_function_handle (interp, tmp(1),
+                                                     parameter_names);
 
                     if (lsode_jac.is_undefined ())
                       lsode_fcn = octave_value ();
@@ -474,3 +489,5 @@ parameters for @code{lsode}.
 
 %!error lsode_options ("foo", 1, 2)
 */
+
+OCTAVE_NAMESPACE_END

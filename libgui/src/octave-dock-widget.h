@@ -98,6 +98,9 @@ namespace octave
 
     void set_main_window (main_window *mw);
 
+    void set_adopted (bool adopted = true) { m_adopted = adopted; }
+    bool adopted (void) const { return m_adopted; }
+
   signals:
 
     //! Custom signal that tells whether a user has clicked away that dock
@@ -108,9 +111,6 @@ namespace octave
     void queue_make_window (bool widget_was_dragged);
 
     void queue_make_widget (void);
-
-    void interpreter_event (const fcn_callback& fcn);
-    void interpreter_event (const meth_callback& meth);
 
   protected:
 
@@ -168,6 +168,7 @@ namespace octave
 
     main_window *m_main_window;
 
+    bool m_adopted;
     bool m_custom_style;
     bool m_focus_follows_mouse;
     int m_title_3d;

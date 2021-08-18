@@ -38,7 +38,7 @@
 
 #include "octave-qobject.h"
 
-namespace QtHandles
+namespace octave
 {
 
   static QKeySequence
@@ -87,7 +87,7 @@ namespace QtHandles
   {
     uimenu::properties& up = properties<uimenu> ();
 
-    action->setText (Utils::fromStdString (up.get_label ()));
+    action->setText (Utils::fromStdString (up.get_text ()));
 
     if (up.is_checked ())
       {
@@ -175,8 +175,8 @@ namespace QtHandles
 
     switch (pId)
       {
-      case uimenu::properties::ID_LABEL:
-        action->setText (Utils::fromStdString (up.get_label ()));
+      case uimenu::properties::ID_TEXT:
+        action->setText (Utils::fromStdString (up.get_text ()));
         break;
 
       case uimenu::properties::ID_CHECKED:

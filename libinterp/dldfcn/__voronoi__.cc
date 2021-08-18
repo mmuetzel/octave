@@ -57,12 +57,15 @@ qhull command
 #include "ovl.h"
 
 #if defined (HAVE_QHULL)
-
 #  include "oct-qhull.h"
-
 #  if defined (NEED_QHULL_R_VERSION)
 char qh_version[] = "__voronoi__.oct 2007-07-24";
 #  endif
+#endif
+
+OCTAVE_NAMESPACE_BEGIN
+
+#if defined (HAVE_QHULL)
 
 static void
 free_qhull_memory (qhT *qh)
@@ -164,7 +167,7 @@ Undocumented internal function.
   int exitcode = qh_new_qhull (qh, dim, num_points, points.fortran_vec (),
                                ismalloc, &cmd[0], outfile, errfile);
 
-  octave::unwind_action free_memory ([qh] () { free_qhull_memory (qh); });
+  unwind_action free_memory ([qh] () { free_qhull_memory (qh); });
 
   if (exitcode)
     error ("%s: qhull failed", caller.c_str ());
@@ -248,7 +251,7 @@ Undocumented internal function.
   Matrix F (num_voronoi_vertices+1, dim);
 
   for (octave_idx_type d = 0; d < dim; d++)
-    F(0,d) = octave::numeric_limits<double>::Inf ();
+    F(0,d) = numeric_limits<double>::Inf ();
 
   // The cell array of vectors of indices into F that represent the
   // vertices of the Voronoi regions (cells).
@@ -343,3 +346,5 @@ Undocumented internal function.
 ## No test needed for internal helper function.
 %!assert (1)
 */
+
+OCTAVE_NAMESPACE_END

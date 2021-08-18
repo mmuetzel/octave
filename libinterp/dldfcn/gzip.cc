@@ -83,8 +83,8 @@
 #  include <zlib.h>
 #endif
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   //! RIIA wrapper for std::FILE*.
   //!
   //! If error handling is available for failing to close the file, use
@@ -594,7 +594,6 @@ namespace octave
         return octave_value (Cell (xzip<X> (source_patterns, out_dir)));
       }
   }
-}
 
 DEFUN_DLD (gzip, args, ,
            doc: /* -*- texinfo -*-
@@ -624,7 +623,7 @@ The optional output @var{filelist} is a list of the compressed files.
 {
 #if defined (HAVE_Z)
 
-  return octave::xzip<octave::gz> ("gzip", args);
+  return xzip<gz> ("gzip", args);
 
 #else
 
@@ -667,7 +666,7 @@ The optional output @var{filelist} is a list of the compressed files.
 {
 #if defined (HAVE_BZ2)
 
-  return octave::xzip<octave::bz2> ("bzip2", args);
+  return xzip<bz2> ("bzip2", args);
 
 #else
 
@@ -853,3 +852,5 @@ The optional output @var{filelist} is a list of the compressed files.
 %!endfunction
 %!test run_test_function (@test_save_to_dir)
 */
+
+OCTAVE_NAMESPACE_END

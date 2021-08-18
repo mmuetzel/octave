@@ -37,6 +37,11 @@
 #include <QTimer>
 #include <QTranslator>
 
+// QTerminal includes
+#include "QTerminal.h"
+
+#include "command-widget.h"
+#include "community-news.h"
 #include "documentation-dock-widget.h"
 #include "files-dock-widget.h"
 #include "history-dock-widget.h"
@@ -45,8 +50,10 @@
 #include "octave-qobject.h"
 #include "qt-application.h"
 #include "qt-interpreter-events.h"
+#include "release-notes.h"
 #include "resource-manager.h"
 #include "shortcut-manager.h"
+#include "terminal-dock-widget.h"
 #include "variable-editor.h"
 #include "workspace-model.h"
 #include "workspace-view.h"
@@ -177,7 +184,7 @@ namespace octave
       m_main_thread (new QThread ()),
       m_gui_app (gui_app),
       m_interpreter_ready (false),
-      m_workspace_model (new workspace_model (*this)),
+      m_workspace_model (new workspace_model ()),
       m_documentation_widget (),
       m_file_browser_widget (),
       m_history_widget (),
@@ -224,6 +231,9 @@ namespace octave
              m_qapplication, &octave_qapplication::exit,
              Qt::QueuedConnection);
 
+    connect (m_interpreter_qobj, &interpreter_qobject::ready,
+             this, &base_qobject::interpreter_ready);
+
     connect (m_main_thread, &QThread::finished,
              m_main_thread, &QThread::deleteLater);
 
@@ -237,8 +247,13 @@ namespace octave
              this, QOverload<const meth_callback&>::of (&base_qobject::interpreter_event));
 
     if (m_app_context.experimental_terminal_widget ())
-      connect (qt_link (), &qt_interpreter_events::start_gui_signal,
-               this, &base_qobject::start_gui);
+      {
+        connect (qt_link (), &qt_interpreter_events::start_gui_signal,
+                 this, &base_qobject::start_gui);
+
+        connect (qt_link (), &qt_interpreter_events::show_terminal_window_signal,
+                 this, &base_qobject::show_terminal_window);
+      }
 
     connect (qt_link (), &qt_interpreter_events::copy_image_to_clipboard_signal,
              this, &base_qobject::copy_image_to_clipboard);
@@ -262,7 +277,13 @@ namespace octave
              this, &base_qobject::show_workspace_window);
 
     connect (qt_link (), &qt_interpreter_events::edit_variable_signal,
-             this, &base_qobject::edit_variable);
+             this, &base_qobject::show_variable_editor_window);
+
+    connect (qt_link (), &qt_interpreter_events::show_community_news_signal,
+             this, &base_qobject::show_community_news);
+
+    connect (qt_link (), &qt_interpreter_events::show_release_notes_signal,
+             this, &base_qobject::show_release_notes);
 
     if (m_app_context.experimental_terminal_widget ())
       {
@@ -273,6 +294,12 @@ namespace octave
         if (gui_app)
           {
             m_main_window = new main_window (*this);
+
+            connect (m_main_window, &main_window::show_community_news_signal,
+                     this, &base_qobject::show_community_news);
+
+            connect (m_main_window, &main_window::show_release_notes_signal,
+                     this, &base_qobject::show_release_notes);
 
             if (m_interpreter_ready)
               m_main_window->handle_octave_ready ();
@@ -293,6 +320,9 @@ namespace octave
             // After settings.
             config_translators ();
 
+            // Initilize the shortcut-manager
+            m_shortcut_manager.init_data ();
+
             m_qapplication->setQuitOnLastWindowClosed (false);
           }
       }
@@ -306,14 +336,53 @@ namespace octave
     // deleteLater slot that is called when the m_main_thread issues a
     // finished signal.
 
-    delete m_main_window;
+    // FIXME: Why are dock widget settings and/or the main window
+    // configuration not saved correctly if the main window is deleted
+    // after the dock widgets?
 
+
+    // Calling close will cause settings to be saved.
+    // If m_main_window exists, the widgets are closed by the main window
+
+    if (! m_main_window)
+      {
+        if (m_terminal_widget)
+          m_terminal_widget->close ();
+
+        if (m_documentation_widget)
+          m_documentation_widget->close ();
+
+        if (m_file_browser_widget)
+          m_file_browser_widget->close ();
+
+        if (m_history_widget)
+          m_history_widget->close ();
+
+        if (m_workspace_widget)
+          m_workspace_widget->close ();
+
+        if (m_editor_widget)
+          m_editor_widget->close ();
+
+        if (m_variable_editor_widget)
+          m_variable_editor_widget->close ();
+
+        if (m_community_news)
+          m_community_news->close ();
+      }
+    else
+      {
+        delete m_main_window;
+      }
+
+    delete m_terminal_widget;
     delete m_documentation_widget;
     delete m_file_browser_widget;
     delete m_history_widget;
     delete m_workspace_widget;
     delete m_editor_widget;
     delete m_variable_editor_widget;
+    delete m_community_news;
 
     delete m_interpreter_qobj;
     delete m_qsci_tr;
@@ -383,12 +452,62 @@ namespace octave
     return m_app_context.gui_running ();
   }
 
+  QPointer<terminal_dock_widget>
+  base_qobject::terminal_widget (main_window *mw)
+  {
+    if (m_terminal_widget && mw)
+      {
+        m_terminal_widget->set_main_window (mw);
+        m_terminal_widget->set_adopted (true);
+      }
+    else if (! m_terminal_widget)
+      {
+        m_terminal_widget
+          = QPointer<terminal_dock_widget> (new terminal_dock_widget (mw, *this));
+        if (experimental_terminal_widget ())
+          {
+            command_widget *cmd_widget
+              = m_terminal_widget->get_command_widget ();
+
+            connect (cmd_widget, &command_widget::interpreter_pause,
+                     this, &base_qobject::interpreter_pause);
+
+            connect (cmd_widget, &command_widget::interpreter_resume,
+                     this, &base_qobject::interpreter_resume);
+
+            connect (cmd_widget, &command_widget::interpreter_stop,
+                     this, &base_qobject::interpreter_stop);
+
+            connect (qt_link (), &qt_interpreter_events::interpreter_output_signal,
+                     m_terminal_widget, &terminal_dock_widget::interpreter_output);
+
+            connect (qt_link (), &qt_interpreter_events::update_prompt_signal,
+                     m_terminal_widget, &terminal_dock_widget::update_prompt);
+
+            connect_interpreter_events (cmd_widget);
+          }
+        else
+          {
+            QTerminal *cmd_widget = m_terminal_widget->get_qterminal ();
+
+            // Connect the interrupt signal (emitted by Ctrl-C)
+            connect (cmd_widget, &QTerminal::interrupt_signal,
+                     this, &base_qobject::interpreter_interrupt);
+          }
+      }
+
+    return m_terminal_widget;
+  }
+
   QPointer<documentation_dock_widget>
   base_qobject::documentation_widget (main_window *mw)
   {
-    if (m_documentation_widget)
-      m_documentation_widget->set_main_window (mw);
-    else
+    if (m_documentation_widget && mw)
+      {
+        m_documentation_widget->set_main_window (mw);
+        m_documentation_widget->set_adopted (true);
+      }
+    else if (! m_documentation_widget)
       {
         m_documentation_widget
           = QPointer<documentation_dock_widget> (new documentation_dock_widget (mw, *this));
@@ -411,10 +530,16 @@ namespace octave
   base_qobject::file_browser_widget (main_window *mw)
   {
     if (m_file_browser_widget)
-      m_file_browser_widget->set_main_window (mw);
-    else
+      {
+        m_file_browser_widget->set_main_window (mw);
+        m_file_browser_widget->set_adopted (true);
+      }
+    else if (! m_file_browser_widget)
       m_file_browser_widget
         = QPointer<files_dock_widget> (new files_dock_widget (mw, *this));
+
+    connect (qt_link (), &qt_interpreter_events::directory_changed_signal,
+             m_file_browser_widget, &files_dock_widget::update_octave_directory);
 
     return m_file_browser_widget;
   }
@@ -423,8 +548,11 @@ namespace octave
   base_qobject::history_widget (main_window *mw)
   {
     if (m_history_widget)
-      m_history_widget->set_main_window (mw);
-    else
+      {
+        m_history_widget->set_main_window (mw);
+        m_history_widget->set_adopted (true);
+      }
+    else if (! m_history_widget)
       {
         m_history_widget
           = QPointer<history_dock_widget> (new history_dock_widget (mw, *this));
@@ -438,7 +566,14 @@ namespace octave
         connect (qt_link (), &qt_interpreter_events::clear_history_signal,
                  m_history_widget, &history_dock_widget::clear_history);
 
-        qt_link()->set_history (octave::command_history::list ());
+        emit interpreter_event
+          ([=] (interpreter& interp) {
+            // INTERPRETER THREAD
+
+            event_manager& xevmgr = interp.get_event_manager ();
+
+            xevmgr.set_history ();
+          });
       }
 
     return m_history_widget;
@@ -448,8 +583,11 @@ namespace octave
   base_qobject::workspace_widget (main_window *mw)
   {
     if (m_workspace_widget)
-      m_workspace_widget->set_main_window (mw);
-    else
+      {
+        m_workspace_widget->set_main_window (mw);
+        m_workspace_widget->set_adopted (true);
+      }
+    else if (! m_workspace_widget)
       {
         m_workspace_widget
           = QPointer<workspace_view> (new workspace_view (mw, *this));
@@ -464,6 +602,79 @@ namespace octave
 
         connect (qt_link (), &qt_interpreter_events::clear_workspace_signal,
                  m_workspace_model, &workspace_model::clear_workspace);
+
+        connect (m_workspace_widget,
+                 &workspace_view::copy_variable_value_to_clipboard,
+                 [=] (const QString& var_name) {
+                   emit interpreter_event
+                     ([=] (interpreter& interp)
+                      {
+                        // INTERPRETER THREAD
+
+                        octave_value val = interp.varval (var_name.toStdString ());
+
+                        if (val.is_undefined ())
+                          val = 0;
+
+                        std::ostringstream buf;
+                        val.print_raw (buf, true);
+
+                        // FIXME: is the following operation thread safe or should
+                        // it be done with a signal/slot connection?
+
+                        QClipboard *clipboard = QApplication::clipboard ();
+                        clipboard->setText (QString::fromStdString (buf.str ()));
+                      });
+                 });
+
+        connect (m_workspace_widget, &workspace_view::rename_variable_signal,
+                 [=] (const QString& old_name, const QString& new_name) {
+                   emit interpreter_event
+                     ([=] (interpreter& interp) {
+                       // INTERPRETER THREAD
+
+                       symbol_scope scope = interp.get_current_scope ();
+
+                       if (scope)
+                         {
+                           scope.rename (old_name.toStdString (),
+                                         new_name.toStdString ());
+
+                           tree_evaluator& tw = interp.get_evaluator ();
+
+                           event_manager& xevmgr = interp.get_event_manager ();
+
+                           xevmgr.set_workspace (true, tw.get_symbol_info ());
+                         }
+
+                       // FIXME: if this action fails, do we need a way to
+                       // display that info in the GUI?
+                     });
+                 });
+
+        connect (m_workspace_widget, &workspace_view::edit_variable_signal,
+                 [=] (const QString& var_name) {
+                   emit interpreter_event
+                     ([=] (interpreter& interp) {
+                       // INTERPRETER THREAD
+
+                       std::string name = var_name.toStdString ();
+                       octave_value val = interp.varval (name);
+
+                       event_manager& xevmgr = interp.get_event_manager ();
+
+                       xevmgr.edit_variable (name, val);
+                     });
+                 });
+
+        emit interpreter_event
+          ([=] (interpreter& interp) {
+            // INTERPRETER THREAD
+
+            event_manager& xevmgr = interp.get_event_manager ();
+
+            xevmgr.set_workspace ();
+          });
       }
 
     return m_workspace_widget;
@@ -473,9 +684,12 @@ namespace octave
   base_qobject::editor_widget (main_window */*mw*/)
   {
 #if 0
-    if (m_editor_widget)
-      m_editor_widget->set_main_window (mw);
-    else
+    if (m_editor_widget && mw)
+      {
+        m_editor_widget->set_main_window (mw);
+        m_editor_widget->set_adopted (true);
+      }
+    else if (! m_editor_widget)
       m_editor_widget = new file_editor (mw, *this);
 #endif
 
@@ -485,13 +699,47 @@ namespace octave
   QPointer<variable_editor>
   base_qobject::variable_editor_widget (main_window *mw)
   {
-    if (m_variable_editor_widget)
-      m_variable_editor_widget->set_main_window (mw);
-    else
-      m_variable_editor_widget
-        = QPointer<variable_editor> (new variable_editor (mw, *this));
+    if (m_variable_editor_widget && mw)
+      {
+        m_variable_editor_widget->set_main_window (mw);
+        m_variable_editor_widget->set_adopted (true);
+      }
+    else if (! m_variable_editor_widget)
+      {
+        m_variable_editor_widget
+          = QPointer<variable_editor> (new variable_editor (mw, *this));
+
+        connect (m_variable_editor_widget, &variable_editor::updated,
+                 this, &base_qobject::handle_variable_editor_update);
+
+        connect (m_variable_editor_widget, &variable_editor::command_signal,
+                 this, &base_qobject::execute_command);
+
+        connect (qt_link (),
+                 &qt_interpreter_events::refresh_variable_editor_signal,
+                 m_variable_editor_widget, &variable_editor::refresh);
+
+        connect_interpreter_events<variable_editor> (m_variable_editor_widget);
+      }
 
     return m_variable_editor_widget;
+  }
+
+  QPointer<community_news> base_qobject::community_news_widget (int serial)
+  {
+    if (! m_community_news)
+      m_community_news
+        = QPointer<community_news> (new community_news (*this, serial));
+
+    return m_community_news;
+  }
+
+  QPointer<release_notes> base_qobject::release_notes_widget (void)
+  {
+    if (! m_release_notes)
+      m_release_notes = QPointer<release_notes> (new release_notes ());
+
+    return m_release_notes;
   }
 
   bool base_qobject::confirm_shutdown (void)
@@ -523,6 +771,12 @@ namespace octave
         connect (m_main_window, &main_window::close_gui_signal,
                  this, &base_qobject::close_gui);
 
+        connect (m_main_window, &main_window::show_community_news_signal,
+                 this, &base_qobject::show_community_news);
+
+        connect (m_main_window, &main_window::show_release_notes_signal,
+                 this, &base_qobject::show_release_notes);
+
         if (m_interpreter_ready)
           m_main_window->handle_octave_ready ();
         else
@@ -541,9 +795,24 @@ namespace octave
       }
   }
 
+  void base_qobject::show_terminal_window (void)
+  {
+    terminal_dock_widget *widget
+      = (m_terminal_widget
+         ? m_terminal_widget : terminal_widget ());
+
+    if (! widget->isVisible ())
+      {
+        widget->show ();
+        widget->raise ();
+      }
+  }
+
   void base_qobject::show_documentation_window (const QString& file)
   {
-    documentation_dock_widget *widget = documentation_widget ();
+    documentation_dock_widget *widget
+      = (m_documentation_widget
+         ? m_documentation_widget : documentation_widget ());
 
     widget->showDoc (file);
 
@@ -556,7 +825,8 @@ namespace octave
 
   void base_qobject::show_file_browser_window (void)
   {
-    files_dock_widget *widget = file_browser_widget ();
+    files_dock_widget *widget
+      = m_file_browser_widget ? m_file_browser_widget : file_browser_widget ();
 
     if (! widget->isVisible ())
       {
@@ -567,7 +837,8 @@ namespace octave
 
   void base_qobject::show_command_history_window (void)
   {
-    history_dock_widget *widget = history_widget ();
+    history_dock_widget *widget
+      = m_history_widget ? m_history_widget : history_widget ();
 
     if (! widget->isVisible ())
       {
@@ -578,7 +849,8 @@ namespace octave
 
   void base_qobject::show_workspace_window (void)
   {
-    workspace_view *widget = workspace_widget ();
+    workspace_view *widget
+      = m_workspace_widget ? m_workspace_widget : workspace_widget ();
 
     if (! widget->isVisible ())
       {
@@ -587,28 +859,21 @@ namespace octave
       }
   }
 
-  void base_qobject::edit_variable (const QString& expr,
-                                    const octave_value& val)
+  void base_qobject::show_variable_editor_window (const QString& name,
+                                                  const octave_value& value)
   {
-    variable_editor *widget = variable_editor_widget ();
-
-#if 0
-    // FIXME: This connection needs to be made whether running with the
-    // GUI main window or not, but only needs to be made once.
-    // Currently we have handle_variable_editor_update methods here and
-    // in the main_window object.
-
-    connect (widget, &variable_editor::updated,
-             this, &base_qobject::handle_variable_editor_update);
-#endif
-
-    widget->edit_variable (expr, val);
+    variable_editor *widget
+      = (m_variable_editor_widget
+         ? m_variable_editor_widget : variable_editor_widget ());
 
     if (! widget->isVisible ())
       {
         widget->show ();
         widget->raise ();
       }
+
+    // FIXME: Should this be done with a signal/slot connection?
+    widget->edit_variable (name, value);
   }
 
   void base_qobject::handle_variable_editor_update (void)
@@ -629,6 +894,40 @@ namespace octave
 
          xevmgr.set_workspace (true, tw.get_symbol_info (), false);
        });
+  }
+
+  void base_qobject::show_community_news (int serial)
+  {
+    // Ensure widget exists.
+    community_news_widget (serial);
+
+    m_community_news->display ();
+  }
+
+  void base_qobject::show_release_notes (void)
+  {
+    // Ensure widget exists.
+    release_notes_widget ();
+
+    m_release_notes->display ();
+  }
+
+  void base_qobject::execute_command (const QString& command)
+  {
+    emit interpreter_event
+      ([=] (interpreter& interp)
+      {
+        // INTERPRETER THREAD
+
+        // FIXME: Do we need to do anything special about errors here?
+        // Currently the eval function will just call error() in the
+        // interpreter event loop and throw an execution error.  It will
+        // be caught, so shouldn't crash the interpreter, but the
+        // message may not go anywhere useful depending on how the GUI
+        // is being used or if Octave running server mode.
+
+        interp.eval (command.toStdString (), 0);
+      });
   }
 
   void base_qobject::close_gui (void)
@@ -673,7 +972,7 @@ namespace octave
   void base_qobject::interpreter_event (const fcn_callback& fcn)
   {
     // The following is a direct function call across threads.  It works
-    // because the it is accessing a thread-safe queue of events that
+    // because it is accessing a thread-safe queue of events that
     // are later executed by the Octave interpreter in the other thread.
 
     // See also the comments in interpreter-qobject.h about
@@ -685,7 +984,7 @@ namespace octave
   void base_qobject::interpreter_event (const meth_callback& meth)
   {
     // The following is a direct function call across threads.  It works
-    // because the it is accessing a thread-safe queue of events that
+    // because it is accessing a thread-safe queue of events that
     // are later executed by the Octave interpreter in the other thread.
 
     // See also the comments in interpreter-qobject.h about

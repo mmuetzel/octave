@@ -135,6 +135,7 @@ endif
 OCTAVE_GUI_SRC_MOC = \
   %reldir%/moc-external-editor-interface.cc \
   %reldir%/moc-command-widget.cc \
+  %reldir%/moc-community-news.cc \
   %reldir%/moc-dialog.cc \
   %reldir%/moc-documentation-dock-widget.cc \
   %reldir%/moc-documentation.cc \
@@ -148,6 +149,7 @@ OCTAVE_GUI_SRC_MOC = \
   %reldir%/moc-main-window.cc \
   %reldir%/moc-news-reader.cc \
   %reldir%/moc-octave-qobject.cc \
+  %reldir%/moc-release-notes.cc \
   %reldir%/moc-settings-dialog.cc \
   %reldir%/moc-terminal-dock-widget.cc \
   %reldir%/moc-color-picker.cc \
@@ -188,6 +190,7 @@ BUILT_SOURCES += $(octave_gui_UI_H)
 
 noinst_HEADERS += \
   %reldir%/command-widget.h \
+  %reldir%/community-news.h \
   %reldir%/dialog.h \
   %reldir%/octave-dock-widget.h \
   %reldir%/documentation-dock-widget.h \
@@ -233,6 +236,7 @@ noinst_HEADERS += \
   %reldir%/qt-application.h \
   %reldir%/qt-interpreter-events.h \
   %reldir%/qt-utils.h \
+  %reldir%/release-notes.h \
   %reldir%/resource-manager.h \
   %reldir%/settings-dialog.h \
   %reldir%/shortcut-manager.h \
@@ -253,6 +257,7 @@ noinst_HEADERS += \
 
 %canon_reldir%_%canon_reldir%_la_SOURCES = \
   %reldir%/command-widget.cc \
+  %reldir%/community-news.cc \
   %reldir%/dialog.cc \
   %reldir%/documentation-dock-widget.cc \
   %reldir%/documentation.cc \
@@ -277,6 +282,7 @@ noinst_HEADERS += \
   %reldir%/octave-qobject.cc \
   %reldir%/qt-interpreter-events.cc \
   %reldir%/qt-application.cc \
+  %reldir%/release-notes.cc \
   %reldir%/resource-manager.cc \
   %reldir%/settings-dialog.cc \
   %reldir%/shortcut-manager.cc \

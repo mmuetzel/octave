@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2011-2021 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -23,34 +23,48 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#if defined (HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#if ! defined (octave_community_news_h)
+#define octave_community_news_h 1
 
-#if defined (HAVE_LLVM)
+#include <QString>
+#include <QWidget>
 
-#include "Array.h"
-#include "Array.cc"
+class QTextBrowser;
 
-#include "jit-ir.h"
+namespace octave
+{
+  class base_qobject;
 
-// Prevent implicit instantiations on some systems (Windows, others?)
-// that can lead to duplicate definitions of static data members.
+  class community_news : public QWidget
+  {
+    Q_OBJECT
 
-extern template class Array<octave::idx_vector>;
-extern template class Array<octave_idx_type>;
+  public:
 
-NO_INSTANTIATE_ARRAY_SORT_API (octave::jit_function, OCTINTERP_API);
+    community_news (base_qobject& oct_qobj, int serial);
 
-// Visibility attributes are ignored on template instantiation.
-// As a work-around, set visibility to default overriding compiler options.
-#pragma GCC visibility push(default)
-INSTANTIATE_ARRAY (octave::jit_function, OCTINTERP_API);
-#pragma GCC visibility pop
+    community_news (base_qobject& oct_qobj, QWidget *parent = nullptr,
+                    const QString& base_url = "https://octave.org",
+                    const QString& page = "community-news.html",
+                    int serial = -1);
 
-#if defined (Cell_h)
-#  error Must not include Cell.h in Array-jit.h
-#  error This causes problems on MSVC
-#endif
+    ~community_news (void) = default;
+
+  public slots:
+
+    void set_news (const QString& news);
+
+    void display (void);
+
+  private:
+
+    void construct (base_qobject& oct_qobj, const QString& base_url,
+                    const QString& page, int serial);
+
+    void get_screen_geometry (int& width, int& height);
+
+    QTextBrowser *m_browser;
+  };
+}
 
 #endif

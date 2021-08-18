@@ -38,6 +38,8 @@
 #include "sparse-xdiv.h"
 #include "ov-re-sparse.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 // scalar by sparse matrix ops.
 
 DEFBINOP_OP (add, scalar, sparse_matrix, +)
@@ -85,7 +87,7 @@ DEFBINOP_FN (gt, scalar, sparse_matrix, mx_el_gt)
 DEFBINOP_FN (ne, scalar, sparse_matrix, mx_el_ne)
 
 DEFBINOP_OP (el_mul, scalar, sparse_matrix, *)
-DEFBINOP_FN (el_div, scalar, sparse_matrix, x_el_div)
+DEFBINOP_FN (el_div, scalar, sparse_matrix, elem_xdiv)
 DEFBINOP_FN (el_pow, scalar, sparse_matrix, elem_xpow)
 
 DEFBINOP (el_ldiv, scalar, sparse_matrix)
@@ -143,3 +145,5 @@ install_s_sm_ops (octave::type_info& ti)
   INSTALL_WIDENOP_TI (ti, octave_scalar, octave_sparse_matrix,
                       sparse_matrix_conv);
 }
+
+OCTAVE_NAMESPACE_END

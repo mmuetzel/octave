@@ -30,6 +30,7 @@
 #include "defun.h"
 #include "error.h"
 #include "errwarn.h"
+#include "oct-string.h"
 #include "ovl.h"
 #include "utils.h"
 
@@ -38,11 +39,13 @@
 #  include <rapidjson/error/en.h>
 #endif
 
+OCTAVE_NAMESPACE_BEGIN
+
 #if defined (HAVE_RAPIDJSON)
 
-octave_value
+static octave_value
 decode (const rapidjson::Value& val,
-        const octave::make_valid_name_options& options);
+        const octave::make_valid_name_options* options);
 
 //! Decodes a numerical JSON value into a scalar number.
 //!
@@ -58,7 +61,7 @@ decode (const rapidjson::Value& val,
 //! octave_value num = decode_number (d);
 //! @endcode
 
-octave_value
+static octave_value
 decode_number (const rapidjson::Value& val)
 {
   if (val.IsUint ())
@@ -90,9 +93,9 @@ decode_number (const rapidjson::Value& val)
 //! octave_value struct = decode_object (d, octave_value_list ());
 //! @endcode
 
-octave_value
+static octave_value
 decode_object (const rapidjson::Value& val,
-               const octave::make_valid_name_options& options)
+               const octave::make_valid_name_options* options)
 {
   octave_scalar_map retval;
 
@@ -101,7 +104,8 @@ decode_object (const rapidjson::Value& val,
     // Validator function "matlab.lang.makeValidName" to guarantee legitimate
     // variable name.
     std::string varname = pair.name.GetString ();
-    octave::make_valid_name (varname, options);
+    if (options != nullptr)
+      octave::make_valid_name (varname, *options);
     retval.assign (varname, decode (pair.value, options));
   }
 
@@ -123,7 +127,7 @@ decode_object (const rapidjson::Value& val,
 //! octave_value numeric_array = decode_numeric_array (d);
 //! @endcode
 
-octave_value
+static octave_value
 decode_numeric_array (const rapidjson::Value& val)
 {
   NDArray retval (dim_vector (val.Size (), 1));
@@ -148,7 +152,7 @@ decode_numeric_array (const rapidjson::Value& val)
 //! octave_value boolean_array = decode_boolean_array (d);
 //! @endcode
 
-octave_value
+static octave_value
 decode_boolean_array (const rapidjson::Value& val)
 {
   boolNDArray retval (dim_vector (val.Size (), 1));
@@ -182,9 +186,9 @@ decode_boolean_array (const rapidjson::Value& val)
 //! octave_value cell = decode_string_and_mixed_array (d, octave_value_list ());
 //! @endcode
 
-octave_value
+static octave_value
 decode_string_and_mixed_array (const rapidjson::Value& val,
-                               const octave::make_valid_name_options& options)
+                               const octave::make_valid_name_options* options)
 {
   Cell retval (dim_vector (val.Size (), 1));
   octave_idx_type index = 0;
@@ -218,9 +222,9 @@ decode_string_and_mixed_array (const rapidjson::Value& val,
 //! octave_value object_array = decode_object_array (d, octave_value_list ());
 //! @endcode
 
-octave_value
+static octave_value
 decode_object_array (const rapidjson::Value& val,
-                     const octave::make_valid_name_options& options)
+                     const octave::make_valid_name_options* options)
 {
   Cell struct_cell = decode_string_and_mixed_array (val, options).cell_value ();
   string_vector field_names = struct_cell(0).scalar_map_value ().fieldnames ();
@@ -237,13 +241,22 @@ decode_object_array (const rapidjson::Value& val,
   if (same_field_names)
     {
       octave_map struct_array;
-      Cell value (dim_vector (struct_cell.numel (), 1));
-      for (octave_idx_type i = 0; i < field_names.numel (); ++i)
+      dim_vector struct_array_dims = dim_vector (struct_cell.numel (), 1);
+
+      if (field_names.numel ())
         {
-          for (octave_idx_type k = 0; k < struct_cell.numel (); ++k)
-            value(k) = struct_cell(k).scalar_map_value ().getfield (field_names(i));
-          struct_array.assign (field_names(i), value);
+          Cell value (struct_array_dims);
+          for (octave_idx_type i = 0; i < field_names.numel (); ++i)
+            {
+              for (octave_idx_type k = 0; k < struct_cell.numel (); ++k)
+                value(k) = struct_cell(k).scalar_map_value ()
+                                         .getfield (field_names(i));
+              struct_array.assign (field_names(i), value);
+            }
         }
+      else
+        struct_array.resize (struct_array_dims, true);
+
       return struct_array;
     }
   else
@@ -275,15 +288,18 @@ decode_object_array (const rapidjson::Value& val,
 //! octave_value cell = decode_array_of_arrays (d, octave_value_list ());
 //! @endcode
 
-octave_value
+static octave_value
 decode_array_of_arrays (const rapidjson::Value& val,
-                        const octave::make_valid_name_options& options)
+                        const octave::make_valid_name_options* options)
 {
   // Some arrays should be decoded as NDArrays and others as cell arrays
   Cell cell = decode_string_and_mixed_array (val, options).cell_value ();
 
   // Only arrays with sub-arrays of booleans and numericals will return NDArray
   bool is_bool = cell(0).is_bool_matrix ();
+  bool is_struct = cell(0).isstruct ();
+  string_vector field_names = is_struct ? cell(0).map_value ().fieldnames ()
+                                        : string_vector ();
   dim_vector sub_array_dims = cell(0).dims ();
   octave_idx_type sub_array_ndims = cell(0).ndims ();
   octave_idx_type cell_numel = cell.numel ();
@@ -300,6 +316,13 @@ decode_array_of_arrays (const rapidjson::Value& val,
       // return cell array
       if (cell(i).is_bool_matrix () != is_bool)
         return cell;
+      // If not struct arrays only, return cell array
+      if (cell(i).isstruct () != is_struct)
+        return cell;
+      // If struct arrays have different fields, return cell array
+      if (is_struct && (field_names.std_list ()
+                        != cell(i).map_value ().fieldnames ().std_list ()))
+        return cell;
     }
 
   // Calculate the dims of the output array
@@ -308,21 +331,55 @@ decode_array_of_arrays (const rapidjson::Value& val,
   array_dims(0) = cell_numel;
   for (auto i = 1; i < sub_array_ndims + 1; i++)
     array_dims(i) = sub_array_dims(i-1);
-  NDArray array (array_dims);
 
-  // Populate the array with specific order to generate MATLAB-identical output
-  octave_idx_type sub_array_numel = array.numel () / cell_numel;
-  for (octave_idx_type k = 0; k < cell_numel; ++k)
+  if (is_struct)
     {
-      NDArray sub_array_value = cell(k).array_value ();
-      for (octave_idx_type i = 0; i < sub_array_numel; ++i)
-        array(k + i*cell_numel) = sub_array_value(i);
-    }
+      octave_map struct_array;
+      array_dims.chop_trailing_singletons ();
 
-  if (is_bool)
-    return boolNDArray (array);
+      if (field_names.numel ())
+        {
+          Cell value (array_dims);
+          octave_idx_type sub_array_numel = sub_array_dims.numel ();
+
+          for (octave_idx_type j = 0; j < field_names.numel (); ++j)
+            {
+              // Populate the array with specific order to generate
+              // MATLAB-identical output.
+              for (octave_idx_type k = 0; k < cell_numel; ++k)
+                {
+                  Cell sub_array_value = cell(k).map_value ()
+                                                .getfield (field_names(j));
+                  for (octave_idx_type i = 0; i < sub_array_numel; ++i)
+                    value(k + i * cell_numel) = sub_array_value(i);
+                }
+              struct_array.assign (field_names(j), value);
+            }
+        }
+      else
+        struct_array.resize(array_dims, true);
+
+      return struct_array;
+    }
   else
-    return array;
+    {
+      NDArray array (array_dims);
+
+      // Populate the array with specific order to generate MATLAB-identical
+      // output.
+      octave_idx_type sub_array_numel = array.numel () / cell_numel;
+      for (octave_idx_type k = 0; k < cell_numel; ++k)
+        {
+          NDArray sub_array_value = cell(k).array_value ();
+          for (octave_idx_type i = 0; i < sub_array_numel; ++i)
+            array(k + i * cell_numel) = sub_array_value(i);
+        }
+
+      if (is_bool)
+        return boolNDArray (array);
+      else
+        return array;
+    }
 }
 
 //! Decodes any type of JSON arrays.  This function only serves as an interface
@@ -341,9 +398,9 @@ decode_array_of_arrays (const rapidjson::Value& val,
 //! octave_value array = decode_array (d, octave_value_list ());
 //! @endcode
 
-octave_value
+static octave_value
 decode_array (const rapidjson::Value& val,
-              const octave::make_valid_name_options& options)
+              const octave::make_valid_name_options* options)
 {
   // Handle empty arrays
   if (val.Empty ())
@@ -404,9 +461,9 @@ decode_array (const rapidjson::Value& val,
 //! octave_value value = decode (d, octave_value_list ());
 //! @endcode
 
-octave_value
+static octave_value
 decode (const rapidjson::Value& val,
-        const octave::make_valid_name_options& options)
+        const octave::make_valid_name_options* options)
 {
   if (val.IsBool ())
     return val.GetBool ();
@@ -431,6 +488,7 @@ DEFUN (jsondecode, args, ,
 @deftypefn  {} {@var{object} =} jsondecode (@var{JSON_txt})
 @deftypefnx {} {@var{object} =} jsondecode (@dots{}, "ReplacementStyle", @var{rs})
 @deftypefnx {} {@var{object} =} jsondecode (@dots{}, "Prefix", @var{pfx})
+@deftypefnx {} {@var{object} =} jsondecode (@dots{}, "makeValidName", @var{TF})
 
 Decode text that is formatted in JSON.
 
@@ -442,6 +500,10 @@ decoding @var{JSON_txt}.
 For more information about the options @qcode{"ReplacementStyle"} and
 @qcode{"Prefix"}, see
 @ref{XREFmatlab_lang_makeValidName,,matlab.lang.makeValidName}.
+
+If the value of the option @qcode{\"makeValidName\"} is false then names
+will not be changed by @code{matlab.lang.makeValidName} and the
+@qcode{\"ReplacementStyle\"} and @qcode{\"Prefix\"} options will be ignored.
 
 NOTE: Decoding and encoding JSON text is not guaranteed to reproduce the
 original text as some names may be changed by @code{matlab.lang.makeValidName}.
@@ -502,6 +564,15 @@ jsondecode ('@{"nu#m#ber": 7, "s#tr#ing": "hi"@}', ...
 @end group
 
 @group
+jsondecode ('@{"nu#m#ber": 7, "s#tr#ing": "hi"@}', ...
+            'makeValidName', false)
+    @result{} scalar structure containing the fields:
+
+         nu#m#ber = 7
+         s#tr#ing = hi
+@end group
+
+@group
 jsondecode ('@{"1": "one", "2": "two"@}', 'Prefix', 'm_')
     @result{} scalar structure containing the fields:
 
@@ -521,7 +592,27 @@ jsondecode ('@{"1": "one", "2": "two"@}', 'Prefix', 'm_')
   if (! (nargin % 2))
     print_usage ();
 
-  octave::make_valid_name_options options (args.slice (1, nargin - 1));
+  // Detect if the user wants to use makeValidName
+  bool use_makeValidName = true;
+  octave_value_list make_valid_name_params;
+  for (auto i = 1; i < nargin; i = i + 2)
+    {
+      std::string parameter = args(i).xstring_value ("jsondecode: "
+        "option argument must be a string");
+      if (string::strcmpi (parameter, "makeValidName"))
+        {
+          use_makeValidName = args(i + 1).xbool_value ("jsondecode: "
+            "'makeValidName' value must be a bool");
+        }
+      else
+        make_valid_name_params.append (args.slice(i, 2));
+    }
+
+  make_valid_name_options *options
+    = use_makeValidName ? new make_valid_name_options (make_valid_name_params)
+                        : nullptr;
+
+  unwind_action del_opts ([options] (void) { if (options) delete options; });
 
   if (! args(0).is_string ())
     error ("jsondecode: JSON_TXT must be a character string");
@@ -562,3 +653,5 @@ Functional BIST tests are located in test/json/jsondecode_BIST.tst
 %! fail ("jsondecode ('12-')", "parse error at offset 3");
 
 */
+
+OCTAVE_NAMESPACE_END

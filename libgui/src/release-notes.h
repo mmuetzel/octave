@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2011-2021 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -23,33 +23,39 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-// defines required by llvm
-#define __STDC_LIMIT_MACROS
-#define __STDC_CONSTANT_MACROS
+#if ! defined (octave_release_notes_h)
+#define octave_release_notes_h 1
 
-#if defined (HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#include <QString>
+#include <QWidget>
 
-#if defined (HAVE_LLVM)
-
-#if defined (HAVE_LLVM_IR_FUNCTION_H)
-#  include <llvm/IR/Value.h>
-#else
-#  include <llvm/Value.h>
-#endif
-
-#include <llvm/Support/raw_os_ostream.h>
+class QTextBrowser;
 
 namespace octave
 {
-  std::ostream&
-  operator<< (std::ostream& os, const llvm::Value& v)
+  class base_qobject;
+
+  class release_notes : public QWidget
   {
-    llvm::raw_os_ostream llvm_out (os);
-    v.print (llvm_out);
-    return os;
-  }
+    Q_OBJECT
+
+  public:
+
+    release_notes (void);
+
+    ~release_notes (void) = default;
+
+  public slots:
+
+    void display (void);
+
+  private:
+
+    void get_screen_geometry (int& width, int& height);
+
+    QTextBrowser *m_browser;
+    QString m_release_notes_icon;
+  };
 }
 
 #endif

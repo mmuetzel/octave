@@ -60,17 +60,19 @@
 #include "utils.h"
 #include "variables.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 static octave_scalar_map
-mk_stat_map (const octave::sys::base_file_stat& fs)
+mk_stat_map (const sys::base_file_stat& fs)
 {
   static bool have_rdev
-    = octave::sys::base_file_stat::have_struct_stat_st_rdev ();
+    = sys::base_file_stat::have_struct_stat_st_rdev ();
   static bool have_blksize
-    = octave::sys::base_file_stat::have_struct_stat_st_blksize ();
+    = sys::base_file_stat::have_struct_stat_st_blksize ();
   static bool have_blocks
-    = octave::sys::base_file_stat::have_struct_stat_st_blocks ();
+    = sys::base_file_stat::have_struct_stat_st_blocks ();
 
-  static double nan = octave::numeric_limits<double>::NaN ();
+  static double nan = numeric_limits<double>::NaN ();
 
   octave_scalar_map m;
 
@@ -101,7 +103,7 @@ mk_stat_map (const octave::sys::base_file_stat& fs)
 }
 
 static octave_value_list
-mk_stat_result (const octave::sys::base_file_stat& fs)
+mk_stat_result (const sys::base_file_stat& fs)
 {
   if (fs)
     return ovl (octave_value (mk_stat_map (fs)), 0, "");
@@ -123,11 +125,11 @@ error message.
   if (args.length () != 2)
     print_usage ();
 
-  octave::stream_list& streams = interp.get_stream_list ();
+  stream_list& streams = interp.get_stream_list ();
 
-  octave::stream old_stream = streams.lookup (args(0), "dup2");
+  stream old_stream = streams.lookup (args(0), "dup2");
 
-  octave::stream new_stream = streams.lookup (args(1), "dup2");
+  stream new_stream = streams.lookup (args(1), "dup2");
 
   int i_old = old_stream.file_number ();
   int i_new = new_stream.file_number ();
@@ -136,7 +138,7 @@ error message.
     {
       std::string msg;
 
-      int status = octave::sys::dup2 (i_old, i_new, msg);
+      int status = sys::dup2 (i_old, i_new, msg);
 
       return ovl (status, msg);
     }
@@ -194,16 +196,16 @@ error message.
       exec_args[0] = exec_file;
     }
 
-  octave::history_system& history_sys = interp.get_history_system ();
+  history_system& history_sys = interp.get_history_system ();
 
   history_sys.write_timestamp ();
 
-  if (! octave::command_history::ignoring_entries ())
-    octave::command_history::clean_up_and_save ();
+  if (! command_history::ignoring_entries ())
+    command_history::clean_up_and_save ();
 
   std::string msg;
 
-  int status = octave::sys::execvp (exec_file, exec_args, msg);
+  int status = sys::execvp (exec_file, exec_args, msg);
 
   return ovl (status, msg);
 }
@@ -290,7 +292,7 @@ exit status, it will linger until Octave exits.
   std::string msg;
   pid_t pid;
 
-  pid = octave::sys::popen2 (exec_file, arg_list, sync_mode, filedesc, msg);
+  pid = sys::popen2 (exec_file, arg_list, sync_mode, filedesc, msg);
 
   if (pid < 0)
     error ("%s", msg.c_str ());
@@ -298,13 +300,11 @@ exit status, it will linger until Octave exits.
   FILE *ifile = fdopen (filedesc[1], "r");
   FILE *ofile = fdopen (filedesc[0], "w");
 
-  octave::stream is
-    = octave_stdiostream::create (exec_file + "-in", ifile, std::ios::in);
+  stream is = stdiostream::create (exec_file + "-in", ifile, std::ios::in);
 
-  octave::stream os
-    = octave_stdiostream::create (exec_file + "-out", ofile, std::ios::out);
+  stream os = stdiostream::create (exec_file + "-out", ofile, std::ios::out);
 
-  octave::stream_list& streams = interp.get_stream_list ();
+  stream_list& streams = interp.get_stream_list ();
 
   return ovl (streams.insert (os), streams.insert (is), pid);
 }
@@ -440,9 +440,9 @@ message.
   if (args.length () != 3)
     print_usage ();
 
-  octave::stream_list& streams = interp.get_stream_list ();
+  stream_list& streams = interp.get_stream_list ();
 
-  octave::stream strm = streams.lookup (args(0), "fcntl");
+  stream strm = streams.lookup (args(0), "fcntl");
 
   int fid = strm.file_number ();
 
@@ -458,7 +458,7 @@ message.
   octave_value_list retval;
   std::string msg;
 
-  int status = octave::sys::fcntl (fid, req, arg, msg);
+  int status = sys::fcntl (fid, req, arg, msg);
 
   if (nargout == 0)
     {
@@ -507,7 +507,7 @@ action.  A system dependent error message will be waiting in @var{msg}.
 
   std::string msg;
 
-  pid_t pid = octave::sys::fork (msg);
+  pid_t pid = sys::fork (msg);
 
   return ovl (pid, msg);
 }
@@ -523,7 +523,7 @@ Return the process group id of the current process.
 
   std::string msg;
 
-  pid_t pid = octave::sys::getpgrp (msg);
+  pid_t pid = sys::getpgrp (msg);
 
   return ovl (pid, msg);
 }
@@ -538,7 +538,7 @@ Return the process id of the current process.
   if (args.length () != 0)
     print_usage ();
 
-  return ovl (octave::sys::getpid ());
+  return ovl (sys::getpid ());
 }
 
 DEFUNX ("getppid", Fgetppid, args, ,
@@ -551,7 +551,7 @@ Return the process id of the parent process.
   if (args.length () != 0)
     print_usage ();
 
-  return ovl (octave::sys::getppid ());
+  return ovl (sys::getppid ());
 }
 
 DEFUNX ("getegid", Fgetegid, args, ,
@@ -564,7 +564,7 @@ Return the effective group id of the current process.
   if (args.length () != 0)
     print_usage ();
 
-  return ovl (octave::sys::getegid ());
+  return ovl (sys::getegid ());
 }
 
 DEFUNX ("getgid", Fgetgid, args, ,
@@ -577,7 +577,7 @@ Return the real group id of the current process.
   if (args.length () != 0)
     print_usage ();
 
-  return ovl (octave::sys::getgid ());
+  return ovl (sys::getgid ());
 }
 
 DEFUNX ("geteuid", Fgeteuid, args, ,
@@ -590,7 +590,7 @@ Return the effective user id of the current process.
   if (args.length () != 0)
     print_usage ();
 
-  return ovl (octave::sys::geteuid ());
+  return ovl (sys::geteuid ());
 }
 
 DEFUNX ("getuid", Fgetuid, args, ,
@@ -603,7 +603,7 @@ Return the real user id of the current process.
   if (args.length () != 0)
     print_usage ();
 
-  return ovl (octave::sys::getuid ());
+  return ovl (sys::getuid ());
 }
 
 DEFUNX ("kill", Fkill, args, nargout,
@@ -641,7 +641,7 @@ error message.
   octave_value_list retval;
   std::string msg;
 
-  int status = octave::sys::kill (pid, sig, msg);
+  int status = sys::kill (pid, sig, msg);
 
   if (nargout == 0)
     {
@@ -675,7 +675,7 @@ The function outputs are described in the documentation for @code{stat}.
 
   std::string fname = args(0).xstring_value ("lstat: NAME must be a string");
 
-  octave::sys::file_stat fs (fname, false);
+  sys::file_stat fs (fname, false);
 
   return mk_stat_result (fs);
 }
@@ -738,7 +738,7 @@ error message.
   octave_value_list retval;
   std::string msg;
 
-  int status = octave::sys::mkfifo (name, mode, msg);
+  int status = sys::mkfifo (name, mode, msg);
 
   if (nargout == 0)
     {
@@ -787,7 +787,7 @@ error message.
   int fid[2];
   std::string msg;
 
-  int status = octave::sys::pipe (fid, msg);
+  int status = sys::pipe (fid, msg);
 
   if (status < 0)
     return ovl (-1, -1, -1, msg);
@@ -796,13 +796,11 @@ error message.
       FILE *ifile = fdopen (fid[0], "r");
       FILE *ofile = fdopen (fid[1], "w");
 
-      octave::stream is
-        = octave_stdiostream::create ("pipe-in", ifile, std::ios::in);
+      stream is = stdiostream::create ("pipe-in", ifile, std::ios::in);
 
-      octave::stream os
-        = octave_stdiostream::create ("pipe-out", ofile, std::ios::out);
+      stream os = stdiostream::create ("pipe-out", ofile, std::ios::out);
 
-      octave::stream_list& streams = interp.get_stream_list ();
+      stream_list& streams = interp.get_stream_list ();
 
       return ovl (streams.insert (is), streams.insert (os), status, msg);
     }
@@ -911,11 +909,11 @@ For example:
 
   if (args(0).is_scalar_type ())
     {
-      octave::stream_list& streams = interp.get_stream_list ();
+      stream_list& streams = interp.get_stream_list ();
 
       int fid = streams.get_file_number (args(0));
 
-      octave::sys::file_fstat fs (fid);
+      sys::file_fstat fs (fid);
 
       retval = mk_stat_result (fs);
     }
@@ -923,7 +921,7 @@ For example:
     {
       std::string fname = args(0).xstring_value ("stat: NAME must be a string");
 
-      octave::sys::file_stat fs (fname);
+      sys::file_stat fs (fname);
 
       retval = mk_stat_result (fs);
     }
@@ -946,7 +944,7 @@ The value of @var{mode} is assumed to be returned from a call to
 
   double mode = args(0).xdouble_value ("S_ISREG: invalid MODE value");
 
-  return ovl (octave::sys::file_stat::is_reg (static_cast<mode_t> (mode)));
+  return ovl (sys::file_stat::is_reg (static_cast<mode_t> (mode)));
 }
 
 DEFUNX ("S_ISDIR", FS_ISDIR, args, ,
@@ -964,7 +962,7 @@ The value of @var{mode} is assumed to be returned from a call to
 
   double mode = args(0).xdouble_value ("S_ISDIR: invalid MODE value");
 
-  return ovl (octave::sys::file_stat::is_dir (static_cast<mode_t> (mode)));
+  return ovl (sys::file_stat::is_dir (static_cast<mode_t> (mode)));
 }
 
 DEFUNX ("S_ISCHR", FS_ISCHR, args, ,
@@ -982,7 +980,7 @@ The value of @var{mode} is assumed to be returned from a call to
 
   double mode = args(0).xdouble_value ("S_ISCHR: invalid MODE value");
 
-  return ovl (octave::sys::file_stat::is_chr (static_cast<mode_t> (mode)));
+  return ovl (sys::file_stat::is_chr (static_cast<mode_t> (mode)));
 }
 
 DEFUNX ("S_ISBLK", FS_ISBLK, args, ,
@@ -1000,7 +998,7 @@ The value of @var{mode} is assumed to be returned from a call to
 
   double mode = args(0).xdouble_value ("S_ISBLK: invalid MODE value");
 
-  return ovl (octave::sys::file_stat::is_blk (static_cast<mode_t> (mode)));
+  return ovl (sys::file_stat::is_blk (static_cast<mode_t> (mode)));
 }
 
 DEFUNX ("S_ISFIFO", FS_ISFIFO, args, ,
@@ -1018,7 +1016,7 @@ The value of @var{mode} is assumed to be returned from a call to
 
   double mode = args(0).xdouble_value ("S_ISFIFO: invalid MODE value");
 
-  return ovl (octave::sys::file_stat::is_fifo (static_cast<mode_t> (mode)));
+  return ovl (sys::file_stat::is_fifo (static_cast<mode_t> (mode)));
 }
 
 DEFUNX ("S_ISLNK", FS_ISLNK, args, ,
@@ -1036,7 +1034,7 @@ The value of @var{mode} is assumed to be returned from a call to
 
   double mode = args(0).xdouble_value ("S_ISLNK: invalid MODE value");
 
-  return ovl (octave::sys::file_stat::is_lnk (static_cast<mode_t> (mode)));
+  return ovl (sys::file_stat::is_lnk (static_cast<mode_t> (mode)));
 }
 
 DEFUNX ("S_ISSOCK", FS_ISSOCK, args, ,
@@ -1054,7 +1052,7 @@ The value of @var{mode} is assumed to be returned from a call to
 
   double mode = args(0).xdouble_value ("S_ISSOCK: invalid MODE value");
 
-  return ovl (octave::sys::file_stat::is_sock (static_cast<mode_t> (mode)));
+  return ovl (sys::file_stat::is_sock (static_cast<mode_t> (mode)));
 }
 
 DEFUN (gethostname, args, ,
@@ -1066,7 +1064,7 @@ Return the hostname of the system where Octave is running.
   if (args.length () != 0)
     print_usage ();
 
-  return ovl (octave::sys::env::get_host_name ());
+  return ovl (sys::env::get_host_name ());
 }
 
 DEFUN (uname, args, ,
@@ -1097,7 +1095,7 @@ system-dependent error message.
   if (args.length () != 0)
     print_usage ();
 
-  octave::sys::uname sysinfo;
+  sys::uname sysinfo;
 
   octave_scalar_map m;
 
@@ -1139,11 +1137,11 @@ error message.
   octave_value_list retval;
   std::string msg;
 
-  octave::event_manager& evmgr = interp.get_event_manager ();
+  event_manager& evmgr = interp.get_event_manager ();
 
   evmgr.file_remove (name, "");
 
-  int status = octave::sys::unlink (name, msg);
+  int status = sys::unlink (name, msg);
 
   evmgr.file_renamed (status == 0);
 
@@ -1244,7 +1242,7 @@ about the subprocess that exited.
   std::string msg;
   int status;
 
-  pid_t result = octave::sys::waitpid (pid, &status, options, msg);
+  pid_t result = sys::waitpid (pid, &status, options, msg);
 
   return ovl (result, status, msg);
 }
@@ -1262,7 +1260,7 @@ true if the child terminated normally.
 
   int status = args(0).xint_value ("WIFEXITED: STATUS must be an integer");
 
-  return ovl (octave::sys::wifexited (status));
+  return ovl (sys::wifexited (status));
 }
 
 DEFUNX ("WEXITSTATUS", FWEXITSTATUS, args, ,
@@ -1280,7 +1278,7 @@ This function should only be employed if @code{WIFEXITED} returned true.
 
   int status = args(0).xint_value ("WEXITSTATUS: STATUS must be an integer");
 
-  return ovl (octave::sys::wexitstatus (status));
+  return ovl (sys::wexitstatus (status));
 }
 
 DEFUNX ("WIFSIGNALED", FWIFSIGNALED, args, ,
@@ -1296,7 +1294,7 @@ true if the child process was terminated by a signal.
 
   int status = args(0).xint_value ("WIFSIGNALED: STATUS must be an integer");
 
-  return ovl (octave::sys::wifsignaled (status));
+  return ovl (sys::wifsignaled (status));
 }
 
 DEFUNX ("WTERMSIG", FWTERMSIG, args, ,
@@ -1314,7 +1312,7 @@ This function should only be employed if @code{WIFSIGNALED} returned true.
 
   int status = args(0).xint_value ("WTERMSIG: STATUS must be an integer");
 
-  return ovl (octave::sys::wtermsig (status));
+  return ovl (sys::wtermsig (status));
 }
 
 DEFUNX ("WCOREDUMP", FWCOREDUMP, args, ,
@@ -1334,7 +1332,7 @@ and is not available on some Unix implementations (e.g., @nospell{AIX, SunOS}).
 
   int status = args(0).xint_value ("WCOREDUMP: STATUS must be an integer");
 
-  return ovl (octave::sys::wcoredump (status));
+  return ovl (sys::wcoredump (status));
 }
 
 DEFUNX ("WIFSTOPPED", FWIFSTOPPED, args, ,
@@ -1353,7 +1351,7 @@ the child is being traced (see ptrace(2)).
 
   int status = args(0).xint_value ("WIFSTOPPED: STATUS must be an integer");
 
-  return ovl (octave::sys::wifstopped (status));
+  return ovl (sys::wifstopped (status));
 }
 
 DEFUNX ("WSTOPSIG", FWSTOPSIG, args, ,
@@ -1371,7 +1369,7 @@ This function should only be employed if @code{WIFSTOPPED} returned true.
 
   int status = args(0).xint_value ("WSTOPSIG: STATUS must be an integer");
 
-  return ovl (octave::sys::wstopsig (status));
+  return ovl (sys::wstopsig (status));
 }
 
 DEFUNX ("WIFCONTINUED", FWIFCONTINUED, args, ,
@@ -1387,7 +1385,7 @@ true if the child process was resumed by delivery of @code{SIGCONT}.
 
   int status = args(0).xint_value ("WIFCONTINUED: STATUS must be an integer");
 
-  return ovl (octave::sys::wifcontinued (status));
+  return ovl (sys::wifcontinued (status));
 }
 
 DEFUNX ("canonicalize_file_name", Fcanonicalize_file_name, args, ,
@@ -1407,7 +1405,7 @@ expansion of @var{fname} is performed.
 
   std::string msg;
 
-  std::string result = octave::sys::canonicalize_file_name (name, msg);
+  std::string result = sys::canonicalize_file_name (name, msg);
 
   return ovl (result, msg.empty () ? 0 : -1, msg);
 }
@@ -1697,7 +1695,7 @@ instead of waiting for a process to exit.
 @seealso{waitpid, WUNTRACED, WCONTINUE}
 @end deftypefn */)
 {
-  return const_value (args, octave::sys::wnohang ());
+  return const_value (args, sys::wnohang ());
 }
 
 DEFUNX ("WUNTRACED", FWUNTRACED, args, ,
@@ -1711,7 +1709,7 @@ process has stopped but is not traced via the @code{ptrace} system call
 @seealso{waitpid, WNOHANG, WCONTINUE}
 @end deftypefn */)
 {
-  return const_value (args, octave::sys::wuntraced ());
+  return const_value (args, sys::wuntraced ());
 }
 
 DEFUNX ("WCONTINUE", FWCONTINUE, args, ,
@@ -1725,5 +1723,7 @@ has been resumed by delivery of a @code{SIGCONT} signal.
 @seealso{waitpid, WNOHANG, WUNTRACED}
 @end deftypefn */)
 {
-  return const_value (args, octave::sys::wcontinue ());
+  return const_value (args, sys::wcontinue ());
 }
+
+OCTAVE_NAMESPACE_END

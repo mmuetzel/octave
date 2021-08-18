@@ -105,6 +105,8 @@ To initialize:
 #include "parse.h"
 #include "variables.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 #define FLTK_GRAPHICS_TOOLKIT_NAME "fltk"
 
 const char *help_text = "\
@@ -291,7 +293,7 @@ private:
   }
 };
 
-void script_cb (Fl_Widget *, void *data)
+static void script_cb (Fl_Widget *, void *data)
 {
   static_cast<uimenu::properties *> (data)->execute_callback ();
 }
@@ -2484,27 +2486,25 @@ private:
 
 #endif
 
-// This function has the same type signature as a builtin function so
-// that we can create a function handle from it but it is not defined
-// using a DEFMETHOD macro so that it will be omitted from the list of
-// autoloaded functions in the PKG_ADD file and will not be visible to
-// the interpreter.
-
-#if defined (HAVE_FLTK)
-static octave_value_list
-F__fltk_check__ (octave::interpreter& interp, const octave_value_list&, int)
+DEFMETHOD_DLD (__fltk_check__, interp, , ,
+               doc: /* -*- texinfo -*-
+@deftypefn {} {} __fltk_check__ ()
+Undocumented internal function.  Calls Fl::check ()
+@end deftypefn */)
 {
+#if defined (HAVE_FLTK)
   Fl::check ();
 
   if (Vdrawnow_requested)
     Fdrawnow (interp);
 
   return octave_value_list ();
+#else
   octave_unused_parameter (interp);
 
   err_disabled_feature ("__fltk_check__", "OpenGL and FLTK");
-}
 #endif
+}
 
 // Initialize the fltk graphics toolkit.
 
@@ -2551,3 +2551,5 @@ Undocumented internal function.
 ## No test needed for internal helper function.
 %!assert (1)
 */
+
+OCTAVE_NAMESPACE_END

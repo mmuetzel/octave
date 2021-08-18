@@ -52,18 +52,24 @@ namespace octave
 
     void clear_line_edit (void);
 
+    void interpreter_pause (void);
+    void interpreter_resume (void);
+    void interpreter_stop (void);
+
     void interpreter_event (const fcn_callback& fcn);
     void interpreter_event (const meth_callback& meth);
 
   public slots:
+
+    void update_prompt (const QString& prompt);
+
+    void insert_interpreter_output (const QString& msg);
 
     void notice_settings (const gui_settings *settings);
 
   protected slots:
 
     void accept_input_line (void);
-
-    void insert_interpreter_output (const QString& msg);
 
   private:
 

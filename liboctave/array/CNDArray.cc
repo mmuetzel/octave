@@ -73,7 +73,7 @@ ComplexNDArray::fourier (int dim) const
   octave_idx_type nloop = (stride == 1 ? 1 : numel () / dv(dim) / stride);
   octave_idx_type dist = (stride == 1 ? n : 1);
 
-  const Complex *in (fortran_vec ());
+  const Complex *in (data ());
   ComplexNDArray retval (dv);
   Complex *out (retval.fortran_vec ());
 
@@ -104,7 +104,7 @@ ComplexNDArray::ifourier (int dim) const
   octave_idx_type nloop = (stride == 1 ? 1 : numel () / dv(dim) / stride);
   octave_idx_type dist = (stride == 1 ? n : 1);
 
-  const Complex *in (fortran_vec ());
+  const Complex *in (data ());
   ComplexNDArray retval (dv);
   Complex *out (retval.fortran_vec ());
 
@@ -124,7 +124,7 @@ ComplexNDArray::fourier2d (void) const
     return ComplexNDArray ();
 
   dim_vector dv2 (dv(0), dv(1));
-  const Complex *in = fortran_vec ();
+  const Complex *in = data ();
   ComplexNDArray retval (dv);
   Complex *out = retval.fortran_vec ();
   octave_idx_type howmany = numel () / dv(0) / dv(1);
@@ -144,7 +144,7 @@ ComplexNDArray::ifourier2d (void) const
     return ComplexNDArray ();
 
   dim_vector dv2 (dv(0), dv(1));
-  const Complex *in = fortran_vec ();
+  const Complex *in = data ();
   ComplexNDArray retval (dv);
   Complex *out = retval.fortran_vec ();
   octave_idx_type howmany = numel () / dv(0) / dv(1);
@@ -162,7 +162,7 @@ ComplexNDArray::fourierNd (void) const
   dim_vector dv = dims ();
   int rank = dv.ndims ();
 
-  const Complex *in (fortran_vec ());
+  const Complex *in (data ());
   ComplexNDArray retval (dv);
   Complex *out (retval.fortran_vec ());
 
@@ -177,7 +177,7 @@ ComplexNDArray::ifourierNd (void) const
   dim_vector dv = dims ();
   int rank = dv.ndims ();
 
-  const Complex *in (fortran_vec ());
+  const Complex *in (data ());
   ComplexNDArray retval (dv);
   Complex *out (retval.fortran_vec ());
 
@@ -339,7 +339,7 @@ ComplexNDArray::all_integers (double& max_val, double& min_val) const
 bool
 ComplexNDArray::too_large_for_float (void) const
 {
-  return test_any (xtoo_large_for_float);
+  return test_any (octave::too_large_for_float);
 }
 
 boolNDArray
@@ -508,10 +508,11 @@ ComplexNDArray&
 ComplexNDArray::insert (const NDArray& a, octave_idx_type r, octave_idx_type c)
 {
   dim_vector a_dv = a.dims ();
+  dim_vector dv = dims ();
 
   int n = a_dv.ndims ();
 
-  if (n != dimensions.ndims ())
+  if (n != dv.ndims ())
     (*current_liboctave_error_handler)
       ("Array<T>::insert: invalid indexing operation");
 
@@ -522,7 +523,7 @@ ComplexNDArray::insert (const NDArray& a, octave_idx_type r, octave_idx_type c)
 
   for (int i = 0; i < n; i++)
     {
-      if (a_ra_idx(i) < 0 || (a_ra_idx(i) + a_dv(i)) > dimensions(i))
+      if (a_ra_idx(i) < 0 || (a_ra_idx(i) + a_dv(i)) > dv(i))
         (*current_liboctave_error_handler)
           ("Array<T>::insert: range error for insert");
     }

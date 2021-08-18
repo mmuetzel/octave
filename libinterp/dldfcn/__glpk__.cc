@@ -78,7 +78,7 @@ struct control_params
   double tolobj;
 };
 
-int
+static int
 glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
       double *a, double *b, char *ctype, int *freeLB, double *lb,
       int *freeUB, double *ub, int *vartype, int isMIP, int lpsolver,
@@ -304,6 +304,8 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
 
 #endif
 
+OCTAVE_NAMESPACE_BEGIN
+
 #define OCTAVE_GLPK_GET_REAL_PARAM(NAME, VAL)                           \
   do                                                                    \
     {                                                                   \
@@ -427,10 +429,10 @@ Undocumented internal function.
   Array<int> freeLB (dim_vector (mrowsc, 1));
   for (int i = 0; i < mrowsc; i++)
     {
-      if (octave::math::isinf (lb[i]))
+      if (math::isinf (lb[i]))
         {
           freeLB(i) = 1;
-          lb[i] = -octave::numeric_limits<double>::Inf ();
+          lb[i] = -numeric_limits<double>::Inf ();
         }
       else
         freeLB(i) = 0;
@@ -448,10 +450,10 @@ Undocumented internal function.
   Array<int> freeUB (dim_vector (mrowsc, 1));
   for (int i = 0; i < mrowsc; i++)
     {
-      if (octave::math::isinf (ub[i]))
+      if (math::isinf (ub[i]))
         {
           freeUB(i) = 1;
-          ub[i] = octave::numeric_limits<double>::Inf ();
+          ub[i] = numeric_limits<double>::Inf ();
         }
       else
         freeUB(i) = 0;
@@ -639,3 +641,5 @@ Undocumented internal function.
 ## No test needed for internal helper function.
 %!assert (1)
 */
+
+OCTAVE_NAMESPACE_END

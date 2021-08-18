@@ -223,8 +223,8 @@ bool Vjava_matrix_autoconversion = false;
 bool Vjava_unsigned_autoconversion = true;
 bool Vdebug_java = false;
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   class JVMArgs
   {
   public:
@@ -317,8 +317,8 @@ namespace octave
 
     std::list<std::string> java_opts;
   };
-}
 
+OCTAVE_NAMESPACE_END
 
 //! The java initialization directory is given by the environment variable
 //! @c OCTAVE_JAVA_DIR if defined; otherwise it is the directory of Octave's
@@ -399,7 +399,6 @@ read_classpath_txt (const std::string& filepath)
 
   return (classpath);
 }
-
 
 //! Return the initial classpath.
 //!
@@ -535,13 +534,12 @@ get_jvm_lib_path_in_subdir (std::string java_home_path)
 
 #if defined (OCTAVE_USE_WINDOWS_API)
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
   // Declare function defined in sysdep.cc
   extern LONG
   get_regkey_value (HKEY h_rootkey, const std::string subkey,
                     const std::string name, octave_value& value);
-}
+OCTAVE_NAMESPACE_END
 
 static std::string
 get_jvm_lib_path_from_registry ()
@@ -642,7 +640,6 @@ get_jvm_lib_path_from_registry ()
   return jvm_lib_path;
 }
 #endif
-
 
 //! Initialize the java virtual machine (jvm) and field #jvm if necessary.
 //!
@@ -2205,7 +2202,7 @@ octave_java::subsref (const std::string& type,
           ovl(0) = (idx.front ())(0);
           auto it = idx.begin ();
           ovl.append (*++it);
-          retval = FjavaMethod (ovl, 1);
+          retval = octave::FjavaMethod (ovl, 1);
           skip++;
         }
       else
@@ -2214,7 +2211,7 @@ octave_java::subsref (const std::string& type,
           count++;
           ovl(0) = octave_value (this);
           ovl(1) = (idx.front ())(0);
-          retval = F__java_get__ (ovl, 1);
+          retval = octave::F__java_get__ (ovl, 1);
         }
       break;
 
@@ -2270,7 +2267,7 @@ octave_java::subsasgn (const std::string& type,
           ovl(0) = octave_value (this);
           ovl(1) = (idx.front ())(0);
           ovl(2) = rhs;
-          F__java_set__ (ovl);
+          octave::F__java_set__ (ovl);
 
           count++;
           retval = octave_value (this);
@@ -3029,6 +3026,8 @@ octave_java::release (void)
 #endif
 }
 
+OCTAVE_NAMESPACE_BEGIN
+
 // DEFUN blocks below must be outside of HAVE_JAVA block so that documentation
 // strings are always available, even when functions are not.
 
@@ -3386,7 +3385,8 @@ The original variable value is restored when exiting the function.
 {
 #if defined (HAVE_JAVA)
 
-  return SET_INTERNAL_VARIABLE (java_matrix_autoconversion);
+  return set_internal_variable (Vjava_matrix_autoconversion, args, nargout,
+                                "java_matrix_autoconversion");
 
 #else
 
@@ -3417,7 +3417,8 @@ The original variable value is restored when exiting the function.
 {
 #if defined (HAVE_JAVA)
 
-  return SET_INTERNAL_VARIABLE (java_unsigned_autoconversion);
+  return set_internal_variable (Vjava_unsigned_autoconversion, args, nargout,
+                                "java_unsigned_autoconversion");
 
 #else
 
@@ -3446,7 +3447,7 @@ The original variable value is restored when exiting the function.
 {
 #if defined (HAVE_JAVA)
 
-  return SET_INTERNAL_VARIABLE (debug_java);
+  return set_internal_variable (Vdebug_java, args, nargout, "debug_java");
 
 #else
 
@@ -3592,3 +3593,5 @@ Return true if @var{x} is a Java object.
 %! frame.setResizable (true);
 %! assert (frame.isResizable ());
 */
+
+OCTAVE_NAMESPACE_END

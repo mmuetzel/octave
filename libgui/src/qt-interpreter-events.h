@@ -117,6 +117,8 @@ namespace octave
 
     void apply_preferences (void);
 
+    void show_terminal_window (void);
+
     bool show_documentation (const std::string& file);
 
     void show_file_browser (void);
@@ -124,6 +126,9 @@ namespace octave
     void show_command_history (void);
 
     void show_workspace (void);
+
+    void show_community_news (int serial);
+    void show_release_notes (void);
 
     bool edit_file (const std::string& file);
 
@@ -263,6 +268,8 @@ namespace octave
 
     void gui_preference_signal (const QString& key, const QString& value);
 
+    void show_terminal_window_signal (void);
+
     void show_documentation_signal (const QString& file);
 
     void register_documentation_signal (const QString& file);
@@ -274,6 +281,9 @@ namespace octave
     void show_command_history_signal (void);
 
     void show_workspace_signal (void);
+
+    void show_community_news_signal (int serial);
+    void show_release_notes_signal (void);
 
     // Note: this signal currently not used by the old terminal widget.
     void interpreter_output_signal (const QString& msg);

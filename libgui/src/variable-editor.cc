@@ -1147,6 +1147,9 @@ namespace octave
     m_main->setCentralWidget (central_mdiarea);
 
     setWidget (m_main);
+
+    if (! p)
+      make_window ();
   }
 
   void variable_editor::focusInEvent (QFocusEvent *ev)
@@ -1254,7 +1257,7 @@ namespace octave
     connect (page, SIGNAL (queue_unfloat_float ()),
              page, SLOT (unfloat_float ()), Qt::QueuedConnection);
     connect (page, SIGNAL (queue_float ()),
-             page, SIGNAL (refloat ()), Qt::QueuedConnection);
+             page, SLOT (refloat ()), Qt::QueuedConnection);
 #endif
 
     variable_editor_stack *stack
@@ -1352,7 +1355,7 @@ namespace octave
 
         // FIXME: What was the intent here?  update_label_signal does
         // not seem to exist now.
-        connect (model, SIGNAL (update_label_signal (const QString&)),
+        connect (model, SIGNAL (description_changed (const QString&)),
                  existing_ql, SLOT (setText (const QString&)));
         existing_ql->setMargin (2);
       }
@@ -1365,8 +1368,6 @@ namespace octave
         if (viewlist.size () == 1 && m_tool_bar)
           m_tool_bar->setEnabled (true);
       }
-
-    make_window ();
 
     show ();
     page->show ();

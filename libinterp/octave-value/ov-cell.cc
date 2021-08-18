@@ -1219,6 +1219,8 @@ octave_cell::load_hdf5 (octave_hdf5_id loc_id, const char *name)
   return retval;
 }
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFUN (iscell, args, ,
        doc: /* -*- texinfo -*-
 @deftypefn {} {} iscell (@var{x})
@@ -1258,7 +1260,7 @@ dimensions.
       break;
 
     case 1:
-      octave::get_dimensions (args(0), "cell", dims);
+      get_dimensions (args(0), "cell", dims);
       break;
 
     default:
@@ -1274,7 +1276,7 @@ dimensions.
 
   dims.chop_trailing_singletons ();
 
-  octave::check_dimensions (dims, "cell");
+  check_dimensions (dims, "cell");
 
   return ovl (Cell (dims));
 }
@@ -1411,6 +1413,8 @@ c(2,1,:)(:)
 %! assert (struct2cell (s), [vals{:}]');
 %! assert (fieldnames (s), keys');
 */
+
+OCTAVE_NAMESPACE_END
 
 mxArray *
 octave_cell::as_mxArray (bool interleaved) const

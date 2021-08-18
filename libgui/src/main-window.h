@@ -43,9 +43,6 @@
 #include "external-editor-interface.h"
 #include "file-editor-interface.h"
 
-// QTerminal includes
-#include "QTerminal.h"
-
 // Own includes
 #include "dialog.h"
 #include "documentation-dock-widget.h"
@@ -110,6 +107,9 @@ namespace octave
     void open_file_signal (const QString& file, const QString& enc, int line);
     void step_into_file_signal (void);
 
+    void show_community_news_signal (int serial);
+    void show_release_notes_signal (void);
+
     void update_gui_lexer_signal (bool);
 
     void insert_debugger_pointer_signal (const QString& file, int line);
@@ -143,15 +143,10 @@ namespace octave
     void handle_clear_command_window_request (void);
     void handle_clear_history_request (void);
     void handle_undo_request (void);
-    void handle_rename_variable_request (const QString& old_name,
-                                         const QString& new_name);
-    void modify_path (const octave_value_list& dir_list, bool rm, bool subdirs);
+    void modify_path (const QStringList& dir_list, bool rm, bool subdirs);
     void edit_mfile (const QString&, int);
     void file_remove_proxy (const QString& o, const QString& n);
     void open_online_documentation_page (void);
-    void display_release_notes (void);
-    void load_and_display_community_news (int serial = -1);
-    void display_community_news (const QString& news);
     void open_bug_tracker_page (void);
     void open_octave_packages_page (void);
     void open_contribute_page (void);
@@ -165,7 +160,8 @@ namespace octave
     void prepare_to_exit (void);
     void go_to_previous_widget (void);
     void reset_windows (void);
-    void do_reset_windows (bool show = true, bool save = true);
+    void do_reset_windows (bool show = true, bool save = true,
+                           bool force_all = false);
 
     void update_octave_directory (const QString& dir);
     void browse_for_directory (void);
@@ -252,19 +248,21 @@ namespace octave
 
     void warning_function_not_found (const QString& message);
 
-    //! Opens the variable editor for @p name.
-
-    void edit_variable (const QString &name, const octave_value&);
-
-    void refresh_variable_editor (void);
-
-    void handle_variable_editor_update (void);
-
   protected:
 
     void closeEvent (QCloseEvent *closeEvent);
 
   private:
+
+    void adopt_dock_widgets (void);
+
+    void adopt_terminal_widget (void);
+    void adopt_documentation_widget (void);
+    void adopt_file_browser_widget (void);
+    void adopt_history_widget (void);
+    void adopt_workspace_widget (void);
+    void adopt_editor_widget (void);
+    void adopt_variable_editor_widget (void);
 
     void construct_central_widget (void);
 
@@ -301,7 +299,7 @@ namespace octave
 
     void update_default_encoding (const QString& default_encoding);
 
-    void get_screen_geometry (int *width, int *height);
+    void get_screen_geometry (int& width, int& height);
     void set_default_geometry (void);
     void resize_dock (QDockWidget *dw, int width, int height);
 
@@ -321,7 +319,6 @@ namespace octave
     //! Dock widgets.
     //!@{
     QPointer<terminal_dock_widget> m_command_window;
-
     QPointer<history_dock_widget> m_history_window;
     QPointer<files_dock_widget> m_file_browser_window;
     QPointer<documentation_dock_widget> m_doc_browser_window;
@@ -335,8 +332,6 @@ namespace octave
 
     octave_dock_widget *m_previous_dock;
     octave_dock_widget *m_active_dock;
-
-    QString m_release_notes_icon;
 
     QToolBar *m_main_tool_bar;
 
@@ -425,8 +420,6 @@ namespace octave
     //! Release notes window.
 
     QWidget *m_release_notes_window;
-
-    QWidget *m_community_news_window;
 
     QClipboard *m_clipboard;
 

@@ -90,8 +90,8 @@
 #  include "zfstream.h"
 #endif
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   OCTAVE_NORETURN static
   void
   err_file_open (const std::string& fcn, const std::string& file)
@@ -1536,16 +1536,6 @@ namespace octave
 
     return retval;
   }
-}
-
-void
-dump_octave_core (void)
-{
-  octave::load_save_system& load_save_sys
-    = octave::__get_load_save_system__ ("dump_octave_core");
-
-  load_save_sys.dump_octave_core ();
-}
 
 DEFMETHOD (load, interp, args, nargout,
            doc: /* -*- texinfo -*-
@@ -1655,7 +1645,7 @@ Force Octave to assume the file is in @sc{matlab}'s version 4 binary format.
 @seealso{save, dlmwrite, csvwrite, fwrite}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.load (args, nargout);
 }
@@ -1809,7 +1799,7 @@ file @file{data} in Octave's binary format.
 @seealso{load, save_default_options, save_header_format_string, save_precision, dlmread, csvread, fread}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.save (args, nargout);
 }
@@ -1926,7 +1916,7 @@ The original variable value is restored when exiting the function.
 @seealso{octave_core_file_limit, octave_core_file_name, octave_core_file_options}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.crash_dumps_octave_core (args, nargout);
 }
@@ -1948,7 +1938,7 @@ The original variable value is restored when exiting the function.
 @seealso{save, save_header_format_string, save_precision}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.save_default_options (args, nargout);
 }
@@ -1976,7 +1966,7 @@ The original variable value is restored when exiting the function.
 @seealso{crash_dumps_octave_core, octave_core_file_name, octave_core_file_options}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.octave_core_file_limit (args, nargout);
 }
@@ -1997,7 +1987,7 @@ The original variable value is restored when exiting the function.
 @seealso{crash_dumps_octave_core, octave_core_file_name, octave_core_file_options}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.octave_core_file_name (args, nargout);
 }
@@ -2020,7 +2010,7 @@ The original variable value is restored when exiting the function.
 @seealso{crash_dumps_octave_core, octave_core_file_name, octave_core_file_limit}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.octave_core_file_options (args, nargout);
 }
@@ -2050,7 +2040,20 @@ The original variable value is restored when exiting the function.
 @seealso{strftime, save_default_options}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.save_header_format_string (args, nargout);
+}
+
+OCTAVE_NAMESPACE_END
+
+// DEPRECATED in Octave 7
+
+void
+dump_octave_core (void)
+{
+  octave::load_save_system& load_save_sys
+    = octave::__get_load_save_system__ ("dump_octave_core");
+
+  load_save_sys.dump_octave_core ();
 }

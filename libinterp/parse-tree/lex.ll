@@ -183,22 +183,6 @@ and after the nested call.
      }                                                                  \
    while (0)
 
-#define CMD_OR_COMPUTED_ASSIGN_OP(PATTERN, TOK)                         \
-   do                                                                   \
-     {                                                                  \
-       curr_lexer->lexer_debug (PATTERN);                               \
-                                                                        \
-       if (curr_lexer->previous_token_may_be_command ()                 \
-           && curr_lexer->space_follows_previous_token ())              \
-         {                                                              \
-           yyless (0);                                                  \
-           curr_lexer->push_start_state (COMMAND_START);                \
-         }                                                              \
-       else                                                             \
-         return curr_lexer->handle_op (TOK, false, false);              \
-     }                                                                  \
-   while (0)
-
 #define CMD_OR_UNARY_OP(PATTERN, TOK, COMPAT)                           \
    do                                                                   \
      {                                                                  \
@@ -332,8 +316,8 @@ is_space_or_tab_or_eol (char c)
   return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   bool iskeyword (const std::string& s)
   {
     // Parsing function names like "set.property_name" inside
@@ -350,7 +334,8 @@ namespace octave
                   || s == "enumeration" || s == "events"
                   || s == "methods" || s == "properties"));
   }
-}
+
+OCTAVE_NAMESPACE_END
 
 %}
 
@@ -1682,6 +1667,12 @@ ANY_INCLUDING_NL (.|{NL})
 %}
 
 "\\" {
+    // FIXME: After backslash is no longer handled as a line
+    // continuation marker outside of character strings, this
+    // action may be replaced with
+    //
+    //   CMD_OR_OP ("\\", LEFTDIV, true);
+
     curr_lexer->lexer_debug ("\\");
 
     return curr_lexer->handle_op (LEFTDIV);
@@ -1817,27 +1808,25 @@ ANY_INCLUDING_NL (.|{NL})
 "=" {
     curr_lexer->lexer_debug ("=");
 
-    curr_lexer->maybe_mark_previous_token_as_variable ();
-
     return curr_lexer->handle_op ('=');
   }
 
-"+="   { CMD_OR_COMPUTED_ASSIGN_OP ("+=", ADD_EQ); }
-"-="   { CMD_OR_COMPUTED_ASSIGN_OP ("-=", SUB_EQ); }
-"*="   { CMD_OR_COMPUTED_ASSIGN_OP ("*=", MUL_EQ); }
-"/="   { CMD_OR_COMPUTED_ASSIGN_OP ("/=", DIV_EQ); }
-"\\="  { CMD_OR_COMPUTED_ASSIGN_OP ("\\=", LEFTDIV_EQ); }
-".+="  { CMD_OR_COMPUTED_ASSIGN_OP (".+=", ADD_EQ); }
-".-="  { CMD_OR_COMPUTED_ASSIGN_OP (".-=", SUB_EQ); }
-".*="  { CMD_OR_COMPUTED_ASSIGN_OP (".*=", EMUL_EQ); }
-"./="  { CMD_OR_COMPUTED_ASSIGN_OP ("./=", EDIV_EQ); }
-".\\=" { CMD_OR_COMPUTED_ASSIGN_OP (".\\=", ELEFTDIV_EQ); }
-"^="   { CMD_OR_COMPUTED_ASSIGN_OP ("^=", POW_EQ); }
-"**="  { CMD_OR_COMPUTED_ASSIGN_OP ("^=", POW_EQ); }
-".^="  { CMD_OR_COMPUTED_ASSIGN_OP (".^=", EPOW_EQ); }
-".**=" { CMD_OR_COMPUTED_ASSIGN_OP (".^=", EPOW_EQ); }
-"&="   { CMD_OR_COMPUTED_ASSIGN_OP ("&=", AND_EQ); }
-"|="   { CMD_OR_COMPUTED_ASSIGN_OP ("|=", OR_EQ); }
+"+="   { CMD_OR_OP ("+=", ADD_EQ, false); }
+"-="   { CMD_OR_OP ("-=", SUB_EQ, false); }
+"*="   { CMD_OR_OP ("*=", MUL_EQ, false); }
+"/="   { CMD_OR_OP ("/=", DIV_EQ, false); }
+"\\="  { CMD_OR_OP ("\\=", LEFTDIV_EQ, false); }
+".+="  { CMD_OR_OP (".+=", ADD_EQ, false); }
+".-="  { CMD_OR_OP (".-=", SUB_EQ, false); }
+".*="  { CMD_OR_OP (".*=", EMUL_EQ, false); }
+"./="  { CMD_OR_OP ("./=", EDIV_EQ, false); }
+".\\=" { CMD_OR_OP (".\\=", ELEFTDIV_EQ, false); }
+"^="   { CMD_OR_OP ("^=", POW_EQ, false); }
+"**="  { CMD_OR_OP ("^=", POW_EQ, false); }
+".^="  { CMD_OR_OP (".^=", EPOW_EQ, false); }
+".**=" { CMD_OR_OP (".^=", EPOW_EQ, false); }
+"&="   { CMD_OR_OP ("&=", AND_EQ, false); }
+"|="   { CMD_OR_OP ("|=", OR_EQ, false); }
 
 %{
 // In Matlab, '{' may also trigger command syntax.
@@ -1898,7 +1887,10 @@ ANY_INCLUDING_NL (.|{NL})
   }
 
 %{
-// Unrecognized input is a lexical error.
+// Unrecognized input.  If the previous token may be a command and is
+// followed by a space, parse the remainder of this statement as a
+// command-style function call.  Otherwise, unrecognized input is a
+// lexical error.
 %}
 
 . {
@@ -1912,6 +1904,12 @@ ANY_INCLUDING_NL (.|{NL})
       return -1;
     else if (c == EOF)
       return curr_lexer->handle_end_of_input ();
+    else if (curr_lexer->previous_token_may_be_command ()
+             && curr_lexer->space_follows_previous_token ())
+      {
+        yyless (0);
+        curr_lexer->push_start_state (COMMAND_START);
+      }
     else
       {
         std::ostringstream buf;
@@ -2112,6 +2110,8 @@ display_character (char c)
       }
 }
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFUN (iskeyword, args, ,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {} iskeyword ()
@@ -2142,7 +2142,7 @@ If @var{name} is omitted, return a list of keywords.
         {
           std::string kword = wordlist[i].name;
 
-          // FIXME: The following check is duplicated in octave::iskeyword.
+          // FIXME: The following check is duplicated in iskeyword.
           if (! (kword == "set" || kword == "get" || kword == "arguments"
                  || kword == "enumeration" || kword == "events"
                  || kword == "methods" || kword == "properties"))
@@ -2156,7 +2156,7 @@ If @var{name} is omitted, return a list of keywords.
   else
     {
       std::string name = args(0).xstring_value ("iskeyword: NAME must be a string");
-      retval = octave::iskeyword (name);
+      retval = iskeyword (name);
     }
 
   return retval;
@@ -2175,8 +2175,6 @@ If @var{name} is omitted, return a list of keywords.
 
 */
 
-namespace octave
-{
   void
   lexical_feedback::symbol_table_context::clear (void)
   {
@@ -2239,6 +2237,7 @@ namespace octave
     m_looking_for_object_index = false;
     m_looking_at_indirect_ref = false;
     m_arguments_is_keyword = false;
+    m_classdef_element_names_are_keywords = false;
     m_parsing_anon_fcn_body = false;
     m_parsing_class_method = false;
     m_parsing_classdef = false;
@@ -2279,7 +2278,6 @@ namespace octave
     while (! m_parsed_function_name.empty ())
       m_parsed_function_name.pop ();
 
-    m_pending_local_variables.clear ();
     m_symtab_context.clear ();
     m_nesting_level.reset ();
     m_tokens.clear ();
@@ -2341,6 +2339,24 @@ namespace octave
     return tok ? tok->iskeyword () : false;
   }
 
+  void
+  lexical_feedback::mark_as_variable (const std::string& nm)
+  {
+    symbol_scope scope = m_symtab_context.curr_scope ();
+
+    if (scope)
+      scope.mark_as_variable (nm);
+  }
+
+  void
+  lexical_feedback::mark_as_variables (const std::list<std::string>& lst)
+  {
+    symbol_scope scope = m_symtab_context.curr_scope ();
+
+    if (scope)
+      scope.mark_as_variables (lst);
+  }
+
   bool
   lexical_feedback::previous_token_may_be_command (void) const
   {
@@ -2350,23 +2366,6 @@ namespace octave
     const token *tok = m_tokens.front ();
     return tok ? tok->may_be_command () : false;
   }
-
-  void
-  lexical_feedback::maybe_mark_previous_token_as_variable (void)
-  {
-    token *tok = m_tokens.front ();
-
-    if (tok && tok->isstring ())
-      m_pending_local_variables.insert (tok->text ());
-  }
-
-  void
-  lexical_feedback::mark_as_variables (const std::list<std::string>& lst)
-  {
-    for (const auto& var : lst)
-      m_pending_local_variables.insert (var);
-  }
-}
 
 static bool
 looks_like_copyright (const std::string& s)
@@ -2391,8 +2390,6 @@ looks_like_shebang (const std::string& s)
   return ((! s.empty ()) && (s[0] == '!'));
 }
 
-namespace octave
-{
   void
   base_lexer::input_buffer::fill (const std::string& input, bool eof_arg)
   {
@@ -2655,15 +2652,6 @@ namespace octave
     return retval;
   }
 
-  bool
-  base_lexer::is_variable (const std::string& name)
-  {
-    return ((m_interpreter.at_top_level ()
-             && m_interpreter.is_variable (name))
-            || (m_pending_local_variables.find (name)
-                != m_pending_local_variables.end ()));
-  }
-
   int
   base_lexer::make_keyword_token (const std::string& s)
   {
@@ -2843,7 +2831,7 @@ namespace octave
       case properties_kw:
         // 'properties', 'methods' and 'events' are keywords for
         // classdef blocks.
-        if (! m_parsing_classdef)
+        if (! m_classdef_element_names_are_keywords)
           {
             m_at_beginning_of_statement = previous_at_bos;
             return 0;
@@ -2972,7 +2960,6 @@ namespace octave
             || (m_nesting_level.is_brace ()
                 && ! m_looking_at_object_index.front ()));
   }
-}
 
 static inline bool
 looks_like_bin (const char *s, int len)
@@ -3036,8 +3023,6 @@ make_integer_value (uintmax_t long_int_val, bool unsigned_val, int bytes)
   return octave_value ();
 }
 
-namespace octave
-{
   template <>
   int
   base_lexer::handle_number<2> (void)
@@ -3577,16 +3562,18 @@ namespace octave
 
     token *tok = new token (NAME, ident, m_tok_beg, m_tok_end);
 
-    // The following symbols are handled specially so that things like
+    // For compatibility with Matlab, the following symbols are
+    // handled specially so that things like
     //
     //   pi +1
     //
     // are parsed as an addition expression instead of as a command-style
-    // function call with the argument "+1".
+    // function call with the argument "+1".  Also for compatibility with
+    // Matlab, if we are at the top level workspace, do not consider IDENT
+    // as a possible command if it is already known to be a variable.
 
     if (m_at_beginning_of_statement
         && ! (m_parsing_anon_fcn_body
-              || is_variable (ident)
               || ident == "e" || ident == "pi"
               || ident == "I" || ident == "i"
               || ident == "J" || ident == "j"
@@ -4177,4 +4164,5 @@ namespace octave
 
     return status;
   }
-}
+
+OCTAVE_NAMESPACE_END

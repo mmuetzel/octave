@@ -76,8 +76,13 @@ constants in array expressions with leading zeros so that they use the
 same number of digits for each value such as
 `[0x00_00_01; 0x00_01_00; 0x01_00_00]`.
 
-- For Octave on Windows OS, the minimum required version of the Windows
-API is now 6.1 (Windows 7 or newer).
+- The `mldivide` function (i.e., the `\` operator) now uses an LU
+decomposition to solve nearly singular full square matrices.  This is
+Matlab-compatible and yields results which more nearly minimize `norm
+(A*x - b)`.  Previously, Octave computed a minimum-norm solution.
+
+- The `whos` function now displays an additional attribute 's' when
+the variable is a sparse type.
 
 - As part of GSoC 2020, Abdallah K. Elshamy implemented the
 `jsondecode` and `jsonencode` functions to read and write JSON data.
@@ -87,9 +92,12 @@ where $DATA is a platform dependent location for (roaming) user data
 files (e.g., ${XDG_DATA_HOME} or, if that is not set, ~/.local/share on
 Unix-like operating systems or %APPDATA% on Windows).
 
+- For Octave on Windows OS, the minimum required version of the Windows
+API is now 6.1 (Windows 7 or newer).
+
 - The non-re-entrant version of the QHull library "libqhull" was
-deprecated upstream.  Octave now requires the re-entrant version of
-that library "libqhull_r" instead.
+deprecated upstream.  Octave now (optionally) requires the re-entrant
+version of that library "libqhull_r" instead.
 
 ### Graphical User Interface
 
@@ -103,14 +111,39 @@ variables in the editor panel.
 - Support for Qt4 for both graphics and the GUI has been removed.
 
 - If a working LaTeX tool chain is found on the path, including `latex`,
-`dvipng`, and `dvisvgm` binaries, then text strings can now be rendered properly
-when using the `"latex"` value for the text objects' `"interpreter"` property
-and axes objects' `"ticklabelinterpreter"`.  Type `doc "latex interpreter"`
-for further info.
+`dvipng`, and `dvisvgm` binaries, then text strings can now be rendered
+properly when using the `"latex"` value for the text objects'
+`"interpreter"` property and axes objects' `"ticklabelinterpreter"`.
+Type `doc "latex interpreter"` for further info.
+
+- The `FMT` format argument for plot commands now accepts long forms for
+color names which may be more understandable than the existing
+one-letter codes.  For example, the RGB value `[0 0 0]` can now be
+specified by `"black"` in addition to `"k"`.
+
+- The color graphics properties, for example `"EdgeColor"` or
+`"FaceColor"`, now accept HTML specifications.  An HTML specification is
+a string that begins with the character '#' and is followed by either 3
+or 6 hexadecimal digits.  For example, magenta which is 100% red and
+blue values can specified by `"#FF00FF"` or `"#F0F"`.
 
 - The additional property `"contextmenu"` has been added to all graphics
 objects.  It is equivalent to the previously used `"uicontextmenu"`
 property which is hidden now.
+
+- `uicontrol` objects now fully implement the `"Off"` and `"Inactive"`
+values of the `"Enable"` property.  When the value is `"Off"`, no
+interaction with the object occurs and the `uicontrol` changes color
+(typically to gray) to indicate it is disabled.  When the value is
+`"Inactive"`, the object appears normally (no change in color), but it
+is not possible to change the value of the object (such as modifying
+text in an `Edit` box or clicking on a `RadioButton`).
+
+- The `"ListBoxTop"` property for `uicontrol` objects has been
+implemented for `set` commands.
+
+- The `Title` property for print formats such as PDF or SVG is now set
+to the title displayed on the figure window which contains the plot.
 
 - Additional properties have been added to the `axes` graphics object:
     * `"alphamap"` (not yet implemented)
@@ -147,30 +180,25 @@ vectors with rows corresponding to the input coordinate matrix.
 
 - The function `dec2bin` and `dec2hex` now support negative numbers.
 
+- The function `factor` now supports uint64 inputs larger than
+`flintmax`.
+
+- The function `primes` now supports char inputs.
+
 - The functions `quantile` and `prctile` now permit operating on
 dimensions greater than `ndims (x)`.
+
+- The function `iqr` now uses Matlab compatible interpolation for
+quantile values.  Dimension input now allows a vector, "all", and
+dimensions greater than `ndims (x)`.  The function compatibly handles
+`Inf` and `NaN` input values.
 
 - The function `importdata` now produces more compatible results when
 the file contains a 2-D text matrix.
 
-- The `FMT` format argument for plot commands now accepts long forms for
-color names which may be more understandable than the existing
-one-letter codes.  For example, the RGB value `[0 0 0]` can now be
-specified by `"black"` in addition to `"k"`.
-
-- The color graphics properties, for example `"EdgeColor"` or
-`"FaceColor"`, now accept HTML specifications.  An HTML specification is
-a string that begins with the character '#' and is followed by either 3
-or 6 hexadecimal digits.  For example, magenta which is 100% red and
-blue values can specified by `"#FF00FF"` or `"#F0F"`.
-
-- `uicontrol` objects now fully implement the `"Off"` and `"Inactive"`
-values of the `"Enable"` property.  When the value is `"Off"`, no
-interaction with the object occurs and the `uicontrol` changes color
-(typically to gray) to indicate it is disabled.  When the value is
-`"Inactive"`, the object appears normally (no change in color), but it is
-not possible to change the value of the object (such as modifying text
-in an `Edit` box or clicking on a `RadioButton`).
+- `uimenu` now accepts property `"Text"` which is identical to
+`"Label"`.  Matlab recommends using `"Text"` in new code, although there
+is no announced date for deprecating `"Label"`.
 
 - The functions `scatter` and `scatter3` now return a handle to a
 scatter graphics object.  For compatibility, they return an `hggroup` of
@@ -195,6 +223,10 @@ of the histogram options (@qcode{"hist"}, @qcode{"histc"} was specified.
 been added which prints a warning when Octave's parser recognizes valid
 Matlab code, but for which Octave does not yet implement the
 functionality.  By default, this warning is enabled.
+
+- When Octave is started with the `--traditional` option for maximum
+compatibility the `print_struct_array_contents` internal variable is set
+to true.
 
 ### Alphabetical list of new functions added in Octave 7
 
@@ -227,9 +259,11 @@ major release after 7):
 
 - Functions
 
-  Function               | Replacement
-  -----------------------|------------------
-                         |
+  Function                   | Replacement
+  -------------------------- |----------------------------
+  disable_diagonal_matrix    | optimize_diagonal_matrix
+  disable_permutation_matrix | optimize_permutation_matrix
+  disable_range              | optimize_range
 
 - Properties
 
@@ -250,7 +284,23 @@ major release after 7):
     * Any trailing whitespace after a `'\'` line continuation has been
     deprecated.  Delete unnecessary trailing whitespace.
 
-### Removed functions and properties
+
+The following functions were deprecated in Octave 6 and will be removed
+from Octave 8 (or whatever version is the second major release after 6):
+
+- Functions
+
+  Function               | Replacement
+  -----------------------|------------------
+  `runtests`             | `oruntests`
+
+- The environment variable used by `mkoctfile` for linker flags is now
+  `LDFLAGS` rather than `LFLAGS`.  `LFLAGS` was deprecated in Octave 6,
+  and a warning is now emitted if it is used, but it will continue to
+  work.
+
+
+### Removed functions, properties, and features
 
 The following functions and properties were deprecated in Octave 5
 and have been removed from Octave 7.
@@ -271,6 +321,19 @@ and have been removed from Octave 7.
   `uicontrol`      | `fontangle`   | `"oblique"`
   `uipanel`        | `fontangle`   | `"oblique"`
   `uitable`        | `fontangle`   | `"oblique"`
+
+- The prototype JIT compiler has been removed from Octave.  Since it was
+first added as part of a Google Summer of Code project in 2012, no one
+has ever seriously taken on further development of it and it still does
+nothing significant.  It is out of date with the default interpreter
+that walks the parse tree.  Even though we have fixed the configure
+script to disable it by default, people still ask questions about how to
+build it, but it doesn’t seem that they are doing that to work on it but
+because they think it will make Octave code run faster (it never did,
+except for some extremely simple bits of code as examples for
+demonstration purposes only).  The following functions related to the
+JIT compiler have also been removed: `debug_jit`, `jit_enable`,
+`jit_failcnt`, and `jit_startcnt`.
 
 ### Old release news
 
