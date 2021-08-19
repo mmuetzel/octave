@@ -268,7 +268,9 @@ jobs:
         # automatically.
         continue-on-error: true
         timeout-minutes: 60
-        run: make -C ./.build check
+        run: |
+          echo makeinfo_program ("/usr/local/opt/texinfo/bin/makeinfo") >> ./scripts/startup/site-rcfile
+          make -C ./.build check
 
       - name: display test log
         continue-on-error: true
