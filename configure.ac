@@ -1065,8 +1065,8 @@ AC_FUNC_ALLOCA
 ## Does the C compiler support Automake subdir-objects option?
 AM_PROG_CC_C_O
 
-## Set the target Windows version early so that gnulib can use all functions
-## that are available in that version.
+## Set the target Windows or macOS version early so that gnulib can use all
+## functions that are available in those versions.
 case $host_os in
   msdosmsvc | mingw*)
     AC_MSG_CHECKING([for required _WIN32_WINNT])
@@ -1080,6 +1080,20 @@ case $host_os in
       [AC_DEFINE(_WIN32_WINNT, 0x0601,
         [Define to 0x0601 to access SetCurrentProcessExplicitAppUserModelID.])
        AC_MSG_RESULT([0x0601])])
+  ;;
+  darwin*)
+    ## Set target OS in compiler and linker flags
+    OCTAVE_CC_FLAG([-mmacosx-version-min=10.4], [
+      CFLAGS="$CFLAGS -mmacosx-version-min=10.4"
+      AC_MSG_NOTICE([adding -mmacosx-version-min=10.4 to CFLAGS])])
+    OCTAVE_CXX_FLAG([-mmacosx-version-min=10.4], [
+      CXXFLAGS="$CXXFLAGS -mmacosx-version-min=10.4"
+      AC_MSG_NOTICE([adding -mmacosx-version-min=10.4 to CXXFLAGS])])
+    OCTAVE_F77_FLAG([-mmacosx-version-min=10.4], [
+      FFLAGS="$FFLAGS -mmacosx-version-min=10.4"
+      AC_MSG_NOTICE([adding -mmacosx-version-min=10.4 to FFLAGS])])
+    ])
+    LDFLAGS="$LDFLAGS -mmacosx-version-min=10.4"
   ;;
 esac
 
