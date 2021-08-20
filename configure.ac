@@ -1092,7 +1092,6 @@ case $host_os in
     OCTAVE_F77_FLAG([-mmacosx-version-min=10.4], [
       FFLAGS="$FFLAGS -mmacosx-version-min=10.4"
       AC_MSG_NOTICE([adding -mmacosx-version-min=10.4 to FFLAGS])])
-    ])
     LDFLAGS="$LDFLAGS -mmacosx-version-min=10.4"
   ;;
 esac
