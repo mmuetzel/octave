@@ -987,9 +987,6 @@ case $canonical_host_type in
   ;;
 esac
 
-AC_SUBST(XTRA_CFLAGS)
-AC_SUBST(XTRA_CXXFLAGS)
-
 ### Defaults for cross compiling.
 dnl BUILD_CC and BUILD_CXX are the compilers that we use for building tools
 dnl on the build system.  For now, we assume that the only cross compiling we
@@ -1083,18 +1080,22 @@ case $host_os in
   ;;
   darwin*)
     ## Set target OS in compiler and linker flags
-    OCTAVE_CC_FLAG([-mmacosx-version-min=10.15], [
-      CFLAGS="$CFLAGS -mmacosx-version-min=10.15"
-      AC_MSG_NOTICE([adding -mmacosx-version-min=10.15 to CFLAGS])])
-    OCTAVE_CXX_FLAG([-mmacosx-version-min=10.15], [
-      CXXFLAGS="$CXXFLAGS -mmacosx-version-min=10.15"
-      AC_MSG_NOTICE([adding -mmacosx-version-min=10.15 to CXXFLAGS])])
-    OCTAVE_F77_FLAG([-mmacosx-version-min=10.15], [
-      FFLAGS="$FFLAGS -mmacosx-version-min=10.15"
-      AC_MSG_NOTICE([adding -mmacosx-version-min=10.15 to FFLAGS])])
-    LDFLAGS="$LDFLAGS -mmacosx-version-min=10.15"
+    macosx_version_min=10.8
+    OCTAVE_CC_FLAG([-mmacosx-version-min=$macosx_version_min], [
+      XTRA_CFLAGS="$XTRA_CFLAGS -mmacosx-version-min=$macosx_version_min"
+      AC_MSG_NOTICE([adding -mmacosx-version-min=$macosx_version_min to CFLAGS])])
+    OCTAVE_CXX_FLAG([-mmacosx-version-min=$macosx_version_min], [
+      XTRA_CXXFLAGS="$XTRA_CXXFLAGS -mmacosx-version-min=$macosx_version_min"
+      AC_MSG_NOTICE([adding -mmacosx-version-min=$macosx_version_min to CXXFLAGS])])
+    OCTAVE_F77_FLAG([-mmacosx-version-min=$macosx_version_min], [
+      FFLAGS="$FFLAGS -mmacosx-version-min=$macosx_version_min"
+      AC_MSG_NOTICE([adding -mmacosx-version-min=$macosx_version_min to FFLAGS])])
+    LDFLAGS="$LDFLAGS -mmacosx-version-min=$macosx_version_min"
   ;;
 esac
+
+AC_SUBST(XTRA_CFLAGS)
+AC_SUBST(XTRA_CXXFLAGS)
 
 ### gnulib initialization: part 2
 dnl Must take place after part 1, and after standard compiler options and
