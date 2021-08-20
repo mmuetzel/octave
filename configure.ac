@@ -1083,16 +1083,16 @@ case $host_os in
   ;;
   darwin*)
     ## Set target OS in compiler and linker flags
-    OCTAVE_CC_FLAG([-mmacosx-version-min=10.4], [
-      CFLAGS="$CFLAGS -mmacosx-version-min=10.4"
-      AC_MSG_NOTICE([adding -mmacosx-version-min=10.4 to CFLAGS])])
-    OCTAVE_CXX_FLAG([-mmacosx-version-min=10.4], [
-      CXXFLAGS="$CXXFLAGS -mmacosx-version-min=10.4"
-      AC_MSG_NOTICE([adding -mmacosx-version-min=10.4 to CXXFLAGS])])
-    OCTAVE_F77_FLAG([-mmacosx-version-min=10.4], [
-      FFLAGS="$FFLAGS -mmacosx-version-min=10.4"
-      AC_MSG_NOTICE([adding -mmacosx-version-min=10.4 to FFLAGS])])
-    LDFLAGS="$LDFLAGS -mmacosx-version-min=10.4"
+    OCTAVE_CC_FLAG([-mmacosx-version-min=10.15], [
+      CFLAGS="$CFLAGS -mmacosx-version-min=10.15"
+      AC_MSG_NOTICE([adding -mmacosx-version-min=10.15 to CFLAGS])])
+    OCTAVE_CXX_FLAG([-mmacosx-version-min=10.15], [
+      CXXFLAGS="$CXXFLAGS -mmacosx-version-min=10.15"
+      AC_MSG_NOTICE([adding -mmacosx-version-min=10.15 to CXXFLAGS])])
+    OCTAVE_F77_FLAG([-mmacosx-version-min=10.15], [
+      FFLAGS="$FFLAGS -mmacosx-version-min=10.15"
+      AC_MSG_NOTICE([adding -mmacosx-version-min=10.15 to FFLAGS])])
+    LDFLAGS="$LDFLAGS -mmacosx-version-min=10.15"
   ;;
 esac
 
