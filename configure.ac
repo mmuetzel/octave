@@ -1080,7 +1080,7 @@ case $host_os in
   ;;
   darwin*)
     ## Set target OS in compiler and linker flags
-    macosx_version_min=10.8
+    macosx_version_min=10.9
     OCTAVE_CC_FLAG([-mmacosx-version-min=$macosx_version_min], [
       XTRA_CFLAGS="$XTRA_CFLAGS -mmacosx-version-min=$macosx_version_min"
       AC_MSG_NOTICE([adding -mmacosx-version-min=$macosx_version_min to CFLAGS])])
