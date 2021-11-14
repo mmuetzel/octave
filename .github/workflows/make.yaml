@@ -367,6 +367,7 @@ jobs:
             ${{ matrix.target-prefix }}-qt5-base
             ${{ matrix.target-prefix }}-qt5-imageformats
             ${{ matrix.target-prefix }}-qt5-svg
+            ${{ matrix.target-prefix }}-qt5-tools
             ${{ matrix.target-prefix }}-rapidjson
             ${{ matrix.target-prefix }}-suitesparse
             ${{ matrix.target-prefix }}-sundials
