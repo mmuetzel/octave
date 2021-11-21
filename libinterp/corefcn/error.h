@@ -549,7 +549,7 @@ inline octave_value_list set_warning_state (const octave_value_list& args)
 }
 
 OCTAVE_DEPRECATED (7, "use 'octave::warning_enabled' instead")
-inline OCTINTERP_API int warning_enabled (const std::string& id)
+inline int warning_enabled (const std::string& id)
 {
   return octave::warning_enabled (id);
 }
@@ -566,11 +566,14 @@ inline void interpreter_try (octave::unwind_protect& uwp)
   octave::interpreter_try (uwp);
 }
 
-OCTAVE_DEPRECATED (6, "this variable is obsolete and always has the value 0")
-extern OCTINTERP_API int error_state;
-
 OCTAVE_DEPRECATED (6, "this function is obsolete and should not be needed")
 inline void reset_error_handler (void) { }
 #endif
+
+// This symbol must have be declared with the correct visibility
+// attributes when Octave is built, so it must appear unconditionally in
+// this header file.
+OCTAVE_DEPRECATED (6, "this variable is obsolete and always has the value 0")
+extern OCTINTERP_API int error_state;
 
 #endif

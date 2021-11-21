@@ -83,19 +83,19 @@ procbuf::open (const char *command, int mode)
   if (is_open ())
     return 0;
 
-  f = (octave::popen (command, (mode & std::ios::in) ? "r" : "w"));
+  m_f = (octave::popen (command, (mode & std::ios::in) ? "r" : "w"));
 
-  if (! f)
+  if (! m_f)
     return 0;
 
   // Oops... popen doesn't return the associated pid, so fake it for now
 
-  proc_pid = 1;
+  m_proc_pid = 1;
 
-  open_p = true;
+  m_open_p = true;
 
   if (mode & std::ios::out)
-    ::setvbuf (f, nullptr, _IOLBF, BUFSIZ);
+    ::setvbuf (m_f, nullptr, _IOLBF, BUFSIZ);
 
   return this;
 
@@ -124,9 +124,9 @@ procbuf::open (const char *command, int mode)
       child_end = pipe_fds[0];
     }
 
-  proc_pid = ::fork ();
+  m_proc_pid = ::fork ();
 
-  if (proc_pid == 0)
+  if (m_proc_pid == 0)
     {
       octave_close_wrapper (parent_end);
 
@@ -138,7 +138,7 @@ procbuf::open (const char *command, int mode)
 
       while (procbuf_list)
         {
-          FILE *fp = procbuf_list->f;
+          FILE *fp = procbuf_list->m_f;
 
           if (fp)
             {
@@ -146,7 +146,7 @@ procbuf::open (const char *command, int mode)
               fp = nullptr;
             }
 
-          procbuf_list = procbuf_list->next;
+          procbuf_list = procbuf_list->m_next;
         }
 
       execl (SHELL_PATH, "sh", "-c", command, static_cast<void *> (nullptr));
@@ -156,20 +156,20 @@ procbuf::open (const char *command, int mode)
 
   octave_close_wrapper (child_end);
 
-  if (proc_pid < 0)
+  if (m_proc_pid < 0)
     {
       octave_close_wrapper (parent_end);
       return nullptr;
     }
 
-  f = (::fdopen (parent_end, (mode & std::ios::in) ? "r" : "w"));
+  m_f = (::fdopen (parent_end, (mode & std::ios::in) ? "r" : "w"));
 
   if (mode & std::ios::out)
-    ::setvbuf (f, nullptr, _IOLBF, BUFSIZ);
+    ::setvbuf (m_f, nullptr, _IOLBF, BUFSIZ);
 
-  open_p = true;
+  m_open_p = true;
 
-  next = procbuf_list;
+  m_next = procbuf_list;
   procbuf_list = this;
 
   return this;
@@ -186,19 +186,19 @@ procbuf::close (void)
 {
 #if defined (__CYGWIN__) || defined (__MINGW32__) || defined (_MSC_VER)
 
-  if (f)
+  if (m_f)
     {
-      wstatus = octave::pclose (f);
-      f = 0;
+      m_wstatus = octave::pclose (m_f);
+      m_f = 0;
     }
 
-  open_p = false;
+  m_open_p = false;
 
   return this;
 
 #elif defined (HAVE_UNISTD_H)
 
-  if (f)
+  if (m_f)
     {
       pid_t wait_pid;
 
@@ -206,31 +206,31 @@ procbuf::close (void)
 
       for (procbuf **ptr = &procbuf_list;
            *ptr != nullptr;
-           ptr = &(*ptr)->next)
+           ptr = &(*ptr)->m_next)
         {
           if (*ptr == this)
             {
-              *ptr = (*ptr)->next;
+              *ptr = (*ptr)->m_next;
               status = 0;
               break;
             }
         }
 
-      if (status == 0 && std::fclose (f) == 0)
+      if (status == 0 && std::fclose (m_f) == 0)
         {
           using namespace std;
 
           do
             {
-              wait_pid = octave::sys::waitpid (proc_pid, &wstatus, 0);
+              wait_pid = octave::sys::waitpid (m_proc_pid, &m_wstatus, 0);
             }
           while (wait_pid == -1 && errno == EINTR);
         }
 
-      f = nullptr;
+      m_f = nullptr;
     }
 
-  open_p = false;
+  m_open_p = false;
 
   return this;
 

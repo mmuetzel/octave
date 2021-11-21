@@ -38,6 +38,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "caseless-str.h"
@@ -2433,6 +2434,7 @@ protected:
 protected:
   struct cmp_caseless_str
   {
+  public:
     bool operator () (const caseless_str& a, const caseless_str& b) const
     {
       std::string a1 = a;
@@ -3252,6 +3254,7 @@ public:
     void init (void)
     {
       m_alphamap.add_constraint (dim_vector (-1, 1));
+      m_alphamap.add_constraint (dim_vector (1, -1));
       m_colormap.add_constraint (dim_vector (-1, 3));
       m_colormap.add_constraint (dim_vector (0, 0));
       m_outerposition.add_constraint (dim_vector (1, 4));
@@ -4398,7 +4401,7 @@ public:
       radio_property linejoin , "{round}|miter|chamfer"
       radio_property linestyle , "{-}|--|:|-.|none"
       double_property linewidth , 0.5
-      radio_property marker , "{none}|+|o|*|.|x|s|square|d|diamond|^|v|>|<|p|pentagram|h|hexagram"
+      radio_property marker , "{none}|+|o|*|.|x|||_|s|square|d|diamond|^|v|>|<|p|pentagram|h|hexagram"
       color_property markeredgecolor , color_property (radio_values ("{auto}|none"), color_values (0, 0, 0))
       color_property markerfacecolor , color_property (radio_values ("auto|{none}"), color_values (0, 0, 0))
       double_property markersize , 6
@@ -4946,7 +4949,7 @@ public:
     // The patch should then be ignored by the renderer.
     bool has_bad_data (std::string& msg) const
     {
-      msg = bad_data_msg;
+      msg = m_bad_data_msg;
       return ! msg.empty ();
     }
 
@@ -4962,7 +4965,7 @@ public:
 
     OCTINTERP_API bool get_do_lighting (void) const;
 
-    std::vector<std::vector<octave_idx_type>> coplanar_last_idx;
+    std::vector<std::vector<octave_idx_type>> m_coplanar_last_idx;
 
     // See the genprops.awk script for an explanation of the
     // properties declarations.
@@ -4989,7 +4992,7 @@ public:
       array_property facevertexcdata u , Matrix ()
       radio_property linestyle , "{-}|--|:|-.|none"
       double_property linewidth , 0.5
-      radio_property marker , "{none}|+|o|*|.|x|s|square|d|diamond|^|v|>|<|p|pentagram|h|hexagram"
+      radio_property marker , "{none}|+|o|*|.|x|||_|s|square|d|diamond|^|v|>|<|p|pentagram|h|hexagram"
       color_property markeredgecolor , color_property (radio_values ("none|{auto}|flat"), color_values (0, 0, 0))
       color_property markerfacecolor , color_property (radio_values ("{none}|auto|flat"), color_values (0, 0, 0))
       double_property markersize , 6
@@ -5071,7 +5074,7 @@ public:
 
 
   private:
-    std::string bad_data_msg;
+    std::string m_bad_data_msg;
 
     void update_faces (void) { update_data ();}
 
@@ -5219,7 +5222,7 @@ public:
     // The scatter object should then be ignored by the renderer.
     bool has_bad_data (std::string& msg) const
     {
-      msg = bad_data_msg;
+      msg = m_bad_data_msg;
       return ! msg.empty ();
     }
 
@@ -5249,7 +5252,7 @@ public:
       double_property linewidth , 0.5
       array_property longitudedata , Matrix ()
       string_property longitudedatasource , ""
-      radio_property marker , "{o}|+|*|.|x|s|square|d|diamond|^|v|>|<|p|pentagram|h|hexagram|none"
+      radio_property marker , "{o}|+|*|.|x|||_|s|square|d|diamond|^|v|>|<|p|pentagram|h|hexagram|none"
       double_property markeredgealpha , 1.0
       color_property markeredgecolor , color_property (radio_values ("{flat}|none"), color_values (0, 0, 0))
       double_property markerfacealpha , 1.0
@@ -5328,7 +5331,7 @@ public:
     OCTINTERP_API void update_color (void);
 
   private:
-    std::string bad_data_msg;
+    std::string m_bad_data_msg;
 
     void update_xdata (void)
     {
@@ -5485,7 +5488,7 @@ public:
       radio_property facenormalsmode u , "{auto}|manual"
       radio_property linestyle , "{-}|--|:|-.|none"
       double_property linewidth , 0.5
-      radio_property marker , "{none}|+|o|*|.|x|s|square|d|diamond|^|v|>|<|p|pentagram|h|hexagram"
+      radio_property marker , "{none}|+|o|*|.|x|||_|s|square|d|diamond|^|v|>|<|p|pentagram|h|hexagram"
       color_property markeredgecolor , color_property (radio_values ("none|{auto}|flat"), color_values (0, 0, 0))
       color_property markerfacecolor , color_property (radio_values ("{none}|auto|flat"), color_values (0, 0, 0))
       double_property markersize , 6
@@ -5820,12 +5823,12 @@ public:
   public:
 
     void add_dependent_obj (graphics_handle gh)
-    { dependent_obj_list.push_back (gh); }
+    { m_dependent_obj_list.push_back (gh); }
 
     // FIXME: the list may contain duplicates.
     //        Should we return only unique elements?
     const std::list<graphics_handle> get_dependent_obj_list (void)
-    { return dependent_obj_list; }
+    { return m_dependent_obj_list; }
 
     // See the genprops.awk script for an explanation of the
     // properties declarations.
@@ -5849,7 +5852,7 @@ public:
 
   private:
     // List of objects that might depend on this uicontextmenu object
-    std::list<graphics_handle> dependent_obj_list;
+    std::list<graphics_handle> m_dependent_obj_list;
 
     OCTINTERP_API void update_beingdeleted (void);
 
@@ -6625,6 +6628,8 @@ class OCTINTERP_API gh_manager
 {
 public:
 
+  typedef std::pair<uint8NDArray /*pixels*/, std::string /*svg*/> latex_data;
+
   OCTINTERP_API gh_manager (octave::interpreter& interp);
 
   // FIXME: eventually eliminate these static functions and access
@@ -6795,6 +6800,35 @@ public:
     return m_graphics_lock;
   }
 
+  latex_data get_latex_data (const std::string& key) const
+  {
+    latex_data retval;
+
+    const auto it = m_latex_cache.find (key);
+
+    if (it != m_latex_cache.end ())
+      retval = it->second;
+
+    return retval;
+  }
+
+  void set_latex_data (const std::string& key, latex_data val)
+  {
+    // Limit the number of cache entries to 500
+    if (m_latex_keys.size () >= 500)
+      {
+        auto it = m_latex_cache.find (m_latex_keys.front ());
+
+        if (it != m_latex_cache.end ())
+          m_latex_cache.erase (it);
+
+        m_latex_keys.pop_front ();
+      }
+
+    m_latex_cache[key] = val;
+    m_latex_keys.push_back (key);
+  }
+
 private:
 
   typedef std::map<graphics_handle, graphics_object>::iterator iterator;
@@ -6833,6 +6867,11 @@ private:
 
   // A flag telling whether event processing must be constantly on.
   int m_event_processing;
+
+  // Cache of already parsed latex strings. Store a separate list of keys
+  // to allow for erasing oldest entries if cache size becomes too large.
+  std::unordered_map<std::string, latex_data> m_latex_cache;
+  std::list<std::string> m_latex_keys;
 };
 
 OCTINTERP_API void

@@ -99,11 +99,11 @@ class java_local_ref
 {
 public:
 
-  java_local_ref (JNIEnv *_env)
-    : jobj (nullptr), detached (false), env (_env) { }
+  java_local_ref (JNIEnv *env)
+    : m_jobj (nullptr), m_detached (false), m_env (env) { }
 
-  java_local_ref (JNIEnv *_env, T obj)
-    : jobj (obj), detached (false), env (_env) { }
+  java_local_ref (JNIEnv *env, T obj)
+    : m_jobj (obj), m_detached (false), m_env (env) { }
 
   ~java_local_ref (void) { release (); }
 
@@ -111,36 +111,37 @@ public:
   {
     release ();
 
-    jobj = obj;
-    detached = false;
+    m_jobj = obj;
+    m_detached = false;
 
-    return jobj;
+    return m_jobj;
   }
 
-  operator bool () const { return (jobj != 0); }
-  operator T () { return jobj; }
+  operator bool () const { return (m_jobj != 0); }
+  operator T () { return m_jobj; }
 
-  void detach (void) { detached = true; }
-
-private:
-
-  void release (void)
-  {
-    if (env && jobj && ! detached)
-      env->DeleteLocalRef (jobj);
-
-    jobj = nullptr;
-  }
-
-  java_local_ref (void)
-    : jobj (0), detached (false), env (0)
-  { }
+  void detach (void) { m_detached = true; }
 
 protected:
 
-  T jobj;
-  bool detached;
-  JNIEnv *env;
+  T m_jobj;
+  bool m_detached;
+  JNIEnv *m_env;
+
+private:
+
+  java_local_ref (void)
+    : m_jobj (0), m_detached (false), m_env (0)
+  { }
+
+  void release (void)
+  {
+    if (m_env && m_jobj && ! m_detached)
+      m_env->DeleteLocalRef (m_jobj);
+
+    m_jobj = nullptr;
+  }
+
 };
 
 typedef java_local_ref<jobject> jobject_ref;
@@ -231,10 +232,10 @@ OCTAVE_NAMESPACE_BEGIN
 
     JVMArgs (void)
     {
-      vm_args.version = JNI_VERSION_1_6;
-      vm_args.nOptions = 0;
-      vm_args.options = nullptr;
-      vm_args.ignoreUnrecognized = false;
+      m_vm_args.version = JNI_VERSION_1_6;
+      m_vm_args.nOptions = 0;
+      m_vm_args.options = nullptr;
+      m_vm_args.ignoreUnrecognized = false;
     }
 
     ~JVMArgs (void)
@@ -245,12 +246,12 @@ OCTAVE_NAMESPACE_BEGIN
     JavaVMInitArgs * to_args ()
     {
       update ();
-      return &vm_args;
+      return &m_vm_args;
     }
 
     void add (const std::string& opt)
     {
-      java_opts.push_back (opt);
+      m_java_opts.push_back (opt);
     }
 
     void read_java_opts (const std::string& filename)
@@ -266,7 +267,7 @@ OCTAVE_NAMESPACE_BEGIN
               std::getline (js, line);
 
               if (line.find ('-') == 0)
-                java_opts.push_back (line);
+                m_java_opts.push_back (line);
               else if (line.length () > 0 && Vdebug_java)
                 warning ("invalid JVM option, skipping: %s", line.c_str ());
             }
@@ -277,15 +278,15 @@ OCTAVE_NAMESPACE_BEGIN
 
     void clean (void)
     {
-      if (vm_args.options != nullptr)
+      if (m_vm_args.options != nullptr)
         {
-          for (int i = 0; i < vm_args.nOptions; i++)
-            delete [] vm_args.options[i].optionString;
+          for (int i = 0; i < m_vm_args.nOptions; i++)
+            delete [] m_vm_args.options[i].optionString;
 
-          delete [] vm_args.options;
+          delete [] m_vm_args.options;
 
-          vm_args.options = nullptr;
-          vm_args.nOptions = 0;
+          m_vm_args.options = nullptr;
+          m_vm_args.nOptions = 0;
         }
     }
 
@@ -293,29 +294,29 @@ OCTAVE_NAMESPACE_BEGIN
     {
       clean ();
 
-      if (java_opts.size () > 0)
+      if (m_java_opts.size () > 0)
         {
           int index = 0;
 
-          vm_args.nOptions = java_opts.size ();
-          vm_args.options = new JavaVMOption [vm_args.nOptions];
+          m_vm_args.nOptions = m_java_opts.size ();
+          m_vm_args.options = new JavaVMOption [m_vm_args.nOptions];
 
-          for (const auto& opt : java_opts)
+          for (const auto& opt : m_java_opts)
             {
               if (Vdebug_java)
                 octave_stdout << opt << std::endl;
-              vm_args.options[index++].optionString = strsave (opt.c_str ());
+              m_vm_args.options[index++].optionString = strsave (opt.c_str ());
             }
 
-          java_opts.clear ();
+          m_java_opts.clear ();
         }
     }
 
   private:
 
-    JavaVMInitArgs vm_args;
+    JavaVMInitArgs m_vm_args;
 
-    std::list<std::string> java_opts;
+    std::list<std::string> m_java_opts;
   };
 
 OCTAVE_NAMESPACE_END
@@ -773,12 +774,12 @@ initialize_jvm (void)
         {
         case JNI_EDETACHED:
           // Attach the current thread
-          JavaVMAttachArgs vm_args;
-          vm_args.version = JNI_VERSION_1_6;
-          vm_args.name = const_cast<char *> ("octave");
-          vm_args.group = nullptr;
+          JavaVMAttachArgs m_vm_args;
+          m_vm_args.version = JNI_VERSION_1_6;
+          m_vm_args.name = const_cast<char *> ("octave");
+          m_vm_args.group = nullptr;
           if (jvm->AttachCurrentThread (reinterpret_cast<void **> (&current_env),
-                                        &vm_args) < 0)
+                                        &m_vm_args) < 0)
             error ("JVM internal error, unable to attach octave to existing JVM");
           break;
 
@@ -796,21 +797,21 @@ initialize_jvm (void)
     {
       // No JVM exists, create one
 
-      octave::JVMArgs vm_args;
+      octave::JVMArgs m_vm_args;
 
       // Hard-coded options for the jvm.
-      vm_args.add ("-Djava.class.path=" + initial_class_path ());
+      m_vm_args.add ("-Djava.class.path=" + initial_class_path ());
 #if defined (HAVE_BROKEN_PTHREAD_STACKSIZE)
-      vm_args.add ("-Djdk.lang.processReaperUseDefaultStackSize=true");
+      m_vm_args.add ("-Djdk.lang.processReaperUseDefaultStackSize=true");
 #endif
-      vm_args.add ("-Xrs");
+      m_vm_args.add ("-Xrs");
 
       // Additional options given by file java.opts.
-      vm_args.read_java_opts (initial_java_dir () +
+      m_vm_args.read_java_opts (initial_java_dir () +
                               octave::sys::file_ops::dir_sep_str () +
                               "java.opts");
 
-      if (create_vm (&jvm, &current_env, vm_args.to_args ()) != JNI_OK)
+      if (create_vm (&jvm, &current_env, m_vm_args.to_args ()) != JNI_OK)
         error ("unable to start Java VM in %s", jvm_lib_path.c_str ());
     }
 
@@ -910,10 +911,10 @@ octave_java::is_java_string (void) const
 
   JNIEnv *current_env = thread_jni_env ();
 
-  if (current_env && java_object)
+  if (current_env && m_java_object)
     {
       jclass_ref cls (current_env, current_env->FindClass ("java/lang/String"));
-      return current_env->IsInstanceOf (TO_JOBJECT (java_object), cls);
+      return current_env->IsInstanceOf (TO_JOBJECT (m_java_object), cls);
     }
 
   return false;
@@ -938,13 +939,13 @@ octave_java::is_instance_of (const std::string& cls_name) const
   std::string cls_cpp = cls_name;
   std::replace (cls_cpp.begin (), cls_cpp.end (), '.', '/');
 
-  if (current_env && java_object)
+  if (current_env && m_java_object)
     {
       jclass_ref cls (current_env, current_env->FindClass (cls_cpp.c_str ()));
       if (current_env->ExceptionCheck ())
         current_env->ExceptionClear ();
       else
-        return current_env->IsInstanceOf (TO_JOBJECT (java_object), cls);
+        return current_env->IsInstanceOf (TO_JOBJECT (m_java_object), cls);
     }
   return false;
 
@@ -1264,23 +1265,23 @@ get_invoke_list (JNIEnv *jni_env, void *jobj_arg)
 }
 
 static octave_value
-convert_to_string (JNIEnv *jni_env, jobject java_object, bool force, char type)
+convert_to_string (JNIEnv *jni_env, jobject m_java_object, bool force, char type)
 {
   octave_value retval;
 
-  if (jni_env && java_object)
+  if (jni_env && m_java_object)
     {
       jclass_ref cls (jni_env, jni_env->FindClass ("java/lang/String"));
 
-      if (jni_env->IsInstanceOf (java_object, cls))
-        retval = octave_value (jstring_to_string (jni_env, java_object), type);
+      if (jni_env->IsInstanceOf (m_java_object, cls))
+        retval = octave_value (jstring_to_string (jni_env, m_java_object), type);
       else if (force)
         {
           cls = jni_env->FindClass ("[Ljava/lang/String;");
 
-          if (jni_env->IsInstanceOf (java_object, cls))
+          if (jni_env->IsInstanceOf (m_java_object, cls))
             {
-              jobjectArray array = reinterpret_cast<jobjectArray> (java_object);
+              jobjectArray array = reinterpret_cast<jobjectArray> (m_java_object);
               int len = jni_env->GetArrayLength (array);
               Cell c (len, 1);
 
@@ -1305,7 +1306,7 @@ convert_to_string (JNIEnv *jni_env, jobject java_object, bool force, char type)
                                                     "()Ljava/lang/String;");
               jstring_ref js (jni_env,
                               reinterpret_cast<jstring>
-                                (jni_env->CallObjectMethod (java_object,
+                                (jni_env->CallObjectMethod (m_java_object,
                                                             mID)));
 
               if (js)
@@ -2113,7 +2114,7 @@ Java_org_octave_Octave_needThreadedInvokation (JNIEnv *env, jclass)
 //! Ctor.
 
 octave_java::octave_java (void)
-  : octave_base_value (), java_object (nullptr), java_class (nullptr)
+  : octave_base_value (), m_java_object (nullptr), m_java_class (nullptr)
 {
 #if ! defined (HAVE_JAVA)
 
@@ -2123,7 +2124,7 @@ octave_java::octave_java (void)
 }
 
 octave_java::octave_java (const voidptr& jobj, void *jcls)
-  : octave_base_value (), java_object (nullptr), java_class (nullptr)
+  : octave_base_value (), m_java_object (nullptr), m_java_class (nullptr)
 {
 #if defined (HAVE_JAVA)
 
@@ -2165,8 +2166,8 @@ octave_java::dims (void) const
 
   JNIEnv *current_env = thread_jni_env ();
 
-  if (current_env && java_object)
-    return compute_array_dimensions (current_env, TO_JOBJECT (java_object));
+  if (current_env && m_java_object)
+    return compute_array_dimensions (current_env, TO_JOBJECT (m_java_object));
   else
     return dim_vector (1, 1);
 
@@ -2392,7 +2393,7 @@ octave_java::print (std::ostream& os, bool)
 void
 octave_java::print_raw (std::ostream& os, bool) const
 {
-  os << "<Java object: " << java_classname << '>';
+  os << "<Java object: " << m_java_classname << '>';
 }
 
 // FIXME: Need routines to actually save/load java objects through Serialize.
@@ -2960,27 +2961,27 @@ octave_java::init (void *jobj_arg, void *jcls_arg)
   if (current_env)
     {
       if (jobj)
-        java_object = current_env->NewGlobalRef (jobj);
+        m_java_object = current_env->NewGlobalRef (jobj);
 
       if (jcls)
-        java_class = current_env->NewGlobalRef (jcls);
-      else if (java_object)
+        m_java_class = current_env->NewGlobalRef (jcls);
+      else if (m_java_object)
         {
           jclass_ref ocls (current_env,
-                           current_env->GetObjectClass(TO_JOBJECT (java_object)));
-          java_class = current_env->NewGlobalRef (jclass (ocls));
+                           current_env->GetObjectClass(TO_JOBJECT (m_java_object)));
+          m_java_class = current_env->NewGlobalRef (jclass (ocls));
         }
 
-      if (java_class)
+      if (m_java_class)
         {
           jclass_ref clsCls (current_env,
-                             current_env->GetObjectClass (TO_JCLASS (java_class)));
+                             current_env->GetObjectClass (TO_JCLASS (m_java_class)));
           jmethodID mID = current_env->GetMethodID (clsCls,
                                                     "getCanonicalName",
                                                     "()Ljava/lang/String;");
           jobject_ref resObj (current_env,
-                              current_env->CallObjectMethod (TO_JCLASS (java_class), mID));
-          java_classname = jstring_to_string (current_env, resObj);
+                              current_env->CallObjectMethod (TO_JCLASS (m_java_class), mID));
+          m_java_classname = jstring_to_string (current_env, resObj);
         }
     }
 
@@ -3006,14 +3007,14 @@ octave_java::release (void)
 
   if (current_env)
     {
-      if (java_object)
-        current_env->DeleteGlobalRef (TO_JOBJECT (java_object));
+      if (m_java_object)
+        current_env->DeleteGlobalRef (TO_JOBJECT (m_java_object));
 
-      if (java_class)
-        current_env->DeleteGlobalRef (TO_JCLASS (java_class));
+      if (m_java_class)
+        current_env->DeleteGlobalRef (TO_JCLASS (m_java_class));
 
-      java_object = nullptr;
-      java_class = nullptr;
+      m_java_object = nullptr;
+      m_java_class = nullptr;
     }
 
 #else

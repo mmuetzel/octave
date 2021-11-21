@@ -146,19 +146,19 @@ OCTAVE_NAMESPACE_BEGIN
   void
   pager_buf::flush_current_contents_to_diary (void)
   {
-    char *buf = pbase () + diary_skip;
+    char *buf = pbase () + m_diary_skip;
 
     std::size_t len = pptr () - buf;
 
     octave_diary.write (buf, len);
 
-    diary_skip = 0;
+    m_diary_skip = 0;
   }
 
   void
   pager_buf::set_diary_skip (void)
   {
-    diary_skip = pptr () - pbase ();
+    m_diary_skip = pptr () - pbase ();
   }
 
   int
@@ -183,17 +183,17 @@ OCTAVE_NAMESPACE_BEGIN
     return 0;
   }
 
-  pager_stream::pager_stream (void) : std::ostream (nullptr), pb (nullptr)
+  pager_stream::pager_stream (void) : std::ostream (nullptr), m_pb (nullptr)
   {
-    pb = new pager_buf ();
-    rdbuf (pb);
+    m_pb = new pager_buf ();
+    rdbuf (m_pb);
     setf (unitbuf);
   }
 
   pager_stream::~pager_stream (void)
   {
     flush ();
-    delete pb;
+    delete m_pb;
   }
 
   std::ostream& pager_stream::stream (void)
@@ -203,14 +203,14 @@ OCTAVE_NAMESPACE_BEGIN
 
   void pager_stream::flush_current_contents_to_diary (void)
   {
-    if (pb)
-      pb->flush_current_contents_to_diary ();
+    if (m_pb)
+      m_pb->flush_current_contents_to_diary ();
   }
 
   void pager_stream::set_diary_skip (void)
   {
-    if (pb)
-      pb->set_diary_skip ();
+    if (m_pb)
+      m_pb->set_diary_skip ();
   }
 
   // Reinitialize the pager buffer to avoid hanging on to large internal
@@ -220,23 +220,23 @@ OCTAVE_NAMESPACE_BEGIN
 
   void pager_stream::reset (void)
   {
-    delete pb;
-    pb = new pager_buf ();
-    rdbuf (pb);
+    delete m_pb;
+    m_pb = new pager_buf ();
+    rdbuf (m_pb);
     setf (unitbuf);
   }
 
-  diary_stream::diary_stream (void) : std::ostream (nullptr), db (nullptr)
+  diary_stream::diary_stream (void) : std::ostream (nullptr), m_db (nullptr)
   {
-    db = new diary_buf ();
-    rdbuf (db);
+    m_db = new diary_buf ();
+    rdbuf (m_db);
     setf (unitbuf);
   }
 
   diary_stream::~diary_stream (void)
   {
     flush ();
-    delete db;
+    delete m_db;
   }
 
   std::ostream& diary_stream::stream (void)
@@ -251,9 +251,9 @@ OCTAVE_NAMESPACE_BEGIN
 
   void diary_stream::reset (void)
   {
-    delete db;
-    db = new diary_buf ();
-    rdbuf (db);
+    delete m_db;
+    m_db = new diary_buf ();
+    rdbuf (m_db);
     setf (unitbuf);
   }
 

@@ -107,8 +107,15 @@ OCTAVE_SET_DEFAULT([octlibdir], '${libdir}/octave/${version}')
 ## Where to put executables to be run by Octave, rather than the user.
 ## This path usually includes the Octave version and configuration name, so
 ## that configurations for multiple versions of Octave may be installed at once.
-OCTAVE_SET_DEFAULT([archlibdir],
-  '${libexecdir}/octave/${version}/exec/${canonical_host_type}')
+## Windows search paths and relocation oddities require all binaries must be
+## installed in the same directory.
+case $host_os in
+  mingw* | msdosmsvc)
+    OCTAVE_SET_DEFAULT([archlibdir], '${bindir}') ;;
+  *)
+    OCTAVE_SET_DEFAULT([archlibdir],
+      '${libexecdir}/octave/${version}/exec/${canonical_host_type}') ;;
+esac
 
 ## Where to put executables to be run by Octave, rather than the user, that
 ## are specific to this site.
@@ -1488,6 +1495,7 @@ OCTAVE_CHECK_LIB(hdf5, HDF5,
   [hdf5.h], [H5Gget_num_objs], [], [],
   [warn_hdf5=
    OCTAVE_CHECK_HDF5_HAS_VER_16_API
+   OCTAVE_CHECK_HDF5_HAS_UTF8_API
    AC_DEFINE(HAVE_HDF5, 1,
      [Define to 1 if HDF5 is available and newer than version 1.6.])
    if test $have_msvc = yes; then
@@ -1638,12 +1646,12 @@ check_magick=yes
 use_magick=no
 AC_ARG_WITH([magick],
   [AS_HELP_STRING([--with-magick=LIB],
-    [select library to use for image I/O (options: GraphicsMagick(default) or ImageMagick)])],
+    [select library to use for image I/O (options: GraphicsMagick++(default) or ImageMagick++)])],
   [if test x"$withval" = xno; then
      check_magick=no
    else
      magick="$withval"
-   fi], [magick="GraphicsMagick"])
+   fi], [magick="GraphicsMagick++"])
 
 if test $check_magick = yes; then
 
@@ -1651,16 +1659,21 @@ if test $check_magick = yes; then
   MAGICK_LDFLAGS=
   MAGICK_LIBS=
 
-  PKG_CHECK_EXISTS([$magick++], [
-    dnl Make sure we only get -I, -L, and -l flags.
-    dnl Some Graphics/ImageMagick++ dnl packages add extra flags that are
-    dnl useful when building Graphics/ImageMagick++ extensions.  These extra
-    dnl flags break the Octave build.
-    MAGICK_CPPFLAGS="$($PKG_CONFIG --cflags-only-I $magick++ | $SED -e 's/^ *$//')"
-    MAGICK_LDFLAGS="$($PKG_CONFIG --libs-only-L $magick++ | $SED -e 's/^ *$//')"
-    MAGICK_LIBS="$($PKG_CONFIG --libs-only-l $magick++ | $SED -e 's/^ *$//')"
+  PKG_CHECK_EXISTS([$magick], [
+    dnl We are using --cflags now instead of --cflags-only-I because some
+    dnl Graphics/ImageMagick++ packages will provide -D options for
+    dnl MAGICKCORE_HDRI_ENABLE and MAGICKCORE_QUANTUM_DEPTH that are needed
+    dnl for building with a particular verison of the library.  If there
+    dnl are other flags in the output from pkg-config --cflags that cause
+    dnl trouble, then we may need to go back to using --cflags-only-I and
+    dnl have a configure test to determine the proper definitions of
+    dnl MAGICKCORE_HDRI_ENABLE and MAGICKCORE_QUANTUM_DEPTH.
+    dnl See also bug #49563.
+    MAGICK_CPPFLAGS="$($PKG_CONFIG --cflags $magick | $SED -e 's/^ *$//')"
+    MAGICK_LDFLAGS="$($PKG_CONFIG --libs-only-L $magick | $SED -e 's/^ *$//')"
+    MAGICK_LIBS="$($PKG_CONFIG --libs-only-l $magick | $SED -e 's/^ *$//')"
 
-    warn_magick="$magick++ library fails tests.  The imread, imwrite, and imfinfo functions for reading and writing image files will not be fully functional."
+    warn_magick="$magick library fails tests.  The imread, imwrite, and imfinfo functions for reading and writing image files will not be fully functional."
 
     save_CPPFLAGS="$CPPFLAGS"
     save_LIBS="$LIBS"
@@ -1670,7 +1683,7 @@ if test $check_magick = yes; then
     AC_CHECK_HEADER([Magick++.h], [
       AC_CACHE_CHECK([for Magick::ColorRGB in Magick++.h],
         [octave_cv_func_magick_colorrgb],
-        [AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+        [AC_LINK_IFELSE([AC_LANG_PROGRAM([[
           #include <Magick++.h>
           ]], [[
           Magick::ColorRGB c;
@@ -1688,7 +1701,7 @@ if test $check_magick = yes; then
     LIBS="$save_LIBS"
   ],
   [use_magick=no
-   warn_magick="$magick++ library not found.  The imread, imwrite, and imfinfo functions for reading and writing image files will not be fully functional."])
+   warn_magick="$magick library not found.  The imread, imwrite, and imfinfo functions for reading and writing image files will not be fully functional."])
 fi
 
 if test $use_magick = yes; then
@@ -2122,7 +2135,7 @@ if test -n "$CXSPARSE_LIBS"; then
   if test $octave_cv_lib_cxsparse = yes; then
     OCTAVE_CHECK_CXSPARSE_VERSION_OK
     if test $octave_cv_cxsparse_version_ok = no; then
-      AC_MSG_ERROR([CXSparse library is too old (< version 2.2).  Upgrade CXSparse (SuiteSparse) or configure Octave with --disable-cxsparse"])
+      AC_MSG_ERROR([CXSparse library is too old (< version 2.2).  Upgrade CXSparse (SuiteSparse) or configure Octave with --without-cxsparse"])
     fi
   fi
 fi
@@ -2788,7 +2801,9 @@ fi
 AM_CONDITIONAL([AMCOND_ADDRESS_SANITIZER_ENABLED],
   [test $try_address_sanitizer_flags = yes])
 
+ADDRESS_SANITIZER_ENABLED=no
 if test $try_address_sanitizer_flags = yes; then
+  ADDRESS_SANITIZER_ENABLED=yes
   for flag in $GCC_ADDRESS_SANITIZER_FLAGS; do
     OCTAVE_CC_FLAG([$flag], [
       WARN_CFLAGS="$WARN_CFLAGS $flag";
@@ -2806,6 +2821,7 @@ if test $try_address_sanitizer_flags = yes; then
       AC_MSG_RESULT([adding $flag to WARN_LDFLAGS])])
   done
 fi
+AC_SUBST(ADDRESS_SANITIZER_ENABLED)
 
 AC_SUBST(WARN_CFLAGS)
 AC_SUBST(WARN_CXXFLAGS)

@@ -489,16 +489,21 @@ Undocumented internal function.
     //
     //   only one Octave interpreter may be active in any given thread
 
-    if (instance)
+    if (m_instance)
       throw std::runtime_error
         ("only one Octave interpreter may be active");
 
-    instance = this;
+    m_instance = this;
 
+#if defined (OCTAVE_HAVE_WINDOWS_UTF8_LOCALE)
+    // Force a UTF-8 locale on Windows if possible
+    std::setlocale (LC_ALL, ".UTF8");
+#else
+    std::setlocale (LC_ALL, "");
+#endif
     // Matlab uses "C" locale for LC_NUMERIC class regardless of local setting
-    setlocale (LC_ALL, "");
-    setlocale (LC_NUMERIC, "C");
-    setlocale (LC_TIME, "C");
+    std::setlocale (LC_NUMERIC, "C");
+    std::setlocale (LC_TIME, "C");
     sys::env::putenv ("LC_NUMERIC", "C");
     sys::env::putenv ("LC_TIME", "C");
 
@@ -644,7 +649,7 @@ Undocumented internal function.
     octave_interpreter_ready = true;
   }
 
-  OCTAVE_THREAD_LOCAL interpreter *interpreter::instance = nullptr;
+  OCTAVE_THREAD_LOCAL interpreter *interpreter::m_instance = nullptr;
 
   interpreter::~interpreter (void)
   {

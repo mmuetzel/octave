@@ -595,7 +595,7 @@ OCTAVE_NAMESPACE_BEGIN
       }
   }
 
-DEFUN_DLD (gzip, args, ,
+DEFUN_DLD (gzip, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{filelist} =} gzip (@var{files})
 @deftypefnx {} {@var{filelist} =} gzip (@var{files}, @var{dir})
@@ -623,11 +623,14 @@ The optional output @var{filelist} is a list of the compressed files.
 {
 #if defined (HAVE_Z)
 
-  return xzip<gz> ("gzip", args);
+  octave_value_list retval = xzip<gz> ("gzip", args);
+
+  return (nargout > 0 ? retval : octave_value_list ());
 
 #else
 
   octave_unused_parameter (args);
+  octave_unused_parameter (nargout);
 
   err_disabled_feature ("gzip", "gzip");
 
@@ -640,7 +643,7 @@ The optional output @var{filelist} is a list of the compressed files.
 %!error <FILES must be a character array or cellstr|was unavailable or disabled> gzip (1)
 */
 
-DEFUN_DLD (bzip2, args, ,
+DEFUN_DLD (bzip2, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{filelist} =} bzip2 (@var{files})
 @deftypefnx {} {@var{filelist} =} bzip2 (@var{files}, @var{dir})
@@ -666,11 +669,14 @@ The optional output @var{filelist} is a list of the compressed files.
 {
 #if defined (HAVE_BZ2)
 
-  return xzip<bz2> ("bzip2", args);
+  octave_value_list retval = xzip<bz2> ("bzip2", args);
+
+  return (nargout > 0 ? retval : octave_value_list ());
 
 #else
 
   octave_unused_parameter (args);
+  octave_unused_parameter (nargout);
 
   err_disabled_feature ("bzip2", "bzip2");
 
@@ -749,7 +755,7 @@ The optional output @var{filelist} is a list of the compressed files.
 %!endfunction
 %!test run_test_function (@test_large_file)
 
-## Test that xzipped files are rexzipped (hits bug #48597, #48598)
+## Test that xzipped files are rexzipped (hits bug #43206, #48598)
 %!function test_z_z (test_dir, z)
 %!  ori_file = tempname (test_dir);
 %!  create_file (ori_file, rand (100, 1));
@@ -767,7 +773,7 @@ The optional output @var{filelist} is a list of the compressed files.
 %!  assert (hash ("md5", fileread (ori_file)), md5_ori)
 %!  assert (exist (z_file), 2) # bug #48597
 %!
-%!  ## xzip should dutifully re-xzip files even if they already are zipped
+%!  ## xzip should preserve original files.
 %!  z_z_file = [z_file z.ext];
 %!  z_z_filelist = z.zip (z_file);
 %!  assert (is_same_file (z_z_filelist, {z_z_file})) # check output
@@ -778,10 +784,10 @@ The optional output @var{filelist} is a list of the compressed files.
 %!  unlink_or_error (z_file);
 %!  uz_z_filelist = z.unzip (z_z_file);
 %!  assert (is_same_file (uz_z_filelist, {z_file})) # bug #48598
-%!  assert (exist (z_z_file), 2) # bug #48597
+%!  assert (exist (z_z_file), 2) # bug #43206
 %!  assert (hash ("md5", fileread (z_file)), md5_z)
 %!endfunction
-%!test <48597> run_test_function (@test_z_z)
+%!test <43206> run_test_function (@test_z_z)
 
 %!function test_xzip_dir (test_dir, z) # bug #43431
 %!  fpaths = fullfile (test_dir, {"test1", "test2", "test3"});
@@ -810,7 +816,9 @@ The optional output @var{filelist} is a list of the compressed files.
 %!      uz_filelist(idx) = z.unzip (z_filelist{idx});
 %!    endfor
 %!  endif
-%!  assert (is_same_file (sort (uz_filelist), fpaths(:))) # bug #48598
+%!  uz_filelist = sort (uz_filelist);
+%!  fpaths = sort (fpaths);
+%!  assert (is_same_file (uz_filelist(:), fpaths(:))) # bug #48598
 %!  for idx = 1:numel (fpaths)
 %!    assert (hash ("md5", fileread (fpaths{idx})), md5s{idx})
 %!  endfor

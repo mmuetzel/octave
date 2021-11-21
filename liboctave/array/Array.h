@@ -167,6 +167,10 @@ protected:
       std::fill_n (m_data, n, val);
     }
 
+    explicit ArrayRep (T *ptr, const dim_vector& dv)
+      : m_data (ptr), m_len (dv.safe_numel ()), m_count (1)
+    { }
+
     ArrayRep (const ArrayRep& a)
       : m_data (new T [a.m_len]), m_len (a.m_len), m_count (1)
     {
@@ -268,6 +272,20 @@ public:
       m_slice_data (m_rep->m_data), m_slice_len (m_rep->m_len)
   {
     fill (val);
+    m_dimensions.chop_trailing_singletons ();
+  }
+
+  // Construct an Array from a pointer to an externally allocated array
+  // of values.  PTR must be allocated with operator new.  The Array
+  // object takes ownership of PTR and will delete it when the Array
+  // object is deleted.  The dimension vector DV must be consistent with
+  // the size of the allocated PTR array.
+
+  explicit Array (T *ptr, const dim_vector& dv)
+    : m_dimensions (dv),
+      m_rep (new typename Array<T>::ArrayRep (ptr, dv)),
+      m_slice_data (m_rep->m_data), m_slice_len (m_rep->m_len)
+  {
     m_dimensions.chop_trailing_singletons ();
   }
 
@@ -694,11 +712,6 @@ public:
   }
 
   OCTARRAY_API void print_info (std::ostream& os, const std::string& prefix) const;
-
-  //! Give a pointer to the data in mex format.  Unsafe.  This function
-  //! exists to support the MEX interface.  You should not use it
-  //! anywhere else.
-  void * mex_get_data (void) const { return const_cast<T *> (data ()); }
 
   OCTARRAY_API Array<T> sort (int dim = 0, sortmode mode = ASCENDING) const;
   OCTARRAY_API Array<T> sort (Array<octave_idx_type> &sidx, int dim = 0,

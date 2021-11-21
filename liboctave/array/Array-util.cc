@@ -520,17 +520,6 @@ zero_dims_inquire (const octave::idx_vector& i, const octave::idx_vector& j,
   return rdv;
 }
 
-// A helper class.
-struct sub2ind_helper
-{
-  octave_idx_type *ind, n;
-
-  sub2ind_helper (octave_idx_type *_ind, octave_idx_type _n)
-    : ind(_ind), n(_n) { }
-
-  void operator ()(octave_idx_type k) { (*ind++ *= n) += k; }
-};
-
 octave::idx_vector
 sub2ind (const dim_vector& dv, const Array<octave::idx_vector>& idxa)
 {
@@ -600,12 +589,22 @@ sub2ind (const dim_vector& dv, const Array<octave::idx_vector>& idxa)
   else
     {
       Array<octave_idx_type> idx (idxa(0).orig_dimensions ());
-      octave_idx_type *idx_vec = idx.fortran_vec ();
 
       for (octave_idx_type i = len - 1; i >= 0; i--)
         {
+          // Initialized inside the loop so that each call to
+          // idx_vector::loop operates from the beginning of IDX_VEC.
+
+          octave_idx_type *idx_vec = idx.fortran_vec ();
+
           if (i < len - 1)
-            idxa(i).loop (clen, sub2ind_helper (idx_vec, dvx(i)));
+            {
+              octave_idx_type n = dvx(i);
+
+              idxa(i).loop (clen, [=, &idx_vec] (octave_idx_type k) {
+                (*idx_vec++ *= n) += k;
+              });
+            }
           else
             idxa(i).copy_data (idx_vec);
         }

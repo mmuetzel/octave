@@ -27,6 +27,7 @@
 #  include "config.h"
 #endif
 
+#include <clocale>
 #include <istream>
 #include <limits>
 #include <ostream>
@@ -409,6 +410,15 @@ octave_float_matrix::load_ascii (std::istream& is)
   if (! extract_keyword (is, keywords, kw, val, true))
     error ("load: failed to extract number of rows and columns");
 
+  // Set "C" locale for the duration of this function to avoid the performance
+  // panelty of frequently switching the locale when reading floating point
+  // values from the stream.
+  char *prev_locale = std::setlocale (LC_ALL, nullptr);
+  std::string old_locale (prev_locale ? prev_locale : "");
+  std::setlocale (LC_ALL, "C");
+  octave::unwind_action act
+    ([&old_locale] () { std::setlocale (LC_ALL, old_locale.c_str ()); });
+
   if (kw == "ndims")
     {
       int mdims = static_cast<int> (val);
@@ -484,7 +494,7 @@ octave_float_matrix::save_binary (std::ostream& os, bool)
     {
       float max_val, min_val;
       if (m.all_integers (max_val, min_val))
-        st = get_save_type (max_val, min_val);
+        st = octave::get_save_type (max_val, min_val);
     }
 
   const float *mtmp = m.data ();
@@ -604,7 +614,7 @@ octave_float_matrix::save_hdf5 (octave_hdf5_id loc_id, const char *name, bool)
 
       if (m.all_integers (max_val, min_val))
         save_type_hid
-          = save_type_to_hdf5 (get_save_type (max_val, min_val));
+          = save_type_to_hdf5 (octave::get_save_type (max_val, min_val));
     }
 #endif
 #if defined (HAVE_HDF5_18)

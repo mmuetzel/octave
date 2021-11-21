@@ -32,23 +32,31 @@
 #include "lo-error.h"
 
 template <typename T>
-struct _idxadds_helper
+class _idxadds_helper
 {
-  T *array;
-  T val;
-  _idxadds_helper (T *a, T v) : array (a), val (v) { }
+public:
+  _idxadds_helper (T *a, T v) : m_array (a), m_val (v) { }
+
   void operator () (octave_idx_type i)
-  { array[i] += val; }
+  { m_array[i] += m_val; }
+
+private:
+  T *m_array;
+  T m_val;
 };
 
 template <typename T>
-struct _idxadda_helper
+class _idxadda_helper
 {
-  T *array;
-  const T *vals;
-  _idxadda_helper (T *a, const T *v) : array (a), vals (v) { }
+public:
+  _idxadda_helper (T *a, const T *v) : m_array (a), m_vals (v) { }
+
   void operator () (octave_idx_type i)
-  { array[i] += *vals++; }
+  { m_array[i] += *m_vals++; }
+
+private:
+  T *m_array;
+  const T *m_vals;
 };
 
 template <typename T>
@@ -91,11 +99,15 @@ template <typename T, T op (typename ref_param<T>::type,
                             typename ref_param<T>::type)>
 struct _idxbinop_helper
 {
-  T *array;
-  const T *vals;
-  _idxbinop_helper (T *a, const T *v) : array (a), vals (v) { }
+public:
+  _idxbinop_helper (T *a, const T *v) : m_array (a), m_vals (v) { }
+
   void operator () (octave_idx_type i)
-  { array[i] = op (array[i], *vals++); }
+  { m_array[i] = op (m_array[i], *m_vals++); }
+
+private:
+  T *m_array;
+  const T *m_vals;
 };
 
 template <typename T>

@@ -74,80 +74,84 @@ namespace octave
   template <typename R>
   class norm_accumulator_p
   {
-    R p,scl,sum;
   public:
     norm_accumulator_p () { } // we need this one for Array
-    norm_accumulator_p (R pp) : p(pp), scl(0), sum(1) { }
+    norm_accumulator_p (R pp) : m_p(pp), m_scl(0), m_sum(1) { }
 
     template <typename U>
     void accum (U val)
     {
       octave_quit ();
       R t = std::abs (val);
-      if (scl == t) // we need this to handle Infs properly
-        sum += 1;
-      else if (scl < t)
+      if (m_scl == t) // we need this to handle Infs properly
+        m_sum += 1;
+      else if (m_scl < t)
         {
-          sum *= std::pow (scl/t, p);
-          sum += 1;
-          scl = t;
+          m_sum *= std::pow (m_scl/t, m_p);
+          m_sum += 1;
+          m_scl = t;
         }
       else if (t != 0)
-        sum += std::pow (t/scl, p);
+        m_sum += std::pow (t/m_scl, m_p);
     }
-    operator R () { return scl * std::pow (sum, 1/p); }
+
+    operator R () { return m_scl * std::pow (m_sum, 1/m_p); }
+
+  private:
+    R m_p, m_scl, m_sum;
   };
 
   // norm accumulator for the minus p-pseudonorm
   template <typename R>
   class norm_accumulator_mp
   {
-    R p,scl,sum;
   public:
     norm_accumulator_mp () { } // we need this one for Array
-    norm_accumulator_mp (R pp) : p(pp), scl(0), sum(1) { }
+    norm_accumulator_mp (R pp) : m_p(pp), m_scl(0), m_sum(1) { }
 
     template <typename U>
     void accum (U val)
     {
       octave_quit ();
       R t = 1 / std::abs (val);
-      if (scl == t)
-        sum += 1;
-      else if (scl < t)
+      if (m_scl == t)
+        m_sum += 1;
+      else if (m_scl < t)
         {
-          sum *= std::pow (scl/t, p);
-          sum += 1;
-          scl = t;
+          m_sum *= std::pow (m_scl/t, m_p);
+          m_sum += 1;
+          m_scl = t;
         }
       else if (t != 0)
-        sum += std::pow (t/scl, p);
+        m_sum += std::pow (t/m_scl, m_p);
     }
-    operator R () { return scl * std::pow (sum, -1/p); }
+
+    operator R () { return m_scl * std::pow (m_sum, -1/m_p); }
+
+  private:
+    R m_p, m_scl, m_sum;
   };
 
   // norm accumulator for the 2-norm (euclidean)
   template <typename R>
   class norm_accumulator_2
   {
-    R scl,sum;
-    static R pow2 (R x) { return x*x; }
   public:
-    norm_accumulator_2 () : scl(0), sum(1) { }
+    norm_accumulator_2 () : m_scl(0), m_sum(1) { }
 
     void accum (R val)
     {
       R t = std::abs (val);
-      if (scl == t)
-        sum += 1;
-      else if (scl < t)
+      if (m_scl == t)
+        m_sum += 1;
+      else if (m_scl < t)
         {
-          sum *= pow2 (scl/t);
-          sum += 1;
-          scl = t;
+          m_sum *= pow2 (m_scl/t);
+          m_sum += 1;
+          m_scl = t;
         }
       else if (t != 0)
-        sum += pow2 (t/scl);
+        m_sum += pow2 (t/m_scl);
     }
 
     void accum (std::complex<R> val)
@@ -156,73 +160,92 @@ namespace octave
       accum (val.imag ());
     }
 
-    operator R () { return scl * std::sqrt (sum); }
+    operator R () { return m_scl * std::sqrt (m_sum); }
+
+  private:
+    static inline R pow2 (R x) { return x*x; }
+
+    //--------
+
+    R m_scl, m_sum;
   };
 
   // norm accumulator for the 1-norm (city metric)
   template <typename R>
   class norm_accumulator_1
   {
-    R sum;
   public:
-    norm_accumulator_1 () : sum (0) { }
+    norm_accumulator_1 () : m_sum (0) { }
     template <typename U>
     void accum (U val)
     {
-      sum += std::abs (val);
+      m_sum += std::abs (val);
     }
-    operator R () { return sum; }
+
+    operator R () { return m_sum; }
+
+  private:
+    R m_sum;
   };
 
   // norm accumulator for the inf-norm (max metric)
   template <typename R>
   class norm_accumulator_inf
   {
-    R max;
   public:
-    norm_accumulator_inf () : max (0) { }
+    norm_accumulator_inf () : m_max (0) { }
     template <typename U>
     void accum (U val)
     {
       if (math::isnan (val))
-        max = numeric_limits<R>::NaN ();
+        m_max = numeric_limits<R>::NaN ();
       else
-        max = std::max (max, std::abs (val));
+        m_max = std::max (m_max, std::abs (val));
     }
-    operator R () { return max; }
+
+    operator R () { return m_max; }
+
+  private:
+    R m_max;
   };
 
   // norm accumulator for the -inf pseudonorm (min abs value)
   template <typename R>
   class norm_accumulator_minf
   {
-    R min;
   public:
-    norm_accumulator_minf () : min (numeric_limits<R>::Inf ()) { }
+    norm_accumulator_minf () : m_min (numeric_limits<R>::Inf ()) { }
     template <typename U>
     void accum (U val)
     {
       if (math::isnan (val))
-        min = numeric_limits<R>::NaN ();
+        m_min = numeric_limits<R>::NaN ();
       else
-        min = std::min (min, std::abs (val));
+        m_min = std::min (m_min, std::abs (val));
     }
-    operator R () { return min; }
+
+    operator R () { return m_min; }
+
+  private:
+    R m_min;
   };
 
   // norm accumulator for the 0-pseudonorm (hamming distance)
   template <typename R>
   class norm_accumulator_0
   {
-    unsigned int num;
   public:
-    norm_accumulator_0 () : num (0) { }
+    norm_accumulator_0 () : m_num (0) { }
     template <typename U>
     void accum (U val)
     {
-      if (val != static_cast<U> (0)) ++num;
+      if (val != static_cast<U> (0)) ++m_num;
     }
-    operator R () { return num; }
+
+    operator R () { return m_num; }
+
+  private:
+    unsigned int m_num;
   };
 
   // OK, we're armed :) Now let's go for the fun
@@ -328,8 +351,9 @@ namespace octave
   DEFINE_DISPATCHER (column_norms, MSparse<T>, MArray<R>)
   DEFINE_DISPATCHER (row_norms, MSparse<T>, MArray<R>)
 
-  // The approximate subproblem in Higham's method.  Find lambda and mu such that
-  // norm ([lambda, mu], p) == 1 and norm (y*lambda + col*mu, p) is maximized.
+  // The approximate subproblem in Higham's method.  Find lambda and mu such
+  // that norm ([lambda, mu], p) == 1 and norm (y*lambda + col*mu, p) is
+  // maximized.
   // Real version.  As in Higham's paper.
   template <typename ColVectorT, typename R>
   static void
@@ -356,9 +380,9 @@ namespace octave
       }
   }
 
-  // Complex version.  Higham's paper does not deal with complex case, so we use
-  // a simple extension.  First, guess the magnitudes as in real version, then
-  // try to rotate lambda to improve further.
+  // Complex version.  Higham's paper does not deal with complex case, so we
+  // use a simple extension.  First, guess the magnitudes as in real version,
+  // then try to rotate lambda to improve further.
   template <typename ColVectorT, typename R>
   static void
   higham_subp (const ColVectorT& y, const ColVectorT& col,

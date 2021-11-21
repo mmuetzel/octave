@@ -780,6 +780,33 @@ AC_DEFUN([OCTAVE_CHECK_HDF5_HAS_VER_16_API], [
   fi
 ])
 dnl
+dnl Check whether HDF5 library has UTF-8 file API.
+dnl
+AC_DEFUN([OCTAVE_CHECK_HDF5_HAS_UTF8_API], [
+  AC_CACHE_CHECK([whether HDF5 library has UTF-8 file API],
+    [octave_cv_hdf5_has_utf8_api],
+    [case $host_os in
+      msdosmsvc | mingw*)
+        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+          #include <stddef.h>
+          const wchar_t *H5_get_utf16_str(const char *s);
+          ]], [[
+          H5_get_utf16_str ("");
+          ]])],
+          octave_cv_hdf5_has_utf8_api=yes,
+          octave_cv_hdf5_has_utf8_api=no)
+      ;;
+      *)
+        ## Assume yes on all other platforms
+        octave_cv_hdf5_has_utf8_api=yes
+      ;;
+     esac
+    ])
+  if test $octave_cv_hdf5_has_utf8_api = yes; then
+    AC_DEFINE(HAVE_HDF5_UTF8, 1, [Define to 1 if HDF5 has UTF-8 file API.])
+  fi
+])
+dnl
 dnl Usage:
 dnl OCTAVE_CHECK_LIB(LIBRARY, DOC-NAME, WARN-MSG, HEADER, FUNC,
 dnl                  LANG, DOC-STRING, EXTRA-CHECK, PKG-CONFIG-NAME,
@@ -1959,6 +1986,35 @@ AC_DEFUN([OCTAVE_CHECK_QT_OPENGL_OK], [
   fi
 ])
 dnl
+dnl Check whether the Qt::ImCursorRectangle enum value exists.
+dnl It replaces the Qt::ImMicroFocus enum value that was deprecated
+dnl in Qt 5.14.
+dnl
+AC_DEFUN([OCTAVE_CHECK_QT_IMCURSORRECTANGLE_ENUM_VALUE], [
+  AC_CACHE_CHECK([for Qt::ImCursorRectangle enum value],
+    [octave_cv_qt_imcursorrectangle_enum_value],
+    [AC_LANG_PUSH(C++)
+    ac_octave_save_CPPFLAGS="$CPPFLAGS"
+    ac_octave_save_CXXFLAGS="$CXXFLAGS"
+    CPPFLAGS="$QT_CPPFLAGS $CXXPICFLAG $CPPFLAGS"
+    CXXFLAGS="$CXXPICFLAG $CXXFLAGS"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+        #include <Qt>
+        ]], [[
+        Qt::InputMethodQuery method_query = Qt::ImCursorRectangle;
+        ]])],
+      octave_cv_qt_imcursorrectangle_enum_value=yes,
+      octave_cv_qt_imcursorrectangle_enum_value=no)
+    CPPFLAGS="$ac_octave_save_CPPFLAGS"
+    CXXFLAGS="$ac_octave_save_CXXFLAGS"
+    AC_LANG_POP(C++)
+  ])
+  if test $octave_cv_qt_imcursorrectangle_enum_value = yes; then
+    AC_DEFINE(HAVE_QT_IMCURSORRECTANGLE_ENUM_VALUE, 1,
+      [Define to 1 if you have the `Qt::ImCursorRectangle' enum value.])
+  fi
+])
+dnl
 dnl Check whether the Qt::SplitBehavior enum exists and has
 dnl Qt::KeepEmptyParts and Qt::SkipEmptyParts members.  This enum
 dnl was introduced or modified in Qt 5.14.
@@ -2184,6 +2240,7 @@ AC_DEFUN([OCTAVE_CHECK_QT_VERSION], [AC_MSG_CHECKING([Qt version $1])
 
     OCTAVE_CHECK_QOVERLOAD_TEMPLATE
     OCTAVE_CHECK_QREGION_ITERATORS
+    OCTAVE_CHECK_QT_IMCURSORRECTANGLE_ENUM_VALUE
     OCTAVE_CHECK_QT_SPLITBEHAVIOR_ENUM
 
     if test -n "$OPENGL_LIBS"; then
@@ -2929,21 +2986,17 @@ dnl
 dnl Check for bison.
 dnl
 AC_DEFUN([OCTAVE_PROG_BISON], [
-  AC_PROG_YACC
-  WARN_YFLAGS=
+  dnl FIXME: What is our actual required minimum version for Bison?
+  gl_PROG_BISON([BISON], [3.0])
+  WARN_BISONFLAGS=
 
-  case "`$YACC --version`" in
+  case "`$BISON --version`" in
     *bison*) tmp_have_bison=yes ;;
     *) tmp_have_bison=no ;;
   esac
 
   if test $tmp_have_bison = yes; then
-    dnl FIXME: Call GNU bison with the `-Wno-yacc` option, which works with
-    dnl bison 2.5 and all later versions, as recommended by the bison NEWS.
-    dnl This is needed as long as Octave supports Autoconf version 2.69 or
-    dnl older.  In Autoconf 2.70, AC_PROG_YACC no longer adds the `-y`
-    dnl option to emulate POSIX yacc.
-    WARN_YFLAGS="-Wno-yacc"
+    WARN_BISONFLAGS="-Wno-yacc"
 
     AC_CACHE_CHECK([syntax of bison api.prefix (or name-prefix) declaration],
                    [octave_cv_bison_api_prefix_decl_style], [
@@ -2972,7 +3025,7 @@ input:;
 %%
 EOF
           ## Older versions of bison only warn and exit with success.
-          octave_bison_output=`$YACC $WARN_YFLAGS conftest.yy 2>&1`
+          octave_bison_output=`$BISON $WARN_BISONFLAGS conftest.yy 2>&1`
           ac_status=$?
           if test $ac_status -eq 0 && test -z "$octave_bison_output"; then
             octave_cv_bison_api_prefix_decl_style="$s $q"
@@ -3010,13 +3063,13 @@ input:;
 %%
 EOF
       ## Older versions of bison only warn and exit with success.
-      $YACC $WARN_YFLAGS conftest.yy
-      if grep PREFIX_symbol_kind_t y.tab.c > /dev/null; then
+      $BISON $WARN_BISONFLAGS --defines --output conftest.cc conftest.yy
+      if grep PREFIX_symbol_kind_t conftest.cc > /dev/null; then
         octave_cv_bison_api_prefix_applies_to_yysymbol_kind_t=yes
       else
         octave_cv_bison_api_prefix_applies_to_yysymbol_kind_t=no
       fi
-      rm -f conftest.yy y.tab.h y.tab.c
+      rm -f conftest.yy y.tab.h conftest.cc
       ])
   fi
 
@@ -3033,7 +3086,7 @@ understand the '%define api.prefix { PREFIX }' syntax.
   fi
 
   if test $tmp_have_bison = no; then
-    YACC='${top_srcdir}/build-aux/missing bison'
+    BISON='${top_srcdir}/build-aux/missing bison'
     warn_bison="
 
 I didn't find bison, or the version of bison that I found does not
@@ -3050,7 +3103,6 @@ building from VCS sources.
   fi
   AC_SUBST(OCTAVE_PARSER_CPPFLAGS)
   AC_SUBST(OCTAVE_TEX_PARSER_CPPFLAGS)
-  AC_SUBST(WARN_YFLAGS)
 ])
 dnl
 dnl Find find program.

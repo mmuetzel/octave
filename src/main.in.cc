@@ -201,6 +201,10 @@ octave_exec (const std::string& file, char **argv)
 {
   int status = octave_execv_wrapper (file.c_str (), argv);
 
+#if defined (OCTAVE_USE_WINDOWS_API)
+  // The above wrapper uses spawn(P_WAIT,...) instead of exec on Windows.
+  if (status == -1)
+#endif
   std::cerr << argv[0] << ": failed to exec '" << file << "'" << std::endl;
 
   return status;
@@ -229,10 +233,11 @@ wmain (int argc, wchar_t **wargv)
   // convert wide character strings to multibyte UTF-8 strings
   std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wchar_conv;
   for (int i_arg = 0; i_arg < argc; i_arg++)
-    {
-      argv_str.push_back (wchar_conv.to_bytes (wargv[i_arg]));
-      argv[i_arg] = &argv_str[i_arg][0];
-    }
+    argv_str.push_back (wchar_conv.to_bytes (wargv[i_arg]));
+
+  // Get pointers to C strings not before vector is stable.
+  for (int i_arg = 0; i_arg < argc; i_arg++)
+    argv[i_arg] = &argv_str[i_arg][0];
   argv[argc] = nullptr;
 
 #else
