@@ -298,11 +298,9 @@ jobs:
         # For available GitHub-hosted runners, see: https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners
         os: [windows-2019]
         compiler: [gcc]
-        target: [x86_64, i686]
+        msystem: [MINGW64, MINGW32, UCRT64]
         include:
           - compiler: gcc
-            target: x86_64
-            target-triplet: x86_64-w64-mingw32
             target-prefix: mingw-w64-x86_64
             msystem: MINGW64
             mingw-prefix: mingw64
@@ -310,11 +308,16 @@ jobs:
             cxx: g++
             f77: gfortran
           - compiler: gcc
-            target: i686
-            target-triplet: i686-w64-mingw32
             target-prefix: mingw-w64-i686
             msystem: MINGW32
             mingw-prefix: mingw32
+            cc: gcc
+            cxx: g++
+            f77: gfortran
+          - compiler: gcc
+            target-prefix: mingw-w64-ucrt-x86_64
+            msystem: UCRT64
+            mingw-prefix: ucrt64
             cc: gcc
             cxx: g++
             f77: gfortran
@@ -324,7 +327,6 @@ jobs:
       CC:  ${{ matrix.cc }}
       CXX:  ${{ matrix.cxx }}
       F77:  ${{ matrix.f77 }}
-      TARGET_TRIPLET:  ${{ matrix.target-triplet }}
       # perl uses cmd shell by default
       PERL5SHELL: bash -l -c
 
@@ -405,10 +407,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: C:/msys64/home/runneradmin/.ccache
-          key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
+          key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.msystem }}:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
           restore-keys: |
-            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}:${{ github.ref }}
-            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.target }}
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.msystem }}:${{ github.ref }}
+            ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ matrix.msystem }}
 
       - name: configure ccache
         # Limit the maximum size and switch on compression to avoid exceeding the total disk or cache quota.
