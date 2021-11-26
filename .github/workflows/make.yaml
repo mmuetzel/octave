@@ -187,7 +187,11 @@ jobs:
             ccache gnu-sed openjdk pkg-config \
             automake autoconf bison gettext icoutils librsvg mactex-no-gui
           eval "$(/usr/libexec/path_helper)"
-          echo 'export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/bison/bin:/usr/local/opt/texinfo/bin:/usr/local/opt/qt@5/bin:/Library/TeX/texbin:$PATH"' >> ~/.bash_profile
+          echo "/Library/TeX/texbin" >> $GITHUB_PATH
+          echo "/usr/local/opt/qt@5/bin" >> $GITHUB_PATH
+          echo "/usr/local/opt/texinfo/bin" >> $GITHUB_PATH
+          echo "/usr/local/opt/bison/bin" >> $GITHUB_PATH
+          echo "/usr/local/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
 
       - name: prepare ccache
         # create human readable timestamp
@@ -212,7 +216,7 @@ jobs:
           test -d /Users/runner/Library/Preferences/ccache || mkdir /Users/runner/Library/Preferences/ccache
           echo "max_size = 1.5G" >> /Users/runner/Library/Preferences/ccache/ccache.conf
           ccache -s
-          echo 'export PATH="$(brew --prefix)/opt/ccache/libexec:$PATH"' >> ~/.bash_profile
+          echo "$(brew --prefix)/opt/ccache/libexec" >> $GITHUB_PATH
 
       - name: bootstrap
         run: GNULIB_URL=https://github.com/coreutils/gnulib.git ./bootstrap
