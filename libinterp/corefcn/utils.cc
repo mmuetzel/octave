@@ -1147,7 +1147,8 @@ system.
 
 No check is done for the existence of @var{file}.  No tilde expansion of
 @var{file} is performed.
-@seealso{canonicalize_file_name, is_absolute_filename, is_rooted_relative_filename, isfolder, tilde_expand}
+@seealso{canonicalize_file_name, is_absolute_filename,
+is_rooted_relative_filename, isfolder, tilde_expand}
 @end deftypefn */)
 {
   if (args.length () != 1)
@@ -1490,7 +1491,8 @@ Return a structure containing the system-dependent errno values.
     return s.length ();
   }
 
-  std::size_t format (std::ostream& os, const std::string& enc, const char *fmt, ...)
+  std::size_t format (std::ostream& os, const std::string& enc,
+                      const char *fmt, ...)
   {
     std::size_t retval;
 
@@ -1504,8 +1506,8 @@ Return a structure containing the system-dependent errno values.
     return retval;
   }
 
-  std::size_t vformat (std::ostream& os, const std::string& enc, const char *fmt,
-                  va_list args)
+  std::size_t vformat (std::ostream& os, const std::string& enc,
+                       const char *fmt, va_list args)
   {
     std::string s = vasprintf (fmt, args);
 

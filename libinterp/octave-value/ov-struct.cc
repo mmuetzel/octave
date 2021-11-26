@@ -1766,7 +1766,8 @@ to be an empty cell array.
 
 Finally, if the value is a non-scalar cell array, then @code{struct}
 produces a struct @strong{array}.
-@seealso{cell2struct, fieldnames, getfield, setfield, rmfield, isfield, orderfields, isstruct, structfun}
+@seealso{cell2struct, fieldnames, getfield, setfield, rmfield, isfield,
+orderfields, isstruct, structfun}
 @end deftypefn */)
 {
   int nargin = args.length ();
@@ -1884,9 +1885,11 @@ produces a struct @strong{array}.
 %!assert (size (x), [0,0])
 %!assert (isstruct (x))
 %!assert (isempty (fieldnames (x)))
-%!fail ('struct ("a",{1,2},"b",{1,2,3})', 'dimensions of parameter 2 do not match those of parameter 4')
+%!fail ('struct ("a",{1,2},"b",{1,2,3})',
+%!      'dimensions of parameter 2 do not match those of parameter 4')
 %!error <arguments must occur as "field", VALUE pairs> struct (1,2,3,4)
-%!fail ('struct ("1",2,"3")', 'struct: additional arguments must occur as "field", VALUE pairs')
+%!fail ('struct ("1",2,"3")',
+%!      'struct: additional arguments must occur as "field", VALUE pairs')
 */
 
 DEFUN (isstruct, args, ,

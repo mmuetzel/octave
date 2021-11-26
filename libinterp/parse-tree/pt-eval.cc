@@ -1478,9 +1478,13 @@ OCTAVE_NAMESPACE_BEGIN
     // the corresponding function name.  At least try to do it without N
     // string compares.
 
+    // FIXME: .+, .-, **, and .** are deprecated but still need to be
+    // handled here until they are removed.
+
     std::size_t len = name.length ();
 
     if (len == 3 && name == ".**")
+      // deprecated
       return "power";
     else if (len == 2)
       {
@@ -1492,9 +1496,11 @@ OCTAVE_NAMESPACE_BEGIN
                 return "transpose";
 
               case '+':
+                // deprecated
                 return "plus";
 
               case '-':
+                // deprecated
                 return "minus";
 
               case '*':
@@ -1535,6 +1541,7 @@ OCTAVE_NAMESPACE_BEGIN
               }
           }
         else if (name == "**")
+          // deprecated
           return "mpower";
       }
     else if (len == 1)
@@ -4287,11 +4294,11 @@ Example:
           {
             if (m_dbstep_flag == 1 || is_end_of_fcn_or_script)
               {
-                // We get here if we are doing a "dbstep" or a "dbstep N" and the
-                // count has reached 1 so that we must stop and return to debug
-                // prompt.  Alternatively, "dbstep N" has been used but the end
-                // of the frame has been reached so we stop at the last line and
-                // return to prompt.
+                // We get here if we are doing a "dbstep" or a "dbstep N" and
+                // the count has reached 1 so that we must stop and return to
+                // debug prompt.  Alternatively, "dbstep N" has been used but
+                // the end of the frame has been reached so we stop at the last
+                // line and return to prompt.
 
                 break_on_this_statement = true;
               }

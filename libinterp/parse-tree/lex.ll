@@ -183,6 +183,28 @@ and after the nested call.
      }                                                                  \
    while (0)
 
+#define CMD_OR_DEPRECATED_OP(PATTERN, REPLACEMENT, VERSION, TOK)        \
+   do                                                                   \
+     {                                                                  \
+       curr_lexer->lexer_debug (PATTERN);                               \
+                                                                        \
+       if (curr_lexer->looks_like_command_arg ())                       \
+         {                                                              \
+           yyless (0);                                                  \
+           curr_lexer->push_start_state (COMMAND_START);                \
+         }                                                              \
+       else                                                             \
+         {                                                              \
+           curr_lexer->warn_deprecated_operator (PATTERN, REPLACEMENT,  \
+                                                 #VERSION);             \
+           /* set COMPAT to true here to avoid warning about            \
+              compatibility since we've already warned about the        \
+              operator being deprecated.  */                            \
+           return curr_lexer->handle_op (TOK, false, true);             \
+         }                                                              \
+     }                                                                  \
+   while (0)
+
 #define CMD_OR_UNARY_OP(PATTERN, TOK, COMPAT)                           \
    do                                                                   \
      {                                                                  \
@@ -1072,14 +1094,7 @@ ANY_INCLUDING_NL (.|{NL})
     /* FIXME: Remove support for '...' continuation in Octave 9 */
     static const char *msg = "'...' continuations in double-quoted character strings were deprecated in version 7 and will not be allowed in a future version of Octave; please use '\\' instead";
 
-    std::string nm = curr_lexer->m_fcn_file_full_name;
-
-    if (nm.empty ())
-      warning_with_id ("Octave:deprecated-syntax", "%s", msg);
-    else
-      warning_with_id ("Octave:deprecated-syntax",
-                       "%s; near line %d of file '%s'", msg,
-                       curr_lexer->m_filepos.line (), nm.c_str ());
+    curr_lexer->warn_deprecated_syntax (msg);
 
     HANDLE_STRING_CONTINUATION;
   }
@@ -1090,14 +1105,7 @@ ANY_INCLUDING_NL (.|{NL})
     /* FIXME: Remove support for WS after line continuation in Octave 9 */
     static const char *msg = "whitespace after continuation markers in double-quoted character strings were deprecated in version 7 and will not be allowed in a future version of Octave";
 
-    std::string nm = curr_lexer->m_fcn_file_full_name;
-
-    if (nm.empty ())
-      warning_with_id ("Octave:deprecated-syntax", "%s", msg);
-    else
-      warning_with_id ("Octave:deprecated-syntax",
-                       "%s; near line %d of file '%s'", msg,
-                       curr_lexer->m_filepos.line (), nm.c_str ());
+    curr_lexer->warn_deprecated_syntax (msg);
 
     HANDLE_STRING_CONTINUATION;
   }
@@ -1301,14 +1309,7 @@ ANY_INCLUDING_NL (.|{NL})
     /* FIXME: Remove support for '\\' line continuation in Octave 9 */
     static const char *msg = "using continuation marker \\ outside of double quoted strings was deprecated in version 7 and will be removed from a future version of Octave, use ... instead";
 
-    std::string nm = curr_lexer->m_fcn_file_full_name;
-
-    if (nm.empty ())
-      warning_with_id ("Octave:deprecated-syntax", "%s", msg);
-    else
-      warning_with_id ("Octave:deprecated-syntax",
-                       "%s; near line %d of file '%s'", msg,
-                       curr_lexer->m_filepos.line (), nm.c_str ());
+    curr_lexer->warn_deprecated_syntax (msg);
 
     curr_lexer->handle_continuation ();
   }
@@ -1643,13 +1644,13 @@ ANY_INCLUDING_NL (.|{NL})
 %}
 
 ":"   { CMD_OR_OP (":", ':', true); }
-".+"  { CMD_OR_OP (".+", EPLUS, false); }
-".-"  { CMD_OR_OP (".-", EMINUS, false); }
+".+"  { CMD_OR_DEPRECATED_OP (".+", "+", 7, '+'); }
+".-"  { CMD_OR_DEPRECATED_OP (".-", "-", 7, '-'); }
 ".*"  { CMD_OR_OP (".*", EMUL, true); }
 "./"  { CMD_OR_OP ("./", EDIV, true); }
 ".\\" { CMD_OR_OP (".\\", ELEFTDIV, true); }
 ".^"  { CMD_OR_OP (".^", EPOW, true); }
-".**" { CMD_OR_OP (".**", EPOW, false); }
+".**" { CMD_OR_DEPRECATED_OP (".**", ".^", 7, EPOW); }
 "<="  { CMD_OR_OP ("<=", EXPR_LE, true); }
 "=="  { CMD_OR_OP ("==", EXPR_EQ, true); }
 "!="  { CMD_OR_OP ("!=", EXPR_NE, false); }
@@ -1679,7 +1680,7 @@ ANY_INCLUDING_NL (.|{NL})
   }
 
 "^"   { CMD_OR_OP ("^", POW, true); }
-"**"  { CMD_OR_OP ("**", POW, false); }
+"**"  { CMD_OR_DEPRECATED_OP ("**", "^", 7, POW); }
 "&&"  { CMD_OR_OP ("&&", EXPR_AND_AND, true); }
 "||"  { CMD_OR_OP ("||", EXPR_OR_OR, true); }
 
@@ -1816,15 +1817,15 @@ ANY_INCLUDING_NL (.|{NL})
 "*="   { CMD_OR_OP ("*=", MUL_EQ, false); }
 "/="   { CMD_OR_OP ("/=", DIV_EQ, false); }
 "\\="  { CMD_OR_OP ("\\=", LEFTDIV_EQ, false); }
-".+="  { CMD_OR_OP (".+=", ADD_EQ, false); }
-".-="  { CMD_OR_OP (".-=", SUB_EQ, false); }
+".+="  { CMD_OR_DEPRECATED_OP (".+=", "+=", 7, ADD_EQ); }
+".-="  { CMD_OR_DEPRECATED_OP (".-=", "-=", 7, SUB_EQ); }
 ".*="  { CMD_OR_OP (".*=", EMUL_EQ, false); }
 "./="  { CMD_OR_OP ("./=", EDIV_EQ, false); }
 ".\\=" { CMD_OR_OP (".\\=", ELEFTDIV_EQ, false); }
 "^="   { CMD_OR_OP ("^=", POW_EQ, false); }
-"**="  { CMD_OR_OP ("^=", POW_EQ, false); }
+"**="  { CMD_OR_DEPRECATED_OP ("**=", "^=", 7, POW_EQ); }
 ".^="  { CMD_OR_OP (".^=", EPOW_EQ, false); }
-".**=" { CMD_OR_OP (".^=", EPOW_EQ, false); }
+".**=" { CMD_OR_DEPRECATED_OP (".**=", ".^=", 7, EPOW_EQ); }
 "&="   { CMD_OR_OP ("&=", AND_EQ, false); }
 "|="   { CMD_OR_OP ("|=", OR_EQ, false); }
 
@@ -2322,7 +2323,7 @@ If @var{name} is omitted, return a list of keywords.
             || tok == ':' || tok == '=' || tok == ADD_EQ
             || tok == AND_EQ || tok == DIV_EQ || tok == EDIV
             || tok == EDIV_EQ || tok == ELEFTDIV || tok == ELEFTDIV_EQ
-            || tok == EMINUS || tok == EMUL || tok == EMUL_EQ
+            || tok == EMUL || tok == EMUL_EQ
             || tok == EPOW || tok == EPOW_EQ || tok == EXPR_AND
             || tok == EXPR_AND_AND || tok == EXPR_EQ || tok == EXPR_GE
             || tok == EXPR_GT || tok == EXPR_LE || tok == EXPR_LT
@@ -3667,6 +3668,27 @@ make_integer_value (uintmax_t long_int_val, bool unsigned_val, int bytes)
   }
 
   void
+  base_lexer::warn_deprecated_syntax (const std::string& msg)
+  {
+    if (m_fcn_file_full_name.empty ())
+      warning_with_id ("Octave:deprecated-syntax", "%s", msg.c_str ());
+    else
+      warning_with_id ("Octave:deprecated-syntax",
+                       "%s; near line %d of file '%s'", msg.c_str (),
+                       m_filepos.line (), m_fcn_file_full_name.c_str ());
+  }
+
+  void
+  base_lexer::warn_deprecated_operator (const std::string& deprecated_op,
+                                        const std::string& recommended_op,
+                                        const std::string& version)
+  {
+    std::string msg = "the '" + deprecated_op + "' operator was deprecated in version " + version + " and will not be allowed in a future version of Octave; please use '" + recommended_op + "' instead";
+
+    warn_deprecated_syntax (msg);
+  }
+
+  void
   base_lexer::push_token (token *tok)
   {
     YYSTYPE *lval = yyget_lval (m_scanner);
@@ -3725,8 +3747,6 @@ make_integer_value (uintmax_t long_int_val, bool unsigned_val, int bytes)
       case EMUL: std::cerr << "EMUL\n"; break;
       case EDIV: std::cerr << "EDIV\n"; break;
       case ELEFTDIV: std::cerr << "ELEFTDIV\n"; break;
-      case EPLUS: std::cerr << "EPLUS\n"; break;
-      case EMINUS: std::cerr << "EMINUS\n"; break;
       case HERMITIAN: std::cerr << "HERMITIAN\n"; break;
       case TRANSPOSE: std::cerr << "TRANSPOSE\n"; break;
       case PLUS_PLUS: std::cerr << "PLUS_PLUS\n"; break;

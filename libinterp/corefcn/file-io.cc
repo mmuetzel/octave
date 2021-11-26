@@ -67,7 +67,6 @@
 #include "defun.h"
 #include "error.h"
 #include "errwarn.h"
-#include "file-io.h"
 #include "interpreter-private.h"
 #include "interpreter.h"
 #include "load-path.h"
@@ -588,7 +587,8 @@ in a single operation.  This is very efficient and improves performance.
 is immediately performed.  If the write operation must be performed immediately
 after data has been written then the write should be followed by a call to
 @code{fflush} to flush the internal buffer.
-@seealso{fclose, fgets, fgetl, fscanf, fread, fputs, fdisp, fprintf, fwrite, fskipl, fseek, frewind, ftell, feof, ferror, fclear, fflush, freport, umask}
+@seealso{fclose, fgets, fgetl, fscanf, fread, fputs, fdisp, fprintf, fwrite,
+fskipl, fseek, frewind, ftell, feof, ferror, fclear, fflush, freport, umask}
 @end deftypefn */)
 {
   int nargin = args.length ();
@@ -3250,28 +3250,6 @@ It is useful for error messages and prompts.
   stream_list& streams = interp.get_stream_list ();
 
   return const_value ("stderr", args, streams.stderr_file ());
-}
-
-// Deprecated variables and functions.
-
-// Deprecated in Octave 6.
-void
-mark_for_deletion (const std::string& file)
-{
-  octave::interpreter& interp
-    = octave::__get_interpreter__ ("mark_for_deletion");
-
-  interp.mark_for_deletion (file);
-}
-
-// Deprecated in Octave 6.
-void
-cleanup_tmp_files (void)
-{
-  octave::interpreter& interp
-    = octave::__get_interpreter__ ("cleanup_tmp_files");
-
-  interp.cleanup_tmp_files ();
 }
 
 OCTAVE_NAMESPACE_END

@@ -2558,7 +2558,8 @@ octave_print_internal (std::ostream& os, const octave::range<double>& r,
           octave_idx_type col = 0;
           while (col < num_elem)
             {
-              octave_idx_type lim = (col + inc < num_elem ? col + inc : num_elem);
+              octave_idx_type lim = (col + inc < num_elem ? col + inc
+                                                          : num_elem);
 
               pr_col_num_header (os, total_width, max_width, lim, col,
                                  extra_indent);
@@ -3974,7 +3975,8 @@ is used.  In case of an error the format remains unchanged.
 If called with one to three output arguments, and no inputs, return the current
 format, format spacing, and uppercase preference.
 
-@seealso{fixed_point_format, output_precision, split_long_rows, print_empty_dimensions, rats}
+@seealso{fixed_point_format, output_precision, split_long_rows,
+print_empty_dimensions, rats}
 @end deftypefn */)
 {
   octave_value_list retval (std::min (nargout, 2));
