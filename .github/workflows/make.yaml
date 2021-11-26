@@ -157,7 +157,8 @@ jobs:
             cxx: "clang++"
 
     env:
-      MY_PATH: "/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/bison/bin:/usr/local/opt/texinfo/bin:/usr/local/opt/qt@5/bin:/Library/TeX/texbin"
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
 
     steps:
       - name: checkout repository
@@ -224,8 +225,6 @@ jobs:
       - name: configure
         timeout-minutes: 30
         env:
-          MY_CC: ${{ matrix.cc }}
-          MY_CXX: ${{ matrix.cxx }}
           MY_CPPFLAGS: ${{ matrix.cppflags }}
           MY_LDFLAGS: ${{ matrix.ldflags }}
         # This is a hodgepodge of configure flags put together from the
@@ -239,12 +238,12 @@ jobs:
           echo $PATH
           echo which ccache
           which ccache
-          which $MY_CC
-          echo $MY_CC --version
-          $MY_CC --version
-          which $MY_CXX
-          echo $MY_CXX --version
-          $MY_CXX --version
+          which $CC
+          echo $CC --version
+          $CC --version
+          which $CXX
+          echo $CXX --version
+          $CXX --version
           which gfortran
           echo gfortran --version
           gfortran --version
