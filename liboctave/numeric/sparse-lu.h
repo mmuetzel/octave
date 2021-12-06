@@ -28,12 +28,11 @@
 
 #include "octave-config.h"
 
+#include "mx-fwd.h"
+
 #include "MArray.h"
 #include "dMatrix.h"
 #include "dSparse.h"
-
-class ColumnVector;
-class PermMatrix;
 
 namespace octave
 {
