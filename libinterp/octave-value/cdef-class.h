@@ -47,7 +47,9 @@ namespace octave
   class interpreter;
   class tree_classdef;
 
+#define octave_cdef_class_fwd_decl
   class
+  OCTINTERP_API
   cdef_class : public cdef_meta_object
   {
   private:

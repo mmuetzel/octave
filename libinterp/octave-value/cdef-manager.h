@@ -38,7 +38,7 @@ namespace octave
 {
   class interpreter;
 
-  class cdef_manager
+  class OCTINTERP_API cdef_manager
   {
   public:
 

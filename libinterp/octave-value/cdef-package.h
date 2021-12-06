@@ -41,7 +41,9 @@ namespace octave
 {
   class interpreter;
 
+#define octave_cdef_package_fwd_decl
   class
+  OCTINTERP_API
   cdef_package : public cdef_meta_object
   {
     friend class cdef_class;

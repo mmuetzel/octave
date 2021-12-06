@@ -36,8 +36,14 @@ class Cell;
 
 namespace octave
 {
-  class cdef_class;
-  class cdef_package;
+#if ! defined (octave_cdef_class_fwd_decl)
+#  define octave_cdef_class_fwd_decl
+  class OCTINTERP_API cdef_class;
+#endif
+#if ! defined (octave_cdef_package_fwd_decl)
+#  define octave_cdef_package_fwd_decl
+  class OCTINTERP_API cdef_package;
+#endif
 
   extern OCTINTERP_API std::string
   get_base_name (const std::string& nm);

@@ -40,8 +40,11 @@
 
 namespace octave
 {
-  class cdef_object;
-  class cdef_class;
+  class OCTINTERP_API cdef_object;
+#if ! defined (octave_cdef_class_fwd_decl)
+#  define octave_cdef_class_fwd_decl
+  class OCTINTERP_API cdef_class;
+#endif
 
   // This is mainly a bootstrap class to declare the expected interface.
   // The actual base class is cdef_class_base, which is declared after
@@ -201,6 +204,7 @@ namespace octave
   };
 
   class
+  OCTINTERP_API
   cdef_object
   {
   public:
@@ -389,6 +393,7 @@ namespace octave
   };
 
   class
+  OCTINTERP_API
   cdef_object_array : public cdef_object_base
   {
   public:
@@ -456,6 +461,7 @@ namespace octave
   };
 
   class
+  OCTINTERP_API
   cdef_object_scalar : public cdef_object_base
   {
   public:
@@ -577,6 +583,7 @@ namespace octave
   };
 
   class
+  OCTINTERP_API
   value_cdef_object : public cdef_object_scalar
   {
   public:
@@ -607,6 +614,7 @@ namespace octave
   };
 
   class
+  OCTINTERP_API
   cdef_meta_object_rep : public handle_cdef_object
   {
   public:
@@ -654,6 +662,7 @@ namespace octave
   };
 
   class
+  OCTINTERP_API
   cdef_meta_object : public cdef_object
   {
   public:
