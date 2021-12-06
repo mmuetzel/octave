@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2021 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -23,31 +23,11 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#if ! defined (octave_lo_cutils_h)
-#define octave_lo_cutils_h 1
+#if ! defined (octave_Array_fwd_h)
+#define octave_Array_fwd_h 1
 
 #include "octave-config.h"
 
-#if defined (__cplusplus)
-#include <cstddef>
-using std::size_t;
-extern "C" {
-#else
-#include <stddef.h>
-#endif
-
-OCTAVE_API void
-octave_qsort (void *base, size_t n, size_t size,
-              int (*cmp) (const void *, const void *));
-
-OCTAVE_API int
-octave_strcasecmp (const char *s1, const char *s2);
-
-OCTAVE_API int
-octave_strncasecmp (const char *s1, const char *s2, size_t n);
-
-#if defined (__cplusplus)
-}
-#endif
+template <typename T> class OCTARRAY_API Array;
 
 #endif

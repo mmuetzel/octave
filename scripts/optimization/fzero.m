@@ -61,7 +61,8 @@
 ## @qcode{"TolX"} specifies the termination tolerance for the solution @var{x}.
 ## The default value is @code{eps}.
 ##
-## For a description of the other options, see @ref{XREFoptimset,,optimset}.
+## For a description of the other options,
+## @pxref{XREFoptimset,,@code{optimset}}.
 ## To initialize an options structure with default values for @code{fzero} use
 ## @code{options = optimset ("fzero")}.
 ##
@@ -438,6 +439,7 @@ endfunction
 
 ## A helper function that evaluates a function and checks for bad results.
 function fx = guarded_eval (fun, x)
+
   fx = fun (x);
   fx = fx(1);
   if (! isreal (fx))
@@ -445,6 +447,7 @@ function fx = guarded_eval (fun, x)
   elseif (isnan (fx))
     error ("Octave:fzero:isnan", "fzero: NaN value encountered");
   endif
+
 endfunction
 
 

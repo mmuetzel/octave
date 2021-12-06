@@ -3031,17 +3031,25 @@ OCTAVE_NAMESPACE_BEGIN
     if (base.isempty () || increment.isempty () || limit.isempty ())
       return octave_value (range<T> (), for_cmd_expr);
 
+    bool reverse = (base.is_uint8_type () || base.is_uint16_type ()
+                    || base.is_uint32_type () || base.is_uint64_type ()
+                    || limit.is_uint8_type () || limit.is_uint16_type ()
+                    || limit.is_uint32_type () || limit.is_uint64_type ())
+                   && increment.scalar_value () < 0;
+
+    octave_value inc = (reverse ? -increment : increment);
+
     check_colon_operand<T> (base, "lower bound");
-    check_colon_operand<T> (increment, "increment");
+    check_colon_operand<T> (inc, "increment");
     check_colon_operand<T> (limit, "upper bound");
 
     T base_val = octave_value_extract<T> (base);
 
-    T increment_val = octave_value_extract<T> (increment);
+    T increment_val = octave_value_extract<T> (inc);
 
     T limit_val = octave_value_extract<T> (limit);
 
-    range<T> r (base_val, increment_val, limit_val);
+    range<T> r (base_val, increment_val, limit_val, reverse);
 
     return octave_value (r, for_cmd_expr);
   }

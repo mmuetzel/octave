@@ -121,14 +121,14 @@ function C = nchoosek (v, k)
     ## Since Odd*Even is guaranteed to be Even, also take out a factor
     ## of 2 from numerator and denominator.
     if (rem (k, 2))  # k is odd
-      numer = [(v-k+1:v-(k+1)/2) .* (v-1:-1:v-(k-1)/2) / 2, v];
-      denom = [(1:k/2) .* (k-1:-1:(k+1)/2) / 2, k];
+      numer = [((v-k+1:v-(k+1)/2) .* (v-1:-1:v-(k-1)/2)) / 2, v];
+      denom = [((1:(k-1)/2) .* (k-1:-1:(k+1)/2)) / 2, k];
     else             # k is even
-      numer = (v-k+1:v-k/2) .* (v:-1:v-k/2+1) / 2;
-      denom = (1:k/2) .* (k:-1:k/2+1) / 2;
+      numer = ((v-k+1:v-k/2) .* (v:-1:v-k/2+1)) / 2;
+      denom = ((1:k/2) .* (k:-1:k/2+1)) / 2;
     endif
 
-    # Remove common factors from numerator and denominator
+    ## Remove common factors from numerator and denominator
     do
       for i = numel (denom):-1:1
         factors = gcd (denom(i), numer);
@@ -140,9 +140,13 @@ function C = nchoosek (v, k)
       numer = numer(numer > 1);
     until (isempty (denom))
 
-    C = prod (numer);
-    if (C > flintmax)
-      warning ("nchoosek: possible loss of precision");
+    C = prod (numer, "native");
+    if (isfloat (C) && C > flintmax (C))
+      warning ("Octave:nchoosek:large-output-float", ...
+               "nchoosek: possible loss of precision");
+    elseif (isinteger (C) && C == intmax (C))
+      warning ("Octave:nchoosek:large-output-integer", ...
+               "nchoosek: result may have saturated at intmax");
     endif
   elseif (k == 0)
     C = v(zeros (1, 0));  # Return 1x0 object for Matlab compatibility
@@ -180,7 +184,7 @@ endfunction
 %!assert (nchoosek (1:5, 3),
 %!        [1:3;1,2,4;1,2,5;1,3,4;1,3,5;1,4,5;2:4;2,3,5;2,4,5;3:5])
 
-# Test basic behavior for various input types
+## Test basic behavior for various input types
 %!assert (nchoosek ('a':'b', 2), 'ab')
 %!assert (nchoosek ("a":"b", 2), "ab")
 %!assert (nchoosek ({1,2}, 2), {1,2})
@@ -190,7 +194,7 @@ endfunction
 %! assert (nchoosek (s, 1), s(:));
 %! assert (nchoosek (s, 2), s);
 
-# Verify Matlab compatibility of return sizes & types
+## Verify Matlab compatibility of return sizes & types
 %!test
 %! x = nchoosek (1:2, 0);
 %! assert (size (x), [1, 0]);
@@ -269,6 +273,11 @@ endfunction
 %! assert (isstruct (x));
 %! assert (fieldnames (x), {"a"; "b"});
 
+%!test <61565>
+%! x = nchoosek (uint8 (10), uint8 (5));
+%! assert (x, uint8 (252));
+%! assert (class (x), "uint8");
+
 ## Test input validation
 %!error <Invalid call> nchoosek ()
 %!error <Invalid call> nchoosek (1)
@@ -282,3 +291,4 @@ endfunction
 %!error <N must be a non-negative integer .= K> nchoosek (-100, 45)
 %!error <N must be a non-negative integer .= K> nchoosek (100.5, 45)
 %!warning <possible loss of precision> nchoosek (100, 45);
+%!warning <result .* saturated> nchoosek (uint64 (80), uint64 (40));
