@@ -31,9 +31,8 @@
 #include "MArray.h"
 #include "bsxfun-decl.h"
 #include "mx-defs.h"
+#include "mx-fwd.h"
 #include "mx-op-decl.h"
-
-template <typename T> class intNDArray;
 
 class
 OCTAVE_API

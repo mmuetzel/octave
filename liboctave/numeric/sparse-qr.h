@@ -30,14 +30,9 @@
 
 #include <memory>
 
-#include "oct-cmplx.h"
+#include "mx-fwd.h"
 
-class Matrix;
-class ComplexMatrix;
-class SparseMatrix;
-class SparseComplexMatrix;
-class ColumnVector;
-template <typename T> class MArray;
+#include "oct-cmplx.h"
 
 namespace octave
 {

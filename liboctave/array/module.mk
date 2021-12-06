@@ -40,6 +40,7 @@ ARRAY_INC = \
   %reldir%/MArray.h \
   %reldir%/Matrix.h \
   %reldir%/MatrixType.h \
+  %reldir%/mx-fwd.h \
   %reldir%/MDiagArray2.h \
   %reldir%/MSparse.h \
   %reldir%/PermMatrix.h \

@@ -36,10 +36,13 @@
 #include <memory>
 
 #include "Array-fwd.h"
+#include "mx-fwd.h"
+#include "Sparse-fwd.h"
+
 #include "dim-vector.h"
 #include "oct-inttypes.h"
 #include "oct-refcount.h"
-#include "Sparse-fwd.h"
+
 
 namespace octave
 {
