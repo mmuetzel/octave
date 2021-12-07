@@ -103,6 +103,12 @@ jobs:
             CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" \
             LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial"
 
+      - name: display configure log
+        continue-on-error: true
+        # Displaying the log shouldn't take long. Cancel the step if it does.
+        timeout-minutes: 5
+        run: cat ./.build/config.log
+
       - name: build
         # Parallel make seems to fail intermittently when creating the figures
         # for the manual. The error message says it fails to connect to a
@@ -259,6 +265,12 @@ jobs:
             --with-blas="-L/usr/local/opt/openblas/lib -lopenblas" \
             --with-java-homedir="/usr/local/opt/openjdk" \
             --prefix="${HOME}/usr"
+
+      - name: display configure log
+        continue-on-error: true
+        # Displaying the log shouldn't take long. Cancel the step if it does.
+        timeout-minutes: 5
+        run: cat ./.build/config.log
 
       - name: build
         run: make -C ./.build all -j3 V=1
@@ -453,6 +465,12 @@ jobs:
             JAVA_HOME="" \
             --disable-docs \
             ac_cv_search_tputs=-ltermcap
+
+      - name: display configure log
+        continue-on-error: true
+        # Displaying the log shouldn't take long. Cancel the step if it does.
+        timeout-minutes: 5
+        run: cat ./.build/config.log
 
       - name: build
         # Spawning processes seems to have a big overhead on this platform. Use a somewhat larger number of parallel processes to compensate for that.
