@@ -107,6 +107,7 @@ jobs:
           gfortran --version
           mkdir .build
           cd .build && ../configure \
+            F77="ccache gfortran" \
             CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" \
             LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial"
 
@@ -263,8 +264,8 @@ jobs:
           mkdir .build
           cd .build && ../configure \
             F77="ccache gfortran" \
-            CPPFLAGS="-I/usr/local/opt/gettext/include -I/usr/local/opt/icu4c/include -I/usr/local/opt/qt@5/include -I/usr/local/opt/readline/include -I/usr/local/opt/sqlite/include $MY_CPPFLAGS" \
-            CXXFLAGS="-O2" \
+            CPPFLAGS="-std=c++11 -I/usr/local/opt/gettext/include -I/usr/local/opt/icu4c/include -I/usr/local/opt/qt@5/include -I/usr/local/opt/readline/include -I/usr/local/opt/sqlite/include $MY_CPPFLAGS" \
+            CXXFLAGS="-O2 -g -std=c++11" \
             LDFLAGS="-L/usr/local/lib -L/usr/local/opt/bison/lib -L/usr/local/opt/gettext/lib -L/usr/local/opt/icu4c/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/sqlite/lib $MY_LDFLAGS" \
             PKG_CONFIG_PATH="/usr/local/opt/openblas/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/qt@5/lib/pkgconfig" \
             QCOLLECTIONGENERATOR="qhelpgenerator" \
@@ -274,6 +275,7 @@ jobs:
             --prefix="${HOME}/usr"
 
       - name: display configure log
+        if: ${{ always() && steps.bootstrap.outcome == 'success' }}
         continue-on-error: true
         # Displaying the log shouldn't take long. Cancel the step if it does.
         timeout-minutes: 5
