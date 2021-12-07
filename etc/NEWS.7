@@ -76,6 +76,11 @@ constants in array expressions with leading zeros so that they use the
 same number of digits for each value such as
 `[0x00_00_01; 0x00_01_00; 0x01_00_00]`.
 
+- The increment and decrement operators `++` and `--` must "hug" their
+corresponding variables.  In previous versions of Octave, whitespaces
+between these operators and the variable they affect were allowed.  That
+is no longer the case.
+
 - The `mldivide` function (i.e., the `\` operator) now uses an LU
 decomposition to solve nearly singular full square matrices.  This is
 Matlab-compatible and yields results which more nearly minimize `norm
@@ -124,10 +129,10 @@ Configure with `--disable-lib-visibility-flags` to export all symbols
 The real name of the "magick++" library (including any potentially
 trailing "++") needs to be set in that option now.
 
-- The pkg update command now accepts options that are passed to pkg install
-for each updated package.  Specifying @option{-local} or @option{-global}
-will restrict update checks to local and global installed packgaes,
-respectively.
+- The `pkg update` command now accepts options that are passed to `pkg
+install` for each updated package.  Specifying @option{-local} or
+@option{-global} will restrict update checks to local or global
+installed packages, respectively.
 
 ### Graphical User Interface
 
@@ -136,6 +141,12 @@ Turkish.
 
 - In debug mode, symbol values are now shown in tooltips when hovering
 variables in the editor panel.
+
+- The "Disable global shortcuts when Command Window has focus" GUI
+preference under the Shortcuts tab is now disabled by default.  This
+option disables keyboard shortcuts to avoid interference with readline
+key strokes in the Command Window.  Unlike versions prior to Octave 7,
+this preference now also affects the Ctrl-C/V shortcuts for copy/paste.
 
 ### Graphics backend
 
