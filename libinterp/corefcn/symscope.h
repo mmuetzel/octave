@@ -56,21 +56,21 @@ namespace octave
   public:
 
     typedef std::map<std::string, symbol_record>::const_iterator
-    table_const_iterator;
+      table_const_iterator;
     typedef std::map<std::string, symbol_record>::iterator
-    table_iterator;
+      table_iterator;
 
     typedef std::map<std::string, octave_value>::const_iterator
-    subfunctions_const_iterator;
+      subfunctions_const_iterator;
     typedef std::map<std::string, octave_value>::iterator
-    subfunctions_iterator;
+      subfunctions_iterator;
 
     symbol_scope_rep (const std::string& name = "")
-      : m_name (name), m_symbols (), m_subfunctions (), m_persistent_values (),
-        m_code (nullptr), m_fcn_name (), m_parent_fcn_names (),
-        m_fcn_file_name (), m_dir_name (), m_parent (), m_primary_parent (),
-        m_children (), m_nesting_depth (0), m_is_static (false),
-        m_is_primary_fcn_scope (false)
+      : m_name (name), m_symbols (), m_subfunctions (),
+        m_persistent_values (), m_code (nullptr), m_fcn_name (),
+        m_fcn_file_name (), m_dir_name (), m_parent (),
+        m_primary_parent (), m_children (), m_nesting_depth (0),
+        m_is_static (false), m_is_primary_fcn_scope (false)
     {
       // All scopes have ans as the first symbol, initially undefined.
 
@@ -128,7 +128,6 @@ namespace octave
       new_sid->m_subfunction_names = m_subfunction_names;
       new_sid->m_code = m_code;
       new_sid->m_fcn_name = m_fcn_name;
-      new_sid->m_parent_fcn_names = m_parent_fcn_names;
       new_sid->m_fcn_file_name = m_fcn_file_name;
       new_sid->m_dir_name = m_dir_name;
       new_sid->m_parent = m_parent;
@@ -257,17 +256,9 @@ namespace octave
 
     void cache_fcn_name (const std::string& name) { m_fcn_name = name; }
 
-    std::list<std::string> parent_fcn_names (void) const
-    {
-      return m_parent_fcn_names;
-    }
+    std::list<std::string> parent_fcn_names (void) const;
 
-    void cache_parent_fcn_names (const std::list<std::string>& names)
-    {
-      m_parent_fcn_names = names;
-    }
-
-    octave_user_code *user_code (void) const { return m_code; }
+    octave_user_code * user_code (void) const { return m_code; }
 
     void set_user_code (octave_user_code *code) { m_code = code; }
 
@@ -291,6 +282,11 @@ namespace octave
     bool is_primary_fcn_scope (void) const { return m_is_primary_fcn_scope; }
 
     bool is_relative (const std::shared_ptr<symbol_scope_rep>& scope) const;
+
+    void mark_as_variable (const std::string& nm);
+    void mark_as_variables (const std::list<std::string>& lst);
+
+    bool is_variable (const std::string& nm) const;
 
     void update_nest (void);
 
@@ -341,10 +337,6 @@ namespace octave
     //! Simple name of the function corresponding to this scope.
 
     std::string m_fcn_name;
-
-    //! List Simple names of the parent functions corresponding to this scope.
-
-    std::list<std::string> m_parent_fcn_names;
 
     //! The file name associated with m_code.
 
@@ -603,12 +595,6 @@ namespace octave
       return m_rep ? m_rep->parent_fcn_names () : std::list<std::string> ();
     }
 
-    void cache_parent_fcn_names (const std::list<std::string>& names)
-    {
-      if (m_rep)
-        m_rep->cache_parent_fcn_names (names);
-    }
-
     octave_user_code * user_code (void) const
     {
       return m_rep ? m_rep->user_code () : nullptr;
@@ -668,6 +654,23 @@ namespace octave
     bool is_relative (const symbol_scope& scope) const
     {
       return m_rep ? m_rep->is_relative (scope.get_rep ()) : false;
+    }
+
+    void mark_as_variable (const std::string& nm)
+    {
+      if (m_rep)
+        m_rep->mark_as_variable (nm);
+    }
+
+    void mark_as_variables (const std::list<std::string>& lst)
+    {
+      if (m_rep)
+        m_rep->mark_as_variables (lst);
+    }
+
+    bool is_variable (const std::string& nm) const
+    {
+      return m_rep ? m_rep->is_variable (nm) : false;
     }
 
     void update_nest (void)

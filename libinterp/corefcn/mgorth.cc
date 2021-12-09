@@ -32,6 +32,8 @@
 #include "error.h"
 #include "errwarn.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 template <typename ColumnVector, typename Matrix, typename RowVector>
 static void
 do_mgorth (ColumnVector& x, const Matrix& V, RowVector& h)
@@ -41,7 +43,8 @@ do_mgorth (ColumnVector& x, const Matrix& V, RowVector& h)
   for (octave_idx_type j = 0; j < Vc; j++)
     {
       ColumnVector Vcj = V.column (j);
-      h(j) = RowVector (Vcj.hermitian ()) * x;
+      RowVector Vcjh = Vcj.hermitian ();
+      h(j) = Vcjh * x;
       x -= h(j) * Vcj;
     }
 
@@ -143,3 +146,5 @@ On exit, @var{y} is a unit vector such that:
 %! endfor
 %! assert (a' * a, eye (5), 1e10);
 */
+
+OCTAVE_NAMESPACE_END

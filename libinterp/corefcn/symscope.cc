@@ -196,6 +196,23 @@ namespace octave
       }
   }
 
+  std::list<std::string>
+  symbol_scope_rep::parent_fcn_names (void) const
+  {
+    std::list<std::string> retval;
+
+    auto pscope = parent_scope_rep ();
+
+    while (pscope)
+      {
+        retval.push_back (pscope->fcn_name ());
+
+        pscope = pscope->parent_scope_rep ();
+      }
+
+    return retval;
+  }
+
   void
   symbol_scope_rep::set_parent (const std::shared_ptr<symbol_scope_rep>& parent)
   {
@@ -253,6 +270,39 @@ namespace octave
     return false;
   }
 
+  void symbol_scope_rep::mark_as_variable (const std::string& nm)
+  {
+    table_iterator p = m_symbols.find (nm);
+
+    if (p != m_symbols.end ())
+      p->second.mark_as_variable ();
+  }
+
+  void symbol_scope_rep::mark_as_variables (const std::list<std::string>& lst)
+  {
+    for (const auto& nm : lst)
+      mark_as_variable (nm);
+  }
+
+  bool symbol_scope_rep::is_variable (const std::string& nm) const
+  {
+    table_const_iterator p = m_symbols.find (nm);
+
+    // FIXME: maybe we should also mark formal parameters as variables?
+
+    if (p != m_symbols.end () && p->second.is_variable ())
+      return true;
+
+    if (is_nested ())
+      {
+        auto t_parent = m_parent.lock ();
+
+        return t_parent ? t_parent->is_variable (nm) : false;
+      }
+
+    return false;
+  }
+
   void symbol_scope_rep::update_nest (void)
   {
     auto t_parent = m_parent.lock ();
@@ -280,18 +330,13 @@ namespace octave
         m_is_static = true;
       }
 
-    std::list<std::string> plst = parent_fcn_names ();
-    plst.push_front (m_fcn_name);
-
     for (auto& scope_obj : m_children)
-      {
-        scope_obj.cache_parent_fcn_names (plst);
-        scope_obj.update_nest ();
-      }
+      scope_obj.update_nest ();
   }
 
   bool symbol_scope_rep::look_nonlocal (const std::string& name,
-                                        std::size_t offset, symbol_record& result)
+                                        std::size_t offset,
+                                        symbol_record& result)
   {
     offset++;
 

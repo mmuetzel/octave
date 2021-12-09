@@ -52,17 +52,17 @@ octave_cell : public octave_base_matrix<Cell>
 public:
 
   octave_cell (void)
-    : octave_base_matrix<Cell> (), cellstr_cache () { }
+    : octave_base_matrix<Cell> (), m_cellstr_cache () { }
 
   octave_cell (const Cell& c)
-    : octave_base_matrix<Cell> (c), cellstr_cache () { }
+    : octave_base_matrix<Cell> (c), m_cellstr_cache () { }
 
   octave_cell (const Array<std::string>& str)
     : octave_base_matrix<Cell> (Cell (str)),
-      cellstr_cache (new Array<std::string> (str)) { }
+      m_cellstr_cache (new Array<std::string> (str)) { }
 
   octave_cell (const octave_cell& c)
-    : octave_base_matrix<Cell> (c), cellstr_cache () { }
+    : octave_base_matrix<Cell> (c), m_cellstr_cache () { }
 
   ~octave_cell (void) = default;
 
@@ -111,7 +111,7 @@ public:
 
   octave_value sort (octave_idx_type dim = 0, sortmode mode = ASCENDING) const;
 
-  octave_value sort (Array<octave_idx_type> &sidx, octave_idx_type dim = 0,
+  octave_value sort (Array<octave_idx_type>& sidx, octave_idx_type dim = 0,
                      sortmode mode = ASCENDING) const;
 
   sortmode issorted (sortmode mode = UNSORTED) const;
@@ -176,16 +176,18 @@ public:
 
   mxArray * as_mxArray (bool interleaved) const;
 
-  // Unsafe.  This function exists to support the MEX interface.
+  // This function exists to support the MEX interface.
   // You should not use it anywhere else.
-  void * mex_get_data (void) const;
+  const void * mex_get_data (void) const;
 
 private:
 
   void clear_cellstr_cache (void) const
-  { cellstr_cache.reset (); }
+  { m_cellstr_cache.reset (); }
 
-  mutable std::unique_ptr<Array<std::string>> cellstr_cache;
+  //--------
+
+  mutable std::unique_ptr<Array<std::string>> m_cellstr_cache;
 
   DECLARE_OV_TYPEID_FUNCTIONS_AND_DATA
 };

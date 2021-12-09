@@ -72,6 +72,8 @@ Written by Michael Weitzel <michael.weitzel@@uni-siegen.de>
 #include "ov.h"
 #include "ovl.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 // A node struct for the Cuthill-McKee algorithm
 struct CMK_Node
 {
@@ -99,7 +101,7 @@ Q_enq (CMK_Node *Q, octave_idx_type N, octave_idx_type& qt, const CMK_Node& o)
 // Dequeue operation (removes a node from the head)
 
 inline static CMK_Node
-Q_deq (CMK_Node * Q, octave_idx_type N, octave_idx_type& qh)
+Q_deq (CMK_Node *Q, octave_idx_type N, octave_idx_type& qh)
 {
   CMK_Node r = Q[qh];
   qh = (qh + 1) % (N + 1);
@@ -703,3 +705,5 @@ Mathematics, ISBN 0-13-165274-5, 1981.
   // increment all indices, since Octave is not C
   return ovl (P+1);
 }
+
+OCTAVE_NAMESPACE_END

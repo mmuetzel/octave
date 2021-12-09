@@ -201,7 +201,7 @@ namespace octave
         if ((me->type () == QEvent::MouseButtonDblClick
              && me->button() == Qt::LeftButton)
             || (me->type () != QEvent::MouseButtonDblClick
-                && me->button() == Qt::MidButton))
+                && me->button() == Qt::MiddleButton))
           {
             // Middle click or double click -> close the tab
             // Make the clicked tab the current one and close it
@@ -229,7 +229,7 @@ namespace octave
             for (int i = count () - 1; i >= 0; i--)
               {
                 // Prepend an action for each tab
-                QAction* a = new QAction (tabIcon (i), tabText (i), &ctx_menu);
+                QAction *a = new QAction (tabIcon (i), tabText (i), &ctx_menu);
                 m_ctx_actions.prepend (a);
               }
             // Add all actions to our menu

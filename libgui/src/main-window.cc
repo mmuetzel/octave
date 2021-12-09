@@ -46,9 +46,7 @@
 #include <QMessageBox>
 #include <QStyle>
 #include <QStyleFactory>
-#include <QStyleFactory>
 #include <QTextBrowser>
-#include <QTextCodec>
 #include <QTextStream>
 #include <QThread>
 #include <QTimer>
@@ -78,23 +76,16 @@
 #include "shortcut-manager.h"
 #include "welcome-wizard.h"
 
-#include "Array.h"
 #include "cmd-edit.h"
 #include "oct-env.h"
 #include "url-transfer.h"
 
 #include "builtin-defun-decls.h"
 #include "defaults.h"
-#include "defun.h"
-#include "interpreter-private.h"
 #include "interpreter.h"
 #include "load-path.h"
-#include "oct-map.h"
-#include "octave.h"
-#include "parse.h"
-#include "syminfo.h"
-#include "symscope.h"
 #include "utils.h"
+#include "syminfo.h"
 #include "version.h"
 
 namespace octave
@@ -110,7 +101,6 @@ namespace octave
       m_external_editor (new external_editor_interface (this, m_octave_qobj)),
       m_active_editor (m_external_editor), m_settings_dlg (nullptr),
       m_find_files_dlg (nullptr), m_set_path_dlg (nullptr),
-      m_release_notes_window (nullptr), m_community_news_window (nullptr),
       m_clipboard (QApplication::clipboard ()),
       m_prevent_readline_conflicts (true),
       m_prevent_readline_conflicts_menu (false),
@@ -140,6 +130,8 @@ namespace octave
         // After settings.
         m_octave_qobj.config_translators ();
       }
+
+    setObjectName (gui_obj_name_main_window);
 
     rmgr.update_network_settings ();
 
@@ -201,7 +193,7 @@ namespace octave
 
     if (connect_to_web
         && (! last_checked.isValid () || one_day_ago > last_checked))
-      load_and_display_community_news (serial);
+      emit show_community_news_signal (serial);
 
     construct_octave_qt_link ();
 
@@ -219,15 +211,7 @@ namespace octave
     focus_command_window ();
   }
 
-  main_window::~main_window (void)
-  {
-    // These must be explicitly deleted because they are not
-    // intentionally not children of main_window.  See the comments in
-    // the functions where they are constructed.
-
-    delete m_release_notes_window;
-    delete m_community_news_window;
-  }
+  main_window::~main_window (void) { }
 
   void main_window::adopt_dock_widgets (void)
   {
@@ -355,6 +339,10 @@ namespace octave
 
   void main_window::adopt_editor_widget (void)
   {
+    interpreter_qobject *interp_qobj = m_octave_qobj.interpreter_qobj ();
+
+    qt_interpreter_events *qt_link = interp_qobj->qt_link ();
+
 #if defined (HAVE_QSCINTILLA)
     file_editor *editor = new file_editor (this, m_octave_qobj);
 
@@ -419,10 +407,6 @@ namespace octave
 
     connect (m_file_browser_window, &files_dock_widget::file_renamed_signal,
              editor, &file_editor::handle_file_renamed);
-
-    interpreter_qobject *interp_qobj = m_octave_qobj.interpreter_qobj ();
-
-    qt_interpreter_events *qt_link = interp_qobj->qt_link ();
 
     // Signals for removing/renaming files/dirs in the terminal window
     connect (qt_link, &qt_interpreter_events::file_renamed_signal,
@@ -540,8 +524,8 @@ namespace octave
     // (when pressing <alt>), we can return immediately and reset the
     // focus to the previous widget
     if (! new_widget
-          || (new_widget == menuBar ())
-          || (new_widget == m_editor_menubar))
+        || (new_widget == menuBar ())
+        || (new_widget == m_editor_menubar))
       {
         if (m_active_dock)
           m_active_dock->setFocus ();
@@ -857,161 +841,6 @@ namespace octave
       (QUrl ("https://octave.org/doc/interpreter/index.html"));
   }
 
-  void main_window::display_release_notes (void)
-  {
-    if (! m_release_notes_window)
-      {
-        std::string news_file = config::oct_etc_dir () + "/NEWS";
-
-        QString news;
-
-        QFile *file = new QFile (QString::fromStdString (news_file));
-        if (file->open (QFile::ReadOnly))
-          {
-            QTextStream *stream = new QTextStream (file);
-            news = stream->readAll ();
-            if (! news.isEmpty ())
-              {
-                // Convert '<', '>' which would be interpreted as HTML
-                news.replace ("<", "&lt;");
-                news.replace (">", "&gt;");
-                // Add HTML tags for pre-formatted text
-                news.prepend ("<pre>");
-                news.append ("</pre>");
-              }
-            else
-              news = (tr ("The release notes file '%1' is empty.")
-                      . arg (QString::fromStdString (news_file)));
-          }
-        else
-          news = (tr ("The release notes file '%1' cannot be read.")
-                  . arg (QString::fromStdString (news_file)));
-
-        // We want the window manager to give the release notes window
-        // a title bar, so don't its parent to main_window.  Do remember
-        // to delete in the main_window destructor.
-
-        m_release_notes_window = new QWidget ();
-
-        QTextBrowser *browser = new QTextBrowser (m_release_notes_window);
-        browser->setText (news);
-
-        QVBoxLayout *vlayout = new QVBoxLayout;
-        vlayout->addWidget (browser);
-
-        m_release_notes_window->setLayout (vlayout);
-        m_release_notes_window->setWindowTitle (tr ("Octave Release Notes"));
-
-        browser->document ()->adjustSize ();
-
-        int win_x, win_y;
-        get_screen_geometry (&win_x, &win_y);
-
-        m_release_notes_window->resize (win_x*2/5, win_y*2/3);
-        m_release_notes_window->move (20, 20);  // move to the top left corner
-      }
-
-    if (! m_release_notes_window->isVisible ())
-      m_release_notes_window->show ();
-    else if (m_release_notes_window->isMinimized ())
-      m_release_notes_window->showNormal ();
-
-    m_release_notes_window->setWindowIcon (QIcon (m_release_notes_icon));
-
-    m_release_notes_window->raise ();
-    m_release_notes_window->activateWindow ();
-  }
-
-  void main_window::load_and_display_community_news (int serial)
-  {
-    resource_manager& rmgr = m_octave_qobj.get_resource_manager ();
-    gui_settings *settings = rmgr.get_settings ();
-
-    bool connect_to_web
-      = (settings
-         ? settings->value (nr_allow_connection).toBool ()
-         : true);
-
-    QString base_url = "https://octave.org";
-    QString page = "community-news.html";
-
-    QThread *worker_thread = new QThread;
-
-    news_reader *reader = new news_reader (m_octave_qobj, base_url, page,
-                                           serial, connect_to_web);
-
-    reader->moveToThread (worker_thread);
-
-    connect (reader, &news_reader::display_news_signal,
-             this, &main_window::display_community_news);
-
-    connect (worker_thread, &QThread::started,
-             reader, &news_reader::process);
-
-    connect (reader, &news_reader::finished, worker_thread, &QThread::quit);
-
-    connect (reader, &news_reader::finished, reader, &news_reader::deleteLater);
-
-    connect (worker_thread, &QThread::finished,
-             worker_thread, &QThread::deleteLater);
-
-    worker_thread->start ();
-  }
-
-  void main_window::display_community_news (const QString& news)
-  {
-    if (! m_community_news_window)
-      {
-        // We want the window manager to give the community news window
-        // a title bar, so don't its parent to main_window.  Do remember
-        // to delete in the main_window destructor.
-
-        m_community_news_window = new QWidget ();
-
-        QTextBrowser *browser = new QTextBrowser (m_community_news_window);
-
-        browser->setHtml (news);
-        browser->setObjectName ("OctaveNews");
-        browser->setOpenExternalLinks (true);
-
-        QVBoxLayout *vlayout = new QVBoxLayout;
-
-        vlayout->addWidget (browser);
-
-        m_community_news_window->setLayout (vlayout);
-        m_community_news_window->setWindowTitle (tr ("Octave Community News"));
-
-        int win_x, win_y;
-        get_screen_geometry (&win_x, &win_y);
-
-        m_community_news_window->resize (win_x/2, win_y/2);
-        m_community_news_window->move ((win_x - m_community_news_window->width ())/2,
-                                       (win_y - m_community_news_window->height ())/2);
-      }
-    else
-      {
-        // Window already exists, just update the browser contents
-        QTextBrowser *browser
-
-          = m_community_news_window->findChild<QTextBrowser *>("OctaveNews"
-                                                               , Qt::FindDirectChildrenOnly
-                                                              );
-        if (browser)
-          browser->setHtml (news);
-      }
-
-    if (! m_community_news_window->isVisible ())
-      m_community_news_window->show ();
-    else if (m_community_news_window->isMinimized ())
-      m_community_news_window->showNormal ();
-
-    // same icon as release notes
-    m_community_news_window->setWindowIcon (QIcon (m_release_notes_icon));
-
-    m_community_news_window->raise ();
-    m_community_news_window->activateWindow ();
-  }
-
   void main_window::open_bug_tracker_page (void)
   {
     QDesktopServices::openUrl (QUrl ("https://octave.org/bugs.html"));
@@ -1114,18 +943,13 @@ namespace octave
             widget->setWindowIcon (QIcon (icon));
           }
       }
-    if (dw_icon_set_names[icon_set_found].name != "NONE")
-      m_release_notes_icon = dw_icon_set_names[icon_set_found].path
-                             + "ReleaseWidget.png";
-    else
-      m_release_notes_icon = ":/actions/icons/logo.png";
 
     int size_idx = settings->value (global_icon_size).toInt ();
     size_idx = (size_idx > 0) - (size_idx < 0) + 1;  // Make valid index from 0 to 2
 
     QStyle *st = style ();
     int icon_size = st->pixelMetric (global_icon_sizes[size_idx]);
-    m_main_tool_bar->setIconSize (QSize (icon_size,icon_size));
+    m_main_tool_bar->setIconSize (QSize (icon_size, icon_size));
 
     if (settings->value (global_status_bar).toBool ())
       m_status_bar->show ();
@@ -2029,7 +1853,7 @@ namespace octave
 
   void main_window::disable_menu_shortcuts (bool disable)
   {
-    QHash<QMenu*, QStringList>::const_iterator i = m_hash_menu_text.constBegin ();
+    QHash<QMenu *, QStringList>::const_iterator i = m_hash_menu_text.constBegin ();
 
     while (i != m_hash_menu_text.constEnd ())
       {
@@ -2308,7 +2132,7 @@ namespace octave
 #if defined (HAVE_QSCINTILLA)
     // call the editor to add actions which should also be available in the
     // editor's menu and tool bar
-    QList<QAction*> shared_actions;
+    QList<QAction *> shared_actions;
     shared_actions << m_new_script_action
                    << m_new_function_action
                    << m_open_action
@@ -2330,8 +2154,8 @@ namespace octave
     resource_manager& rmgr = m_octave_qobj.get_resource_manager ();
 
     m_open_action = add_action (
-                    file_menu, rmgr.icon ("document-open"), tr ("Open..."),
-                    SLOT (request_open_file (void)), this);
+                      file_menu, rmgr.icon ("document-open"), tr ("Open..."),
+                      SLOT (request_open_file (void)), this);
     m_open_action->setToolTip (tr ("Open an existing file in editor"));
 
 #if defined (HAVE_QSCINTILLA)
@@ -2686,11 +2510,21 @@ namespace octave
   {
     QMenu *news_menu = m_add_menu (p, tr ("&News"));
 
-    m_release_notes_action = add_action (news_menu, QIcon (),
-                                         tr ("Release Notes"), SLOT (display_release_notes ()));
+    m_release_notes_action
+      = news_menu->addAction (QIcon (), tr ("Release Notes"),
+                              [=] () {
+                                emit show_release_notes_signal ();
+                              });
+    addAction (m_release_notes_action);
+    m_release_notes_action->setShortcutContext (Qt::ApplicationShortcut);
 
-    m_current_news_action = add_action (news_menu, QIcon (),
-                                        tr ("Community News"), SLOT (load_and_display_community_news ()));
+    m_current_news_action
+      = news_menu->addAction (QIcon (), tr ("Community News"),
+                              [=] () {
+                                emit show_community_news_signal (-1);
+                              });
+    addAction (m_current_news_action);
+    m_current_news_action->setShortcutContext (Qt::ApplicationShortcut);
   }
 
   void main_window::construct_tool_bar (void)
@@ -2866,13 +2700,12 @@ namespace octave
   }
 
   // Get size of screen where the main window is located
-  void main_window::get_screen_geometry (int *width, int *height)
+  void main_window::get_screen_geometry (int& width, int& height)
   {
-    QRect screen_geometry
-        = QApplication::desktop ()->availableGeometry (this);
+    QRect screen_geometry = QApplication::desktop ()->availableGeometry (this);
 
-    *width = screen_geometry.width ();
-    *height = screen_geometry.height ();
+    width = screen_geometry.width ();
+    height = screen_geometry.height ();
   }
 
   void main_window::resize_dock (QDockWidget *dw, int width, int height)
@@ -2880,9 +2713,9 @@ namespace octave
 #if defined (HAVE_QMAINWINDOW_RESIZEDOCKS)
     // resizeDockWidget was added to Qt in Qt 5.6
     if (width >= 0)
-      resizeDocks ({dw},{width},Qt::Horizontal);
+      resizeDocks ({dw}, {width}, Qt::Horizontal);
     if (height >= 0)
-      resizeDocks ({dw},{height},Qt::Vertical);
+      resizeDocks ({dw}, {height}, Qt::Vertical);
 #else
     // This replacement of resizeDockWidget is not very reliable.
     // But even if Qt4 is not yet
@@ -2900,7 +2733,7 @@ namespace octave
   void main_window::set_default_geometry ()
   {
     int win_x, win_y;
-    get_screen_geometry (&win_x, &win_y);
+    get_screen_geometry (win_x, win_y);
 
     move (0, 0);
     resize (2*win_x/3, 7*win_y/8);

@@ -46,7 +46,6 @@
 #include "ov.h"
 #include "pager.h"
 #include "pt-eval.h"
-#include "pt-jit.h"
 #include "pt-jump.h"
 #include "pt-misc.h"
 #include "pt-pr-code.h"
@@ -74,28 +73,28 @@ octave_user_code::~octave_user_code (void)
   m_scope.set_user_code (nullptr);
 
   // FIXME: shouldn't this happen automatically when deleting cmd_list?
-  if (cmd_list)
+  if (m_cmd_list)
     {
       octave::event_manager& evmgr
         = octave::__get_event_manager__ ("octave_user_code::~octave_user_code");
 
-      cmd_list->remove_all_breakpoints (evmgr, file_name);
+      m_cmd_list->remove_all_breakpoints (evmgr, m_file_name);
     }
 
-  delete cmd_list;
+  delete m_cmd_list;
   delete m_file_info;
 }
 
 void
 octave_user_code::get_file_info (void)
 {
-  m_file_info = new octave::file_info (file_name);
+  m_file_info = new octave::file_info (m_file_name);
 
-  octave::sys::file_stat fs (file_name);
+  octave::sys::file_stat fs (m_file_name);
 
   if (fs && (fs.mtime () > time_parsed ()))
     warning ("function file '%s' changed since it was parsed",
-             file_name.c_str ());
+             m_file_name.c_str ());
 }
 
 std::string
@@ -140,9 +139,9 @@ octave_user_code::dump (void) const
 {
   std::map<std::string, octave_value> m
     = {{ "scope_info", m_scope ? m_scope.dump () : "0x0" },
-       { "file_name", file_name },
-       { "time_parsed", t_parsed },
-       { "time_checked", t_checked }};
+       { "m_file_name", m_file_name },
+       { "time_parsed", m_t_parsed },
+       { "time_checked", m_t_checked }};
 
   return octave_value (m);
 }
@@ -164,8 +163,8 @@ octave_user_script::octave_user_script
    const std::string& ds)
   : octave_user_code (fnm, nm, scope, cmds, ds)
 {
-  if (cmd_list)
-    cmd_list->mark_as_script_body ();
+  if (m_cmd_list)
+    m_cmd_list->mark_as_script_body ();
 }
 
 octave_user_script::octave_user_script
@@ -219,17 +218,14 @@ octave_user_function::octave_user_function
     m_param_list (pl), m_ret_list (rl),
     m_lead_comm (), m_trail_comm (),
     m_location_line (0), m_location_column (0),
-    m_parent_name (), m_system_fcn_file (false),
+    m_system_fcn_file (false),
     m_num_named_args (m_param_list ? m_param_list->length () : 0),
     m_subfunction (false), m_inline_function (false),
     m_anonymous_function (false), m_nested_function (false),
     m_class_constructor (none), m_class_method (none)
-#if defined (HAVE_LLVM)
-    , m_jit_info (0)
-#endif
 {
-  if (cmd_list)
-    cmd_list->mark_as_function_body ();
+  if (m_cmd_list)
+    m_cmd_list->mark_as_function_body ();
 }
 
 octave_user_function::~octave_user_function (void)
@@ -238,10 +234,6 @@ octave_user_function::~octave_user_function (void)
   delete m_ret_list;
   delete m_lead_comm;
   delete m_trail_comm;
-
-#if defined (HAVE_LLVM)
-  delete m_jit_info;
-#endif
 }
 
 octave_user_function *
@@ -263,22 +255,22 @@ octave_user_function::define_ret_list (octave::tree_parameter_list *t)
 void
 octave_user_function::maybe_relocate_end_internal (void)
 {
-  if (cmd_list && ! cmd_list->empty ())
+  if (m_cmd_list && ! m_cmd_list->empty ())
     {
-      octave::tree_statement *last_stmt = cmd_list->back ();
+      octave::tree_statement *last_stmt = m_cmd_list->back ();
 
       if (last_stmt && last_stmt->is_end_of_fcn_or_script ()
           && last_stmt->is_end_of_file ())
         {
           octave::tree_statement_list::reverse_iterator
-            next_to_last_elt = cmd_list->rbegin ();
+            next_to_last_elt = m_cmd_list->rbegin ();
 
           next_to_last_elt++;
 
           int new_eof_line;
           int new_eof_col;
 
-          if (next_to_last_elt == cmd_list->rend ())
+          if (next_to_last_elt == m_cmd_list->rend ())
             {
               new_eof_line = beginning_line ();
               new_eof_col = beginning_column ();
@@ -347,7 +339,7 @@ octave_user_function::profiler_name (void) const
 void
 octave_user_function::mark_as_system_fcn_file (void)
 {
-  if (! file_name.empty ())
+  if (! m_file_name.empty ())
     {
       // We really should stash the whole path to the file we found,
       // when we looked it up, to avoid possible race conditions...
@@ -358,7 +350,7 @@ octave_user_function::mark_as_system_fcn_file (void)
       // function file is parsed, it probably doesn't matter that
       // much.
 
-      std::string ff_name = octave::fcn_file_in_path (file_name);
+      std::string ff_name = octave::fcn_file_in_path (m_file_name);
 
       static const std::string canonical_fcn_file_dir
         = octave::sys::canonicalize_file_name
@@ -513,9 +505,9 @@ octave::tree_expression *
 octave_user_function::special_expr (void)
 {
   assert (is_special_expr ());
-  assert (cmd_list->length () == 1);
+  assert (m_cmd_list->length () == 1);
 
-  octave::tree_statement *stmt = cmd_list->front ();
+  octave::tree_statement *stmt = m_cmd_list->front ();
   return stmt->expression ();
 }
 
@@ -599,7 +591,6 @@ octave_user_function::dump (void) const
        { "col", m_location_column },
        { "end_line", m_end_location_line },
        { "end_col", m_end_location_column },
-       { "parent_name", m_parent_name },
        { "system_fcn_file", m_system_fcn_file },
        { "num_named_args", m_num_named_args },
        { "subfunction", m_subfunction },
@@ -657,6 +648,8 @@ octave_user_function::restore_warning_states (void)
     }
 }
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFMETHOD (nargin, interp, args, ,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {} nargin ()
@@ -703,7 +696,7 @@ Programming Note: @code{nargin} does not work on compiled functions
 
       if (func.is_string ())
         {
-          octave::symbol_table& symtab = interp.get_symbol_table ();
+          symbol_table& symtab = interp.get_symbol_table ();
 
           std::string name = func.string_value ();
           func = symtab.find_function (name);
@@ -727,7 +720,7 @@ Programming Note: @code{nargin} does not work on compiled functions
                  type.c_str ());
         }
 
-      octave::tree_parameter_list *m_param_list = fcn->parameter_list ();
+      tree_parameter_list *m_param_list = fcn->parameter_list ();
 
       retval = (m_param_list ? m_param_list->length () : 0);
       if (fcn->takes_varargs ())
@@ -735,9 +728,9 @@ Programming Note: @code{nargin} does not work on compiled functions
     }
   else
     {
-      octave::tree_evaluator& tw = interp.get_evaluator ();
+      tree_evaluator& tw = interp.get_evaluator ();
 
-      retval = tw.get_auto_fcn_var (octave::stack_frame::NARGIN);
+      retval = tw.get_auto_fcn_var (stack_frame::NARGIN);
 
       if (retval.is_undefined ())
         retval = 0;
@@ -746,7 +739,7 @@ Programming Note: @code{nargin} does not work on compiled functions
   return retval;
 }
 
-DEFMETHOD (nargout, interp,args, ,
+DEFMETHOD (nargout, interp, args, ,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {} nargout ()
 @deftypefnx {} {} nargout (@var{fcn})
@@ -814,7 +807,7 @@ returns -1 for all anonymous functions.
 
       if (func.is_string ())
         {
-          octave::symbol_table& symtab = interp.get_symbol_table ();
+          symbol_table& symtab = interp.get_symbol_table ();
 
           std::string name = func.string_value ();
           func = symtab.find_function (name);
@@ -849,7 +842,7 @@ returns -1 for all anonymous functions.
                  type.c_str ());
         }
 
-      octave::tree_parameter_list *m_ret_list = fcn->return_list ();
+      tree_parameter_list *m_ret_list = fcn->return_list ();
 
       retval = (m_ret_list ? m_ret_list->length () : 0);
 
@@ -861,9 +854,9 @@ returns -1 for all anonymous functions.
       if (interp.at_top_level ())
         error ("nargout: invalid call at top level");
 
-      octave::tree_evaluator& tw = interp.get_evaluator ();
+      tree_evaluator& tw = interp.get_evaluator ();
 
-      retval = tw.get_auto_fcn_var (octave::stack_frame::NARGOUT);
+      retval = tw.get_auto_fcn_var (stack_frame::NARGOUT);
 
       if (retval.is_undefined ())
         retval = 0;
@@ -889,7 +882,8 @@ The original variable value is restored when exiting the function.
 @seealso{subsasgn}
 @end deftypefn */)
 {
-  return SET_INTERNAL_VARIABLE (optimize_subsasgn_calls);
+  return set_internal_variable (Voptimize_subsasgn_calls, args, nargout,
+                                "optimize_subsasgn_calls");
 }
 
 static bool val_in_table (const Matrix& table, double val)
@@ -903,7 +897,7 @@ static bool val_in_table (const Matrix& table, double val)
 
 static bool isargout1 (int nargout, const Matrix& ignored, double k)
 {
-  if (k != octave::math::fix (k) || k <= 0)
+  if (k != math::fix (k) || k <= 0)
     error ("isargout: K must be a positive integer");
 
   return (k == 1 || k <= nargout) && ! val_in_table (ignored, k);
@@ -933,17 +927,17 @@ element-by-element and a logical array is returned.  At the top level,
   if (interp.at_top_level ())
     error ("isargout: invalid call at top level");
 
-  octave::tree_evaluator& tw = interp.get_evaluator ();
+  tree_evaluator& tw = interp.get_evaluator ();
 
   octave_value tmp;
 
   int nargout1 = 0;
-  tmp = tw.get_auto_fcn_var (octave::stack_frame::NARGOUT);
+  tmp = tw.get_auto_fcn_var (stack_frame::NARGOUT);
   if (tmp.is_defined ())
     nargout1 = tmp.int_value ();
 
   Matrix ignored;
-  tmp = tw.get_auto_fcn_var (octave::stack_frame::IGNORED);
+  tmp = tw.get_auto_fcn_var (stack_frame::IGNORED);
   if (tmp.is_defined ())
     ignored = tmp.matrix_value ();
 
@@ -1038,3 +1032,5 @@ element-by-element and a logical array is returned.  At the top level,
 %! [~, b] = try_isargout2 ({try_isargout, try_isargout}, rand);
 %! assert (b, {0, 1, {-1, -1}});
 */
+
+OCTAVE_NAMESPACE_END

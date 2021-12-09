@@ -141,7 +141,8 @@
 ## light ("Position", [1 1 5]);
 ## @end smallexample
 ##
-## @seealso{isonormals, isocolors, isocaps, smooth3, reducevolume, reducepatch, patch}
+## @seealso{isonormals, isocolors, isocaps, smooth3, reducevolume, reducepatch,
+## patch}
 ## @end deftypefn
 
 ## FIXME: Add support for string input argument "verbose"
@@ -225,6 +226,7 @@ function varargout = isosurface (varargin)
 endfunction
 
 function [x, y, z, v, isoval, colors, noshare, verbose] = __get_check_isosurface_args__ (nout, varargin)
+
   ## get arguments from input and check values
   x = y = z = [];
   v = [];
@@ -318,10 +320,10 @@ function [x, y, z, v, isoval, colors, noshare, verbose] = __get_check_isosurface
   endif
 
   if (isempty (x))
-    x = 1:size (v, 2);
+    x = 1:columns (v);
   endif
   if (isempty (y))
-    y = 1:size (v, 1);
+    y = 1:rows (v);
   endif
   if (isempty (z))
     z = 1:size (v, 3);

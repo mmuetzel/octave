@@ -111,7 +111,7 @@ public:
 
   octave_value sort (octave_idx_type, sortmode) const
   { return octave_value (scalar); }
-  octave_value sort (Array<octave_idx_type> &sidx, octave_idx_type,
+  octave_value sort (Array<octave_idx_type>& sidx, octave_idx_type,
                      sortmode) const
   {
     sidx.resize (dim_vector (1, 1));
@@ -157,9 +157,9 @@ public:
   edit_display (const float_display_format& fmt,
                 octave_idx_type i, octave_idx_type j) const;
 
-  // Unsafe.  This function exists to support the MEX interface.
+  // This function exists to support the MEX interface.
   // You should not use it anywhere else.
-  void * mex_get_data (void) const { return const_cast<ST *> (&scalar); }
+  const void * mex_get_data (void) const { return &scalar; }
 
   const ST& scalar_ref (void) const { return scalar; }
 

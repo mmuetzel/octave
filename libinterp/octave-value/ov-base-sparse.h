@@ -110,7 +110,56 @@ public:
   // can also cause some confusion.
   using octave_base_value::assign;
 
-  OCTINTERP_API void assign (const octave_value_list& idx, const T& rhs);
+  template <typename RHS_T>
+  OCTINTERP_API void assign (const octave_value_list& idx, const RHS_T& rhs)
+  {
+    octave_idx_type len = idx.length ();
+
+    // If we catch an indexing error in index_vector, we flag an error in
+    // index k.  Ensure it is the right value before each idx_vector call.
+    // Same variable as used in the for loop in the default case.
+
+    octave_idx_type k = 0;
+
+    try
+      {
+        switch (len)
+          {
+          case 1:
+            {
+              octave::idx_vector i = idx (0).index_vector ();
+
+              matrix.assign (i, rhs);
+
+              break;
+            }
+
+          case 2:
+            {
+              octave::idx_vector i = idx (0).index_vector ();
+
+              k = 1;
+              octave::idx_vector j = idx (1).index_vector ();
+
+              matrix.assign (i, j, rhs);
+
+              break;
+            }
+
+          default:
+            error ("sparse indexing needs 1 or 2 indices");
+          }
+      }
+    catch (octave::index_exception& ie)
+      {
+        // Rethrow to allow more info to be reported later.
+        ie.set_pos_if_unset (len, k+1);
+        throw;
+      }
+
+    // Invalidate matrix type.
+    typ.invalidate_type ();
+  }
 
   OCTINTERP_API void delete_elements (const octave_value_list& idx);
 
@@ -140,7 +189,7 @@ public:
 
   octave_value sort (octave_idx_type dim = 0, sortmode mode = ASCENDING) const
   { return octave_value (matrix.sort (dim, mode)); }
-  octave_value sort (Array<octave_idx_type> &sidx, octave_idx_type dim = 0,
+  octave_value sort (Array<octave_idx_type>& sidx, octave_idx_type dim = 0,
                      sortmode mode = ASCENDING) const
   { return octave_value (matrix.sort (sidx, dim, mode)); }
 
@@ -183,13 +232,13 @@ public:
   edit_display (const float_display_format& fmt,
                 octave_idx_type i, octave_idx_type j) const;
 
-  // Unsafe.  These functions exists to support the MEX interface.
+  // These functions exists to support the MEX interface.
   // You should not use them anywhere else.
-  void * mex_get_data (void) const { return matrix.mex_get_data (); }
+  const void * mex_get_data (void) const { return matrix.data (); }
 
-  octave_idx_type * mex_get_ir (void) const { return matrix.mex_get_ir (); }
+  const octave_idx_type * mex_get_ir (void) const { return matrix.ridx (); }
 
-  octave_idx_type * mex_get_jc (void) const { return matrix.mex_get_jc (); }
+  const octave_idx_type * mex_get_jc (void) const { return matrix.cidx (); }
 
   OCTINTERP_API octave_value fast_elem_extract (octave_idx_type n) const;
 

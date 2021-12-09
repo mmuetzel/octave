@@ -79,6 +79,9 @@
 %!assert ([ r ; uint32(z)          ], uint32 (expect))
 %!assert ([ r ; uint64(z)          ], uint64 (expect))
 
+
+
+
 ## Test corner cases of ranges (base and limit)
 
 %!shared r, rrev, rneg
@@ -483,10 +486,67 @@
 %!error <invalid types found in range> (1:1:{5})
 %!error <incompatible types found in range> (int8(1):int16(1):5)
 %!error <incompatible types found in range> (int8(1):1:int16(5))
+
 ## Tests with mixed integer/floating point values
 %!error <colon operator lower bound invalid> (1.5:uint8(1):5)
 %!error <colon operator lower bound invalid> (-1:uint8(1):5)
 %!error <colon operator increment invalid> (uint8(1):1.5:5)
-%!error <colon operator increment invalid> (uint8(1):-1:5)
+%!error <colon operator increment invalid> (uint8(1):-256:5)
 %!error <colon operator upper bound invalid> (uint8(1):1:5.5)
 %!error <colon operator upper bound invalid> (uint8(1):1:256)
+%!error <colon operator upper bound invalid> (uint8(1):-1:-6)
+
+## Extreme integer values.
+%!test <*61132>
+%! types = {"int8", "int16", "int32", "int64", ...
+%!          "uint8", "uint16", "uint32", "uint64"};
+%! for i = 1:numel (types)
+%!   cls = types{i};
+%!   lo = intmin (cls);
+%!   hi = intmax (cls);
+%!   n = 99;
+%!   rlo = lo:(lo+n);
+%!   rhi = (hi-n):hi;
+%!   assert (class (rlo), cls);
+%!   assert (class (rhi), cls);
+%!   assert (numel (rlo), n+1);
+%!   assert (numel (rhi), n+1);
+%! endfor
+
+## Test that ranges do not exceed limits for integer types
+
+## Ascending ranges, signed and unsigned
+%!test <*61300>
+%! types = {@int8, @int16, @int32, @int64, @uint8, @uint16, @uint32, @uint64};
+%! start = 0:5;
+%! finish = start + 6 * floor ((100 - start) / 6);
+%! for i_type = 1:numel (types)
+%!   for i_start = 1:numel(start)
+%!     assert ((types{i_type} (start(i_start)) : 6 : 100)([1,end]), ...
+%!             [types{i_type}(start(i_start)), types{i_type}(finish(i_start))]);
+%!   endfor
+%! endfor
+
+## Descending ranges, signed
+%!test <*61300>
+%! types = {@int8, @int16, @int32, @int64};
+%! start = 100:-1:95;
+%! finish = start - 6 * floor (start / 6);
+%! for i_type = 1:numel (types)
+%!   for i_start = 1:numel(start)
+%!     assert ((types{i_type} (start(i_start)) : -6 : 0)([1,end]), ...
+%!             [types{i_type}(start(i_start)), types{i_type}(finish(i_start))]);
+%!   endfor
+%! endfor
+
+## Descending ranges, unsigned
+%!test <*61132>
+%! types = {@uint8, @uint16, @uint32, @uint64};
+%! start = 100:-1:95;
+%! finish = start - 6 * floor (start / 6);
+%! for i_type = 1:numel (types)
+%!   for i_start = 1:numel(start)
+%!     assert ((types{i_type} (start(i_start)) : -6 : 0)([1,end]), ...
+%!             [types{i_type}(start(i_start)), types{i_type}(finish(i_start))]);
+%!   endfor
+%! endfor

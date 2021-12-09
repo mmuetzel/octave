@@ -30,47 +30,14 @@
 
 #include <iosfwd>
 
+#include "Array-fwd.h"
 #include "dMatrix.h"
 #include "dim-vector.h"
 #include "lo-error.h"
 #include "oct-sort.h"
 
-template <typename T> class Array;
-
 namespace octave
 {
-  // Helper class used solely for idx_vector.loop () function call
-
-  template <typename T>
-  class rangeidx_helper
-  {
-  public:
-
-    rangeidx_helper (T *array, T base, T increment, T final_value,
-                     octave_idx_type numel)
-      : m_array (array), m_base (base), m_increment (increment),
-        m_final (final_value),
-        m_nmax (numel-1)
-    { }
-
-    void operator () (octave_idx_type i)
-    {
-      if (i == 0)
-        // Required for proper NaN handling.
-        *m_array++ = m_nmax == 0 ? m_final : m_base;
-      else if (i < m_nmax)
-        *m_array++ = m_base + T (i) * m_increment;
-      else
-        *m_array++ = m_final;
-    }
-
-  private:
-
-    T *m_array, m_base, m_increment, m_final;
-    octave_idx_type m_nmax;
-
-  };
-
   template <typename T>
   class
   OCTAVE_API
@@ -79,7 +46,8 @@ namespace octave
   public:
 
     range (void)
-      : m_base (0), m_increment (0), m_limit (0), m_final (0), m_numel (0)
+      : m_base (0), m_increment (0), m_limit (0), m_final (0), m_numel (0),
+        m_reverse (false)
     { }
 
     // LIMIT is an upper limit and may be outside the range of actual
@@ -87,15 +55,17 @@ namespace octave
     // to attempt to capture limit in the set of values if it is "close"
     // to the value of base + a multiple of the increment.
 
-    range (const T& base, const T& increment, const T& limit)
+    range (const T& base, const T& increment, const T& limit,
+           bool reverse = false)
       : m_base (base), m_increment (increment), m_limit (limit),
-        m_final (), m_numel ()
+        m_final (), m_numel (), m_reverse (reverse)
     {
       init ();
     }
 
     range (const T& base, const T& limit)
-      : m_base (base), m_increment (1), m_limit (limit), m_final (), m_numel ()
+      : m_base (base), m_increment (1), m_limit (limit), m_final (), m_numel (),
+        m_reverse (false)
     {
       init ();
     }
@@ -111,44 +81,47 @@ namespace octave
     // FIXME: Is there a way to limit this to T == double?
 
     range (const T& base, const T& increment, const T& limit,
-           octave_idx_type numel)
+           octave_idx_type numel, bool reverse = false)
       : m_base (base), m_increment (increment), m_limit (limit),
-        m_final (limit), m_numel (numel)
+        m_final (limit), m_numel (numel), m_reverse (reverse)
     { }
 
     range (const T& base, const T& increment, const T& limit,
-           const T& final, octave_idx_type numel)
+           const T& final, octave_idx_type numel, bool reverse = false)
       : m_base (base), m_increment (increment), m_limit (limit),
-        m_final (final), m_numel (numel)
+        m_final (final), m_numel (numel), m_reverse (reverse)
     { }
 
     // We don't use a constructor for this because it will conflict with
     // range<T> (base, limit) when T is octave_idx_type.
 
-    static range<T> make_constant (const T& base, octave_idx_type numel)
+    static range<T> make_constant (const T& base, octave_idx_type numel,
+                                   bool reverse = false)
     {
       // We could just make this constructor public, but it allows
       // inconsistent ranges to be constructed.  And it is probably much
       // clearer to see "make_constant" instead of puzzling over the
       // purpose of this strange constructor form.
 
-      return range<T> (base, T (), base, numel);
+      return range<T> (base, T (), base, numel, reverse);
     }
 
     // We don't use a constructor for this because it will conflict with
     // range<T> (base, limit, increment) when T is octave_idx_type.
 
     static range<T> make_n_element_range (const T& base, const T& increment,
-                                          octave_idx_type numel)
+                                          octave_idx_type numel,
+                                          bool reverse = false)
     {
       // We could just make this constructor public, but it allows
       // inconsistent ranges to be constructed.  And it is probably much
       // clearer to see "make_constant" instead of puzzling over the
       // purpose of this strange constructor form.
 
-      T final_val = base + (numel - 1) * increment;
+      T final_val = (reverse ? base - (numel - 1) * increment
+                             : base + (numel - 1) * increment);
 
-      return range<T> (base, increment, final_val, numel);
+      return range<T> (base, increment, final_val, numel, reverse);
     }
 
     range (const range<T>&) = default;
@@ -160,20 +133,23 @@ namespace octave
     T base (void) const { return m_base; }
     T increment (void) const { return m_increment; }
     T limit (void) const { return m_limit; }
+    bool reverse (void) const { return m_reverse; }
 
     T final_value (void) const { return m_final; }
 
     T min (void) const
     {
       return (m_numel > 0
-              ? m_increment > T (0) ? base () : final_value ()
+              ? ((m_reverse ? m_increment > T (0)
+                            : m_increment > T (0)) ? base () : final_value ())
               : T (0));
     }
 
     T max (void) const
     {
       return (m_numel > 0
-              ? m_increment > T (0) ? final_value () : base ()
+              ? ((m_reverse ? m_increment < T (0)
+                            : m_increment > T (0)) ? final_value () : base ())
               : T (0));
     }
 
@@ -202,12 +178,14 @@ namespace octave
 
     sortmode issorted (sortmode mode = ASCENDING) const
     {
-      if (m_numel > 1 && m_increment > T (0))
-        mode = (mode == DESCENDING) ? UNSORTED : ASCENDING;
-      else if (m_numel > 1 && m_increment < T (0))
-        mode = (mode == ASCENDING) ? UNSORTED : DESCENDING;
+      if (m_numel > 1 && (m_reverse ? m_increment < T (0)
+                                    : m_increment > T (0)))
+        mode = ((mode == DESCENDING) ? UNSORTED : ASCENDING);
+      else if (m_numel > 1 && (m_reverse ? m_increment > T (0)
+                                         : m_increment < T (0)))
+        mode = ((mode == ASCENDING) ? UNSORTED : DESCENDING);
       else
-        mode = (mode == UNSORTED) ? ASCENDING : mode;
+        mode = ((mode == UNSORTED) ? ASCENDING : mode);
 
       return mode;
     }
@@ -223,9 +201,10 @@ namespace octave
 
       if (i == 0)
         // Required for proper NaN handling.
-        return m_numel == 1 ? final_value () : m_base;
+        return (m_numel == 1 ? final_value () : m_base);
       else if (i < m_numel - 1)
-        return m_base + T (i) * m_increment;
+        return (m_reverse ? m_base + T (i) * m_increment
+                          : m_base + T (i) * m_increment);
       else
         return final_value ();
     }
@@ -243,9 +222,10 @@ namespace octave
     {
       if (i == 0)
         // Required for proper NaN handling.
-        return m_numel == 1 ? final_value () : m_base;
+        return (m_numel == 1 ? final_value () : m_base);
       else if (i < m_numel - 1)
-        return m_base + T (i) * m_increment;
+        return (m_reverse ? m_base - T (i) * m_increment
+                          : m_base + T (i) * m_increment);
       else
         return final_value ();
     }
@@ -265,35 +245,46 @@ namespace octave
       return elem (i, j);
     }
 
-    Array<T> index (const idx_vector& i) const
+    Array<T> index (const idx_vector& idx) const
     {
       Array<T> retval;
 
       octave_idx_type n = m_numel;
 
-      if (i.is_colon ())
+      if (idx.is_colon ())
         {
           retval = array_value ().reshape (dim_vector (m_numel, 1));
         }
       else
         {
-          if (i.extent (n) != n)
-            err_index_out_of_range (1, 1, i.extent (n), n, dims ());
+          if (idx.extent (n) != n)
+            err_index_out_of_range (1, 1, idx.extent (n), n, dims ());
 
-          dim_vector rd = i.orig_dimensions ();
-          octave_idx_type il = i.length (n);
+          dim_vector idx_dims = idx.orig_dimensions ();
+          octave_idx_type idx_len = idx.length (n);
 
           // taken from Array.cc.
-          if (n != 1 && rd.isvector ())
-            rd = dim_vector (1, il);
+          if (n != 1 && idx_dims.isvector ())
+            idx_dims = dim_vector (1, idx_len);
 
-          retval.clear (rd);
+          retval.clear (idx_dims);
 
-          // idx_vector loop across all values in i,
-          // executing __rangeidx_helper (i) for each i
-          i.loop (n, rangeidx_helper<T> (retval.fortran_vec (),
-                                         m_base, m_increment, final_value (),
-                                         m_numel));
+          // Loop over all values in IDX, executing the lambda
+          // expression for each index value.
+
+          T *array = retval.fortran_vec ();
+
+          idx.loop (n, [=, &array] (octave_idx_type i)
+          {
+            if (i == 0)
+              // Required for proper NaN handling.
+              *array++ = (m_numel == 0 ? m_final : m_base);
+            else if (i < m_numel - 1)
+              *array++ = (m_reverse ? m_base - T (i) * m_increment
+                                    : m_base + T (i) * m_increment);
+            else
+              *array++ = m_final;
+          });
         }
 
       return retval;
@@ -319,8 +310,12 @@ namespace octave
           // E.g, -0 would otherwise become +0 in the loop (-0 + 0*increment).
           retval(0) = m_base;
 
-          for (octave_idx_type i = 1; i < nel - 1; i++)
-            retval.xelem (i) = m_base + i * m_increment;
+          if (m_reverse)
+            for (octave_idx_type i = 1; i < nel - 1; i++)
+              retval.xelem (i) = m_base - i * m_increment;
+          else
+            for (octave_idx_type i = 1; i < nel - 1; i++)
+              retval.xelem (i) = m_base + i * m_increment;
 
           retval.xelem (nel - 1) = final_value ();
         }
@@ -335,6 +330,7 @@ namespace octave
     T m_limit;
     T m_final;
     octave_idx_type m_numel;
+    bool m_reverse;
 
     // Setting the number of elements to zero when the increment is zero
     // is intentional and matches the behavior of Matlab's colon
@@ -345,13 +341,26 @@ namespace octave
 
     void init (void)
     {
-      m_numel = ((m_increment == T (0)
-                  || (m_limit > m_base && m_increment < T (0))
-                  || (m_limit < m_base && m_increment > T (0)))
-                 ? T (0)
-                 : (m_limit - m_base + m_increment) / m_increment);
+      if (m_reverse)
+        {
+          m_numel = ((m_increment == T (0)
+                      || (m_limit > m_base && m_increment > T (0))
+                      || (m_limit < m_base && m_increment < T (0)))
+                     ? T (0)
+                     : (m_base - m_limit - m_increment) / m_increment);
 
-      m_final = m_base + (m_numel - 1) * m_increment;
+          m_final = m_base - (m_numel - 1) * m_increment;
+        }
+      else
+        {
+          m_numel = ((m_increment == T (0)
+                      || (m_limit > m_base && m_increment < T (0))
+                      || (m_limit < m_base && m_increment > T (0)))
+                     ? T (0)
+                     : (m_limit - m_base + m_increment) / m_increment);
+
+          m_final = m_base + (m_numel - 1) * m_increment;
+        }
     }
   };
 
@@ -362,6 +371,14 @@ namespace octave
 
   template <> OCTAVE_API void range<double>::init (void);
   template <> OCTAVE_API void range<float>::init (void);
+  template <> OCTAVE_API void range<octave_int8>::init (void);
+  template <> OCTAVE_API void range<octave_int16>::init (void);
+  template <> OCTAVE_API void range<octave_int32>::init (void);
+  template <> OCTAVE_API void range<octave_int64>::init (void);
+  template <> OCTAVE_API void range<octave_uint8>::init (void);
+  template <> OCTAVE_API void range<octave_uint16>::init (void);
+  template <> OCTAVE_API void range<octave_uint32>::init (void);
+  template <> OCTAVE_API void range<octave_uint64>::init (void);
 
   template <> OCTAVE_API bool range<double>::is_storable (void) const;
   template <> OCTAVE_API bool range<float>::is_storable (void) const;
@@ -375,6 +392,7 @@ Range
 {
 public:
 
+#if defined (OCTAVE_PROVIDE_DEPRECATED_SYMBOLS)
   OCTAVE_DEPRECATED (7, "use the 'octave::range<double>' class instead")
   Range (void)
     : m_base (0), m_limit (0), m_inc (0), m_numel (0)
@@ -390,6 +408,7 @@ public:
     : m_base (r.base ()), m_limit (r.final_value ()), m_inc (r.increment ()),
       m_numel (r.numel ())
   { }
+#endif
 
   Range (const Range& r) = default;
 
@@ -397,6 +416,7 @@ public:
 
   ~Range (void) = default;
 
+#if defined (OCTAVE_PROVIDE_DEPRECATED_SYMBOLS)
   OCTAVE_DEPRECATED (7, "use the 'octave::range<double>' class instead")
   Range (double b, double l)
     : m_base (b), m_limit (l), m_inc (1), m_numel (numel_internal ())
@@ -426,6 +446,7 @@ public:
     if (! octave::math::isinf (m_limit))
       m_limit = limit_internal ();
   }
+#endif
 
   // The range has a finite number of elements.
   bool ok (void) const
@@ -537,6 +558,7 @@ protected:
   { }
 };
 
+#if defined (OCTAVE_PROVIDE_DEPRECATED_SYMBOLS)
 OCTAVE_DEPRECATED (7, "arithmetic operations on Range objects are unreliable")
 extern OCTAVE_API Range operator - (const Range& r);
 
@@ -557,5 +579,6 @@ extern OCTAVE_API Range operator * (double x, const Range& r);
 
 OCTAVE_DEPRECATED (7, "arithmetic operations on Range objects are unreliable")
 extern OCTAVE_API Range operator * (const Range& r, double x);
+#endif
 
 #endif

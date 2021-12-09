@@ -45,6 +45,8 @@
 #include "ov-cx-sparse.h"
 #include "sparse-xpow.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 static inline int
 xisint (double x)
 {
@@ -265,7 +267,7 @@ elem_xpow (double a, const SparseMatrix& b)
           for (octave_idx_type i = 0; i < nr; i++)
             {
               octave_quit ();
-              result(i, j) = std::pow (atmp, b(i,j));
+              result(i, j) = std::pow (atmp, b(i, j));
             }
         }
 
@@ -280,7 +282,7 @@ elem_xpow (double a, const SparseMatrix& b)
           for (octave_idx_type i = 0; i < nr; i++)
             {
               octave_quit ();
-              result(i, j) = std::pow (a, b(i,j));
+              result(i, j) = std::pow (a, b(i, j));
             }
         }
 
@@ -305,7 +307,7 @@ elem_xpow (double a, const SparseComplexMatrix& b)
       for (octave_idx_type i = 0; i < nr; i++)
         {
           octave_quit ();
-          result(i, j) = std::pow (atmp, b(i,j));
+          result(i, j) = std::pow (atmp, b(i, j));
         }
     }
 
@@ -743,3 +745,5 @@ elem_xpow (const SparseComplexMatrix& a, const SparseComplexMatrix& b)
 
   return result;
 }
+
+OCTAVE_NAMESPACE_END

@@ -34,6 +34,8 @@
 #include "errwarn.h"
 #include "ovl.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 // Find at most N_TO_FIND nonzero elements in NDA.  Search forward if
 // DIRECTION is 1, backward if it is -1.  NARGOUT is the number of
 // output arguments.  If N_TO_FIND is -1, find all nonzero elements.
@@ -52,13 +54,14 @@ find_nonzero_elem_idx (const Array<T>& nda, int nargout,
     idx = nda.find ();
 
   // The maximum element is always at the end.
-  octave_idx_type iext = (idx.isempty () ? 0 : idx.xelem (idx.numel () - 1) + 1);
+  octave_idx_type iext = (idx.isempty () ? 0
+                                         : idx.xelem (idx.numel () - 1) + 1);
 
   switch (nargout)
     {
     default:
     case 3:
-      retval(2) = Array<T> (nda.index (octave::idx_vector (idx)));
+      retval(2) = Array<T> (nda.index (idx_vector (idx)));
       OCTAVE_FALLTHROUGH;
 
     case 2:
@@ -72,13 +75,13 @@ find_nonzero_elem_idx (const Array<T>& nda, int nargout,
             idx.xelem (i) %= nr;
           }
         iext = -1;
-        retval(1) = octave::idx_vector (jdx, -1);
+        retval(1) = idx_vector (jdx, -1);
       }
       OCTAVE_FALLTHROUGH;
 
     case 1:
     case 0:
-      retval(0) = octave::idx_vector (idx, iext);
+      retval(0) = idx_vector (idx, iext);
       break;
     }
 
@@ -400,10 +403,10 @@ b = sparse (i, j, v, sz(1), sz(2));
     {
       double val = args(1).xscalar_value ("find: N must be an integer");
 
-      if (val < 0 || (! octave::math::isinf (val)
-                      && val != octave::math::fix (val)))
+      if (val < 0 || (! math::isinf (val)
+                      && val != math::fix (val)))
         error ("find: N must be a non-negative integer");
-      else if (! octave::math::isinf (val))
+      else if (! math::isinf (val))
         n_to_find = val;
     }
 
@@ -599,3 +602,5 @@ b = sparse (i, j, v, sz(1), sz(2));
 
 %!error find ()
 */
+
+OCTAVE_NAMESPACE_END

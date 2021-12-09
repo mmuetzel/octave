@@ -57,7 +57,7 @@
 #include "oct-string.h"
 #include "oct-strstrm.h"
 
-namespace QtHandles
+namespace octave
 {
 
   static const int AUTO_WIDTH = 75;
@@ -198,7 +198,7 @@ namespace QtHandles
     QString text;
     if (val.is_string ())
       {
-        text = QtHandles::Utils::fromStdString (val.string_value ());
+        text = octave::Utils::fromStdString (val.string_value ());
         flag = Qt::AlignLeft ;
       }
     else if (val.iscomplex ())
@@ -430,7 +430,7 @@ namespace QtHandles
     return retval;
   }
 
-  Table*
+  Table *
   Table::create (octave::base_qobject& oct_qobj, octave::interpreter& interp,
                  const graphics_object& go)
   {

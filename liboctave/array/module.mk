@@ -1,6 +1,7 @@
 ARRAY_INC = \
-  %reldir%/Array.h \
+  %reldir%/Array-fwd.h \
   %reldir%/Array-util.h \
+  %reldir%/Array.h \
   %reldir%/boolMatrix.h \
   %reldir%/boolNDArray.h \
   %reldir%/boolSparse.h \
@@ -43,6 +44,7 @@ ARRAY_INC = \
   %reldir%/MSparse.h \
   %reldir%/PermMatrix.h \
   %reldir%/Range.h \
+  %reldir%/Sparse-fwd.h \
   %reldir%/Sparse.h \
   %reldir%/uint16NDArray.h \
   %reldir%/uint32NDArray.h \

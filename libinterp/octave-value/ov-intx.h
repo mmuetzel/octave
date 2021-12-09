@@ -311,10 +311,6 @@ public:
              octave::mach_info::float_format flt_fmt) const
   { return os.write (matrix, block_size, output_type, skip, flt_fmt); }
 
-  // Unsafe.  This function exists to support the MEX interface.
-  // You should not use it anywhere else.
-  void * mex_get_data (void) const { return matrix.mex_get_data (); }
-
   mxArray * as_mxArray (bool interleaved) const
   {
     mxArray *retval = new mxArray (interleaved, OCTAVE_INT_MX_CLASS, dims (),
@@ -525,7 +521,7 @@ public:
   matrix_value (bool = false) const
   {
     Matrix retval (1, 1);
-    retval(0,0) = scalar.double_value ();
+    retval(0, 0) = scalar.double_value ();
     return retval;
   }
 
@@ -533,7 +529,7 @@ public:
   float_matrix_value (bool = false) const
   {
     FloatMatrix retval (1, 1);
-    retval(0,0) = scalar.float_value ();
+    retval(0, 0) = scalar.float_value ();
     return retval;
   }
 
@@ -541,7 +537,7 @@ public:
   complex_matrix_value (bool = false) const
   {
     ComplexMatrix retval (1, 1);
-    retval(0,0) = Complex (scalar.double_value ());
+    retval(0, 0) = Complex (scalar.double_value ());
     return retval;
   }
 
@@ -549,7 +545,7 @@ public:
   float_complex_matrix_value (bool = false) const
   {
     FloatComplexMatrix retval (1, 1);
-    retval(0,0) = FloatComplex (scalar.float_value ());
+    retval(0, 0) = FloatComplex (scalar.float_value ());
     return retval;
   }
 
@@ -634,10 +630,6 @@ public:
     return os.write (OCTAVE_VALUE_INT_NDARRAY_EXTRACTOR_FUNCTION (),
                      block_size, output_type, skip, flt_fmt);
   }
-
-  // Unsafe.  This function exists to support the MEX interface.
-  // You should not use it anywhere else.
-  void * mex_get_data (void) const { return scalar.mex_get_data (); }
 
   mxArray * as_mxArray (bool interleaved) const
   {

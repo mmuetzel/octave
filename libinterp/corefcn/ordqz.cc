@@ -53,6 +53,8 @@
 #endif
 
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFUN (ordqz, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {[@var{AR}, @var{BR}, @var{QR}, @var{ZR}] =} ordqz (@var{AA}, @var{BB}, @var{Q}, @var{Z}, @var{keyword})
@@ -115,7 +117,7 @@ selects the eigenvalues in the top left block of @var{AR} and @var{BR} in the
 following way:
 
 @table @asis
-@item @qcode{"S"}, @qcode{"udi"}
+@item @qcode{"S"}, @nospell{@qcode{"udi"}}
 small: leading block has all
 @tex
 $|\lambda| < 1$
@@ -124,7 +126,7 @@ $|\lambda| < 1$
 |@var{lambda}| < 1
 @end ifnottex
 
-@item @qcode{"B"}, @qcode{"udo"}
+@item @qcode{"B"}, @nospell{@qcode{"udo"}}
 big: leading block has all
 @tex
 $|\lambda| \geq 1$
@@ -133,11 +135,11 @@ $|\lambda| \geq 1$
 |@var{lambda}| @geq{} 1
 @end ifnottex
 
-@item @qcode{"-"}, @qcode{"lhp"}
+@item @qcode{"-"}, @nospell{@qcode{"lhp"}}
 negative real part: leading block has all eigenvalues in the open left
 half-plane
 
-@item @qcode{"+"}, @qcode{"rhp"}
+@item @qcode{"+"}, @nospell{@qcode{"rhp"}}
 non-negative real part: leading block has all eigenvalues in the closed right
 half-plane
 @end table
@@ -191,8 +193,8 @@ Note: The keywords are compatible with the ones from @code{qr}.
                    "ordqz: at most four output arguments possible");
 
   // Matrix A: check dimensions.
-  F77_INT nn = octave::to_f77_int (args(0).rows ());
-  F77_INT nc = octave::to_f77_int (args(0).columns ());
+  F77_INT nn = to_f77_int (args(0).rows ());
+  F77_INT nc = to_f77_int (args(0).columns ());
 
   if (args(0).isempty ())
     {
@@ -212,11 +214,11 @@ Note: The keywords are compatible with the ones from @code{qr}.
     aa = args(0).matrix_value ();
 
   // Extract argument 2 (bb, or cbb if complex).
-  F77_INT b_nr = octave::to_f77_int (args(1).rows ());
-  F77_INT b_nc = octave::to_f77_int (args(1).columns ());
+  F77_INT b_nr = to_f77_int (args(1).rows ());
+  F77_INT b_nc = to_f77_int (args(1).columns ());
 
   if (nn != b_nc || nn != b_nr)
-    err_nonconformant ();
+    ::err_nonconformant ();
 
   Matrix bb;
   ComplexMatrix cbb;
@@ -227,11 +229,11 @@ Note: The keywords are compatible with the ones from @code{qr}.
     bb = args(1).matrix_value ();
 
   // Extract argument 3 (qq, or cqq if complex).
-  F77_INT q_nr = octave::to_f77_int (args(2).rows ());
-  F77_INT q_nc = octave::to_f77_int (args(2).columns ());
+  F77_INT q_nr = to_f77_int (args(2).rows ());
+  F77_INT q_nc = to_f77_int (args(2).columns ());
 
   if (nn != q_nc || nn != q_nr)
-    err_nonconformant ();
+    ::err_nonconformant ();
 
   Matrix qq;
   ComplexMatrix cqq;
@@ -242,11 +244,11 @@ Note: The keywords are compatible with the ones from @code{qr}.
     qq = args(2).matrix_value ().transpose ();
 
   // Extract argument 4 (zz, or czz if complex).
-  F77_INT z_nr = octave::to_f77_int (args(3).rows ());
-  F77_INT z_nc = octave::to_f77_int (args(3).columns ());
+  F77_INT z_nr = to_f77_int (args(3).rows ());
+  F77_INT z_nc = to_f77_int (args(3).columns ());
 
   if (nn != z_nc || nn != z_nr)
-    err_nonconformant ();
+    ::err_nonconformant ();
 
   Matrix zz;
   ComplexMatrix czz;
@@ -287,7 +289,7 @@ Note: The keywords are compatible with the ones from @code{qr}.
 
       for (k = 0; k < nn-1; k++)
         {
-          if (caa(k+1,k) != 0.0)
+          if (caa(k+1, k) != 0.0)
             error_with_id ("Octave:ordqz:unsupported_AA",
                            "ordqz: quasi upper triangular matrices are not "
                            "allowed with complex data");
@@ -295,8 +297,8 @@ Note: The keywords are compatible with the ones from @code{qr}.
 
       for (k = 0; k < nn; k++)
         {
-          alpha(k) = caa(k,k);
-          beta(k)  = cbb(k,k);
+          alpha(k) = caa(k, k);
+          beta(k)  = cbb(k, k);
         }
 
       for (k = 0; k < nn; k++)
@@ -375,11 +377,11 @@ Note: The keywords are compatible with the ones from @code{qr}.
 #ifdef DEBUG
           octave_stdout << "ordqz: k = " << k  << " nn = " << nn << " \n";
 #endif
-          if ((k < nn-1 && aa(k+1,k) == 0.0) || k == nn-1)
+          if ((k < nn-1 && aa(k+1, k) == 0.0) || k == nn-1)
             {
-              alphar(k) = aa(k,k);
+              alphar(k) = aa(k, k);
               alphai(k) = 0.0;
-              beta(k)   = bb(k,k);
+              beta(k)   = bb(k, k);
               k++;
             }
           else
@@ -401,7 +403,7 @@ Note: The keywords are compatible with the ones from @code{qr}.
                          F77_CONST_CHAR_ARG2 (&comp_q, 1),
                          F77_CONST_CHAR_ARG2 (&comp_z, 1),
                          nl, ilo, ihi,
-                         &aa_vec[k+k*nn] , nn,
+                         &aa_vec[k+k*nn], nn,
                          &bb_vec[k+k*nn], nn,
                          ar, ai, b,
                          nullptr, nn,
@@ -676,3 +678,5 @@ Note: The keywords are compatible with the ones from @code{qr}.
 %! ordqz (AA, eye (2), eye (2), eye (2), "udi");
 
 */
+
+OCTAVE_NAMESPACE_END

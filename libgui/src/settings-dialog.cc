@@ -212,19 +212,19 @@ namespace octave
 
     // focus follows mouse
     cb_focus_follows_mouse->setChecked (
-        settings->value (dw_focus_follows_mouse).toBool ());
+      settings->value (dw_focus_follows_mouse).toBool ());
 
     // prompt on exit
     cb_prompt_to_exit->setChecked (
-        settings->value (global_prompt_to_exit.key, global_prompt_to_exit.def).toBool ());
+      settings->value (global_prompt_to_exit.key, global_prompt_to_exit.def).toBool ());
 
     // Main status bar
     cb_status_bar->setChecked (
-        settings->value (global_status_bar.key, global_status_bar.def).toBool ());
+      settings->value (global_status_bar.key, global_status_bar.def).toBool ());
 
     // Octave startup
     cb_restore_octave_dir->setChecked (
-        settings->value (global_restore_ov_dir.key, global_restore_ov_dir.def).toBool ());
+      settings->value (global_restore_ov_dir.key, global_restore_ov_dir.def).toBool ());
     le_octave_dir->setText (settings->value (global_ov_startup_dir.key,
                                              global_ov_startup_dir.def).toString ());
 
@@ -467,7 +467,7 @@ namespace octave
 
     editor_style_grid->addWidget (cb_color_mode, 0, 0);
     editor_style_grid->addWidget (pb_reload_default_colors, 0, 1);
-    editor_style_grid->addItem (new QSpacerItem (5,5,QSizePolicy::Expanding), 0, 2);
+    editor_style_grid->addItem (new QSpacerItem (5, 5, QSizePolicy::Expanding), 0, 2);
 
 
 
@@ -493,7 +493,7 @@ namespace octave
     if (settings->contains (sd_geometry.key))
       restoreGeometry (settings->value (sd_geometry).toByteArray ());
     else
-      setGeometry (QRect (10,50,1000,600));
+      setGeometry (QRect (10, 50, 1000, 600));
   }
 
   void settings_dialog::show_tab (const QString& tab)
@@ -507,7 +507,7 @@ namespace octave
       }
     else
       {
-        QHash <QString, QWidget*> tab_hash;
+        QHash <QString, QWidget *> tab_hash;
         tab_hash["editor"] = tab_editor;
         tab_hash["editor_styles"] = tab_editor;
         tabWidget->setCurrentIndex (tabWidget->indexOf (tab_hash.value (tab)));
@@ -625,6 +625,7 @@ namespace octave
   void settings_dialog::update_editor_lexers (int def)
   {
 #if defined (HAVE_QSCINTILLA)
+
     QCheckBox *cb_color_mode
       = group_box_editor_styles->findChild <QCheckBox *> (ed_color_mode.key);
 
@@ -639,15 +640,15 @@ namespace octave
     resource_manager& rmgr = m_octave_qobj.get_resource_manager ();
     gui_settings *settings = rmgr.get_settings ();
 
-#if defined (HAVE_LEXER_OCTAVE)
+#  if defined (HAVE_LEXER_OCTAVE)
     lexer = new QsciLexerOctave ();
     update_lexer (lexer, settings, m, def);
     delete lexer;
-#elif defined (HAVE_LEXER_MATLAB)
+#  elif defined (HAVE_LEXER_MATLAB)
     lexer = new QsciLexerMatlab ();
     update_lexer (lexer, settings, m, def);
     delete lexer;
-#endif
+#  endif
 
     lexer = new QsciLexerCPP ();
     update_lexer (lexer, settings, m, def);
@@ -676,6 +677,11 @@ namespace octave
     lexer = new octave_txt_lexer ();
     update_lexer (lexer, settings, m, def);
     delete lexer;
+
+#else
+
+    octave_unused_parameter (def);
+
 #endif
   }
 
@@ -785,7 +791,7 @@ namespace octave
   }
 
   void settings_dialog::get_lexer_settings (QsciLexer *lexer,
-                                             gui_settings *settings)
+                                            gui_settings *settings)
   {
     resource_manager& rmgr = m_octave_qobj.get_resource_manager ();
 
@@ -793,12 +799,12 @@ namespace octave
     // (enum is not continuous)
     int max_style = rmgr.get_valid_lexer_styles (lexer, styles);
     QGridLayout *style_grid = new QGridLayout ();
-    QVector<QLabel*> description (max_style);
-    QVector<QFontComboBox*> select_font (max_style);
-    QVector<QSpinBox*> font_size (max_style);
-    QVector<QCheckBox*> attrib_font (3 * max_style);
-    QVector<color_picker*> color (max_style);
-    QVector<color_picker*> bg_color (max_style);
+    QVector<QLabel *> description (max_style);
+    QVector<QFontComboBox *> select_font (max_style);
+    QVector<QSpinBox *> font_size (max_style);
+    QVector<QCheckBox *> attrib_font (3 * max_style);
+    QVector<color_picker *> color (max_style);
+    QVector<color_picker *> bg_color (max_style);
     int default_size = 10;
     QFont default_font = QFont ();
     int label_width;
@@ -966,7 +972,7 @@ namespace octave
           }
       }
 
-    const std::string group = 
+    const std::string group =
       QString ("Scintilla" + settings_color_modes_ext[mode]).toStdString ();
 
     lexer->writeSettings (*settings, group.c_str ());
@@ -1216,8 +1222,8 @@ namespace octave
   {
     // Construct the grid with all color related settings
     QGridLayout *style_grid = new QGridLayout ();
-    QVector<QLabel*> description (ws_colors_count);
-    QVector<color_picker*> color (ws_colors_count);
+    QVector<QLabel *> description (ws_colors_count);
+    QVector<color_picker *> color (ws_colors_count);
 
     int column = 0;
     const int color_columns = 3;  // place colors in so many columns
@@ -1356,8 +1362,8 @@ namespace octave
   void settings_dialog::read_terminal_colors (gui_settings *settings)
   {
     QGridLayout *style_grid = new QGridLayout ();
-    QVector<QLabel*> description (cs_colors_count);
-    QVector<color_picker*> color (cs_colors_count);
+    QVector<QLabel *> description (cs_colors_count);
+    QVector<color_picker *> color (cs_colors_count);
 
     int mode = settings->value (cs_color_mode).toInt ();
 
@@ -1462,8 +1468,8 @@ namespace octave
   void settings_dialog::read_varedit_colors (gui_settings *settings)
   {
     QGridLayout *style_grid = new QGridLayout ();
-    QVector<QLabel*> description (ve_colors_count);
-    QVector<color_picker*> color (ve_colors_count);
+    QVector<QLabel *> description (ve_colors_count);
+    QVector<color_picker *> color (ve_colors_count);
 
     int mode = settings->value (ve_color_mode).toInt ();
 

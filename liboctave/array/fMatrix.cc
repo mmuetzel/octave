@@ -646,7 +646,9 @@ FloatMatrix::inverse (MatrixType& mattype, octave_idx_type& info, float& rcon,
   if (typ == MatrixType::Unknown)
     typ = mattype.type (*this);
 
-  if (typ == MatrixType::Upper || typ == MatrixType::Lower)
+  if (typ == MatrixType::Diagonal)  // a scalar is also classified as Diagonal.
+    ret = 1 / (*this);
+  else if (typ == MatrixType::Upper || typ == MatrixType::Lower)
     ret = tinverse (mattype, info, rcon, force, calc_cond);
   else
     {
@@ -668,8 +670,7 @@ FloatMatrix::inverse (MatrixType& mattype, octave_idx_type& info, float& rcon,
       if (! mattype.ishermitian ())
         ret = finverse (mattype, info, rcon, force, calc_cond);
 
-      if ((calc_cond || mattype.ishermitian ()) && rcon == 0.0
-          && (numel () != 1))
+      if ((calc_cond || mattype.ishermitian ()) && rcon == 0.0)
         ret = FloatMatrix (rows (), columns (),
                            octave::numeric_limits<float>::Inf ());
     }
@@ -739,7 +740,7 @@ FloatMatrix::fourier (void) const
       nsamples = nc;
     }
 
-  const float *in (fortran_vec ());
+  const float *in (data ());
   FloatComplex *out (retval.fortran_vec ());
 
   octave::fftw::fft (in, out, npts, nsamples);
@@ -782,7 +783,7 @@ FloatMatrix::fourier2d (void) const
 {
   dim_vector dv (rows (), cols ());
 
-  const float *in = fortran_vec ();
+  const float *in = data ();
   FloatComplexMatrix retval (rows (), cols ());
   octave::fftw::fftNd (in, retval.fortran_vec (), 2, dv);
 
@@ -895,7 +896,7 @@ FloatMatrix::determinant (MatrixType& mattype,
   if (typ == MatrixType::Lower || typ == MatrixType::Upper)
     {
       for (F77_INT i = 0; i < nc; i++)
-        retval *= elem (i,i);
+        retval *= elem (i, i);
     }
   else if (typ == MatrixType::Hermitian)
     {
@@ -943,7 +944,7 @@ FloatMatrix::determinant (MatrixType& mattype,
             }
 
           for (F77_INT i = 0; i < nc; i++)
-            retval *= atmp(i,i);
+            retval *= atmp(i, i);
 
           retval = retval.square ();
         }
@@ -1006,7 +1007,7 @@ FloatMatrix::determinant (MatrixType& mattype,
             {
               for (F77_INT i = 0; i < nc; i++)
                 {
-                  float c = atmp(i,i);
+                  float c = atmp(i, i);
                   retval *= (ipvt(i) != (i+1)) ? -c : c;
                 }
             }
@@ -1045,7 +1046,7 @@ FloatMatrix::rcond (MatrixType& mattype) const
       // Only calculate the condition number for LU/Cholesky
       if (typ == MatrixType::Upper)
         {
-          const float *tmp_data = fortran_vec ();
+          const float *tmp_data = data ();
           F77_INT info = 0;
           char norm = '1';
           char uplo = 'U';
@@ -1073,7 +1074,7 @@ FloatMatrix::rcond (MatrixType& mattype) const
           ("permuted triangular matrix not implemented");
       else if (typ == MatrixType::Lower)
         {
-          const float *tmp_data = fortran_vec ();
+          const float *tmp_data = data ();
           F77_INT info = 0;
           char norm = '1';
           char uplo = 'L';
@@ -1219,7 +1220,7 @@ FloatMatrix::utsolve (MatrixType& mattype, const FloatMatrix& b,
               ("permuted triangular matrix not implemented");
           else
             {
-              const float *tmp_data = fortran_vec ();
+              const float *tmp_data = data ();
 
               retval = b;
               float *result = retval.fortran_vec ();
@@ -1322,7 +1323,7 @@ FloatMatrix::ltsolve (MatrixType& mattype, const FloatMatrix& b,
               ("permuted triangular matrix not implemented");
           else
             {
-              const float *tmp_data = fortran_vec ();
+              const float *tmp_data = data ();
 
               retval = b;
               float *result = retval.fortran_vec ();
@@ -1555,8 +1556,6 @@ FloatMatrix::fsolve (MatrixType& mattype, const FloatMatrix& b,
 
                   if (rcond_plus_one == 1.0 || octave::math::isnan (rcon))
                     {
-                      info = -2;
-
                       if (sing_handler)
                         sing_handler (rcon);
                       else
@@ -2708,10 +2707,10 @@ Sylvester (const FloatMatrix& a, const FloatMatrix& b, const FloatMatrix& c)
 
   // Transform c to new coordinates.
 
-  FloatMatrix ua = as.unitary_matrix ();
+  FloatMatrix ua = as.unitary_schur_matrix ();
   FloatMatrix sch_a = as.schur_matrix ();
 
-  FloatMatrix ub = bs.unitary_matrix ();
+  FloatMatrix ub = bs.unitary_schur_matrix ();
   FloatMatrix sch_b = bs.schur_matrix ();
 
   FloatMatrix cx = ua.transpose () * c * ub;
@@ -2808,7 +2807,7 @@ xgemm (const FloatMatrix& a, const FloatMatrix& b,
                                F77_CHAR_ARG_LEN (1)));
       for (int j = 0; j < a_nr; j++)
         for (int i = 0; i < j; i++)
-          retval.xelem (j,i) = retval.xelem (i,j);
+          retval.xelem (j, i) = retval.xelem (i, j);
 
     }
   else

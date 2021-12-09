@@ -35,6 +35,8 @@
 #include "ov-typeinfo.h"
 #include "ov.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 // Magic integer unary ops.  Only + and - are allowed so that
 // expressions like
 //
@@ -59,7 +61,9 @@ oct_unop_unsigned_uminus (const octave_base_value& a)
   // We are storing a uint64 value, so some fakery is needed here.
   // Is there a better way?
 
-  octave_uint64 val = v.uint64_scalar_value ();
+  // FIXME: Maybe there should also be octave_magic_int::as_TYPE_value
+  // functions?
+  octave_uint64 val (v.scalar_ref ());
 
   uint64_t ival = val.value ();
 
@@ -103,7 +107,9 @@ oct_unop_signed_uminus (const octave_base_value& a)
 {
   const octave_magic_int& v = dynamic_cast<const octave_magic_int&> (a);
 
-  octave_int64 val = v.int64_scalar_value ();
+  // FIXME: Maybe there should also be octave_magic_int::as_TYPE_value
+  // functions?
+  octave_int64 val (v.scalar_ref ());
 
   return octave_value (new octave_magic_int (-val));
 }
@@ -117,3 +123,5 @@ install_mi_ops (octave::type_info& ti)
   INSTALL_UNOP_TI (ti, op_uplus, octave_magic_int, signed_uplus);
   INSTALL_UNOP_TI (ti, op_uminus, octave_magic_int, signed_uminus);
 }
+
+OCTAVE_NAMESPACE_END

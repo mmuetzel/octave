@@ -48,15 +48,12 @@ extern bool octave_completion_matches_called;
 // the next user prompt.
 extern OCTINTERP_API bool Vdrawnow_requested;
 
-OCTAVE_DEPRECATED (6, "'Vtrack_line_num' is an obsolete internal variable; any uses should be removed")
-extern OCTINTERP_API bool Vtrack_line_num;
-
 extern OCTINTERP_API octave::sys::time Vlast_prompt_time;
 
 class octave_value;
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   class interpreter;
 
   class input_system
@@ -306,6 +303,7 @@ namespace octave
 
     std::shared_ptr<base_reader> m_rep;
   };
-}
+
+OCTAVE_NAMESPACE_END
 
 #endif

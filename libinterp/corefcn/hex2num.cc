@@ -35,12 +35,14 @@
 #include "ovl.h"
 #include "utils.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 static inline bool
 is_little_endian (bool is_float)
 {
-  return ((is_float && (octave::mach_info::native_float_format ()
-                        == octave::mach_info::flt_fmt_ieee_little_endian))
-          || octave::mach_info::words_little_endian ());
+  return ((is_float && (mach_info::native_float_format ()
+                        == mach_info::flt_fmt_ieee_little_endian))
+          || mach_info::words_little_endian ());
 }
 
 static uint8_t
@@ -251,7 +253,7 @@ num2hex (const Array<T>& v, bool swap_bytes)
 
   string_vector sv (nel);
 
-  const T *pv = v.fortran_vec ();
+  const T *pv = v.data ();
 
   for (octave_idx_type i = 0; i < nel; i++)
     {
@@ -359,8 +361,10 @@ strings instead of a character array.
 }
 
 /*
-%!assert (num2hex (-2:2), ["c000000000000000";"bff0000000000000";"0000000000000000";"3ff0000000000000";"4000000000000000"])
-%!assert (num2hex (single (-2:2)), ["c0000000";"bf800000";"00000000";"3f800000";"40000000"])
+%!assert (num2hex (-2:2),
+%!        ["c000000000000000";"bff0000000000000";"0000000000000000";"3ff0000000000000";"4000000000000000"])
+%!assert (num2hex (single (-2:2)),
+%!        ["c0000000";"bf800000";"00000000";"3f800000";"40000000"])
 %!assert (num2hex (intmax ("uint8")), "ff")
 %!assert (num2hex (intmax ("uint16")), "ffff")
 %!assert (num2hex (intmax ("uint32")), "ffffffff")
@@ -376,3 +380,5 @@ strings instead of a character array.
 %!error num2hex (1,2,3)
 %!error num2hex (1j)
 */
+
+OCTAVE_NAMESPACE_END

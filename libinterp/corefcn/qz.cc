@@ -57,6 +57,8 @@
 #  include "pr-output.h"
 #endif
 
+OCTAVE_NAMESPACE_BEGIN
+
 // FIXME: Matlab does not produce lambda as the first output argument.
 // Compatibility problem?
 
@@ -241,8 +243,8 @@ compatibility with @sc{matlab}.
 #endif
 
   // Matrix A: check dimensions.
-  F77_INT nn = octave::to_f77_int (args(0).rows ());
-  F77_INT nc = octave::to_f77_int (args(0).columns ());
+  F77_INT nn = to_f77_int (args(0).rows ());
+  F77_INT nc = to_f77_int (args(0).columns ());
 
 #if defined (DEBUG)
   octave_stdout << "Matrix A dimensions: (" << nn << ',' << nc << ')'
@@ -271,11 +273,11 @@ compatibility with @sc{matlab}.
 #endif
 
   // Extract argument 2 (bb, or cbb if complex).
-  F77_INT b_nr = octave::to_f77_int (args(1).rows ());
-  F77_INT b_nc = octave::to_f77_int (args(1).columns ());
+  F77_INT b_nr = to_f77_int (args(1).rows ());
+  F77_INT b_nc = to_f77_int (args(1).columns ());
 
   if (nn != b_nc || nn != b_nr)
-    err_nonconformant ();
+    ::err_nonconformant ();
 
   Matrix bb;
   ComplexMatrix cbb;
@@ -295,10 +297,10 @@ compatibility with @sc{matlab}.
   // First, declare variables used in both the real and complex cases.
   // FIXME: There are a lot of excess variables declared.
   //        Probably a better way to handle this.
-  Matrix QQ (nn,nn), ZZ (nn,nn), VR (nn,nn), VL (nn,nn);
+  Matrix QQ (nn, nn), ZZ (nn, nn), VR (nn, nn), VL (nn, nn);
   RowVector alphar (nn), alphai (nn), betar (nn);
   ComplexRowVector xalpha (nn), xbeta (nn);
-  ComplexMatrix CQ (nn,nn), CZ (nn,nn), CVR (nn,nn), CVL (nn,nn);
+  ComplexMatrix CQ (nn, nn), CZ (nn, nn), CVR (nn, nn), CVL (nn, nn);
   F77_INT ilo, ihi, info;
   char comp_q = (nargout >= 3 ? 'V' : 'N');
   char comp_z = ((nargout >= 4 || nargin == 3)? 'V' : 'N');
@@ -312,8 +314,8 @@ compatibility with @sc{matlab}.
       std::fill_n (ZZptr, ZZ.numel (), 0.0);
       for (F77_INT i = 0; i < nn; i++)
         {
-          QQ(i,i) = 1.0;
-          ZZ(i,i) = 1.0;
+          QQ(i, i) = 1.0;
+          ZZ(i, i) = 1.0;
         }
     }
 
@@ -409,7 +411,7 @@ compatibility with @sc{matlab}.
       // Complex case.
 
       // The QR decomposition of cbb.
-      octave::math::qr<ComplexMatrix> cbqr (cbb);
+      math::qr<ComplexMatrix> cbqr (cbb);
       // The R matrix of QR decomposition for cbb.
       cbb = cbqr.R ();
       // (Q*)caa for following work.
@@ -477,7 +479,7 @@ compatibility with @sc{matlab}.
 #endif
 
       // Compute the QR factorization of bb.
-      octave::math::qr<Matrix> bqr (bb);
+      math::qr<Matrix> bqr (bb);
 
 #if defined (DEBUG)
       octave_stdout << "qz: qr (bb) done; now performing qz decomposition"
@@ -687,7 +689,7 @@ compatibility with @sc{matlab}.
               if (betar(i) != 0)
                 tmp(i) = Complex (alphar(i), alphai(i)) / betar(i);
               else
-                tmp(i) = octave::numeric_limits<double>::Inf ();
+                tmp(i) = numeric_limits<double>::Inf ();
             }
 
           gev = tmp;
@@ -758,18 +760,18 @@ compatibility with @sc{matlab}.
               if (j == (nn-1))
                 // Single column.
                 cinc = 1;
-              else if (aa(j+1,j) == 0)
+              else if (aa(j+1, j) == 0)
                 cinc = 1;
 
               // Now copy the eigenvector (s) to CVR, CVL.
               if (cinc == 1)
                 {
                   for (F77_INT i = 0; i < nn; i++)
-                    CVR(i,j) = VR(i,j);
+                    CVR(i, j) = VR(i, j);
 
                   if (side == 'B')
                     for (F77_INT i = 0; i < nn; i++)
-                      CVL(i,j) = VL(i,j);
+                      CVL(i, j) = VL(i, j);
                 }
               else
                 {
@@ -777,15 +779,15 @@ compatibility with @sc{matlab}.
 
                   for (F77_INT i = 0; i < nn; i++)
                     {
-                      CVR(i,j) = Complex (VR(i,j), VR(i,j+1));
-                      CVR(i,j+1) = Complex (VR(i,j), -VR(i,j+1));
+                      CVR(i, j) = Complex (VR(i, j), VR(i, j+1));
+                      CVR(i, j+1) = Complex (VR(i, j), -VR(i, j+1));
                     }
 
                   if (side == 'B')
                     for (F77_INT i = 0; i < nn; i++)
                       {
-                        CVL(i,j) = Complex (VL(i,j), VL(i,j+1));
-                        CVL(i,j+1) = Complex (VL(i,j), -VL(i,j+1));
+                        CVL(i, j) = Complex (VL(i, j), VL(i, j+1));
+                        CVL(i, j+1) = Complex (VL(i, j), -VL(i, j+1));
                       }
                 }
 
@@ -950,3 +952,5 @@ compatibility with @sc{matlab}.
 %! assert (abs (lambda(1) < 1));
 %! assert (all (abs (lambda(2:4)) >= 1));
 */
+
+OCTAVE_NAMESPACE_END

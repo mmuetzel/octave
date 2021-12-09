@@ -108,7 +108,7 @@ octave_base_matrix<Cell>::edit_display (const float_display_format&,
                                         octave_idx_type i,
                                         octave_idx_type j) const
 {
-  octave_value val = matrix(i,j);
+  octave_value val = matrix(i, j);
 
   std::string tname = val.type_name ();
   dim_vector dv = val.dims ();
@@ -173,7 +173,7 @@ octave_cell::subsref (const std::string& type,
         Cell tcell = tmp.cell_value ();
 
         if (tcell.numel () == 1)
-          retval(0) = tcell(0,0);
+          retval(0) = tcell(0, 0);
         else
           {
             // Return a comma-separated list.
@@ -223,7 +223,7 @@ octave_cell::subsref (const std::string& type,
         const Cell tcell = tmp.cell_value ();
 
         if (tcell.numel () == 1)
-          retval = tcell(0,0);
+          retval = tcell(0, 0);
         else
           {
             // Return a comma-separated list.
@@ -431,14 +431,14 @@ bool
 octave_cell::iscellstr (void) const
 {
   bool retval;
-  if (cellstr_cache.get ())
+  if (m_cellstr_cache.get ())
     retval = true;
   else
     {
       retval = matrix.iscellstr ();
       // Allocate empty cache to mark that this is indeed a cellstr.
       if (retval)
-        cellstr_cache.reset (new Array<std::string> ());
+        m_cellstr_cache.reset (new Array<std::string> ());
     }
 
   return retval;
@@ -495,7 +495,7 @@ octave_cell::sort (octave_idx_type dim, sortmode mode) const
 }
 
 octave_value
-octave_cell::sort (Array<octave_idx_type> &sidx, octave_idx_type dim,
+octave_cell::sort (Array<octave_idx_type>& sidx, octave_idx_type dim,
                    sortmode mode) const
 {
   octave_value retval;
@@ -638,10 +638,10 @@ octave_cell::cellstr_value (void) const
   if (! iscellstr ())
     error ("invalid conversion from cell array to array of strings");
 
-  if (cellstr_cache->isempty ())
-    *cellstr_cache = matrix.cellstr_value ();
+  if (m_cellstr_cache->isempty ())
+    *m_cellstr_cache = matrix.cellstr_value ();
 
-  return *cellstr_cache;
+  return *m_cellstr_cache;
 }
 
 bool
@@ -683,7 +683,7 @@ octave_cell::print_raw (std::ostream& os, bool) const
                   std::ostringstream buf;
                   buf << '[' << i+1 << ',' << j+1 << ']';
 
-                  octave_value val = matrix(i,j);
+                  octave_value val = matrix(i, j);
 
                   val.print_with_name (os, buf.str ());
                 }
@@ -994,11 +994,11 @@ octave_cell::load_binary (std::istream& is, bool swap,
   return true;
 }
 
-void *
+const void *
 octave_cell::mex_get_data (void) const
 {
   clear_cellstr_cache ();
-  return matrix.mex_get_data ();
+  return matrix.data ();
 }
 
 bool
@@ -1045,7 +1045,8 @@ octave_cell::save_hdf5 (octave_hdf5_id loc_id, const char *name,
 
 #if defined (HAVE_HDF5_18)
   size_hid = H5Dcreate (data_hid, "dims", H5T_NATIVE_IDX, space_hid,
-                        octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                        octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                        octave_H5P_DEFAULT);
 #else
   size_hid = H5Dcreate (data_hid, "dims", H5T_NATIVE_IDX, space_hid,
                         octave_H5P_DEFAULT);
@@ -1193,7 +1194,7 @@ octave_cell::load_hdf5 (octave_hdf5_id loc_id, const char *name)
       if (current_item >= static_cast<int> (num_obj))
         retval2 = -1;
       else
-        retval2 = hdf5_h5g_iterate (loc_id, name, &current_item,&dsub);
+        retval2 = hdf5_h5g_iterate (loc_id, name, &current_item, &dsub);
 
       if (retval2 <= 0)
         break;
@@ -1218,6 +1219,8 @@ octave_cell::load_hdf5 (octave_hdf5_id loc_id, const char *name)
 
   return retval;
 }
+
+OCTAVE_NAMESPACE_BEGIN
 
 DEFUN (iscell, args, ,
        doc: /* -*- texinfo -*-
@@ -1258,7 +1261,7 @@ dimensions.
       break;
 
     case 1:
-      octave::get_dimensions (args(0), "cell", dims);
+      get_dimensions (args(0), "cell", dims);
       break;
 
     default:
@@ -1274,7 +1277,7 @@ dimensions.
 
   dims.chop_trailing_singletons ();
 
-  octave::check_dimensions (dims, "cell");
+  check_dimensions (dims, "cell");
 
   return ovl (Cell (dims));
 }
@@ -1395,7 +1398,7 @@ c(2,1,:)(:)
   // we don't need a key lookup at all.
   for (octave_idx_type j = 0; j < n_elts; j++)
     for (octave_idx_type i = 0; i < num_fields; i++)
-      c.xelem (i,j) = m.contents(i)(j);
+      c.xelem (i, j) = m.contents(i)(j);
 
   return ovl (c);
 }
@@ -1411,6 +1414,8 @@ c(2,1,:)(:)
 %! assert (struct2cell (s), [vals{:}]');
 %! assert (fieldnames (s), keys');
 */
+
+OCTAVE_NAMESPACE_END
 
 mxArray *
 octave_cell::as_mxArray (bool interleaved) const

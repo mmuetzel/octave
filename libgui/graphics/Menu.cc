@@ -38,7 +38,7 @@
 
 #include "octave-qobject.h"
 
-namespace QtHandles
+namespace octave
 {
 
   static QKeySequence
@@ -62,7 +62,7 @@ namespace QtHandles
     return QKeySequence ();
   }
 
-  Menu*
+  Menu *
   Menu::create (octave::base_qobject& oct_qobj, octave::interpreter& interp,
                 const graphics_object& go)
   {
@@ -87,7 +87,7 @@ namespace QtHandles
   {
     uimenu::properties& up = properties<uimenu> ();
 
-    action->setText (Utils::fromStdString (up.get_label ()));
+    action->setText (Utils::fromStdString (up.get_text ()));
 
     if (up.is_checked ())
       {
@@ -175,8 +175,8 @@ namespace QtHandles
 
     switch (pId)
       {
-      case uimenu::properties::ID_LABEL:
-        action->setText (Utils::fromStdString (up.get_label ()));
+      case uimenu::properties::ID_TEXT:
+        action->setText (Utils::fromStdString (up.get_text ()));
         break;
 
       case uimenu::properties::ID_CHECKED:
@@ -270,21 +270,21 @@ namespace QtHandles
       }
   }
 
-  QWidget*
+  QWidget *
   Menu::menu (void)
   {
     QAction *action = qWidget<QAction> ();
-    QMenu *_menu = action->menu ();
+    QMenu *action_menu = action->menu ();
 
-    if (! _menu)
+    if (! action_menu)
       {
-        _menu = new QMenu (action->parentWidget ());
-        action->setMenu (_menu);
+        action_menu = new QMenu (action->parentWidget ());
+        action->setMenu (action_menu);
         action->setShortcut (QKeySequence ());
-        connect (_menu, &QMenu::aboutToShow, this, &Menu::actionHovered);
+        connect (action_menu, &QMenu::aboutToShow, this, &Menu::actionHovered);
       }
 
-    return _menu;
+    return action_menu;
   }
 
   void

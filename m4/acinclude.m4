@@ -491,7 +491,7 @@ AC_DEFUN([OCTAVE_CHECK_FUNC_QGUIAPPLICATION_SETDESKTOPFILENAME], [
     ac_octave_save_CPPFLAGS="$CPPFLAGS"
     ac_octave_save_CXXFLAGS="$CXXFLAGS"
     CPPFLAGS="$QT_CPPFLAGS $CXXPICFLAG $CPPFLAGS"
-    CXXFLAGS="$CXXPICFLAG $CPPFLAGS"
+    CXXFLAGS="$CXXPICFLAG $CXXFLAGS"
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
         #include <QGuiApplication>
         ]], [[
@@ -556,7 +556,7 @@ AC_DEFUN([OCTAVE_CHECK_FUNC_QHELPSEARCHQUERYWIDGET_SEARCHINPUT], [
     ac_octave_save_CPPFLAGS="$CPPFLAGS"
     ac_octave_save_CXXFLAGS="$CXXFLAGS"
     CPPFLAGS="$QT_CPPFLAGS $CXXPICFLAG $CPPFLAGS"
-    CXXFLAGS="$CXXPICFLAG $CPPFLAGS"
+    CXXFLAGS="$CXXPICFLAG $CXXFLAGS"
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
         #include <QHelpSearchQueryWidget>
         #include <QString>
@@ -777,6 +777,33 @@ AC_DEFUN([OCTAVE_CHECK_HDF5_HAS_VER_16_API], [
   ])
   if test $octave_cv_hdf5_has_ver_16_api != yes; then
     AC_DEFINE(HAVE_HDF5_18, 1, [Define to 1 if >=HDF5-1.8 is available.])
+  fi
+])
+dnl
+dnl Check whether HDF5 library has UTF-8 file API.
+dnl
+AC_DEFUN([OCTAVE_CHECK_HDF5_HAS_UTF8_API], [
+  AC_CACHE_CHECK([whether HDF5 library has UTF-8 file API],
+    [octave_cv_hdf5_has_utf8_api],
+    [case $host_os in
+      msdosmsvc | mingw*)
+        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+          #include <stddef.h>
+          const wchar_t *H5_get_utf16_str(const char *s);
+          ]], [[
+          H5_get_utf16_str ("");
+          ]])],
+          octave_cv_hdf5_has_utf8_api=yes,
+          octave_cv_hdf5_has_utf8_api=no)
+      ;;
+      *)
+        ## Assume yes on all other platforms
+        octave_cv_hdf5_has_utf8_api=yes
+      ;;
+     esac
+    ])
+  if test $octave_cv_hdf5_has_utf8_api = yes; then
+    AC_DEFINE(HAVE_HDF5_UTF8, 1, [Define to 1 if HDF5 has UTF-8 file API.])
   fi
 ])
 dnl
@@ -1545,7 +1572,7 @@ AC_DEFUN([OCTAVE_CHECK_NEW_QHELPINDEXWIDGET_API], [
     ac_octave_save_CPPFLAGS="$CPPFLAGS"
     ac_octave_save_CXXFLAGS="$CXXFLAGS"
     CPPFLAGS="$QT_CPPFLAGS $CXXPICFLAG $CPPFLAGS"
-    CXXFLAGS="$CXXPICFLAG $CPPFLAGS"
+    CXXFLAGS="$CXXPICFLAG $CXXFLAGS"
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
         #include <QHelpLink>
         ]], [[
@@ -1959,6 +1986,35 @@ AC_DEFUN([OCTAVE_CHECK_QT_OPENGL_OK], [
   fi
 ])
 dnl
+dnl Check whether the Qt::ImCursorRectangle enum value exists.
+dnl It replaces the Qt::ImMicroFocus enum value that was deprecated
+dnl in Qt 5.14.
+dnl
+AC_DEFUN([OCTAVE_CHECK_QT_IMCURSORRECTANGLE_ENUM_VALUE], [
+  AC_CACHE_CHECK([for Qt::ImCursorRectangle enum value],
+    [octave_cv_qt_imcursorrectangle_enum_value],
+    [AC_LANG_PUSH(C++)
+    ac_octave_save_CPPFLAGS="$CPPFLAGS"
+    ac_octave_save_CXXFLAGS="$CXXFLAGS"
+    CPPFLAGS="$QT_CPPFLAGS $CXXPICFLAG $CPPFLAGS"
+    CXXFLAGS="$CXXPICFLAG $CXXFLAGS"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+        #include <Qt>
+        ]], [[
+        Qt::InputMethodQuery method_query = Qt::ImCursorRectangle;
+        ]])],
+      octave_cv_qt_imcursorrectangle_enum_value=yes,
+      octave_cv_qt_imcursorrectangle_enum_value=no)
+    CPPFLAGS="$ac_octave_save_CPPFLAGS"
+    CXXFLAGS="$ac_octave_save_CXXFLAGS"
+    AC_LANG_POP(C++)
+  ])
+  if test $octave_cv_qt_imcursorrectangle_enum_value = yes; then
+    AC_DEFINE(HAVE_QT_IMCURSORRECTANGLE_ENUM_VALUE, 1,
+      [Define to 1 if you have the `Qt::ImCursorRectangle' enum value.])
+  fi
+])
+dnl
 dnl Check whether the Qt::SplitBehavior enum exists and has
 dnl Qt::KeepEmptyParts and Qt::SkipEmptyParts members.  This enum
 dnl was introduced or modified in Qt 5.14.
@@ -2184,6 +2240,7 @@ AC_DEFUN([OCTAVE_CHECK_QT_VERSION], [AC_MSG_CHECKING([Qt version $1])
 
     OCTAVE_CHECK_QOVERLOAD_TEMPLATE
     OCTAVE_CHECK_QREGION_ITERATORS
+    OCTAVE_CHECK_QT_IMCURSORRECTANGLE_ENUM_VALUE
     OCTAVE_CHECK_QT_SPLITBEHAVIOR_ENUM
 
     if test -n "$OPENGL_LIBS"; then
@@ -2870,242 +2927,6 @@ AC_DEFUN([OCTAVE_IEEE754_DATA_FORMAT], [
   fi
 ])
 dnl
-dnl Check for CallInst::addAttribute API
-dnl
-AC_DEFUN([OCTAVE_LLVM_CALLINST_ADDATTRIBUTE_API], [
-  AC_CACHE_CHECK([if llvm::CallInst::addAttribute's arg type is llvm::Attributes],
-    [octave_cv_callinst_addattribute_arg_is_attributes],
-    [AC_LANG_PUSH(C++)
-      AC_COMPILE_IFELSE(
-        [AC_LANG_PROGRAM([[
-#if defined (HAVE_LLVM_IR_FUNCTION_H)
-          #include <llvm/IR/Instructions.h>
-          #include <llvm/IR/Attributes.h>
-#else
-          #include <llvm/Instructions.h>
-          #include <llvm/Attributes.h>
-#endif
-          ]], [[
-          llvm::CallInst *callinst;
-          llvm::AttrBuilder attr_builder;
-          attr_builder.addAttribute(llvm::Attributes::StructRet);
-          llvm::Attributes attrs = llvm::Attributes::get(llvm::getGlobalContext(), attr_builder);
-          callinst->addAttribute (1, attrs);
-        ]])],
-        octave_cv_callinst_addattribute_arg_is_attributes=yes,
-        octave_cv_callinst_addattribute_arg_is_attributes=no)
-    AC_LANG_POP(C++)
-  ])
-  if test $octave_cv_callinst_addattribute_arg_is_attributes = yes; then
-    AC_DEFINE(CALLINST_ADDATTRIBUTE_ARG_IS_ATTRIBUTES, 1,
-      [Define to 1 if llvm::CallInst:addAttribute arg type is llvm::Attributes.])
-  fi
-])
-dnl
-dnl Check for Function::addAttribute API
-dnl
-AC_DEFUN([OCTAVE_LLVM_FUNCTION_ADDATTRIBUTE_API], [
-  AC_CACHE_CHECK([if llvm::Function::addAttribute's arg type is llvm::Attributes],
-    [octave_cv_function_addattribute_arg_is_attributes],
-    [AC_LANG_PUSH(C++)
-      AC_COMPILE_IFELSE(
-        [AC_LANG_PROGRAM([[
-#if defined (HAVE_LLVM_IR_FUNCTION_H)
-          #include <llvm/IR/Function.h>
-          #include <llvm/IR/Attributes.h>
-          #include <llvm/IR/LLVMContext.h>
-#else
-          #include <llvm/Function.h>
-          #include <llvm/Attributes.h>
-          #include <llvm/LLVMContext.h>
-#endif
-          ]], [[
-          llvm::Function *llvm_function;
-          llvm::AttrBuilder attr_builder;
-          attr_builder.addAttribute(llvm::Attributes::StructRet);
-          llvm::Attributes attrs = llvm::Attributes::get(llvm::getGlobalContext(), attr_builder);
-          llvm_function->addAttribute (1, attrs);
-        ]])],
-        octave_cv_function_addattribute_arg_is_attributes=yes,
-        octave_cv_function_addattribute_arg_is_attributes=no)
-    AC_LANG_POP(C++)
-  ])
-  if test $octave_cv_function_addattribute_arg_is_attributes = yes; then
-    AC_DEFINE(FUNCTION_ADDATTRIBUTE_ARG_IS_ATTRIBUTES, 1,
-      [Define to 1 if llvm::Function:addAttribute arg type is llvm::Attributes.])
-  fi
-])
-dnl
-dnl Check for Function::addFnAttr API
-dnl
-AC_DEFUN([OCTAVE_LLVM_FUNCTION_ADDFNATTR_API], [
-  AC_CACHE_CHECK([if llvm::Function::addFnAttr's arg type is llvm::Attributes],
-    [octave_cv_function_addfnattr_arg_is_attributes],
-    [AC_LANG_PUSH(C++)
-      AC_COMPILE_IFELSE(
-        [AC_LANG_PROGRAM([[
-#if defined (HAVE_LLVM_IR_FUNCTION_H)
-          #include <llvm/IR/Function.h>
-          #include <llvm/IR/Attributes.h>
-#else
-          #include <llvm/Function.h>
-          #include <llvm/Attributes.h>
-#endif
-          ]], [[
-          llvm::Function *llvm_function;
-          llvm_function->addFnAttr (llvm::Attributes::AlwaysInline);
-        ]])],
-        octave_cv_function_addfnattr_arg_is_attributes=yes,
-        octave_cv_function_addfnattr_arg_is_attributes=no)
-    AC_LANG_POP(C++)
-  ])
-  if test $octave_cv_function_addfnattr_arg_is_attributes = yes; then
-    AC_DEFINE(FUNCTION_ADDFNATTR_ARG_IS_ATTRIBUTES, 1,
-      [Define to 1 if llvm::Function:addFnAttr arg type is llvm::Attributes.])
-  fi
-])
-dnl
-dnl Check for llvm::createAlwaysInlinerPass
-dnl
-AC_DEFUN([OCTAVE_LLVM_HAS_CREATEALWAYSINLINERPASS], [
-  AC_CACHE_CHECK([if llvm::createAlwaysInlinerPass exists],
-    [octave_cv_llvm_has_createalwaysinlinerpass],
-    [AC_LANG_PUSH(C++)
-      AC_COMPILE_IFELSE(
-        [AC_LANG_PROGRAM([[
-          #include <llvm/Transforms/IPO.h>
-          ]], [[
-          llvm::Pass *p;
-          p = llvm::createAlwaysInlinerPass ();
-        ]])],
-        octave_cv_llvm_has_createalwaysinlinerpass=yes,
-        octave_cv_llvm_has_createalwaysinlinerpass=no)
-    AC_LANG_POP(C++)
-  ])
-  if test $octave_cv_llvm_has_createalwaysinlinerpass = yes; then
-    AC_DEFINE(LLVM_HAS_CREATEALWAYSINLINERPASS, 1,
-      [Define to 1 if llvm::createAlwaysInlinerPass exists.])
-  fi
-])
-dnl
-dnl Check llvm::IRBuilder API
-dnl
-AC_DEFUN([OCTAVE_LLVM_IRBUILDER_API], [
-  AC_CACHE_CHECK([if llvm::IRBuilder has two template arguments],
-    [octave_cv_llvm_irbuilder_has_two_template_args],
-    [AC_LANG_PUSH(C++)
-      AC_COMPILE_IFELSE(
-        [AC_LANG_PROGRAM([[
-#if defined (HAVE_LLVM_IR_FUNCTION_H)
-          #include <llvm/IR/LLVMContext.h>
-#else
-          #include <llvm/LLVMContext.h>
-#endif
-#if defined (HAVE_LLVM_IR_IRBUILDER_H)
-          #include <llvm/IR/IRBuilder.h>
-#elif defined (HAVE_LLVM_SUPPORT_IRBUILDER_H)
-          #include <llvm/Support/IRBuilder.h>
-#else
-          #include <llvm/IRBuilder.h>
-#endif
-          using namespace llvm;
-          ]], [[
-          LLVMContext c;
-          IRBuilder<ConstantFolder,IRBuilderDefaultInserter>  irb (c);
-        ]])],
-        octave_cv_llvm_irbuilder_has_two_template_args=yes,
-        octave_cv_llvm_irbuilder_has_two_template_args=no)
-    AC_LANG_POP(C++)
-  ])
-  if test $octave_cv_llvm_irbuilder_has_two_template_args = yes; then
-    AC_DEFINE(LLVM_IRBUILDER_HAS_TWO_TEMPLATE_ARGS, 1,
-      [Define to 1 if llvm::IRBuilder has two template arguments.])
-  fi
-])
-dnl
-dnl Check llvm::IRBuilder::CreateConstInBoundsGEP1_32 API
-dbl
-AC_DEFUN([OCTAVE_LLVM_IRBUILDER_CREATECONSTINBOUNDSGEP1_32_API], [
-  AC_CACHE_CHECK([if llvm::IRBuilder::CreateConstInBoundsGEP1_32 requires a type argument],
-    [octave_cv_llvm_irbuilder_createconstinboundsgep1_32_requires_type],
-    [AC_LANG_PUSH(C++)
-      AC_COMPILE_IFELSE(
-        [AC_LANG_PROGRAM([[
-#if defined (HAVE_LLVM_IR_IRBUILDER_H)
-          #include <llvm/IR/IRBuilder.h>
-#elif defined (HAVE_LLVM_SUPPORT_IRBUILDER_H)
-          #include <llvm/Support/IRBuilder.h>
-#else
-          #include <llvm/IRBuilder.h>
-#endif
-          ]], [[
-          llvm::LLVMContext c;
-          llvm::IRBuilder<>  irb (c);
-          llvm::Value *v;
-          v = irb.CreateConstInBoundsGEP1_32 ((llvm::Value *) nullptr, 0);
-        ]])],
-        octave_cv_llvm_irbuilder_createconstinboundsgep1_32_requires_type=no,
-        octave_cv_llvm_irbuilder_createconstinboundsgep1_32_requires_type=yes)
-    AC_LANG_POP(C++)
-  ])
-  if test $octave_cv_llvm_irbuilder_createconstinboundsgep1_32_requires_type = yes; then
-    AC_DEFINE(LLVM_IRBUILDER_CREATECONSTINBOUNDSGEP1_32_REQUIRES_TYPE, 1,
-      [Define to 1 if llvm::IRBuilder::CreateConstInBoundsGEP1_32 requires a type argument.])
-  fi
-])
-dnl
-dnl Check for legacy::PassManager API
-dnl
-AC_DEFUN([OCTAVE_LLVM_LEGACY_PASSMANAGER_API], [
-  AC_CACHE_CHECK([if llvm::legacy::PassManager exists],
-    [octave_cv_legacy_passmanager],
-    [AC_LANG_PUSH(C++)
-      save_LIBS="$LIBS"
-      LIBS="$LLVM_LIBS $LIBS"
-      AC_LINK_IFELSE(
-        [AC_LANG_PROGRAM([[
-          #include <llvm/IR/LegacyPassManager.h>
-          ]], [[
-          llvm::Module *module;
-          llvm::legacy::PassManager *module_pass_manager;
-          llvm::legacy::FunctionPassManager *pass_manager;
-          module_pass_manager = new llvm::legacy::PassManager ();
-          pass_manager = new llvm::legacy::FunctionPassManager (module);
-        ]])],
-        octave_cv_legacy_passmanager=yes,
-        octave_cv_legacy_passmanager=no)
-      LIBS="$save_LIBS"
-    AC_LANG_POP(C++)
-  ])
-  if test $octave_cv_legacy_passmanager = yes; then
-    AC_DEFINE(LEGACY_PASSMANAGER, 1,
-      [Define to 1 if LLVM::legacy::PassManager exists.])
-  fi
-])
-dnl
-dnl Check for raw_fd_ostream API
-dnl
-AC_DEFUN([OCTAVE_LLVM_RAW_FD_OSTREAM_API], [
-  AC_CACHE_CHECK([if llvm::raw_fd_ostream's arg type is llvm::sys:fs],
-    [octave_cv_raw_fd_ostream_arg_is_llvm_sys_fs],
-    [AC_LANG_PUSH(C++)
-      AC_COMPILE_IFELSE(
-        [AC_LANG_PROGRAM([[
-          #include <llvm/Support/raw_os_ostream.h>
-          ]], [[
-          std::string str;
-          llvm::raw_fd_ostream fout ("", str, llvm::sys::fs::F_Binary);
-        ]])],
-        octave_cv_raw_fd_ostream_arg_is_llvm_sys_fs=yes,
-        octave_cv_raw_fd_ostream_arg_is_llvm_sys_fs=no)
-    AC_LANG_POP(C++)
-  ])
-  if test $octave_cv_raw_fd_ostream_arg_is_llvm_sys_fs = yes; then
-    AC_DEFINE(RAW_FD_OSTREAM_ARG_IS_LLVM_SYS_FS, 1,
-      [Define to 1 if LLVM::raw_fd_ostream arg type is llvm::sys:fs.])
-  fi
-])
-dnl
 dnl Check if MIPS processor is target and quiet signalling NaN value is
 dnl opposite of IEEE 754-2008 standard used by all other architectures.
 dnl
@@ -3165,21 +2986,17 @@ dnl
 dnl Check for bison.
 dnl
 AC_DEFUN([OCTAVE_PROG_BISON], [
-  AC_PROG_YACC
-  WARN_YFLAGS=
+  dnl FIXME: What is our actual required minimum version for Bison?
+  gl_PROG_BISON([BISON], [3.0])
+  WARN_BISONFLAGS=
 
-  case "`$YACC --version`" in
+  case "`$BISON --version`" in
     *bison*) tmp_have_bison=yes ;;
     *) tmp_have_bison=no ;;
   esac
 
   if test $tmp_have_bison = yes; then
-    dnl FIXME: Call GNU bison with the `-Wno-yacc` option, which works with
-    dnl bison 2.5 and all later versions, as recommended by the bison NEWS.
-    dnl This is needed as long as Octave supports Autoconf version 2.69 or
-    dnl older.  In Autoconf 2.70, AC_PROG_YACC no longer adds the `-y`
-    dnl option to emulate POSIX yacc.
-    WARN_YFLAGS="-Wno-yacc"
+    WARN_BISONFLAGS="-Wno-yacc"
 
     AC_CACHE_CHECK([syntax of bison api.prefix (or name-prefix) declaration],
                    [octave_cv_bison_api_prefix_decl_style], [
@@ -3208,7 +3025,7 @@ input:;
 %%
 EOF
           ## Older versions of bison only warn and exit with success.
-          octave_bison_output=`$YACC $WARN_YFLAGS conftest.yy 2>&1`
+          octave_bison_output=`$BISON $WARN_BISONFLAGS conftest.yy 2>&1`
           ac_status=$?
           if test $ac_status -eq 0 && test -z "$octave_bison_output"; then
             octave_cv_bison_api_prefix_decl_style="$s $q"
@@ -3246,13 +3063,13 @@ input:;
 %%
 EOF
       ## Older versions of bison only warn and exit with success.
-      $YACC $WARN_YFLAGS conftest.yy
-      if grep PREFIX_symbol_kind_t y.tab.c > /dev/null; then
+      $BISON $WARN_BISONFLAGS --defines --output conftest.cc conftest.yy
+      if grep PREFIX_symbol_kind_t conftest.cc > /dev/null; then
         octave_cv_bison_api_prefix_applies_to_yysymbol_kind_t=yes
       else
         octave_cv_bison_api_prefix_applies_to_yysymbol_kind_t=no
       fi
-      rm -f conftest.yy y.tab.h y.tab.c
+      rm -f conftest.yy y.tab.h conftest.cc
       ])
   fi
 
@@ -3269,7 +3086,7 @@ understand the '%define api.prefix { PREFIX }' syntax.
   fi
 
   if test $tmp_have_bison = no; then
-    YACC='${top_srcdir}/build-aux/missing bison'
+    BISON='${top_srcdir}/build-aux/missing bison'
     warn_bison="
 
 I didn't find bison, or the version of bison that I found does not
@@ -3286,7 +3103,6 @@ building from VCS sources.
   fi
   AC_SUBST(OCTAVE_PARSER_CPPFLAGS)
   AC_SUBST(OCTAVE_TEX_PARSER_CPPFLAGS)
-  AC_SUBST(WARN_YFLAGS)
 ])
 dnl
 dnl Find find program.

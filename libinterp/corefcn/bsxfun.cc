@@ -320,7 +320,9 @@ update_index (Array<int>& idx, const dim_vector& dv, octave_idx_type i)
     }
 }
 
-DEFMETHOD (bsxfun, interp,args, ,
+OCTAVE_NAMESPACE_BEGIN
+
+DEFMETHOD (bsxfun, interp, args, ,
            doc: /* -*- texinfo -*-
 @deftypefn {} {} bsxfun (@var{f}, @var{A}, @var{B})
 Apply a binary function @var{f} element-by-element to two array arguments
@@ -346,7 +348,7 @@ as the other array.
     {
       std::string name = func.string_value ();
 
-      octave::symbol_table& symtab = interp.get_symbol_table ();
+      symbol_table& symtab = interp.get_symbol_table ();
 
       func = symtab.find_function (name);
 
@@ -412,14 +414,14 @@ as the other array.
           octave_value_list inputs (2);
           inputs(0) = A;
           inputs(1) = B;
-          retval = octave::feval (func, inputs, 1);
+          retval = feval (func, inputs, 1);
         }
       else if (dvc.numel () < 1)
         {
           octave_value_list inputs (2);
           inputs(0) = A.resize (dvc);
           inputs(1) = B.resize (dvc);
-          retval = octave::feval (func, inputs, 1);
+          retval = feval (func, inputs, 1);
         }
       else
         {
@@ -461,7 +463,7 @@ as the other array.
               if (maybe_update_column (Bc, B, dvb, dvc, i, idxB))
                 inputs(1) = Bc;
 
-              octave_value_list tmp = octave::feval (func, inputs, 1);
+              octave_value_list tmp = feval (func, inputs, 1);
 
 #define BSXINIT(T, CLS, EXTRACTOR)                                      \
               (result_type == CLS)                                      \
@@ -540,7 +542,7 @@ as the other array.
                         {
                           have_NDArray = false;
                           C = result_NDArray;
-                          C = octave::cat_op (C, tmp(0), ra_idx);
+                          C = cat_op (C, tmp(0), ra_idx);
                         }
                       else if (tmp(0).isreal ())
                         result_NDArray.insert (tmp(0).array_value (), ra_idx);
@@ -560,7 +562,7 @@ as the other array.
                         {
                           have_FloatNDArray = false;
                           C = result_FloatNDArray;
-                          C = octave::cat_op (C, tmp(0), ra_idx);
+                          C = cat_op (C, tmp(0), ra_idx);
                         }
                       else if (tmp(0).isreal ())
                         result_FloatNDArray.insert
@@ -583,7 +585,7 @@ as the other array.
                         {                                               \
                           have_ ## T = false;                           \
                           C = result_ ## T;                             \
-                          C = octave::cat_op (C, tmp(0), ra_idx);       \
+                          C = cat_op (C, tmp(0), ra_idx);       \
                         }                                               \
                       else                                              \
                         result_ ## T .insert (tmp(0). EXTRACTOR ## _array_value (), ra_idx); \
@@ -601,7 +603,7 @@ as the other array.
                   else if BSXLOOP(uint32NDArray, "uint32", uint32)
                   else if BSXLOOP(uint64NDArray, "uint64", uint64)
                   else
-                    C = octave::cat_op (C, tmp(0), ra_idx);
+                    C = cat_op (C, tmp(0), ra_idx);
                 }
             }
 
@@ -717,10 +719,12 @@ as the other array.
 %!assert (bsxfun (f, a, b), a - repmat (b, [4, 1, 1]))
 %!assert (bsxfun (f, a, c), a - repmat (c, [1, 4, 1]))
 %!assert (bsxfun (f, a, d), a - repmat (d, [1, 1, 4]))
-%!assert (bsxfun ("minus", ones ([4, 0, 4]), ones ([4, 1, 4])), zeros ([4, 0, 4]))
+%!assert (bsxfun ("minus", ones ([4, 0, 4]), ones ([4, 1, 4])),
+%!        zeros ([4, 0, 4]))
 
 ## The test below is a very hard case to treat
-%!assert (bsxfun (f, ones ([4, 1, 4, 1]), ones ([1, 4, 1, 4])), zeros ([4, 4, 4, 4]))
+%!assert (bsxfun (f, ones ([4, 1, 4, 1]), ones ([1, 4, 1, 4])),
+%!        zeros ([4, 4, 4, 4]))
 
 %!shared a, b, aa, bb
 %! ## FIXME: Set a known "good" random seed.  See bug #51779.
@@ -795,13 +799,13 @@ as the other array.
 %! endfor
 
 ## Automatic broadcasting with zero length dimensions
-%!assert <*47085> ([1 2 3] .+ zeros (0, 3), zeros (0, 3))
-%!assert <*47085> (rand (3, 3, 1) .+ rand (3, 3, 0), zeros (3, 3, 0))
+%!assert <*47085> ([1 2 3] + zeros (0, 3), zeros (0, 3))
+%!assert <*47085> (rand (3, 3, 1) + rand (3, 3, 0), zeros (3, 3, 0))
 
 ## In-place broadcasting with zero length dimensions
 %!test <*47085>
 %! a = zeros (0, 3);
-%! a .+= [1 2 3];
+%! a += [1 2 3];
 %! assert (a, zeros (0, 3));
 
 %!test <*53179>
@@ -812,3 +816,5 @@ as the other array.
 %! assert (r(:,:,1), repmat (single ([0, 0, 1+i, 1+i]), [4, 1]));
 
 */
+
+OCTAVE_NAMESPACE_END

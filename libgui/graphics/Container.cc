@@ -38,7 +38,7 @@
 #include "graphics.h"
 #include "interpreter.h"
 
-namespace QtHandles
+namespace octave
 {
 
   Container::Container (QWidget *xparent, octave::base_qobject& oct_qobj,
@@ -52,7 +52,7 @@ namespace QtHandles
   Container::~Container (void)
   { }
 
-  Canvas*
+  Canvas *
   Container::canvas (const graphics_handle& gh, bool xcreate)
   {
     if (! m_canvas && xcreate)
@@ -70,11 +70,11 @@ namespace QtHandles
             m_canvas = Canvas::create (m_octave_qobj, m_interpreter, gh, this,
                                        fig.get ("renderer").string_value ());
 
-            connect (m_canvas, SIGNAL (interpeter_event (const fcn_callback&)),
-                     this, SIGNAL (interpeter_event (const fcn_callback&)));
+            connect (m_canvas, QOverload<const octave::fcn_callback&>::of (&Canvas::interpreter_event),
+                     this, QOverload<const octave::fcn_callback&>::of (&Container::interpreter_event));
 
-            connect (m_canvas, SIGNAL (interpeter_event (const meth_callback&)),
-                     this, SIGNAL (interpeter_event (const meth_callback&)));
+            connect (m_canvas, QOverload<const octave::meth_callback&>::of (&Canvas::interpreter_event),
+                     this, QOverload<const octave::meth_callback&>::of (&Container::interpreter_event));
 
             connect (m_canvas,
                      SIGNAL (gh_callback_event (const graphics_handle&,
@@ -131,7 +131,7 @@ namespace QtHandles
   }
 
   void
-  Container::resizeEvent (QResizeEvent* /* event */)
+  Container::resizeEvent (QResizeEvent * /* event */)
   {
     if (m_canvas)
       m_canvas->qWidget ()->setGeometry (0, 0, width (), height ());

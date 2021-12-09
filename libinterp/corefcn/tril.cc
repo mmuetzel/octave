@@ -39,6 +39,8 @@
 #include "error.h"
 #include "ovl.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 // The bulk of the work.
 template <typename T>
 static Array<T>
@@ -46,7 +48,7 @@ do_tril (const Array<T>& a, octave_idx_type k, bool pack)
 {
   octave_idx_type nr = a.rows ();
   octave_idx_type nc = a.columns ();
-  const T *avec = a.fortran_vec ();
+  const T *avec = a.data ();
   octave_idx_type zero = 0;
 
   if (pack)
@@ -88,7 +90,7 @@ do_triu (const Array<T>& a, octave_idx_type k, bool pack)
 {
   octave_idx_type nr = a.rows ();
   octave_idx_type nc = a.columns ();
-  const T *avec = a.fortran_vec ();
+  const T *avec = a.data ();
   octave_idx_type zero = 0;
 
   if (pack)
@@ -286,10 +288,10 @@ do_trilu (const std::string& name,
         octave_value_list ov_idx;
         std::list<octave_value_list> idx_tmp;
         ov_idx(1) = static_cast<double> (nc+1);
-        ov_idx(0) = octave::range<double> (1, nr);
+        ov_idx(0) = range<double> (1, nr);
         idx_tmp.push_back (ov_idx);
         ov_idx(1) = static_cast<double> (nc);
-        tmp = tmp.resize (dim_vector (0,0));
+        tmp = tmp.resize (dim_vector (0, 0));
         tmp = tmp.subsasgn ("(", idx_tmp, arg.index_op (ov_idx));
         tmp = tmp.resize (dims);
 
@@ -303,7 +305,7 @@ do_trilu (const std::string& name,
               {
                 octave_idx_type nr_limit = std::max (one, j - k);
                 ov_idx(1) = static_cast<double> (j);
-                ov_idx(0) = octave::range<double> (nr_limit, nr);
+                ov_idx(0) = range<double> (nr_limit, nr);
                 std::list<octave_value_list> idx;
                 idx.push_back (ov_idx);
 
@@ -318,7 +320,7 @@ do_trilu (const std::string& name,
               {
                 octave_idx_type nr_limit = std::min (nr, j - k);
                 ov_idx(1) = static_cast<double> (j);
-                ov_idx(0) = octave::range<double> (1, nr_limit);
+                ov_idx(0) = range<double> (1, nr_limit);
                 std::list<octave_value_list> idx;
                 idx.push_back (ov_idx);
 
@@ -480,3 +482,5 @@ above another, and returned as a column vector.
 %!error tril ()
 %!error triu ()
 */
+
+OCTAVE_NAMESPACE_END

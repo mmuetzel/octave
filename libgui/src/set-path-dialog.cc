@@ -74,7 +74,7 @@ namespace octave
     m_add_folder_button->setMenu (add_dir_menu);
     add_dir_menu->addAction (tr ("Single Folder"),
                              this, &set_path_dialog::add_dir);
-    add_dir_menu->addAction (tr ("Folder with Subfolders"),
+    add_dir_menu->addAction (tr ("Folder With Subfolders"),
                              this, &set_path_dialog::add_dir_subdirs);
 
     m_move_to_top_button = new QPushButton (tr ("Move to Top"));
@@ -164,7 +164,7 @@ namespace octave
     QGridLayout *main_layout = new QGridLayout;
     main_layout->addWidget (m_info_label, 0, 0);
     main_layout->addLayout (main_hboxlayout, 1, 0);
-    main_layout->addWidget (button_box,2, 0);
+    main_layout->addWidget (button_box, 2, 0);
 
     setLayout (main_layout);
 

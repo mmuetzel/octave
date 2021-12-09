@@ -36,10 +36,10 @@
 #include "octave-qobject.h"
 #include "octave-qtutils.h"
 
-namespace QtHandles
+namespace octave
 {
 
-  PopupMenuControl*
+  PopupMenuControl *
   PopupMenuControl::create (octave::base_qobject& oct_qobj,
                             octave::interpreter& interp,
                             const graphics_object& go)

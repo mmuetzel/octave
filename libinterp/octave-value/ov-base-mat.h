@@ -143,7 +143,7 @@ public:
 
   octave_value sort (octave_idx_type dim = 0, sortmode mode = ASCENDING) const
   { return octave_value (matrix.sort (dim, mode)); }
-  octave_value sort (Array<octave_idx_type> &sidx, octave_idx_type dim = 0,
+  octave_value sort (Array<octave_idx_type>& sidx, octave_idx_type dim = 0,
                      sortmode mode = ASCENDING) const
   { return octave_value (matrix.sort (sidx, dim, mode)); }
 
@@ -197,6 +197,10 @@ public:
 
   OCTINTERP_API bool
   fast_elem_insert (octave_idx_type n, const octave_value& x);
+
+  // This function exists to support the MEX interface.
+  // You should not use it anywhere else.
+  const void * mex_get_data (void) const { return matrix.data (); }
 
 protected:
 

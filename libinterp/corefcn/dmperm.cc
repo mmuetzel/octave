@@ -38,6 +38,8 @@
 #include "ovl.h"
 #include "utils.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 #if defined (OCTAVE_ENABLE_64)
 #  define CXSPARSE_NAME(name) cs_dl ## name
 #else
@@ -47,7 +49,7 @@
 #if defined (HAVE_CXSPARSE)
 
 static RowVector
-put_int (octave::suitesparse_integer *p, octave_idx_type n)
+put_int (suitesparse_integer *p, octave_idx_type n)
 {
   RowVector ret (n);
   for (octave_idx_type i = 0; i < n; i++)
@@ -73,20 +75,20 @@ dmperm_internal (bool rank, const octave_value arg, int nargout)
     {
       m = arg.sparse_matrix_value ();
       csm.nzmax = m.nnz ();
-      csm.p = octave::to_suitesparse_intptr (m.xcidx ());
-      csm.i = octave::to_suitesparse_intptr (m.xridx ());
+      csm.p = to_suitesparse_intptr (m.xcidx ());
+      csm.i = to_suitesparse_intptr (m.xridx ());
     }
   else
     {
       cm = arg.sparse_complex_matrix_value ();
       csm.nzmax = cm.nnz ();
-      csm.p = octave::to_suitesparse_intptr (cm.xcidx ());
-      csm.i = octave::to_suitesparse_intptr (cm.xridx ());
+      csm.p = to_suitesparse_intptr (cm.xcidx ());
+      csm.i = to_suitesparse_intptr (cm.xridx ());
     }
 
   if (nargout <= 1 || rank)
     {
-      octave::suitesparse_integer *jmatch = CXSPARSE_NAME (_maxtrans) (&csm, 0);
+      suitesparse_integer *jmatch = CXSPARSE_NAME (_maxtrans) (&csm, 0);
       if (rank)
         {
           octave_idx_type r = 0;
@@ -257,3 +259,5 @@ such the numerical rank of the matrix @var{S} is bounded by
 
 %!error sprank (1,2)
 */
+
+OCTAVE_NAMESPACE_END

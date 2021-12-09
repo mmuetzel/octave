@@ -40,9 +40,11 @@
 
 namespace octave
 {
+  class community_news;
   class main_window;
   class qt_application;
   class qt_interpreter_events;
+  class release_notes;
 
   //! This class is a simple wrapper around QApplication so that we can
   //! reimplement QApplication::notify.  The octave_qapplication object
@@ -129,6 +131,11 @@ namespace octave
       return ! m_terminal_widget.isNull ();
     }
 
+    main_window * get_main_window (void)
+    {
+      return m_main_window;
+    }
+
     resource_manager& get_resource_manager (void)
     {
       return m_resource_manager;
@@ -183,7 +190,11 @@ namespace octave
     QPointer<variable_editor>
     variable_editor_widget (main_window *mw = nullptr);
 
-    QThread *main_thread (void) { return m_main_thread; }
+    QPointer<community_news> community_news_widget (int serial = -1);
+
+    QPointer<release_notes> release_notes_widget (void);
+
+    QThread * main_thread (void) { return m_main_thread; }
 
     // Declared virtual so that a derived class may redefine this
     // method.
@@ -223,7 +234,9 @@ namespace octave
 
     void handle_variable_editor_update (void);
 
-    void refresh_variable_editor (void);
+    void show_community_news (int serial);
+
+    void show_release_notes (void);
 
     void interpreter_ready (void);
 
@@ -292,6 +305,10 @@ namespace octave
     QPointer<file_editor_interface> m_editor_widget;
 
     QPointer<variable_editor> m_variable_editor_widget;
+
+    QPointer<community_news> m_community_news;
+
+    QPointer<release_notes> m_release_notes;
 
     main_window *m_main_window;
   };

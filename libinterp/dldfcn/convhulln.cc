@@ -86,6 +86,8 @@ octave_qhull_dims_ok (octave_idx_type dim, octave_idx_type n, const char *who)
 
 #endif
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFUN_DLD (convhulln, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{h} =} convhulln (@var{pts})
@@ -178,8 +180,8 @@ convex hull is calculated.
 
   int exitcode = qh_new_qhull (qh, dim, num_points, points.fortran_vec (),
                                ismalloc, &cmd[0], outfile, errfile);
- 
-  octave::unwind_action free_memory ([qh] () { free_qhull_memory (qh); });
+
+  unwind_action free_memory ([qh] () { free_qhull_memory (qh); });
 
   if (exitcode)
     error ("convhulln: qhull failed");
@@ -302,7 +304,8 @@ convex hull is calculated.
 %! [h, v] = convhulln (cube, "Qt");
 %! assert (size (h), [12 3]);
 %! h = sortrows (sort (h, 2), [1:3]);
-%! assert (h, [1 2 4; 1 2 6; 1 4 8; 1 5 6; 1 5 8; 2 3 4; 2 3 7; 2 6 7; 3 4 7; 4 7 8; 5 6 7; 5 7 8]);
+%! assert (h,
+%!         [1 2 4; 1 2 6; 1 4 8; 1 5 6; 1 5 8; 2 3 4; 2 3 7; 2 6 7; 3 4 7; 4 7 8; 5 6 7; 5 7 8]);
 %! assert (v, 1, 10*eps);
 %! [h2, v2] = convhulln (cube);  # Test default option = "Qt"
 %! assert (size (h2), size (h));
@@ -314,7 +317,8 @@ convex hull is calculated.
 %! cube = [0 0 0;1 0 0;1 1 0;0 1 0;0 0 1;1 0 1;1 1 1;0 1 1];
 %! [h, v] = convhulln (cube, "QJ");
 %! assert (size (h), [12 3]);
-%! assert (sortrows (sort (h, 2), [1:3]), [1 2 4; 1 2 5; 1 4 5; 2 3 4; 2 3 6; 2 5 6; 3 4 8; 3 6 7; 3 7 8; 4 5 8; 5 6 8; 6 7 8]);
+%! assert (sortrows (sort (h, 2), [1:3]),
+%!         [1 2 4; 1 2 5; 1 4 5; 2 3 4; 2 3 6; 2 5 6; 3 4 8; 3 6 7; 3 7 8; 4 5 8; 5 6 8; 6 7 8]);
 %! assert (v, 1.0, 1e6*eps);
 
 %!testif HAVE_QHULL
@@ -329,3 +333,5 @@ convex hull is calculated.
 %! h = convhulln (triangle);
 %! assert (size (h), [3 2]);
 */
+
+OCTAVE_NAMESPACE_END

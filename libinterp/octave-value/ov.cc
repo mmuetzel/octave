@@ -27,6 +27,8 @@
 #  include "config.h"
 #endif
 
+#include <cmath>
+
 #include "data-conv.h"
 #include "quit.h"
 #include "str-vec.h"
@@ -96,17 +98,17 @@
 // We are likely to have a lot of octave_value objects to allocate, so
 // make the grow_size large.
 
-// If TRUE, don't create special diagonal matrix objects.
+// If TRUE, create special space-optimized diagonal matrix objects.
 
-static bool Vdisable_diagonal_matrix = false;
+static bool Voptimize_diagonal_matrix = true;
 
-// If TRUE, don't create special permutation matrix objects.
+// If TRUE, create special space-optimized permutation matrix objects.
 
-static bool Vdisable_permutation_matrix = false;
+static bool Voptimize_permutation_matrix = true;
 
-// If TRUE, don't create special range objects.
+// If TRUE, create special space-optimized range objects.
 
-static bool Vdisable_range = false;
+static bool Voptimize_range = true;
 
 // FIXME
 
@@ -476,536 +478,536 @@ octave_value::binary_op_to_assign_op (binary_op op)
 }
 
 octave_value::octave_value (short int i)
-  : rep (new octave_scalar (i))
+  : m_rep (new octave_scalar (i))
 { }
 
 octave_value::octave_value (unsigned short int i)
-  : rep (new octave_scalar (i))
+  : m_rep (new octave_scalar (i))
 { }
 
 octave_value::octave_value (int i)
-  : rep (new octave_scalar (i))
+  : m_rep (new octave_scalar (i))
 { }
 
 octave_value::octave_value (unsigned int i)
-  : rep (new octave_scalar (i))
+  : m_rep (new octave_scalar (i))
 { }
 
 octave_value::octave_value (long int i)
-  : rep (new octave_scalar (i))
+  : m_rep (new octave_scalar (i))
 { }
 
 octave_value::octave_value (unsigned long int i)
-  : rep (new octave_scalar (i))
+  : m_rep (new octave_scalar (i))
 { }
 
 #if defined (OCTAVE_HAVE_LONG_LONG_INT)
 octave_value::octave_value (long long int i)
-  : rep (new octave_scalar (i))
+  : m_rep (new octave_scalar (i))
 { }
 #endif
 
 #if defined (OCTAVE_HAVE_UNSIGNED_LONG_LONG_INT)
 octave_value::octave_value (unsigned long long int i)
-  : rep (new octave_scalar (i))
+  : m_rep (new octave_scalar (i))
 { }
 #endif
 
 octave_value::octave_value (octave::sys::time t)
-  : rep (new octave_scalar (t.double_value ()))
+  : m_rep (new octave_scalar (t.double_value ()))
 { }
 
 octave_value::octave_value (double d)
-  : rep (new octave_scalar (d))
+  : m_rep (new octave_scalar (d))
 { }
 
 octave_value::octave_value (float d)
-  : rep (new octave_float_scalar (d))
+  : m_rep (new octave_float_scalar (d))
 { }
 
 octave_value::octave_value (const Cell& c, bool is_csl)
-  : rep (is_csl
-         ? dynamic_cast<octave_base_value *> (new octave_cs_list (c))
-         : dynamic_cast<octave_base_value *> (new octave_cell (c)))
+  : m_rep (is_csl
+           ? dynamic_cast<octave_base_value *> (new octave_cs_list (c))
+           : dynamic_cast<octave_base_value *> (new octave_cell (c)))
 { }
 
 octave_value::octave_value (const Array<octave_value>& a, bool is_csl)
-  : rep (is_csl
-         ? dynamic_cast<octave_base_value *> (new octave_cs_list (Cell (a)))
-         : dynamic_cast<octave_base_value *> (new octave_cell (Cell (a))))
+  : m_rep (is_csl
+           ? dynamic_cast<octave_base_value *> (new octave_cs_list (Cell (a)))
+           : dynamic_cast<octave_base_value *> (new octave_cell (Cell (a))))
 { }
 
 octave_value::octave_value (const Matrix& m, const MatrixType& t)
-  : rep (new octave_matrix (m, t))
+  : m_rep (new octave_matrix (m, t))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const FloatMatrix& m, const MatrixType& t)
-  : rep (new octave_float_matrix (m, t))
+  : m_rep (new octave_float_matrix (m, t))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const NDArray& a)
-  : rep (new octave_matrix (a))
+  : m_rep (new octave_matrix (a))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const FloatNDArray& a)
-  : rep (new octave_float_matrix (a))
+  : m_rep (new octave_float_matrix (a))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<double>& a)
-  : rep (new octave_matrix (a))
+  : m_rep (new octave_matrix (a))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<float>& a)
-  : rep (new octave_float_matrix (a))
+  : m_rep (new octave_float_matrix (a))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const DiagArray2<double>& d)
-  : rep (Vdisable_diagonal_matrix
-         ? dynamic_cast<octave_base_value *> (new octave_matrix (Matrix (d)))
-         : dynamic_cast<octave_base_value *> (new octave_diag_matrix (d)))
+  : m_rep (Voptimize_diagonal_matrix
+           ? dynamic_cast<octave_base_value *> (new octave_diag_matrix (d))
+           : dynamic_cast<octave_base_value *> (new octave_matrix (Matrix (d))))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const DiagArray2<float>& d)
-  : rep (Vdisable_diagonal_matrix
-         ? dynamic_cast<octave_base_value *> (new octave_float_matrix (FloatMatrix (d)))
-         : dynamic_cast<octave_base_value *> (new octave_float_diag_matrix (d)))
+  : m_rep (Voptimize_diagonal_matrix
+           ? dynamic_cast<octave_base_value *> (new octave_float_diag_matrix (d))
+           : dynamic_cast<octave_base_value *> (new octave_float_matrix (FloatMatrix (d))))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const DiagArray2<Complex>& d)
-  : rep (Vdisable_diagonal_matrix
-         ? dynamic_cast<octave_base_value *> (new octave_complex_matrix (ComplexMatrix (d)))
-         : dynamic_cast<octave_base_value *> (new octave_complex_diag_matrix (d)))
+  : m_rep (Voptimize_diagonal_matrix
+           ? dynamic_cast<octave_base_value *> (new octave_complex_diag_matrix (d))
+           : dynamic_cast<octave_base_value *> (new octave_complex_matrix (ComplexMatrix (d))))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const DiagArray2<FloatComplex>& d)
-  : rep (Vdisable_diagonal_matrix
-         ? dynamic_cast<octave_base_value *> (new octave_float_complex_matrix (FloatComplexMatrix (d)))
-         : dynamic_cast<octave_base_value *> (new octave_float_complex_diag_matrix (d)))
+  : m_rep (Voptimize_diagonal_matrix
+           ? dynamic_cast<octave_base_value *> (new octave_float_complex_diag_matrix (d))
+           : dynamic_cast<octave_base_value *> (new octave_float_complex_matrix (FloatComplexMatrix (d))))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const DiagMatrix& d)
-  : rep (Vdisable_diagonal_matrix
-         ? dynamic_cast<octave_base_value *> (new octave_matrix (Matrix (d)))
-         : dynamic_cast<octave_base_value *> (new octave_diag_matrix (d)))
+  : m_rep (Voptimize_diagonal_matrix
+           ? dynamic_cast<octave_base_value *> (new octave_diag_matrix (d))
+           : dynamic_cast<octave_base_value *> (new octave_matrix (Matrix (d))))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const FloatDiagMatrix& d)
-  : rep (Vdisable_diagonal_matrix
-         ? dynamic_cast<octave_base_value *> (new octave_float_matrix (FloatMatrix (d)))
-         : dynamic_cast<octave_base_value *> (new octave_float_diag_matrix (d)))
+  : m_rep (Voptimize_diagonal_matrix
+           ? dynamic_cast<octave_base_value *> (new octave_float_diag_matrix (d))
+           : dynamic_cast<octave_base_value *> (new octave_float_matrix (FloatMatrix (d))))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const RowVector& v)
-  : rep (new octave_matrix (v))
+  : m_rep (new octave_matrix (v))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const FloatRowVector& v)
-  : rep (new octave_float_matrix (v))
+  : m_rep (new octave_float_matrix (v))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const ColumnVector& v)
-  : rep (new octave_matrix (v))
+  : m_rep (new octave_matrix (v))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const FloatColumnVector& v)
-  : rep (new octave_float_matrix (v))
+  : m_rep (new octave_float_matrix (v))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Complex& C)
-  : rep (new octave_complex (C))
+  : m_rep (new octave_complex (C))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const FloatComplex& C)
-  : rep (new octave_float_complex (C))
+  : m_rep (new octave_float_complex (C))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const ComplexMatrix& m, const MatrixType& t)
-  : rep (new octave_complex_matrix (m, t))
+  : m_rep (new octave_complex_matrix (m, t))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const FloatComplexMatrix& m, const MatrixType& t)
-  : rep (new octave_float_complex_matrix (m, t))
+  : m_rep (new octave_float_complex_matrix (m, t))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const ComplexNDArray& a)
-  : rep (new octave_complex_matrix (a))
+  : m_rep (new octave_complex_matrix (a))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const FloatComplexNDArray& a)
-  : rep (new octave_float_complex_matrix (a))
+  : m_rep (new octave_float_complex_matrix (a))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<Complex>& a)
-  : rep (new octave_complex_matrix (a))
+  : m_rep (new octave_complex_matrix (a))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<FloatComplex>& a)
-  : rep (new octave_float_complex_matrix (a))
+  : m_rep (new octave_float_complex_matrix (a))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const ComplexDiagMatrix& d)
-  : rep (Vdisable_diagonal_matrix
-         ? dynamic_cast<octave_base_value *> (new octave_complex_matrix (ComplexMatrix (d)))
-         : dynamic_cast<octave_base_value *> (new octave_complex_diag_matrix (d)))
+  : m_rep (Voptimize_diagonal_matrix
+           ? dynamic_cast<octave_base_value *> (new octave_complex_diag_matrix (d))
+           : dynamic_cast<octave_base_value *> (new octave_complex_matrix (ComplexMatrix (d))))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const FloatComplexDiagMatrix& d)
-  : rep (Vdisable_diagonal_matrix
-         ? dynamic_cast<octave_base_value *> (new octave_float_complex_matrix (FloatComplexMatrix (d)))
-         : dynamic_cast<octave_base_value *> (new octave_float_complex_diag_matrix (d)))
+  : m_rep (Voptimize_diagonal_matrix
+           ? dynamic_cast<octave_base_value *> (new octave_float_complex_diag_matrix (d))
+           : dynamic_cast<octave_base_value *> (new octave_float_complex_matrix (FloatComplexMatrix (d))))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const ComplexRowVector& v)
-  : rep (new octave_complex_matrix (v))
+  : m_rep (new octave_complex_matrix (v))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const FloatComplexRowVector& v)
-  : rep (new octave_float_complex_matrix (v))
+  : m_rep (new octave_float_complex_matrix (v))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const ComplexColumnVector& v)
-  : rep (new octave_complex_matrix (v))
+  : m_rep (new octave_complex_matrix (v))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const FloatComplexColumnVector& v)
-  : rep (new octave_float_complex_matrix (v))
+  : m_rep (new octave_float_complex_matrix (v))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const PermMatrix& p)
-  : rep (Vdisable_permutation_matrix
-         ? dynamic_cast<octave_base_value *> (new octave_matrix (Matrix (p)))
-         : dynamic_cast<octave_base_value *> (new octave_perm_matrix (p)))
+  : m_rep (Voptimize_permutation_matrix
+           ? dynamic_cast<octave_base_value *> (new octave_perm_matrix (p))
+           : dynamic_cast<octave_base_value *> (new octave_matrix (Matrix (p))))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (bool b)
-  : rep (new octave_bool (b))
+  : m_rep (new octave_bool (b))
 { }
 
 octave_value::octave_value (const boolMatrix& bm, const MatrixType& t)
-  : rep (new octave_bool_matrix (bm, t))
+  : m_rep (new octave_bool_matrix (bm, t))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const boolNDArray& bnda)
-  : rep (new octave_bool_matrix (bnda))
+  : m_rep (new octave_bool_matrix (bnda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<bool>& bnda)
-  : rep (new octave_bool_matrix (bnda))
+  : m_rep (new octave_bool_matrix (bnda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (char c, char type)
-  : rep (type == '"'
-         ? new octave_char_matrix_dq_str (c)
-         : new octave_char_matrix_sq_str (c))
+  : m_rep (type == '"'
+           ? new octave_char_matrix_dq_str (c)
+           : new octave_char_matrix_sq_str (c))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const char *s, char type)
-  : rep (type == '"'
-         ? new octave_char_matrix_dq_str (s)
-         : new octave_char_matrix_sq_str (s))
+  : m_rep (type == '"'
+           ? new octave_char_matrix_dq_str (s)
+           : new octave_char_matrix_sq_str (s))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const std::string& s, char type)
-  : rep (type == '"'
-         ? new octave_char_matrix_dq_str (s)
-         : new octave_char_matrix_sq_str (s))
+  : m_rep (type == '"'
+           ? new octave_char_matrix_dq_str (s)
+           : new octave_char_matrix_sq_str (s))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const string_vector& s, char type)
-  : rep (type == '"'
-         ? new octave_char_matrix_dq_str (s)
-         : new octave_char_matrix_sq_str (s))
+  : m_rep (type == '"'
+           ? new octave_char_matrix_dq_str (s)
+           : new octave_char_matrix_sq_str (s))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const charMatrix& chm, char type)
-  : rep (type == '"'
-         ? new octave_char_matrix_dq_str (chm)
-         : new octave_char_matrix_sq_str (chm))
+  : m_rep (type == '"'
+           ? new octave_char_matrix_dq_str (chm)
+           : new octave_char_matrix_sq_str (chm))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const charNDArray& chm, char type)
-  : rep (type == '"'
-         ? new octave_char_matrix_dq_str (chm)
-         : new octave_char_matrix_sq_str (chm))
+  : m_rep (type == '"'
+           ? new octave_char_matrix_dq_str (chm)
+           : new octave_char_matrix_sq_str (chm))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<char>& chm, char type)
-  : rep (type == '"'
-         ? new octave_char_matrix_dq_str (chm)
-         : new octave_char_matrix_sq_str (chm))
+  : m_rep (type == '"'
+           ? new octave_char_matrix_dq_str (chm)
+           : new octave_char_matrix_sq_str (chm))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const SparseMatrix& m, const MatrixType& t)
-  : rep (new octave_sparse_matrix (m, t))
+  : m_rep (new octave_sparse_matrix (m, t))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Sparse<double>& m, const MatrixType& t)
-  : rep (new octave_sparse_matrix (m, t))
+  : m_rep (new octave_sparse_matrix (m, t))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const SparseComplexMatrix& m, const MatrixType& t)
-  : rep (new octave_sparse_complex_matrix (m, t))
+  : m_rep (new octave_sparse_complex_matrix (m, t))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Sparse<Complex>& m, const MatrixType& t)
-  : rep (new octave_sparse_complex_matrix (m, t))
+  : m_rep (new octave_sparse_complex_matrix (m, t))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const SparseBoolMatrix& bm, const MatrixType& t)
-  : rep (new octave_sparse_bool_matrix (bm, t))
+  : m_rep (new octave_sparse_bool_matrix (bm, t))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Sparse<bool>& bm, const MatrixType& t)
-  : rep (new octave_sparse_bool_matrix (bm, t))
+  : m_rep (new octave_sparse_bool_matrix (bm, t))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave_int8& i)
-  : rep (new octave_int8_scalar (i))
+  : m_rep (new octave_int8_scalar (i))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave_uint8& i)
-  : rep (new octave_uint8_scalar (i))
+  : m_rep (new octave_uint8_scalar (i))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave_int16& i)
-  : rep (new octave_int16_scalar (i))
+  : m_rep (new octave_int16_scalar (i))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave_uint16& i)
-  : rep (new octave_uint16_scalar (i))
+  : m_rep (new octave_uint16_scalar (i))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave_int32& i)
-  : rep (new octave_int32_scalar (i))
+  : m_rep (new octave_int32_scalar (i))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave_uint32& i)
-  : rep (new octave_uint32_scalar (i))
+  : m_rep (new octave_uint32_scalar (i))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave_int64& i)
-  : rep (new octave_int64_scalar (i))
+  : m_rep (new octave_int64_scalar (i))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave_uint64& i)
-  : rep (new octave_uint64_scalar (i))
+  : m_rep (new octave_uint64_scalar (i))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const int8NDArray& inda)
-  : rep (new octave_int8_matrix (inda))
+  : m_rep (new octave_int8_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<octave_int8>& inda)
-  : rep (new octave_int8_matrix (inda))
+  : m_rep (new octave_int8_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const uint8NDArray& inda)
-  : rep (new octave_uint8_matrix (inda))
+  : m_rep (new octave_uint8_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<octave_uint8>& inda)
-  : rep (new octave_uint8_matrix (inda))
+  : m_rep (new octave_uint8_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const int16NDArray& inda)
-  : rep (new octave_int16_matrix (inda))
+  : m_rep (new octave_int16_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<octave_int16>& inda)
-  : rep (new octave_int16_matrix (inda))
+  : m_rep (new octave_int16_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const uint16NDArray& inda)
-  : rep (new octave_uint16_matrix (inda))
+  : m_rep (new octave_uint16_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<octave_uint16>& inda)
-  : rep (new octave_uint16_matrix (inda))
+  : m_rep (new octave_uint16_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const int32NDArray& inda)
-  : rep (new octave_int32_matrix (inda))
+  : m_rep (new octave_int32_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<octave_int32>& inda)
-  : rep (new octave_int32_matrix (inda))
+  : m_rep (new octave_int32_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const uint32NDArray& inda)
-  : rep (new octave_uint32_matrix (inda))
+  : m_rep (new octave_uint32_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<octave_uint32>& inda)
-  : rep (new octave_uint32_matrix (inda))
+  : m_rep (new octave_uint32_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const int64NDArray& inda)
-  : rep (new octave_int64_matrix (inda))
+  : m_rep (new octave_int64_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<octave_int64>& inda)
-  : rep (new octave_int64_matrix (inda))
+  : m_rep (new octave_int64_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const uint64NDArray& inda)
-  : rep (new octave_uint64_matrix (inda))
+  : m_rep (new octave_uint64_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<octave_uint64>& inda)
-  : rep (new octave_uint64_matrix (inda))
+  : m_rep (new octave_uint64_matrix (inda))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const Array<octave_idx_type>& inda, bool zero_based,
                             bool cache_index)
-  : rep (new octave_matrix (inda, zero_based, cache_index))
+  : m_rep (new octave_matrix (inda, zero_based, cache_index))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave::idx_vector& idx, bool lazy)
-  : rep ()
+  : m_rep ()
 {
   double scalar;
   octave::range<double> range;
@@ -1020,7 +1022,7 @@ octave_value::octave_value (const octave::idx_vector& idx, bool lazy)
         {
         case octave::idx_vector::class_range:
         case octave::idx_vector::class_vector:
-          rep = new octave_lazy_index (idx);
+          m_rep = new octave_lazy_index (idx);
           maybe_mutate ();
           return;
 
@@ -1034,23 +1036,23 @@ octave_value::octave_value (const octave::idx_vector& idx, bool lazy)
   switch (idx_class)
     {
     case octave::idx_vector::class_colon:
-      rep = new octave_magic_colon ();
+      m_rep = new octave_magic_colon ();
       break;
 
     case octave::idx_vector::class_range:
-      rep = new octave_range (range, idx);
+      m_rep = new octave_range (range, idx);
       break;
 
     case octave::idx_vector::class_scalar:
-      rep = new octave_scalar (scalar);
+      m_rep = new octave_scalar (scalar);
       break;
 
     case octave::idx_vector::class_vector:
-      rep = new octave_matrix (array, idx);
+      m_rep = new octave_matrix (array, idx);
       break;
 
     case octave::idx_vector::class_mask:
-      rep = new octave_bool_matrix (mask, idx);
+      m_rep = new octave_bool_matrix (mask, idx);
       break;
 
     default:
@@ -1063,181 +1065,182 @@ octave_value::octave_value (const octave::idx_vector& idx, bool lazy)
 }
 
 octave_value::octave_value (const Array<std::string>& cellstr)
-  : rep (new octave_cell (cellstr))
+  : m_rep (new octave_cell (cellstr))
 {
   maybe_mutate ();
 }
 
-octave_value::octave_value (double base, double limit, double inc)
-  : rep (new ov_range<double> (octave::range<double> (base, inc, limit)))
+// Remove when public constructor that uses this function is removed.
+octave_base_value *
+octave_value::make_range_rep_deprecated (double base, double inc, double limit)
 {
-  maybe_mutate ();
+  return dynamic_cast<octave_base_value *>
+    (new ov_range<double> (octave::range<double> (base, inc, limit)));
 }
 
-octave_value::octave_value (const Range& r, bool force_range)
-  : rep (nullptr)
+// Remove when public constructor that uses this function is removed.
+octave_base_value *
+octave_value::make_range_rep_deprecated (const Range& r, bool force_range)
 {
   if (! force_range && ! r.ok ())
     error ("invalid range");
 
-  if (force_range || ! Vdisable_range)
-    rep = dynamic_cast<octave_base_value *> (new ov_range<double> (octave::range<double> (r.base (), r.increment (), r.limit ())));
+  if (force_range || Voptimize_range)
+    return make_range_rep_deprecated (r.base (), r.increment (), r.limit ());
   else
-    rep = dynamic_cast<octave_base_value *> (new octave_matrix (r.matrix_value ()));
-
-  maybe_mutate ();
+    return dynamic_cast<octave_base_value *> (new octave_matrix (r.matrix_value ()));
 }
 
 octave_value::octave_value (const octave::range<char>& r, char type,
                             bool /*force_range*/)
 #if 0
-  : rep (force_range || ! Vdisable_range
-         ? dynamic_cast<octave_base_value *> (new octave_char_range (r, type))
-         : dynamic_cast<octave_base_value *> (type == '"'
-                                              ? new octave_char_matrix_dq_str (r.array_value ())
-                                              : new octave_char_matrix_sq_str (r.array_value ())))
+  : m_rep (force_range || optimize_range
+           ? dynamic_cast<octave_base_value *> (new octave_char_range (r, type))
+           : dynamic_cast<octave_base_value *> (type == '"'
+                                                ? new octave_char_matrix_dq_str (r.array_value ())
+                                                : new octave_char_matrix_sq_str (r.array_value ())))
 #else
-  : rep (type == '"'
-         ? new octave_char_matrix_dq_str (r.array_value ())
-         : new octave_char_matrix_sq_str (r.array_value ()))
+  : m_rep (type == '"'
+           ? new octave_char_matrix_dq_str (r.array_value ())
+           : new octave_char_matrix_sq_str (r.array_value ()))
 #endif
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave::range<float>& r, bool force_range)
-  : rep (force_range || ! Vdisable_range
-         ? dynamic_cast<octave_base_value *> (new ov_range<float> (r))
-         : dynamic_cast<octave_base_value *> (new octave_float_matrix (r.array_value ())))
+  : m_rep (force_range || Voptimize_range
+           ? dynamic_cast<octave_base_value *> (new ov_range<float> (r))
+           : dynamic_cast<octave_base_value *> (new octave_float_matrix (r.array_value ())))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave::range<double>& r, bool force_range)
-  : rep (force_range || ! Vdisable_range
-         ? dynamic_cast<octave_base_value *> (new ov_range<double> (r))
-         : dynamic_cast<octave_base_value *> (new octave_matrix (r.array_value ())))
+  : m_rep (force_range || Voptimize_range
+           ? dynamic_cast<octave_base_value *> (new ov_range<double> (r))
+           : dynamic_cast<octave_base_value *> (new octave_matrix (r.array_value ())))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave::range<octave_int8>& r,
                             bool force_range)
-  : rep (force_range || ! Vdisable_range
-         ? dynamic_cast<octave_base_value *> (new ov_range<octave_int8> (r))
-         : dynamic_cast<octave_base_value *> (new octave_int8_matrix (r.array_value ())))
+  : m_rep (force_range || Voptimize_range
+           ? dynamic_cast<octave_base_value *> (new ov_range<octave_int8> (r))
+           : dynamic_cast<octave_base_value *> (new octave_int8_matrix (r.array_value ())))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave::range<octave_int16>& r,
                             bool force_range)
-  : rep (force_range || ! Vdisable_range
-         ? dynamic_cast<octave_base_value *> (new ov_range<octave_int16> (r))
-         : dynamic_cast<octave_base_value *> (new octave_int16_matrix (r.array_value ())))
+  : m_rep (force_range || Voptimize_range
+           ? dynamic_cast<octave_base_value *> (new ov_range<octave_int16> (r))
+           : dynamic_cast<octave_base_value *> (new octave_int16_matrix (r.array_value ())))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave::range<octave_int32>& r,
                             bool force_range)
-  : rep (force_range || ! Vdisable_range
-         ? dynamic_cast<octave_base_value *> (new ov_range<octave_int32> (r))
-         : dynamic_cast<octave_base_value *> (new octave_int32_matrix (r.array_value ())))
+  : m_rep (force_range || Voptimize_range
+           ? dynamic_cast<octave_base_value *> (new ov_range<octave_int32> (r))
+           : dynamic_cast<octave_base_value *> (new octave_int32_matrix (r.array_value ())))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave::range<octave_int64>& r,
                             bool force_range)
-  : rep (force_range || ! Vdisable_range
-         ? dynamic_cast<octave_base_value *> (new ov_range<octave_int64> (r))
-         : dynamic_cast<octave_base_value *> (new octave_int64_matrix (r.array_value ())))
+  : m_rep (force_range || Voptimize_range
+           ? dynamic_cast<octave_base_value *> (new ov_range<octave_int64> (r))
+           : dynamic_cast<octave_base_value *> (new octave_int64_matrix (r.array_value ())))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave::range<octave_uint8>& r,
                             bool force_range)
-  : rep (force_range || ! Vdisable_range
-         ? dynamic_cast<octave_base_value *> (new ov_range<octave_uint8> (r))
-         : dynamic_cast<octave_base_value *> (new octave_uint8_matrix (r.array_value ())))
+  : m_rep (force_range || Voptimize_range
+           ? dynamic_cast<octave_base_value *> (new ov_range<octave_uint8> (r))
+           : dynamic_cast<octave_base_value *> (new octave_uint8_matrix (r.array_value ())))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave::range<octave_uint16>& r,
                             bool force_range)
-  : rep (force_range || ! Vdisable_range
-         ? dynamic_cast<octave_base_value *> (new ov_range<octave_uint16> (r))
-         : dynamic_cast<octave_base_value *> (new octave_uint16_matrix (r.array_value ())))
+  : m_rep (force_range || Voptimize_range
+           ? dynamic_cast<octave_base_value *> (new ov_range<octave_uint16> (r))
+           : dynamic_cast<octave_base_value *> (new octave_uint16_matrix (r.array_value ())))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave::range<octave_uint32>& r,
                             bool force_range)
-  : rep (force_range || ! Vdisable_range
-         ? dynamic_cast<octave_base_value *> (new ov_range<octave_uint32> (r))
-         : dynamic_cast<octave_base_value *> (new octave_uint32_matrix (r.array_value ())))
+  : m_rep (force_range || Voptimize_range
+           ? dynamic_cast<octave_base_value *> (new ov_range<octave_uint32> (r))
+           : dynamic_cast<octave_base_value *> (new octave_uint32_matrix (r.array_value ())))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave::range<octave_uint64>& r,
                             bool force_range)
-  : rep (force_range || ! Vdisable_range
-         ? dynamic_cast<octave_base_value *> (new ov_range<octave_uint64> (r))
-         : dynamic_cast<octave_base_value *> (new octave_uint64_matrix (r.array_value ())))
+  : m_rep (force_range || Voptimize_range
+           ? dynamic_cast<octave_base_value *> (new ov_range<octave_uint64> (r))
+           : dynamic_cast<octave_base_value *> (new octave_uint64_matrix (r.array_value ())))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave_map& m)
-  : rep (new octave_struct (m))
+  : m_rep (new octave_struct (m))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave_scalar_map& m)
-  : rep (new octave_scalar_struct (m))
+  : m_rep (new octave_scalar_struct (m))
 { }
 
 octave_value::octave_value (const std::map<std::string, octave_value>& m)
-  : rep (new octave_scalar_struct (m))
+  : m_rep (new octave_scalar_struct (m))
 { }
 
 octave_value::octave_value (const octave_map& m, const std::string& id,
                             const std::list<std::string>& plist)
-  : rep (new octave_class (m, id, plist))
+  : m_rep (new octave_class (m, id, plist))
 {
   maybe_mutate ();
 }
 
 octave_value::octave_value (const octave_scalar_map& m, const std::string& id,
                             const std::list<std::string>& plist)
-  : rep (new octave_class (m, id, plist))
+  : m_rep (new octave_class (m, id, plist))
 { }
 
 octave_value::octave_value (const octave_value_list& l)
-  : rep (new octave_cs_list (l))
+  : m_rep (new octave_cs_list (l))
 { }
 
 octave_value::octave_value (octave_value::magic_colon)
-  : rep (new octave_magic_colon ())
+  : m_rep (new octave_magic_colon ())
 { }
 
 octave_value::octave_value (octave_base_value *new_rep, bool borrow)
-  : rep (new_rep)
+  : m_rep (new_rep)
 {
   if (borrow)
-    rep->count++;
+    m_rep->count++;
 }
 
 octave_base_value *
 octave_value::clone (void) const
 {
-  return rep->clone ();
+  return m_rep->clone ();
 }
 
 void
@@ -1245,7 +1248,7 @@ octave_value::break_closure_cycles (const std::shared_ptr<octave::stack_frame>& 
 {
   if (is_function_handle ())
     {
-      octave_fcn_handle *fhdl = rep->fcn_handle_value ();
+      octave_fcn_handle *fhdl = m_rep->fcn_handle_value ();
 
       if (fhdl->is_nested (frame) && ! fhdl->is_weak_nested ())
         *this = fhdl->make_weak_nested_handle ();
@@ -1263,23 +1266,25 @@ octave_value::break_closure_cycles (const std::shared_ptr<octave::stack_frame>& 
 
       make_unique ();
 
-      rep->break_closure_cycles (frame);
+      m_rep->break_closure_cycles (frame);
     }
 }
 
 void
 octave_value::maybe_mutate (void)
 {
-  octave_base_value *tmp = rep->try_narrowing_conversion ();
+  octave_base_value *tmp = m_rep->try_narrowing_conversion ();
 
-  if (tmp && tmp != rep)
+  if (tmp && tmp != m_rep)
     {
-      if (--rep->count == 0)
-        delete rep;
+      if (--m_rep->count == 0)
+        delete m_rep;
 
-      rep = tmp;
+      m_rep = tmp;
     }
 }
+
+OCTAVE_NAMESPACE_BEGIN
 
 DEFUN (double, args, ,
        doc: /* -*- texinfo -*-
@@ -1542,6 +1547,8 @@ Convert @var{x} to unsigned 64-bit integer type.
 %!assert (uint64 (-2^65), uint64 (0))
 */
 
+OCTAVE_NAMESPACE_END
+
 octave_value
 octave_value::single_subsref (const std::string& type,
                               const octave_value_list& idx)
@@ -1550,14 +1557,14 @@ octave_value::single_subsref (const std::string& type,
 
   i.push_back (idx);
 
-  return rep->subsref (type, i);
+  return m_rep->subsref (type, i);
 }
 
 octave_value_list
 octave_value::subsref (const std::string& type,
                        const std::list<octave_value_list>& idx, int nargout)
 {
-  return rep->subsref (type, idx, nargout);
+  return m_rep->subsref (type, idx, nargout);
 }
 
 octave_value
@@ -1613,7 +1620,7 @@ octave_value::subsasgn (const std::string& type,
                         const std::list<octave_value_list>& idx,
                         const octave_value& rhs)
 {
-  return rep->subsasgn (type, idx, rhs);
+  return m_rep->subsasgn (type, idx, rhs);
 }
 
 octave_value
@@ -1621,7 +1628,7 @@ octave_value::undef_subsasgn (const std::string& type,
                               const std::list<octave_value_list>& idx,
                               const octave_value& rhs)
 {
-  return rep->undef_subsasgn (type, idx, rhs);
+  return m_rep->undef_subsasgn (type, idx, rhs);
 }
 
 octave_value&
@@ -1661,7 +1668,7 @@ octave_value::assign (assign_op op, const octave_value& rhs)
       octave::type_info::assign_op_fcn f = nullptr;
 
       // Only attempt to operate in-place if this variable is unshared.
-      if (rep->count == 1)
+      if (m_rep->count == 1)
         {
           int tthis = this->type_id ();
           int trhs = rhs.type_id ();
@@ -1674,7 +1681,7 @@ octave_value::assign (assign_op op, const octave_value& rhs)
 
       if (f)
         {
-          f (*rep, octave_value_list (), rhs.get_rep ());
+          f (*m_rep, octave_value_list (), rhs.get_rep ());
           // Usually unnecessary, but may be needed (complex arrays).
           maybe_mutate ();
         }
@@ -1781,61 +1788,61 @@ octave_value::idx_type_value (bool req_int, bool frc_str_conv) const
 Cell
 octave_value::cell_value (void) const
 {
-  return rep->cell_value ();
+  return m_rep->cell_value ();
 }
 
 octave_map
 octave_value::map_value (void) const
 {
-  return rep->map_value ();
+  return m_rep->map_value ();
 }
 
 octave_scalar_map
 octave_value::scalar_map_value (void) const
 {
-  return rep->scalar_map_value ();
+  return m_rep->scalar_map_value ();
 }
 
 octave_function *
 octave_value::function_value (bool silent) const
 {
-  return rep->function_value (silent);
+  return m_rep->function_value (silent);
 }
 
 octave_classdef *
 octave_value::classdef_object_value (bool silent) const
 {
-  return rep->classdef_object_value (silent);
+  return m_rep->classdef_object_value (silent);
 }
 
 octave_user_function *
 octave_value::user_function_value (bool silent) const
 {
-  return rep->user_function_value (silent);
+  return m_rep->user_function_value (silent);
 }
 
 octave_user_script *
 octave_value::user_script_value (bool silent) const
 {
-  return rep->user_script_value (silent);
+  return m_rep->user_script_value (silent);
 }
 
 octave_user_code *
 octave_value::user_code_value (bool silent) const
 {
-  return rep->user_code_value (silent);
+  return m_rep->user_code_value (silent);
 }
 
 octave_fcn_handle *
 octave_value::fcn_handle_value (bool silent) const
 {
-  return rep->fcn_handle_value (silent);
+  return m_rep->fcn_handle_value (silent);
 }
 
 octave_value_list
 octave_value::list_value (void) const
 {
-  return rep->list_value ();
+  return m_rep->list_value ();
 }
 
 static dim_vector
@@ -2214,7 +2221,7 @@ XVALUE_EXTRACTOR (uint16NDArray, xuint16_array_value, uint16_array_value)
 XVALUE_EXTRACTOR (uint32NDArray, xuint32_array_value, uint32_array_value)
 XVALUE_EXTRACTOR (uint64NDArray, xuint64_array_value, uint64_array_value)
 
-XVALUE_EXTRACTOR (std::string, xstring_value, rep->xstring_value)
+XVALUE_EXTRACTOR (std::string, xstring_value, m_rep->xstring_value)
 XVALUE_EXTRACTOR (string_vector, xstring_vector_value, string_vector_value)
 
 XVALUE_EXTRACTOR (Cell, xcell_value, cell_value)
@@ -2270,10 +2277,10 @@ octave_value::storable_value (void) const
 {
   octave_value retval = *this;
   if (isnull ())
-    retval = octave_value (rep->empty_clone ());
+    retval = octave_value (m_rep->empty_clone ());
   else if (is_magic_int ())
-    retval = octave_value (rep->double_value ());
-  else if (is_range () && ! rep->is_storable ())
+    retval = octave_value (m_rep->double_value ());
+  else if (is_range () && ! m_rep->is_storable ())
     error ("range with infinite number of elements cannot be stored");
   else
     retval.maybe_economize ();
@@ -2286,19 +2293,19 @@ octave_value::make_storable_value (void)
 {
   if (isnull ())
     {
-      octave_base_value *rc = rep->empty_clone ();
-      if (--rep->count == 0)
-        delete rep;
-      rep = rc;
+      octave_base_value *rc = m_rep->empty_clone ();
+      if (--m_rep->count == 0)
+        delete m_rep;
+      m_rep = rc;
     }
   else if (is_magic_int ())
     {
-      octave_base_value *rc = new octave_scalar (rep->double_value ());
-      if (--rep->count == 0)
-        delete rep;
-      rep = rc;
+      octave_base_value *rc = new octave_scalar (m_rep->double_value ());
+      if (--m_rep->count == 0)
+        delete m_rep;
+      m_rep = rc;
     }
-  else if (is_range () && ! rep->is_storable ())
+  else if (is_range () && ! m_rep->is_storable ())
     error ("range with infinite number of elements cannot be stored");
   else
     maybe_economize ();
@@ -2307,7 +2314,7 @@ octave_value::make_storable_value (void)
 float_display_format
 octave_value::get_edit_display_format (void) const
 {
-  return rep->get_edit_display_format ();
+  return m_rep->get_edit_display_format ();
 }
 
 int
@@ -2315,7 +2322,7 @@ octave_value::write (octave::stream& os, int block_size,
                      oct_data_conv::data_type output_type, int skip,
                      octave::mach_info::float_format flt_fmt) const
 {
-  return rep->write (os, block_size, output_type, skip, flt_fmt);
+  return m_rep->write (os, block_size, output_type, skip, flt_fmt);
 }
 
 void
@@ -2323,12 +2330,12 @@ octave_value::print_info (std::ostream& os, const std::string& prefix) const
 {
   os << prefix << "type_name: " << type_name () << "\n"
      << prefix << "count:     " << get_count () << "\n"
-     << prefix << "rep info:  ";
+     << prefix << "m_rep info:  ";
 
-  rep->print_info (os, prefix + ' ');
+  m_rep->print_info (os, prefix + ' ');
 }
 
-void *
+const void *
 octave_value::mex_get_data (mxClassID class_id, mxComplexity complexity) const
 {
   // If class_id is set to mxUNKNOWN_CLASS, return data for any type.
@@ -2393,7 +2400,7 @@ octave_value::mex_get_data (mxClassID class_id, mxComplexity complexity) const
         error ("mex_get_data: objectis not complex as requested");
     }
 
-  return rep->mex_get_data ();
+  return m_rep->mex_get_data ();
 }
 
 OCTAVE_NORETURN static void
@@ -2439,7 +2446,7 @@ octave_value::non_const_unary_op (unary_op op)
         {
           make_unique ();
 
-          f (*rep);
+          f (*m_rep);
         }
       else
         {
@@ -2448,14 +2455,14 @@ octave_value::non_const_unary_op (unary_op op)
           if (! cf)
             err_unary_op (octave_value::unary_op_as_string (op), type_name ());
 
-          octave_base_value *tmp = cf (*rep);
+          octave_base_value *tmp = cf (*m_rep);
 
           if (! tmp)
             err_unary_op_conversion_failed
               (octave_value::unary_op_as_string (op), type_name ());
 
-          octave_base_value *old_rep = rep;
-          rep = tmp;
+          octave_base_value *old_rep = m_rep;
+          m_rep = tmp;
 
           t = type_id ();
 
@@ -2463,7 +2470,7 @@ octave_value::non_const_unary_op (unary_op op)
 
           if (f)
             {
-              f (*rep);
+              f (*m_rep);
 
               if (old_rep && --old_rep->count == 0)
                 delete old_rep;
@@ -2472,10 +2479,10 @@ octave_value::non_const_unary_op (unary_op op)
             {
               if (old_rep)
                 {
-                  if (--rep->count == 0)
-                    delete rep;
+                  if (--m_rep->count == 0)
+                    delete m_rep;
 
-                  rep = old_rep;
+                  m_rep = old_rep;
                 }
 
               err_unary_op (octave_value::unary_op_as_string (op),
@@ -2491,7 +2498,7 @@ octave_value::non_const_unary_op (unary_op op)
       octave::type_info::non_const_unary_op_fcn f = nullptr;
 
       // Only attempt to operate in-place if this variable is unshared.
-      if (rep->count == 1)
+      if (m_rep->count == 1)
         {
           octave::type_info& ti
             = octave::__get_type_info__ ("non_const_unary_op");
@@ -2500,7 +2507,7 @@ octave_value::non_const_unary_op (unary_op op)
         }
 
       if (f)
-        f (*rep);
+        f (*m_rep);
       else
         *this = octave::unary_op (op, *this);
     }
@@ -2623,8 +2630,8 @@ octave_value::empty_conv (const std::string& type, const octave_value& rhs)
     return octave_value (rhs.empty_clone ());
 }
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   OCTAVE_NORETURN static void
   err_binary_op (const std::string& on, const std::string& tn1,
                  const std::string& tn2)
@@ -2996,7 +3003,26 @@ namespace octave
     return get_colon_op_type (typ, limit.builtin_type ());
   }
 
-  // Templated version used for various integer types (int8, uint16, ...)
+  // This check depends on the type of VAL either being the expected
+  // integer type or a double value.
+
+  template <typename T>
+  static void
+  check_colon_operand (const octave_value& val, const char *op_str)
+  {
+    if (! val.is_double_type ())
+      return;
+
+    double dval = val.double_value ();
+    double intpart;
+
+    if (dval > std::numeric_limits<typename T::val_type>::max ()
+        || dval < std::numeric_limits<typename T::val_type>::min ()
+        || std::modf (dval, &intpart) != 0.0)
+      error ("colon operator %s invalid (not an integer or out of range for given integer type)", op_str);
+  }
+
+// Templated version used for various integer types (int8, uint16, ...)
   template <typename T>
   octave_value
   make_range (const octave_value& base, const octave_value& increment,
@@ -3005,24 +3031,25 @@ namespace octave
     if (base.isempty () || increment.isempty () || limit.isempty ())
       return octave_value (range<T> (), for_cmd_expr);
 
-    double dval;
+    bool reverse = (base.is_uint8_type () || base.is_uint16_type ()
+                    || base.is_uint32_type () || base.is_uint64_type ()
+                    || limit.is_uint8_type () || limit.is_uint16_type ()
+                    || limit.is_uint32_type () || limit.is_uint64_type ())
+                   && increment.scalar_value () < 0;
+
+    octave_value inc = (reverse ? -increment : increment);
+
+    check_colon_operand<T> (base, "lower bound");
+    check_colon_operand<T> (inc, "increment");
+    check_colon_operand<T> (limit, "upper bound");
 
     T base_val = octave_value_extract<T> (base);
-    dval = base.double_value ();
-    if (base_val != dval)
-      error ("colon operator lower bound invalid (not an integer or out of range for given integer type)");
 
-    T increment_val = octave_value_extract<T> (increment);
-    dval = increment.double_value ();
-    if (increment_val != dval)
-      error ("colon operator increment invalid (not an integer or out of range for given integer type)");
+    T increment_val = octave_value_extract<T> (inc);
 
     T limit_val = octave_value_extract<T> (limit);
-    dval = limit.double_value ();
-    if (limit_val != dval)
-      error ("colon operator upper bound invalid (not an integer or out of range for given integer type)");
 
-    range<T> r (base_val, increment_val, limit_val);
+    range<T> r (base_val, increment_val, limit_val, reverse);
 
     return octave_value (r, for_cmd_expr);
   }
@@ -3152,28 +3179,36 @@ namespace octave
         return make_range<float> (base, increment, limit, is_for_cmd_expr);
 
       case btyp_int8:
-        return make_range<octave_int8> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_int8> (base, increment, limit,
+                                        is_for_cmd_expr);
 
       case btyp_int16:
-        return make_range<octave_int16> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_int16> (base, increment, limit,
+                                         is_for_cmd_expr);
 
       case btyp_int32:
-        return make_range<octave_int32> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_int32> (base, increment, limit,
+                                         is_for_cmd_expr);
 
       case btyp_int64:
-        return make_range<octave_int64> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_int64> (base, increment, limit,
+                                         is_for_cmd_expr);
 
       case btyp_uint8:
-        return make_range<octave_uint8> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_uint8> (base, increment, limit,
+                                         is_for_cmd_expr);
 
       case btyp_uint16:
-        return make_range<octave_uint16> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_uint16> (base, increment, limit,
+                                          is_for_cmd_expr);
 
       case btyp_uint32:
-        return make_range<octave_uint32> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_uint32> (base, increment, limit,
+                                          is_for_cmd_expr);
 
       case btyp_uint64:
-        return make_range<octave_uint64> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_uint64> (base, increment, limit,
+                                          is_for_cmd_expr);
 
       case btyp_char:
         return make_range<char> (base, increment, limit, is_for_cmd_expr);
@@ -3251,7 +3286,8 @@ namespace octave
 
     return unary_op (ti, op, v);
   }
-}
+
+OCTAVE_NAMESPACE_END
 
 void
 install_types (octave::type_info& ti)
@@ -3322,6 +3358,8 @@ install_types (octave::type_info& ti)
   octave_oncleanup::register_type (ti);
   octave_java::register_type (ti);
 }
+
+OCTAVE_NAMESPACE_BEGIN
 
 DEFUN (sizeof, args, ,
        doc: /* -*- texinfo -*-
@@ -3631,59 +3669,61 @@ Return true if @var{x} is a double-quoted character string.
 %!error is_dq_string ("foo", 2)
 */
 
-DEFUN (disable_permutation_matrix, args, nargout,
+DEFUN (optimize_permutation_matrix, args, nargout,
        doc: /* -*- texinfo -*-
-@deftypefn  {} {@var{val} =} disable_permutation_matrix ()
-@deftypefnx {} {@var{old_val} =} disable_permutation_matrix (@var{new_val})
-@deftypefnx {} {} disable_permutation_matrix (@var{new_val}, "local")
-Query or set the internal variable that controls whether permutation
-matrices are stored in a special space-efficient format.
+@deftypefn  {} {@var{val} =} optimize_permutation_matrix ()
+@deftypefnx {} {@var{old_val} =} optimize_permutation_matrix (@var{new_val})
+@deftypefnx {} {} optimize_permutation_matrix (@var{new_val}, "local")
+Query or set whether a special space-efficient format is used for storing
+permutation matrices.
 
-The default value is true.  If this option is disabled Octave will store
+The default value is true.  If this option is set to false, Octave will store
 permutation matrices as full matrices.
 
-When called from inside a function with the @qcode{"local"} option, the
-variable is changed locally for the function and any subroutines it calls.
-The original variable value is restored when exiting the function.
-@seealso{disable_range, disable_diagonal_matrix}
+When called from inside a function with the @qcode{"local"} option, the setting
+is changed locally for the function and any subroutines it calls.  The original
+setting is restored when exiting the function.
+@seealso{optimize_range, optimize_diagonal_matrix}
 @end deftypefn */)
 {
-  return SET_INTERNAL_VARIABLE (disable_permutation_matrix);
+  return set_internal_variable (Voptimize_permutation_matrix, args, nargout,
+                                "optimize_permutation_matrix");
 }
 
 /*
 %!function p = __test_dpm__ (dpm)
-%!  disable_permutation_matrix (dpm, "local");
+%!  optimize_permutation_matrix (dpm, "local");
 %!  [~, ~, p] = lu ([1,2;3,4]);
 %!endfunction
 
-%!assert (typeinfo (__test_dpm__ (false)), "permutation matrix")
-%!assert (typeinfo (__test_dpm__ (true)), "matrix")
+%!assert (typeinfo (__test_dpm__ (true)), "permutation matrix")
+%!assert (typeinfo (__test_dpm__ (false)), "matrix")
 */
 
-DEFUN (disable_diagonal_matrix, args, nargout,
+DEFUN (optimize_diagonal_matrix, args, nargout,
        doc: /* -*- texinfo -*-
-@deftypefn  {} {@var{val} =} disable_diagonal_matrix ()
-@deftypefnx {} {@var{old_val} =} disable_diagonal_matrix (@var{new_val})
-@deftypefnx {} {} disable_diagonal_matrix (@var{new_val}, "local")
-Query or set the internal variable that controls whether diagonal
-matrices are stored in a special space-efficient format.
+@deftypefn  {} {@var{val} =} optimize_diagonal_matrix ()
+@deftypefnx {} {@var{old_val} =} optimize_diagonal_matrix (@var{new_val})
+@deftypefnx {} {} optimize_diagonal_matrix (@var{new_val}, "local")
+Query or set whether a special space-efficient format is used for storing
+diagonal matrices.
 
-The default value is true.  If this option is disabled Octave will store
+The default value is true.  If this option is set to false, Octave will store
 diagonal matrices as full matrices.
 
-When called from inside a function with the @qcode{"local"} option, the
-variable is changed locally for the function and any subroutines it calls.
-The original variable value is restored when exiting the function.
-@seealso{disable_range, disable_permutation_matrix}
+When called from inside a function with the @qcode{"local"} option, the setting
+is changed locally for the function and any subroutines it calls.  The original
+setting is restored when exiting the function.
+@seealso{optimize_range, optimize_permutation_matrix}
 @end deftypefn */)
 {
-  return SET_INTERNAL_VARIABLE (disable_diagonal_matrix);
+  return set_internal_variable (Voptimize_diagonal_matrix, args, nargout,
+                                "optimize_diagonal_matrix");
 }
 
 /*
 %!function [x, xi, fx, fxi] = __test_ddm__ (ddm)
-%!  disable_diagonal_matrix (ddm, "local");
+%!  optimize_diagonal_matrix (ddm, "local");
 %!  x = eye (2);
 %!  xi = x*i;
 %!  fx = single (x);
@@ -3691,49 +3731,52 @@ The original variable value is restored when exiting the function.
 %!endfunction
 
 %!shared x, xi, fx, fxi
-%!  [x, xi, fx, fxi] = __test_ddm__ (false);
+%!  [x, xi, fx, fxi] = __test_ddm__ (true);
 %!assert (typeinfo (x), "diagonal matrix")
 %!assert (typeinfo (xi), "complex diagonal matrix")
 %!assert (typeinfo (fx), "float diagonal matrix")
 %!assert (typeinfo (fxi), "float complex diagonal matrix")
 
 %!shared x, xi, fx, fxi
-%!  [x, xi, fx, fxi] = __test_ddm__ (true);
+%!  [x, xi, fx, fxi] = __test_ddm__ (false);
 %!assert (typeinfo (x), "matrix")
 %!assert (typeinfo (xi), "complex matrix")
 %!assert (typeinfo (fx), "float matrix")
 %!assert (typeinfo (fxi), "float complex matrix")
 */
 
-DEFUN (disable_range, args, nargout,
+DEFUN (optimize_range, args, nargout,
        doc: /* -*- texinfo -*-
-@deftypefn  {} {@var{val} =} disable_range ()
-@deftypefnx {} {@var{old_val} =} disable_range (@var{new_val})
-@deftypefnx {} {} disable_range (@var{new_val}, "local")
-Query or set the internal variable that controls whether ranges are stored
-in a special space-efficient format.
+@deftypefn  {} {@var{val} =} optimize_range ()
+@deftypefnx {} {@var{old_val} =} optimize_range (@var{new_val})
+@deftypefnx {} {} optimize_range (@var{new_val}, "local")
+Query or set whether a special space-efficient format is used for storing
+ranges.
 
-The default value is true.  If this option is disabled Octave will store
+The default value is true.  If this option is set to false, Octave will store
 ranges as full matrices.
 
-When called from inside a function with the @qcode{"local"} option, the
-variable is changed locally for the function and any subroutines it calls.
-The original variable value is restored when exiting the function.
-@seealso{disable_diagonal_matrix, disable_permutation_matrix}
+When called from inside a function with the @qcode{"local"} option, the setting
+is changed locally for the function and any subroutines it calls.  The original
+setting is restored when exiting the function.
+@seealso{optimize_diagonal_matrix, optimize_permutation_matrix}
 @end deftypefn */)
 {
-  return SET_INTERNAL_VARIABLE (disable_range);
+  return set_internal_variable (Voptimize_range, args, nargout,
+                                "optimize_range");
 }
 
 /*
 %!function r = __test_dr__ (dr)
-%!  disable_range (dr, "local");
+%!  optimize_range (dr, "local");
 %!  ## Constant folding will produce range for 1:13.
 %!  base = 1;
 %!  limit = 13;
 %!  r = base:limit;
 %!endfunction
 
-%!assert (typeinfo (__test_dr__ (false)), "range")
-%!assert (typeinfo (__test_dr__ (true)), "matrix")
+%!assert (typeinfo (__test_dr__ (true)), "range")
+%!assert (typeinfo (__test_dr__ (false)), "matrix")
 */
+
+OCTAVE_NAMESPACE_END

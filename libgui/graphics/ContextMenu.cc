@@ -37,10 +37,10 @@
 
 #include "interpreter.h"
 
-namespace QtHandles
+namespace octave
 {
 
-  ContextMenu*
+  ContextMenu *
   ContextMenu::create (octave::base_qobject& oct_qobj,
                        octave::interpreter& interp, const graphics_object& go)
   {
@@ -113,7 +113,7 @@ namespace QtHandles
     emit gh_set_event (m_handle, "visible", "off", false);
   }
 
-  QWidget*
+  QWidget *
   ContextMenu::menu (void)
   {
     return qWidget<QWidget> ();

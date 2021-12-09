@@ -33,10 +33,12 @@
 ## Generate a report from the Octave script file @var{file} in one of several
 ## output formats.
 ##
-## The generated reports interpret any Publishing Markup in comments, which is
-## explained in detail in the GNU Octave manual.  Assume the following example,
-## using some Publishing Markup, to be the contents of the script file
-## @file{pub_example.m}:
+## The generated reports interpret Publishing Markup in section comments, which
+## is explained in detail in the GNU Octave manual.  Section comments are
+## comment blocks that start with a line with double comment character.
+##
+## Assume the following example, using some Publishing Markup, to be the
+## contents of the script file @file{pub_example.m}:
 ##
 ## @example
 ## @group
@@ -61,12 +63,11 @@
 ##
 ## To publish this script file, type @code{publish ("pub_example.m")}.
 ##
-## With only @var{file} given, a HTML report is generated in a subdirectory
-## @file{html} relative to the current working directory.  The Octave commands
-## are evaluated in a separate context and any figures created while executing
-## the script file are included in the report.  All formatting syntax of
-## @var{file} is treated according to the specified output format and included
-## in the report.
+## When called with one input argument, a HTML report is generated in a
+## subdirectory @file{html} relative to the current working directory.  Any
+## Octave commands in @file{pub_example.m} are evaluated in a separate context
+## and any figures created while executing the script file are included in the
+## report.
 ##
 ## Using @code{publish (@var{file}, @var{output_format})} is equivalent to the
 ## function call using a structure
@@ -408,6 +409,7 @@ endfunction
 
 
 function doc = parse_m_source (doc)
+
   ## PARSE_M_SOURCE First parsing level
   ##   This function extracts the overall structure (paragraphs and code
   ##   sections) given in doc.m_source.
@@ -433,6 +435,7 @@ function doc = parse_m_source (doc)
   ## Checks line to have N "%" or "#" lines
   ## followed either by a space or end of string
   function r = is_publish_markup (cstr, N)
+
     str = char (cstr);
 
     r = any (strncmp (str, {"%%%", "##"}, N));
@@ -570,6 +573,7 @@ endfunction
 
 
 function p_content = parse_paragraph_content (content)
+
   ## PARSE_PARAGRAPH_CONTENT second parsing level
   ##
   ##   Parses the content of a paragraph (without potential title) and
@@ -714,8 +718,8 @@ endfunction
 
 
 function m_source = read_file_to_cellstr (file)
-  ## READ_FILE_TO_CELLSTR reads a given file line by line into a cellstring
 
+  ## READ_FILE_TO_CELLSTR reads a given file line by line into a cellstring
   fid = fopen (file, "r");
   i = 0;
   do
@@ -728,8 +732,8 @@ endfunction
 
 
 function ofile = create_output (doc, options)
-  ## CREATE_OUTPUT creates the desired output file
 
+  ## CREATE_OUTPUT creates the desired output file
   formatter = [];
   switch (options.format)
     case "html"
@@ -777,9 +781,9 @@ endfunction
 
 
 function toc_cstr = get_toc (cstr, formatter)
+
   ## GET_TOC extracts the table of contents from a cellstring (e.g., doc.body)
   ## with each section headline as a cell in a returned cellstring.
-
   toc_cstr = cell ();
   for i = 1:numel (cstr)
     if (strcmp (cstr{i}.type, "section"))
@@ -791,13 +795,13 @@ endfunction
 
 
 function str = format_output (cstr, formatter, options)
+
   ## FORMAT_OUTPUT steps through all blocks (doc.intro or doc.body) in cstr and
   ## produces a single result string with the source code in the desired output
   ## format.
   ##
   ##   formatter has the only knowledge how to enforce the target format
   ##   and produces for each block the necessary target format source string.
-
   str = "";
   for i = 1:numel (cstr)
     switch (cstr{i}.type)
@@ -824,6 +828,7 @@ endfunction
 
 
 function str = format_text (str, formatter)
+
   ## FORMAT_TEXT formats inline formats in strings.
   ##   These are: links, block/inline math, bold, italic, monospaced, (TM), (R)
 
@@ -956,6 +961,7 @@ endfunction
 
 
 function doc = eval_code (doc, options)
+
   ## EVAL_CODE Third level parsing
   ##
   ##   Generates the output of the script code and takes care of generated
@@ -1059,6 +1065,7 @@ endfunction
 
 
 function cstr = eval_code_helper (__code__)
+
   ## EVAL_CODE_HELPER evaluates a given string with Octave code in an extra
   ## temporary context and returns a cellstring with the eval output.
 
@@ -1076,6 +1083,7 @@ endfunction
 
 
 function cstr = eval_context (op)
+
   ## EVAL_CONTEXT temporary evaluation context.
   persistent ctext
 

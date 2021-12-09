@@ -51,7 +51,7 @@
 #include "interpreter.h"
 #include "oct-opengl.h"
 
-namespace QtHandles
+namespace octave
 {
 
   void
@@ -208,8 +208,8 @@ namespace QtHandles
 
             Matrix cp (2, 3, 0.0);
 
-            cp(0,0) = p1(0); cp(0,1) = p1(1); cp(0,2) = p1(2);
-            cp(1,0) = p2(0); cp(1,1) = p2(1); cp(1,2) = p2(2);
+            cp(0, 0) = p1(0); cp(0, 1) = p1(1); cp(0, 2) = p1(2);
+            cp(1, 0) = p2(0); cp(1, 1) = p2(1); cp(1, 2) = p2(2);
 
             emit gh_set_event (childObj.get_handle (), "currentpoint", cp,
                                false);
@@ -250,8 +250,8 @@ namespace QtHandles
 
             Matrix cp (2, 3, 0.0);
 
-            cp(0,0) = p1(0); cp(0,1) = p1(1); cp(0,2) = p1(2);
-            cp(1,0) = p2(0); cp(1,1) = p2(1); cp(1,2) = p2(2);
+            cp(0, 0) = p1(0); cp(0, 1) = p1(1); cp(0, 2) = p1(2);
+            cp(1, 0) = p2(0); cp(1, 1) = p2(1); cp(1, 2) = p2(2);
 
             emit gh_set_event (childObj.get_handle (), "currentpoint", cp,
                                false);
@@ -556,7 +556,7 @@ namespace QtHandles
         retval = 1;
         break;
 
-      case Qt::MidButton:
+      case Qt::MiddleButton:
         retval = 2;
         break;
 
@@ -622,9 +622,9 @@ namespace QtHandles
 
         // Make selected axes current
         bool valid_axes = axesObj.valid_object ()
-          && axesObj.get_properties ().handlevisibility_is ("on")
-          && axesObj.get_properties ().get_tag () != "legend"
-          && axesObj.get_properties ().get_tag () != "colorbar";
+                          && axesObj.get_properties ().handlevisibility_is ("on")
+                          && axesObj.get_properties ().get_tag () != "legend"
+                          && axesObj.get_properties ().get_tag () != "colorbar";
 
         if (valid_axes)
           Utils::properties<figure> (figObj)
@@ -738,7 +738,7 @@ namespace QtHandles
 
                         break;
 
-                      case Qt::MidButton:
+                      case Qt::MiddleButton:
                         {
                           axes::properties& ap =
                             Utils::properties<axes> (axesObj);

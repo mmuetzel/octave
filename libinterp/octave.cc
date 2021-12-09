@@ -48,13 +48,14 @@
 #include "oct-hist.h"
 #include "oct-map.h"
 #include "ovl.h"
-#include "options-usage.h"
+#include "options.h"
 #include "ov.h"
 #include "parse.h"
 #include "sysdep.h"
+#include "usage.h"
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   cmdline_options::cmdline_options (void)
   {
     m_all_args.resize (1);
@@ -180,14 +181,6 @@ namespace octave
               m_info_program = octave_optarg_wrapper ();
             break;
 
-          case DEBUG_JIT_OPTION:
-            m_debug_jit = true;
-            break;
-
-          case JIT_COMPILER_OPTION:
-            m_jit_compiler = true;
-            break;
-
           case LINE_EDITING_OPTION:
             m_forced_line_editing = m_line_editing = true;
             break;
@@ -249,14 +242,12 @@ namespace octave
     octave_scalar_map m;
 
     m.assign ("sys_argc", sys_argc ());
-    m.assign ("sys_argv", string_vector (sys_argv ()));
-    m.assign ("debug_jit", debug_jit ());
+    m.assign ("sys_argv", Cell (string_vector (sys_argv ())));
     m.assign ("echo_commands", echo_commands ());
     m.assign ("forced_interactive", forced_interactive ());
     m.assign ("forced_line_editing", forced_line_editing ());
     m.assign ("gui", gui ());
     m.assign ("inhibit_startup_message", inhibit_startup_message ());
-    m.assign ("jit_compiler", jit_compiler ());
     m.assign ("line_editing", line_editing ());
     m.assign ("no_window_system", no_window_system ());
     m.assign ("persist", persist ());
@@ -276,13 +267,13 @@ namespace octave
     m.assign ("info_file", info_file ());
     m.assign ("info_program", info_program ());
     m.assign ("texi_macros_file", texi_macros_file ());
-    m.assign ("all_args", all_args ());
-    m.assign ("remaining_args", remaining_args ());
+    m.assign ("all_args", Cell (all_args ()));
+    m.assign ("remaining_args", Cell (remaining_args ()));
 
     return m;
   }
 
-  application *application::instance = nullptr;
+  application *application::s_instance = nullptr;
 
   application::application (int argc, char **argv)
     : m_options (argc, argv)
@@ -298,9 +289,9 @@ namespace octave
 
   // Note: Although the application destructor doesn't explicitly
   // perform any actions, it can't be declared "default" in the header
-  // file if the octave::interpreter is an incomplete type.  Providing
+  // file if the interpreter is an incomplete type.  Providing
   // an explicit definition of the destructor here is much simpler than
-  // including the full declaration of octave::interpreter in the
+  // including the full declaration of interpreter in the
   // octave.h header file.
   application::~application (void) { }
 
@@ -333,15 +324,15 @@ namespace octave
 
   bool application::forced_interactive (void)
   {
-    return instance ? instance->m_options.forced_interactive () : false;
+    return s_instance ? s_instance->m_options.forced_interactive () : false;
   }
 
   // Provided for convenience.  Will be removed once we eliminate the
   // old terminal widget.
   bool application::experimental_terminal_widget (void) const
   {
-    return (instance
-            ? instance->m_options.experimental_terminal_widget () : false);
+    return (s_instance
+            ? s_instance->m_options.experimental_terminal_widget () : false);
   }
 
   bool application::interpreter_initialized (void)
@@ -375,11 +366,11 @@ namespace octave
 
   void application::init (void)
   {
-    if (instance)
+    if (s_instance)
       throw std::runtime_error
         ("only one Octave application object may be active");
 
-    instance = this;
+    s_instance = this;
 
     string_vector all_args = m_options.all_args ();
 
@@ -435,7 +426,6 @@ namespace octave
 
     return status;
   }
-}
 
 DEFUN (isguirunning, args, ,
        doc: /* -*- texinfo -*-
@@ -450,7 +440,7 @@ Return true if Octave is running in GUI mode and false otherwise.
   // FIXME: This isn't quite right, it just says that we intended to
   // start the GUI, not that it is actually running.
 
-  return ovl (octave::application::is_gui_running ());
+  return ovl (application::is_gui_running ());
 }
 
 /*
@@ -481,7 +471,7 @@ an example of how to create an executable Octave script.
   if (args.length () != 0)
     print_usage ();
 
-  return ovl (Cell (octave::application::argv ()));
+  return ovl (Cell (application::argv ()));
 }
 
 /*
@@ -499,12 +489,12 @@ passed to Octave.
   if (args.length () != 0)
     print_usage ();
 
-  octave::application *app = octave::application::app ();
+  application *app = application::app ();
 
   if (! app)
     error ("invalid application context!");
 
-  octave::cmdline_options opts = app->options ();
+  cmdline_options opts = app->options ();
 
   return ovl (opts.as_octave_value ());
 }
@@ -524,7 +514,7 @@ how to create an executable Octave script.
   if (args.length () != 0)
     print_usage ();
 
-  return ovl (octave::application::program_invocation_name ());
+  return ovl (application::program_invocation_name ());
 }
 
 /*
@@ -543,10 +533,12 @@ Return the last component of the value returned by
   if (args.length () != 0)
     print_usage ();
 
-  return ovl (octave::application::program_name ());
+  return ovl (application::program_name ());
 }
 
 /*
 %!assert (ischar (program_name ()))
 %!error program_name (1)
 */
+
+OCTAVE_NAMESPACE_END

@@ -277,9 +277,9 @@ namespace octave
           global_pos = editor_rect.topLeft ();   // yes, take top left corner
       }
 
-#if defined (HAVE_QSCI_VERSION_2_6_0)
+#  if defined (HAVE_QSCI_VERSION_2_6_0)
     if (! in_left_margin)
-#endif
+#  endif
       {
         // fill context menu with editor's standard actions
         emit create_context_menu_signal (context_menu);
@@ -305,7 +305,7 @@ namespace octave
               }
           }
       }
-#if defined (HAVE_QSCI_VERSION_2_6_0)
+#  if defined (HAVE_QSCI_VERSION_2_6_0)
     else
       {
         // remove all standard actions from scintilla
@@ -319,10 +319,15 @@ namespace octave
                                      &octave_qscintilla::contextmenu_break_condition);
         act->setData (local_pos);
       }
-#endif
+#  endif
 
     // finally show the menu
     context_menu->exec (global_pos);
+
+#else
+
+    octave_unused_parameter (e);
+
 #endif
   }
 
@@ -359,9 +364,9 @@ namespace octave
                                                      QPoint *local_pos)
   {
     long position = SendScintilla (SCI_GETCURRENTPOS);
-    long point_x  = SendScintilla (SCI_POINTXFROMPOSITION,0,position);
-    long point_y  = SendScintilla (SCI_POINTYFROMPOSITION,0,position);
-    *local_pos = QPoint (point_x,point_y);  // local cursor position
+    long point_x  = SendScintilla (SCI_POINTXFROMPOSITION, 0, position);
+    long point_y  = SendScintilla (SCI_POINTYFROMPOSITION, 0, position);
+    *local_pos = QPoint (point_x, point_y); // local cursor position
     *global_pos = mapToGlobal (*local_pos); // global position of cursor
   }
 
@@ -836,7 +841,7 @@ namespace octave
 #else
                                                QString::SkipEmptyParts);
 #endif
-  for (int i = 0; i < lines.count (); i++)
+    for (int i = 0; i < lines.count (); i++)
       {
         QString line = lines.at (i);
         if (line.trimmed ().isEmpty ())
@@ -853,7 +858,7 @@ namespace octave
             // Define commands for not showing bp location and for resetting
             // this in case "keyboard" was within a comment
             next_bp_quiet = "__db_next_breakpoint_quiet__;\n";
-            next_bp_quiet_reset = "__db_next_breakpoint_quiet__(false);\n";
+            next_bp_quiet_reset = "\n__db_next_breakpoint_quiet__(false);";
           }
 
         // Add codeline
@@ -904,7 +909,7 @@ namespace octave
         });
 
     // Disable opening a file at a breakpoint in case keyboard () is used
-    gui_settings* settings = rmgr.get_settings ();
+    gui_settings *settings = rmgr.get_settings ();
     bool show_dbg_file = settings->value (ed_show_dbg_file).toBool ();
     settings->setValue (ed_show_dbg_file.key, false);
 
@@ -1061,6 +1066,8 @@ namespace octave
   {
 #if defined (HAVE_QSCI_VERSION_2_6_0)
     emit context_menu_break_once (lineAt (local_pos));
+#else
+    octave_unused_parameter (local_pos);
 #endif
   }
 
@@ -1145,18 +1152,18 @@ namespace octave
       }
     endUndoAction ();
 
-      // restore the visible area
-      setFirstVisibleLine (first_line);
+    // restore the visible area
+    setFirstVisibleLine (first_line);
 
-      // fix cursor column if outside of new line length
-      int eol_len = eol_string ().length ();
-      if (line == lines () - 1)
-        eol_len = 0;
-      const int col_max = text (line).length () - eol_len;
-      if (col_max < col)
-        col = col_max;
+    // fix cursor column if outside of new line length
+    int eol_len = eol_string ().length ();
+    if (line == lines () - 1)
+      eol_len = 0;
+    const int col_max = text (line).length () - eol_len;
+    if (col_max < col)
+      col = col_max;
 
-      setCursorPosition (line, col);
+    setCursorPosition (line, col);
   }
 
   bool octave_qscintilla::event (QEvent *e)
@@ -1166,12 +1173,12 @@ namespace octave
         QHelpEvent *help_e = static_cast<QHelpEvent *>(e);
         QString variable = wordAtPoint (help_e->pos());
         QStringList symbol_names
-            = m_octave_qobj.get_workspace_model ()->get_symbol_names ();
+          = m_octave_qobj.get_workspace_model ()->get_symbol_names ();
         int symbol_idx = symbol_names.indexOf (variable);
         if (symbol_idx > -1)
           {
             QStringList symbol_values
-                = m_octave_qobj.get_workspace_model ()->get_symbol_values ();
+              = m_octave_qobj.get_workspace_model ()->get_symbol_values ();
             QToolTip::showText (help_e->globalPos(), variable
                                 + " = " + symbol_values.at (symbol_idx));
           }

@@ -62,12 +62,15 @@
 #include "ovl.h"
 
 #if defined (HAVE_QHULL)
-
 #  include "oct-qhull.h"
-
 #  if defined (NEED_QHULL_R_VERSION)
 char qh_version[] = "__delaunayn__.oct 2007-08-21";
 #  endif
+#endif
+
+OCTAVE_NAMESPACE_BEGIN
+
+#if defined (HAVE_QHULL)
 
 static void
 free_qhull_memory (qhT *qh)
@@ -171,7 +174,7 @@ Undocumented internal function.
       if (! errfile)
         error ("__delaunayn__: unable to redirect Qhull errors to /dev/null");
 
-      octave::unwind_action close_errfile ([=] () { std::fclose (errfile); });
+      unwind_action close_errfile ([=] () { std::fclose (errfile); });
 
       qhT context = { };
       qhT *qh = &context;
@@ -179,7 +182,7 @@ Undocumented internal function.
       int exitcode = qh_new_qhull (qh, dim, n, pt_array, ismalloc, &cmd[0],
                                    outfile, errfile);
 
-      octave::unwind_action free_memory ([qh] () { free_qhull_memory (qh); });
+      unwind_action free_memory ([qh] () { free_qhull_memory (qh); });
 
       if (exitcode)
         error ("__delaunayn__: qhull failed");
@@ -246,3 +249,5 @@ Undocumented internal function.
 ## No test needed for internal helper function.
 %!assert (1)
 */
+
+OCTAVE_NAMESPACE_END

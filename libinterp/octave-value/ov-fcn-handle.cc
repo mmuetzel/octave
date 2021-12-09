@@ -84,8 +84,8 @@ DEFINE_OV_TYPEID_FUNCTIONS_AND_DATA (octave_fcn_handle,
 
 const std::string octave_fcn_handle::anonymous ("@<anonymous>");
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   class invalid_fcn_handle : public base_fcn_handle
   {
   public:
@@ -217,7 +217,8 @@ namespace octave
 
     bool load_binary (std::istream& is, bool swap, mach_info::float_format fmt);
 
-    bool save_hdf5 (octave_hdf5_id loc_hid, const char *name, bool save_as_floats);
+    bool save_hdf5 (octave_hdf5_id loc_hid, const char *name,
+                    bool save_as_floats);
 
     bool load_hdf5 (octave_hdf5_id& group_hid, octave_hdf5_id& space_hid,
                     octave_hdf5_id& type_hid);
@@ -289,7 +290,8 @@ namespace octave
 
     bool load_binary (std::istream& is, bool swap, mach_info::float_format fmt);
 
-    bool save_hdf5 (octave_hdf5_id loc_id, const char *name, bool save_as_floats);
+    bool save_hdf5 (octave_hdf5_id loc_id, const char *name,
+                    bool save_as_floats);
 
     bool load_hdf5 (octave_hdf5_id& group_hid, octave_hdf5_id& space_hid,
                     octave_hdf5_id& type_hid);
@@ -362,7 +364,8 @@ namespace octave
 
     bool load_binary (std::istream& is, bool swap, mach_info::float_format fmt);
 
-    bool save_hdf5 (octave_hdf5_id loc_id, const char *name, bool save_as_floats);
+    bool save_hdf5 (octave_hdf5_id loc_id, const char *name,
+                    bool save_as_floats);
 
     bool load_hdf5 (octave_hdf5_id& group_hid, octave_hdf5_id& space_hid,
                     octave_hdf5_id& type_hid);
@@ -552,7 +555,8 @@ namespace octave
 
     bool load_binary (std::istream& is, bool swap, mach_info::float_format fmt);
 
-    bool save_hdf5 (octave_hdf5_id loc_id, const char *name, bool save_as_floats);
+    bool save_hdf5 (octave_hdf5_id loc_id, const char *name,
+                    bool save_as_floats);
 
     bool load_hdf5 (octave_hdf5_id& group_hid, octave_hdf5_id& space_hid,
                     octave_hdf5_id& type_hid);
@@ -656,7 +660,8 @@ namespace octave
 
     bool load_binary (std::istream& is, bool swap, mach_info::float_format fmt);
 
-    bool save_hdf5 (octave_hdf5_id loc_id, const char *name, bool save_as_floats);
+    bool save_hdf5 (octave_hdf5_id loc_id, const char *name,
+                    bool save_as_floats);
 
     bool load_hdf5 (octave_hdf5_id& group_hid, octave_hdf5_id& space_hid,
                     octave_hdf5_id& type_hid);
@@ -1359,7 +1364,8 @@ namespace octave
     a_id = H5Acreate (group_hid, "FILE", type_hid, space_hid,
                       octave_H5P_DEFAULT, octave_H5P_DEFAULT);
 #else
-    a_id = H5Acreate (group_hid, "FILE", type_hid, space_hid, octave_H5P_DEFAULT);
+    a_id = H5Acreate (group_hid, "FILE", type_hid, space_hid,
+                      octave_H5P_DEFAULT);
 #endif
 
     if (a_id >= 0)
@@ -2098,7 +2104,7 @@ namespace octave
 
   bool base_anonymous_fcn_handle::load_ascii (std::istream& is)
   {
-    skip_preceeding_newline (is);
+    octave::skip_preceeding_newline (is);
 
     std::string buf;
 
@@ -2107,7 +2113,7 @@ namespace octave
         // Get a line of text whitespace characters included, leaving
         // newline in the stream.
 
-        buf = read_until_newline (is, true);
+        buf = octave::read_until_newline (is, true);
       }
 
     std::streampos pos = is.tellg ();
@@ -2389,7 +2395,8 @@ namespace octave
           retval = false;
 #if defined (HAVE_HDF5_18)
         data_hid = H5Gcreate (group_hid, "symbol table",
-                              octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                              octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                              octave_H5P_DEFAULT);
 #else
         data_hid = H5Gcreate (group_hid, "symbol table", 0);
 #endif
@@ -2808,7 +2815,8 @@ namespace octave
     else
       return false;
   }
-}
+
+OCTAVE_NAMESPACE_END
 
 octave_fcn_handle::octave_fcn_handle (void)
   : octave_base_value (), m_rep (new octave::invalid_fcn_handle ())
@@ -2953,14 +2961,16 @@ octave_fcn_handle::load_ascii (std::istream& is)
           std::string name;
           is >> name;
 
-          new_rep.reset (new octave::simple_fcn_handle (name, fpath, octaveroot));
+          new_rep.reset (new octave::simple_fcn_handle (name, fpath,
+                                                        octaveroot));
         }
       else if (subtype == "scopedfunction")
         {
           std::string name;
           is >> name;
 
-          new_rep.reset (new octave::scoped_fcn_handle (name, fpath, octaveroot));
+          new_rep.reset (new octave::scoped_fcn_handle (name, fpath,
+                                                        octaveroot));
         }
       else if (subtype == "anonymous")
         new_rep.reset (new octave::anonymous_fcn_handle ());
@@ -2969,14 +2979,16 @@ octave_fcn_handle::load_ascii (std::istream& is)
           std::string name;
           is >> name;
 
-          new_rep.reset (new octave::nested_fcn_handle (name, fpath, octaveroot));
+          new_rep.reset (new octave::nested_fcn_handle (name, fpath,
+                                                        octaveroot));
         }
       else if (subtype == "classsimple")
         {
           std::string name;
           is >> name;
 
-          new_rep.reset (new octave::class_simple_fcn_handle (name, fpath, octaveroot));
+          new_rep.reset (new octave::class_simple_fcn_handle (name, fpath,
+                                                              octaveroot));
         }
     }
 
@@ -3076,7 +3088,8 @@ octave_fcn_handle::load_binary (std::istream& is, bool swap,
       else if (subtype == "nested")
         new_rep.reset (new octave::nested_fcn_handle (name, fpath, octaveroot));
       else if (subtype == "classsimple")
-        new_rep.reset (new octave::class_simple_fcn_handle (name, fpath, octaveroot));
+        new_rep.reset (new octave::class_simple_fcn_handle (name, fpath,
+                                                            octaveroot));
     }
 
   if (! new_rep)
@@ -3229,7 +3242,8 @@ octave_fcn_handle::load_hdf5 (octave_hdf5_id loc_id, const char *name_arg)
       else if (subtype == "nested")
         new_rep.reset (new octave::nested_fcn_handle (name, fpath, octaveroot));
       else if (subtype == "classsimple")
-        new_rep.reset (new octave::class_simple_fcn_handle (name, fpath, octaveroot));
+        new_rep.reset (new octave::class_simple_fcn_handle (name, fpath,
+                                                            octaveroot));
     }
 
   bool status = false;
@@ -3394,18 +3408,7 @@ is_equal_to (const octave_fcn_handle& fh1, const octave_fcn_handle& fh2)
     return false;
 }
 
-namespace octave
-{
-  // DEPRECATED in Octave 6.
-
-  octave_value
-  make_fcn_handle (interpreter& interp, const std::string& nm)
-  {
-    tree_evaluator& tw = interp.get_evaluator ();
-
-    return tw.make_fcn_handle (nm);
-  }
-}
+OCTAVE_NAMESPACE_BEGIN
 
 DEFUN (functions, args, ,
        doc: /* -*- texinfo -*-
@@ -3548,7 +3551,7 @@ functions.  This option is no longer supported.
         warning_with_id ("Octave:str2func-global-argument",
                          "str2func: second argument ignored");
 
-      octave::tree_evaluator& tw = interp.get_evaluator ();
+      tree_evaluator& tw = interp.get_evaluator ();
 
       return tw.make_fcn_handle (nm);
     }
@@ -3637,3 +3640,5 @@ Return true if @var{x} is a function handle.
 %! x = [1,2;3,4];
 %! assert (__f (@(i) x(:,i), 1), [1;3]);
 */
+
+OCTAVE_NAMESPACE_END

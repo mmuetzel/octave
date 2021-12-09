@@ -35,7 +35,7 @@
 
 #include "Logger.h"
 
-namespace QtHandles
+namespace octave
 {
 
   Logger *Logger::s_instance = nullptr;
@@ -53,7 +53,7 @@ namespace QtHandles
   Logger::~Logger (void)
   { }
 
-  Logger*
+  Logger *
   Logger::instance (void)
   {
     if (! s_instance)

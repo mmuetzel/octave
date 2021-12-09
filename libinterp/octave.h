@@ -36,9 +36,9 @@
 
 class octave_value;
 
-namespace octave
-{
-  // Command line arguments.  See also options-usage.h.
+OCTAVE_NAMESPACE_BEGIN
+
+  // Command line arguments.  See also options.h.
 
   class OCTINTERP_API cmdline_options
   {
@@ -55,15 +55,15 @@ namespace octave
     int sys_argc (void) const { return m_all_args.numel (); }
     char **sys_argv (void) const { return m_all_args.c_str_vec (); }
 
-    bool debug_jit (void) const { return m_debug_jit; }
     bool echo_commands (void) const { return m_echo_commands; }
 
-    bool experimental_terminal_widget (void) const { return m_experimental_terminal_widget; }
+    bool experimental_terminal_widget (void) const
+    { return m_experimental_terminal_widget; }
     bool forced_interactive (void) const { return m_forced_interactive; }
     bool forced_line_editing (void) const { return m_forced_line_editing; }
     bool gui (void) const { return m_gui; }
-    bool inhibit_startup_message (void) const { return m_inhibit_startup_message; }
-    bool jit_compiler (void) const { return m_jit_compiler; }
+    bool inhibit_startup_message (void) const
+    { return m_inhibit_startup_message; }
     bool line_editing (void) const { return m_line_editing; }
 
     bool no_window_system (void) const { return m_no_window_system; }
@@ -76,7 +76,8 @@ namespace octave
     bool traditional (void) const { return m_traditional; }
     bool verbose_flag (void) const { return m_verbose_flag; }
     std::string code_to_eval (void) const { return m_code_to_eval; }
-    std::list<std::string> command_line_path (void) const { return m_command_line_path; }
+    std::list<std::string> command_line_path (void) const
+    { return m_command_line_path; }
     std::string docstrings_file (void) const { return m_docstrings_file; }
     std::string doc_cache_file (void) const { return m_doc_cache_file; }
     std::string exec_path (void) const { return m_exec_path; }
@@ -87,15 +88,14 @@ namespace octave
     string_vector all_args (void) const { return m_all_args; }
     string_vector remaining_args (void) const { return m_remaining_args; }
 
-    void debug_jit (bool arg) { m_debug_jit = arg; }
     void echo_commands (bool arg) { m_echo_commands = arg; }
 
-    void experimental_terminal_widget (bool arg) { m_experimental_terminal_widget = arg; }
+    void experimental_terminal_widget (bool arg)
+    { m_experimental_terminal_widget = arg; }
     void forced_line_editing (bool arg) { m_forced_line_editing = arg; }
     void forced_interactive (bool arg) { m_forced_interactive = arg; }
     void gui (bool arg) { m_gui = arg; }
     void inhibit_startup_message (bool arg) { m_inhibit_startup_message = arg; }
-    void jit_compiler (bool arg) { m_jit_compiler = arg; }
     void line_editing (bool arg) { m_line_editing = arg; }
 
     void no_window_system (bool arg) { m_no_window_system = arg; }
@@ -108,7 +108,8 @@ namespace octave
     void traditional (bool arg) { m_traditional = arg; }
     void verbose_flag (bool arg) { m_verbose_flag = arg; }
     void code_to_eval (const std::string& arg) { m_code_to_eval = arg; }
-    void command_line_path (const std::list<std::string>& arg) { m_command_line_path = arg; }
+    void command_line_path (const std::list<std::string>& arg)
+    { m_command_line_path = arg; }
     void docstrings_file (const std::string& arg) { m_docstrings_file = arg; }
     void doc_cache_file (const std::string& arg) { m_doc_cache_file = arg; }
     void exec_path (const std::string& arg) { m_exec_path = arg; }
@@ -122,10 +123,6 @@ namespace octave
     octave_value as_octave_value (void) const;
 
   private:
-
-    // TRUE means enable debug tracing for the JIT compiler.
-    // (--debug-jit)
-    bool m_debug_jit = false;
 
     // If TRUE, echo commands as they are read and executed.
     // (--echo-commands, -x)
@@ -150,10 +147,6 @@ namespace octave
     // TRUE means we don't print the usual startup message.
     // (--quiet; --silent; -q)
     bool m_inhibit_startup_message = false;
-
-    // TRUE means enable the JIT compiler.
-    // (--jit-compiler)
-    bool m_jit_compiler = false;
 
     // TRUE means we are using readline.
     // (--no-line-editing)
@@ -294,7 +287,8 @@ namespace octave
     virtual bool gui_running (void) const { return false; }
     virtual void gui_running (bool) { }
 
-    void program_invocation_name (const std::string& nm) { m_program_invocation_name = nm; }
+    void program_invocation_name (const std::string& nm)
+    { m_program_invocation_name = nm; }
 
     void program_name (const std::string& nm) { m_program_name = nm; }
 
@@ -304,26 +298,26 @@ namespace octave
     // old terminal widget.
     bool experimental_terminal_widget (void) const;
 
-    static application * app (void) { return instance; }
+    static application * app (void) { return s_instance; }
 
     static std::string program_invocation_name (void)
     {
-      return instance ? instance->m_program_invocation_name : "";
+      return s_instance ? s_instance->m_program_invocation_name : "";
     }
 
     static std::string program_name (void)
     {
-      return instance ? instance->m_program_name : "";
+      return s_instance ? s_instance->m_program_name : "";
     }
 
     static string_vector argv (void)
     {
-      return instance ? instance->m_argv : string_vector ();
+      return s_instance ? s_instance->m_argv : string_vector ();
     }
 
     static bool is_gui_running (void)
     {
-      return instance ? instance->gui_running () : false;
+      return s_instance ? s_instance->gui_running () : false;
     }
 
     // Convenience functions.
@@ -333,7 +327,7 @@ namespace octave
   private:
 
     // The application instance;  There should be only one.
-    static application *instance;
+    static application *s_instance;
 
     void init (void);
 
@@ -390,6 +384,7 @@ namespace octave
 
     int execute (void);
   };
-}
+
+OCTAVE_NAMESPACE_END
 
 #endif

@@ -52,10 +52,14 @@
 #include "parse.h"
 
 #if defined (HAVE_PORTAUDIO)
+#  include <portaudio.h>
+#endif
 
-#include <portaudio.h>
+OCTAVE_NAMESPACE_BEGIN
 
-PaSampleFormat
+#if defined (HAVE_PORTAUDIO)
+
+static PaSampleFormat
 bits_to_format (int bits)
 {
   if (bits == 8)
@@ -496,11 +500,18 @@ recording using those parameters.
 %! devinfo = audiodevinfo;
 %! nout = audiodevinfo (0);
 %! nin = audiodevinfo (1);
-%! for i = 1:nout
-%!   assert (devinfo.output(i).ID, audiodevinfo (0, devinfo.output(i).Name));
+%! ## There might be multiple devices with the same name
+%! ## (e.g., on Windows WDM-KS)
+%! ## Check only the first of each unique device name.
+%! [unq_out_name, idx_unique] = unique ({devinfo.output(:).Name});
+%! unq_out_id = [devinfo.output(idx_unique).ID];
+%! for i = 1:numel (unq_out_name)
+%!   assert (audiodevinfo (0, unq_out_name{i}), unq_out_id(i));
 %! endfor
-%! for i = 1:nin
-%!   assert (devinfo.input (i).ID, audiodevinfo (1, devinfo.input (i).Name));
+%! [unq_in_name, idx_unique] = unique ({devinfo.input(:).Name});
+%! unq_in_id = [devinfo.input(idx_unique).ID];
+%! for i = 1:numel (unq_in_name)
+%!   assert (audiodevinfo (1, unq_in_name{i}), unq_in_id(i));
 %! endfor
 */
 
@@ -595,8 +606,8 @@ octave_play_callback (const void *, void *output, unsigned long frames,
     error ("audioplayer callback function called without player");
 
   octave_value_list retval
-    = octave::feval (player->octave_callback_function,
-                     ovl (static_cast<double> (frames)), 1);
+    = feval (player->octave_callback_function,
+             ovl (static_cast<double> (frames)), 1);
 
   if (retval.length () < 2)
     error ("audioplayer callback function failed");
@@ -653,7 +664,7 @@ octave_play_callback (const void *, void *output, unsigned long frames,
       {
         static double scale_factor = std::pow (2.0, 23) - 1.0;
 
-        static int big_endian = octave::mach_info::words_big_endian ();
+        static int big_endian = mach_info::words_big_endian ();
 
         uint8_t *buffer = static_cast<uint8_t *> (output);
 
@@ -690,7 +701,7 @@ octave_play_callback (const void *, void *output, unsigned long frames,
 
 static int
 portaudio_play_callback (const void *, void *output, unsigned long frames,
-                         const PaStreamCallbackTimeInfo*,
+                         const PaStreamCallbackTimeInfo *,
                          PaStreamCallbackFlags, void *data)
 {
   audioplayer *player = static_cast<audioplayer *> (data);
@@ -763,7 +774,7 @@ portaudio_play_callback (const void *, void *output, unsigned long frames,
           {
             static double scale_factor = std::pow (2.0, 23) - 1.0;
 
-            static int big_endian = octave::mach_info::words_big_endian ();
+            static int big_endian = mach_info::words_big_endian ();
 
             uint8_t *buffer = static_cast<uint8_t *> (output);
 
@@ -1150,7 +1161,7 @@ audioplayer::playblocking (void)
   start = get_sample_number ();
   end = get_end_sample ();
 
-  octave::unwind_action stop_audioplayer ([=] () { stop (); });
+  unwind_action stop_audioplayer ([=] () { stop (); });
 
   for (unsigned int i = start; i < end; i += buffer_size)
     {
@@ -1359,8 +1370,8 @@ octave_record_callback (const void *input, void *, unsigned long frames,
           float sample_l = input8[i*channels] / scale_factor;
           float sample_r = input8[i*channels + (channels - 1)] / scale_factor;
 
-          sound(i,0) = sample_l;
-          sound(i,1) = sample_r;
+          sound(i, 0) = sample_l;
+          sound(i, 1) = sample_r;
         }
     }
   // FIXME: This is a workaround for a bug in PortAudio affecting 8-Bit
@@ -1379,8 +1390,8 @@ octave_record_callback (const void *input, void *, unsigned long frames,
           float sample_r = (input16[i*channels + (channels - 1)] >> 8)
                            / scale_factor;
 
-          sound(i,0) = sample_l;
-          sound(i,1) = sample_r;
+          sound(i, 0) = sample_l;
+          sound(i, 1) = sample_r;
         }
     }
   else if (recorder->get_sampleFormat () == bits_to_format (16))
@@ -1394,8 +1405,8 @@ octave_record_callback (const void *input, void *, unsigned long frames,
           float sample_l = input16[i*channels] / scale_factor;
           float sample_r = input16[i*channels + (channels - 1)] / scale_factor;
 
-          sound(i,0) = sample_l;
-          sound(i,1) = sample_r;
+          sound(i, 0) = sample_l;
+          sound(i, 1) = sample_r;
         }
     }
   else if (recorder->get_sampleFormat () == bits_to_format (24))
@@ -1426,13 +1437,13 @@ octave_record_callback (const void *input, void *, unsigned long frames,
           if (sample_r32 & 0x00800000)
             sample_r32 |= 0xff000000;
 
-          sound(i,0) = sample_l32 / scale_factor;
-          sound(i,1) = sample_r32 / scale_factor;
+          sound(i, 0) = sample_l32 / scale_factor;
+          sound(i, 1) = sample_r32 / scale_factor;
         }
     }
 
   octave_value_list retval
-    = octave::feval (recorder->octave_callback_function, ovl (sound), 1);
+    = feval (recorder->octave_callback_function, ovl (sound), 1);
 
   return retval(0).int_value ();
 }
@@ -1732,8 +1743,8 @@ audiorecorder::getaudiodata (void)
 
   for (unsigned int i = 0; i < ls; i++)
     {
-      audio(0,i) = left[i];
-      audio(1,i) = right[i];
+      audio(0, i) = left[i];
+      audio(1, i) = right[i];
     }
 
   return audio;
@@ -1822,7 +1833,7 @@ audiorecorder::recordblocking (float seconds)
 
   unsigned int frames = seconds * get_fs ();
 
-  octave::unwind_action stop_audiorecorder ([=] () { stop (); });
+  unwind_action stop_audiorecorder ([=] () { stop (); });
 
   for (unsigned int i = 0; i < frames; i += buffer_size)
     {
@@ -1956,7 +1967,7 @@ Undocumented internal function.
 #if defined (HAVE_PORTAUDIO)
 
 static audiorecorder *
-get_recorder (octave::interpreter& interp, const octave_value& ov)
+get_recorder (interpreter& interp, const octave_value& ov)
 {
   interp.mlock ();
 
@@ -2403,7 +2414,7 @@ Undocumented internal function.
 #if defined (HAVE_PORTAUDIO)
 
 static audioplayer *
-get_player (octave::interpreter& interp, const octave_value& ov)
+get_player (interpreter& interp, const octave_value& ov)
 {
   interp.mlock ();
 
@@ -2841,3 +2852,5 @@ Undocumented internal function.
                         "audio playback and recording through PortAudio");
 #endif
 }
+
+OCTAVE_NAMESPACE_END

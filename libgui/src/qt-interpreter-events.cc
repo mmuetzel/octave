@@ -286,6 +286,16 @@ namespace octave
     emit show_workspace_signal ();
   }
 
+  void qt_interpreter_events::show_community_news (int serial)
+  {
+    emit show_community_news_signal (serial);
+  }
+
+  void qt_interpreter_events::show_release_notes (void)
+  {
+    emit show_release_notes_signal ();
+  }
+
   bool qt_interpreter_events::edit_file (const std::string& file)
   {
     emit edit_file_signal (QString::fromStdString (file));
@@ -412,10 +422,10 @@ namespace octave
       {
         for (int j = 0; j < img.width (); j++)
           {
-            retval(i,j,2) = bits[0];
-            retval(i,j,1) = bits[1];
-            retval(i,j,0) = bits[2];
-            retval(i,j,3) = bits[3];
+            retval(i, j, 2) = bits[0];
+            retval(i, j, 1) = bits[1];
+            retval(i, j, 0) = bits[2];
+            retval(i, j, 3) = bits[3];
 
             bits += 4;
           }

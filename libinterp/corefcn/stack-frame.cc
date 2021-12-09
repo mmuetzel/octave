@@ -200,7 +200,7 @@ namespace octave
     void set_script_offsets (void);
 
     void set_script_offsets_internal (const std::map<std::string,
-                                                     symbol_record>& symbols);
+                                      symbol_record>& symbols);
 
     void resize_and_update_script_offsets (const symbol_record& sym);
 
@@ -1041,7 +1041,8 @@ namespace octave
                                      const std::shared_ptr<stack_frame>& parent_link,
                                      const std::shared_ptr<stack_frame>& static_link)
   {
-    return new compiled_fcn_stack_frame (tw, fcn, index, parent_link, static_link);
+    return new compiled_fcn_stack_frame (tw, fcn, index,
+                                         parent_link, static_link);
   }
 
   stack_frame * stack_frame::create (tree_evaluator& tw,
@@ -1059,7 +1060,8 @@ namespace octave
                                      const std::shared_ptr<stack_frame>& static_link,
                                      const std::shared_ptr<stack_frame>& access_link)
   {
-    return new user_fcn_stack_frame (tw, fcn, index, parent_link, static_link, access_link);
+    return new user_fcn_stack_frame (tw, fcn, index,
+                                     parent_link, static_link, access_link);
   }
 
   stack_frame * stack_frame::create (tree_evaluator& tw,
@@ -1069,7 +1071,9 @@ namespace octave
                                      const local_vars_map& local_vars,
                                      const std::shared_ptr<stack_frame>& access_link)
   {
-    return new user_fcn_stack_frame (tw, fcn, index, parent_link, static_link, local_vars, access_link);
+    return new user_fcn_stack_frame (tw, fcn, index,
+                                     parent_link, static_link, local_vars,
+                                     access_link);
   }
 
   stack_frame * stack_frame::create (tree_evaluator& tw,
@@ -1098,13 +1102,14 @@ namespace octave
       {
         octave_value value = varval (sym);
 
-        if (value.is_defined ())
-          {
-            symbol_info syminf (sym.name (), value, sym.is_formal (),
-                                is_global (sym), is_persistent (sym));
+        if (! value.is_defined ()
+            || (is_user_fcn_frame () && sym.frame_offset () > 0))
+          continue;
 
-            symbol_stats.append (syminf);
-          }
+        symbol_info syminf (sym.name (), value, sym.is_formal (),
+                            is_global (sym), is_persistent (sym));
+
+        symbol_stats.append (syminf);
       }
 
     return symbol_stats;
@@ -1865,6 +1870,11 @@ namespace octave
             std::map<std::string, symbol_record> tmp_symbols;
             tmp_symbols[sym.name ()] = sym;
             set_script_offsets_internal (tmp_symbols);
+
+            // set_script_offsets_internal may have modified
+            // m_lexical_frame_offsets and m_value_offsets.
+
+            frame_offset = m_lexical_frame_offsets.at (data_offset);
           }
 
         data_offset = m_value_offsets.at (data_offset);

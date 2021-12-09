@@ -35,6 +35,8 @@
 
 #include "builtin-defun-decls.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 // This function implements the IKJ and JKI variants of Gaussian elimination to
 // perform the ILU0 decomposition.  The behavior is controlled by milu
 // parameter.  If milu = ['off'|'col'] the JKI version is performed taking
@@ -855,7 +857,7 @@ void ilu_tp (octave_matrix_t& sm, octave_matrix_t& L, octave_matrix_t& U,
   for (i = 0; i < n; i++)
     {
       if (opt == ROW)
-        diag.elem (i,i) = data_u[uptr[i]];
+        diag.elem (i, i) = data_u[uptr[i]];
       j = cidx_l[i];
 
       while (j < cidx_l[i+1])
@@ -892,7 +894,7 @@ void ilu_tp (octave_matrix_t& sm, octave_matrix_t& L, octave_matrix_t& U,
     {
       U = U.transpose ();
       // The diagonal, conveniently permuted is added to U
-      U += diag.index (octave::idx_vector::colon, perm_vec);
+      U += diag.index (idx_vector::colon, perm_vec);
       L = L.transpose ();
     }
 }
@@ -938,8 +940,8 @@ Undocumented internal function.
           retval(0) = L + speye;
           if (nargout == 3)
             {
-              retval(1) = U.index (octave::idx_vector::colon, perm);
-              retval(2) = speye.index (octave::idx_vector::colon, perm);
+              retval(1) = U.index (idx_vector::colon, perm);
+              retval(2) = speye.index (idx_vector::colon, perm);
             }
           else
             retval(1) = U;
@@ -949,11 +951,11 @@ Undocumented internal function.
           retval(1) = U;
           if (nargout == 3)
             {
-              retval(0) = L.index (perm, octave::idx_vector::colon) + speye;
-              retval(2) = speye.index (perm, octave::idx_vector::colon);
+              retval(0) = L.index (perm, idx_vector::colon) + speye;
+              retval(2) = speye.index (perm, idx_vector::colon);
             }
           else
-            retval(0) = L + speye.index (octave::idx_vector::colon, perm);
+            retval(0) = L + speye.index (idx_vector::colon, perm);
         }
     }
   else
@@ -979,8 +981,8 @@ Undocumented internal function.
           retval(0) = L + speye;
           if (nargout == 3)
             {
-              retval(1) = U.index (octave::idx_vector::colon, perm);
-              retval(2) = speye.index (octave::idx_vector::colon, perm);
+              retval(1) = U.index (idx_vector::colon, perm);
+              retval(2) = speye.index (idx_vector::colon, perm);
             }
           else if (nargout == 2)
             retval(1) = U;
@@ -990,11 +992,11 @@ Undocumented internal function.
           retval(1) = U;
           if (nargout == 3)
             {
-              retval(0) = L.index (perm, octave::idx_vector::colon) + speye;
-              retval(2) = speye.index (perm, octave::idx_vector::colon);
+              retval(0) = L.index (perm, idx_vector::colon) + speye;
+              retval(2) = speye.index (perm, idx_vector::colon);
             }
           else
-            retval(0) = L + speye.index (octave::idx_vector::colon, perm);
+            retval(0) = L + speye.index (idx_vector::colon, perm);
         }
     }
 
@@ -1005,3 +1007,5 @@ Undocumented internal function.
 ## No test needed for internal helper function.
 %!assert (1)
 */
+
+OCTAVE_NAMESPACE_END

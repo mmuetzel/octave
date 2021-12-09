@@ -38,6 +38,8 @@
 #include "utils.h"
 #include "xnorm.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 template <typename Matrix>
 static void
 sqrtm_utri_inplace (Matrix& T)
@@ -182,7 +184,7 @@ do_sqrtm (const octave_value& arg)
               {
                 ComplexSCHUR schur_fact (x, "", true);
                 x = schur_fact.schur_matrix ();
-                u = schur_fact.unitary_matrix ();
+                u = schur_fact.unitary_schur_matrix ();
               }
             while (0); // schur no longer needed.
 
@@ -240,10 +242,10 @@ Mathematics, Manchester, England, January 1999.
     retval(0) = arg.sqrt ();
   else if (arg.is_single_type ())
     retval(0) = do_sqrtm<FloatMatrix, FloatComplexMatrix,
-                         octave::math::schur<FloatComplexMatrix>> (arg);
+                         math::schur<FloatComplexMatrix>> (arg);
   else if (arg.isnumeric ())
     retval(0) = do_sqrtm<Matrix, ComplexMatrix,
-                         octave::math::schur<ComplexMatrix>> (arg);
+                         math::schur<ComplexMatrix>> (arg);
 
   if (nargout > 1)
     {
@@ -260,7 +262,7 @@ Mathematics, Manchester, England, January 1999.
 
 /*
 %!assert (sqrtm (2*ones (2)), ones (2), 3*eps)
-%!assert (real (sqrtm (ones (4))), 0.5*ones (4), 4*eps)
+%!assert <*60797> (sqrtm (ones (4))^2, ones (4), 5*eps)
 
 ## The following two tests are from the reference in the docstring above.
 %!test
@@ -275,3 +277,5 @@ Mathematics, Manchester, England, January 1999.
 %! assert (y, z);
 %! assert (err, 0);   # Yes, this one has to hold exactly
 */
+
+OCTAVE_NAMESPACE_END

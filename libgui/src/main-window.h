@@ -107,6 +107,9 @@ namespace octave
     void open_file_signal (const QString& file, const QString& enc, int line);
     void step_into_file_signal (void);
 
+    void show_community_news_signal (int serial);
+    void show_release_notes_signal (void);
+
     void update_gui_lexer_signal (bool);
 
     void insert_debugger_pointer_signal (const QString& file, int line);
@@ -144,9 +147,6 @@ namespace octave
     void edit_mfile (const QString&, int);
     void file_remove_proxy (const QString& o, const QString& n);
     void open_online_documentation_page (void);
-    void display_release_notes (void);
-    void load_and_display_community_news (int serial = -1);
-    void display_community_news (const QString& news);
     void open_bug_tracker_page (void);
     void open_octave_packages_page (void);
     void open_contribute_page (void);
@@ -283,7 +283,7 @@ namespace octave
                                          const char *member);
     void construct_debug_menu (QMenuBar *p);
     QAction * construct_window_menu_item (QMenu *p, const QString& item,
-                                          bool checkable, QWidget*);
+                                          bool checkable, QWidget *);
     void construct_tools_menu (QMenuBar *p);
     void construct_window_menu (QMenuBar *p);
     void construct_help_menu (QMenuBar *p);
@@ -299,13 +299,13 @@ namespace octave
 
     void update_default_encoding (const QString& default_encoding);
 
-    void get_screen_geometry (int *width, int *height);
+    void get_screen_geometry (int& width, int& height);
     void set_default_geometry (void);
     void resize_dock (QDockWidget *dw, int width, int height);
 
     base_qobject& m_octave_qobj;
 
-    QHash<QMenu*, QStringList> m_hash_menu_text;
+    QHash<QMenu *, QStringList> m_hash_menu_text;
 
     QString m_default_encoding;
 
@@ -332,8 +332,6 @@ namespace octave
 
     octave_dock_widget *m_previous_dock;
     octave_dock_widget *m_active_dock;
-
-    QString m_release_notes_icon;
 
     QToolBar *m_main_tool_bar;
 
@@ -422,8 +420,6 @@ namespace octave
     //! Release notes window.
 
     QWidget *m_release_notes_window;
-
-    QWidget *m_community_news_window;
 
     QClipboard *m_clipboard;
 

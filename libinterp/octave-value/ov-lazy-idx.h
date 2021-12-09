@@ -40,13 +40,13 @@ octave_lazy_index : public octave_base_value
 public:
 
   octave_lazy_index (void)
-    : octave_base_value (), index (), value () { }
+    : octave_base_value (), m_index (), m_value () { }
 
   octave_lazy_index (const octave::idx_vector& idx)
-    : octave_base_value (), index (idx), value () { }
+    : octave_base_value (), m_index (idx), m_value () { }
 
   octave_lazy_index (const octave_lazy_index& i)
-    : octave_base_value (), index (i.index), value (i.value) { }
+    : octave_base_value (), m_index (i.m_index), m_value (i.m_value) { }
 
   ~octave_lazy_index (void) = default;
 
@@ -60,14 +60,15 @@ public:
 
   octave_value fast_elem_extract (octave_idx_type n) const;
 
-  std::size_t byte_size (void) const { return numel () * sizeof (octave_idx_type); }
+  std::size_t byte_size (void) const
+  { return numel () * sizeof (octave_idx_type); }
 
   octave_value squeeze (void) const;
 
   octave_value full_value (void) const { return make_value (); }
 
   octave::idx_vector index_vector (bool /* require_integers */ = false) const
-  { return index; }
+  { return m_index; }
 
   builtin_type_t builtin_type (void) const { return btyp_double; }
 
@@ -96,9 +97,9 @@ public:
                             bool resize_ok = false)
   { return make_value ().index_op (idx, resize_ok); }
 
-  dim_vector dims (void) const { return index.orig_dimensions (); }
+  dim_vector dims (void) const { return m_index.orig_dimensions (); }
 
-  octave_idx_type numel (void) const { return index.length (0); }
+  octave_idx_type numel (void) const { return m_index.length (0); }
 
   octave_idx_type nnz (void) const { return numel (); }
 
@@ -118,7 +119,7 @@ public:
 
   octave_value sort (octave_idx_type dim = 0, sortmode mode = ASCENDING) const;
 
-  octave_value sort (Array<octave_idx_type> &sidx, octave_idx_type dim = 0,
+  octave_value sort (Array<octave_idx_type>& sidx, octave_idx_type dim = 0,
                      sortmode mode = ASCENDING) const;
 
   sortmode issorted (sortmode mode = UNSORTED) const;
@@ -235,9 +236,9 @@ public:
     return make_value ().write (os, block_size, output_type, skip, flt_fmt);
   }
 
-  // Unsafe.  This function exists to support the MEX interface.
+  // This function exists to support the MEX interface.
   // You should not use it anywhere else.
-  void * mex_get_data (void) const
+  const void * mex_get_data (void) const
   {
     return make_value ().mex_get_data ();
   }
@@ -256,22 +257,22 @@ private:
 
   const octave_value& make_value (void) const
   {
-    if (value.is_undefined ())
-      value = octave_value (index, false);
+    if (m_value.is_undefined ())
+      m_value = octave_value (m_index, false);
 
-    return value;
+    return m_value;
   }
 
   octave_value& make_value (void)
   {
-    if (value.is_undefined ())
-      value = octave_value (index, false);
+    if (m_value.is_undefined ())
+      m_value = octave_value (m_index, false);
 
-    return value;
+    return m_value;
   }
 
-  octave::idx_vector index;
-  mutable octave_value value;
+  octave::idx_vector m_index;
+  mutable octave_value m_value;
 
   static octave_base_value *
   numeric_conversion_function (const octave_base_value&);

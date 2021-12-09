@@ -233,7 +233,7 @@ namespace octave
             // Famous last words:  100 iterations should be more than
             // enough in all cases.
 
-            if (++k > 100 || octave::math::isnan (z))
+            if (++k > 100 || math::isnan (z))
               return false;
 
             if (std::abs (z) <= 100 * std::numeric_limits<double>::epsilon ())
@@ -455,7 +455,7 @@ namespace octave
                pr, pvect);
 
         for (octave_idx_type j = 0; j < nt; j++)
-          m_A(i,j) = vect(j);
+          m_A(i, j) = vect(j);
       }
 
     // Second derivative weights.
@@ -467,7 +467,7 @@ namespace octave
                pr, pvect);
 
         for (octave_idx_type j = 0; j < nt; j++)
-          m_B(i,j) = vect(j);
+          m_B(i, j) = vect(j);
       }
 
     // Gaussian quadrature weights.

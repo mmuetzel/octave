@@ -140,6 +140,8 @@
 ## @item @samp{*} @tab star
 ## @item @samp{.} @tab point
 ## @item @samp{x} @tab cross
+## @item @samp{|} @tab vertical line
+## @item @samp{_} @tab horizontal line
 ## @item @samp{s} @tab square
 ## @item @samp{d} @tab diamond
 ## @item @samp{^} @tab upward-facing triangle
@@ -211,7 +213,9 @@
 ## To save a plot, in one of several image formats such as PostScript
 ## or PNG, use the @code{print} command.
 ##
-## @seealso{axis, box, grid, hold, legend, title, xlabel, ylabel, xlim, ylim, ezplot, errorbar, fplot, line, plot3, polar, loglog, semilogx, semilogy, subplot}
+## @seealso{axis, box, grid, hold, legend, title, xlabel, ylabel, xlim, ylim,
+## ezplot, errorbar, fplot, line, plot3, polar, loglog, semilogx, semilogy,
+## subplot}
 ## @end deftypefn
 
 function h = plot (varargin)

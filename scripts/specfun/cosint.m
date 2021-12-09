@@ -140,7 +140,7 @@ function y = cosint (x)
   ssum = - xx .^ 2 / 4; # First term of the series expansion
   ## FIXME: This is way more precision than a double value can hold.
   gma = 0.57721566490153286060651209008; # Euler gamma constant
-  yy = gma + log (complex (xx)) + ssum;  # log (complex (...) handles signed zero
+  yy = gma + log (complex (xx)) + ssum;  # log (complex (Z)) handles signed zero
   flag_sum = true (nnz (todo), 1);
   it = 0;
   maxit = 300;
@@ -184,7 +184,7 @@ endfunction
 ## tests against maple
 %!assert (cosint (1), 0.337403922900968135, -2*eps)
 %!assert (cosint (-1), 0.337403922900968135 + 3.14159265358979324*I, -2*eps)
-%!assert (cosint (pi), 0.0736679120464254860, -3e-15)
+%!assert (cosint (pi), 0.0736679120464254860, -4e-15)
 %!assert (cosint (-pi), 0.0736679120464254860 + 3.14159265358979324*I, -2*eps)
 %!assert (cosint (300), -0.00333219991859211178, -2*eps)
 %!assert (cosint (1e4), -0.0000305519167244852127, -2*eps)

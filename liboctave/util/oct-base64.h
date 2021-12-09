@@ -30,9 +30,8 @@
 
 #include <string>
 
+#include "Array-fwd.h"
 #include "intNDArray.h"
-
-template <typename T> class Array;
 
 namespace octave
 {

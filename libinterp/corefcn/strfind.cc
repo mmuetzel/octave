@@ -43,6 +43,8 @@
 #include "unwind-prot.h"
 #include "utils.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 // This allows safe indexing with char.
 // In C++, char may be (and often is) signed!
 #define ORD(ch) static_cast<unsigned char>(ch)
@@ -284,7 +286,7 @@ strfind ("abababa", "aba", "forcecelloutput", true)
         error ("strfind: first argument must be a string or cell array of strings");
     }
   else if (argpat.iscell ())
-    retval = octave::do_simple_cellfun (Fstrfind, "strfind", args);
+    retval = do_simple_cellfun (Fstrfind, "strfind", args);
   else
     error ("strfind: PATTERN must be a string or cell array of strings");
 
@@ -297,8 +299,10 @@ strfind ("abababa", "aba", "forcecelloutput", true)
 %!assert (strfind ("abababa", "aba", "forcecelloutput", false), [1, 3, 5])
 %!assert (strfind ("abababa", "aba", "forcecelloutput", true), {[1, 3, 5]})
 %!assert (strfind ({"abababa", "bla", "bla"}, "a"), {[1, 3, 5, 7], 3, 3})
-%!assert (strfind ({"abababa", "bla", "bla"}, "a", "forcecelloutput", false), {[1, 3, 5, 7], 3, 3})
-%!assert (strfind ({"abababa", "bla", "bla"}, "a", "forcecelloutput", true), {[1, 3, 5, 7], 3, 3})
+%!assert (strfind ({"abababa", "bla", "bla"}, "a", "forcecelloutput", false),
+%!        {[1, 3, 5, 7], 3, 3})
+%!assert (strfind ({"abababa", "bla", "bla"}, "a", "forcecelloutput", true),
+%!        {[1, 3, 5, 7], 3, 3})
 %!assert (strfind ("Linux _is_ user-friendly. It just isn't ignorant-friendly or idiot-friendly.", "friendly"), [17, 50, 68])
 %!assert (strfind ("abc", ""), [])
 %!assert (strfind ("abc", {"", "b", ""}), {[], 2, []})
@@ -484,7 +488,7 @@ strrep ("This is a test string", "is", "&%$")
         error ("strrep: S must be a string or cell array of strings");
     }
   else if (argpat.iscell () || argrep.iscell ())
-    retval = octave::do_simple_cellfun (Fstrrep, "strrep", args);
+    retval = do_simple_cellfun (Fstrrep, "strrep", args);
   else
     error ("strrep: PTN and REP arguments must be strings or cell arrays of strings");
 
@@ -516,3 +520,5 @@ strrep ("This is a test string", "is", "&%$")
 %!error <PTN and REP arguments must be strings> strrep ("A", 1.0, "C")
 %!error <PTN and REP arguments must be strings> strrep ("A", "B", 1.0)
 */
+
+OCTAVE_NAMESPACE_END

@@ -51,7 +51,7 @@
 #include "interpreter.h"
 #include "oct-map.h"
 
-namespace QtHandles
+namespace octave
 {
 
   static int
@@ -99,7 +99,7 @@ namespace QtHandles
     return bw;
   }
 
-  ButtonGroup*
+  ButtonGroup *
   ButtonGroup::create (octave::base_qobject& oct_qobj,
                        octave::interpreter& interp, const graphics_object& go)
   {
@@ -155,9 +155,9 @@ namespace QtHandles
 
     if (frame->hasMouseTracking ())
       {
-        for (auto *w : frame->findChildren<QWidget*> ())
+        for (auto *w : frame->findChildren<QWidget *> ())
           w->setMouseTracking (true);
-        for (auto *w : buttongroup->findChildren<QWidget*> ())
+        for (auto *w : buttongroup->findChildren<QWidget *> ())
           w->setMouseTracking (true);
       }
 

@@ -42,7 +42,19 @@ api_version := ${OCTAVE_API_VERSION}
 
 AM_LFLAGS = @LFLAGS@
 
-AM_YFLAGS = -dv ${WARN_YFLAGS}
+# Until modern Bison rules are handled by autoconf/automake.
+
+AM_V_BISON = $(am__v_BISON_$(V))
+am__v_BISON_ = $(am__v_BISON_$(AM_DEFAULT_VERBOSITY))
+am__v_BISON_0 = @echo "  BISON   " $@;
+am__v_BISON_1 =
+
+BISON = @BISON@
+BISONCOMPILE = $(BISON) $(AM_BISONFLAGS) $(BISONFLAGS)
+
+# Define YACC to pacify automake
+
+YACC = $(BISON)
 
 if AMCOND_LIB_VISIBILITY_FLAGS
   OCTAVE_VISIBILITY_FLAGS = ${CFLAG_VISIBILITY}
@@ -63,6 +75,9 @@ AM_CFLAGS = ${CPICFLAG} ${XTRA_CFLAGS} ${WARN_CFLAGS} $(OCTAVE_VISIBILITY_FLAGS)
 # C++ compiler flags.
 
 AM_CXXFLAGS = ${CXXPICFLAG} ${XTRA_CXXFLAGS} ${WARN_CXXFLAGS} $(OCTAVE_VISIBILITY_FLAGS)
+
+ADDRESS_SANITIZER_ENABLED = @ADDRESS_SANITIZER_ENABLED@
+ADDRESS_SANITIZER_OPTIONS = @ADDRESS_SANITIZER_OPTIONS@
 
 FFTW_XCPPFLAGS = @FFTW_XCPPFLAGS@
 FFTW_XLDFLAGS = @FFTW_XLDFLAGS@
@@ -130,13 +145,13 @@ BUILT_DISTFILES += \
   BUGS \
   ChangeLog \
   HG-ID \
-  INSTALL.OCTAVE
+  INSTALL.OCTAVE \
+  NEWS
 
 EXTRA_DIST += \
   CITATION \
   COPYING \
   INSTALL \
-  NEWS \
   README \
   octave.doap \
   run-octave.in \
@@ -311,9 +326,7 @@ DISTCLEANFILES += \
   .gdbinit
 
 MAINTAINERCLEANFILES += \
-  $(BUILT_DISTFILES) \
-  ChangeLog \
-  HG-ID
+  $(BUILT_DISTFILES)
 
 CONFIG_FILES = @ac_config_headers@ @ac_config_files@
 
@@ -377,6 +390,10 @@ nonexistent-file:
 
 .gdbinit: etc/gdbinit
 	$(AM_V_GEN)$(gdbinit-install-rule)
+
+NEWS: etc/NEWS.$(OCTAVE_MAJOR_VERSION).md
+	$(AM_V_GEN)cp $< $@
+.PHONY: NEWS
 
 define changelog-from-hg-log
   rm -f $@-t && \

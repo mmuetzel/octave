@@ -84,7 +84,7 @@
 ## @end itemize
 ##
 ## @strong{Caution:} datenums represent a specific time for the Earth as a
-## a whole.  They do not take in to account time zones (shifts in time based
+## whole.  They do not take in to account time zones (shifts in time based
 ## on location), nor seasonal changes due to Daylight Savings Time (shifts in
 ## time based on local regulation).  Be aware that it is possible to create
 ## datenums that, when interpreted by a function which accounts for time zone
@@ -230,15 +230,19 @@ endfunction
 %!assert (datenum ([2008;2009],1,1), [datenum(2008,1,1);datenum(2009,1,1)])
 %!assert (datenum (2008, [1;2], 1), [datenum(2008,1,1);datenum(2008,2,1)])
 %!assert (datenum (2008, 1, [1;2]), [datenum(2008,1,1);datenum(2008,1,2)])
-%!assert (datenum ([2008;2009], [1;2], 1), [datenum(2008,1,1);datenum(2009,2,1)])
-%!assert (datenum ([2008;2009], 1, [1;2]), [datenum(2008,1,1);datenum(2009,1,2)])
+%!assert (datenum ([2008;2009], [1;2], 1),
+%!        [datenum(2008,1,1);datenum(2009,2,1)])
+%!assert (datenum ([2008;2009], 1, [1;2]),
+%!        [datenum(2008,1,1);datenum(2009,1,2)])
 %!assert (datenum (2008, [1;2], [1;2]), [datenum(2008,1,1);datenum(2008,2,2)])
 ## And the other orientation
 %!assert (datenum ([2008 2009], 1, 1), [datenum(2008,1,1) datenum(2009,1,1)])
 %!assert (datenum (2008, [1 2], 1), [datenum(2008,1,1) datenum(2008,2,1)])
 %!assert (datenum (2008, 1, [1 2]), [datenum(2008,1,1) datenum(2008,1,2)])
-%!assert (datenum ([2008 2009], [1 2], 1), [datenum(2008,1,1) datenum(2009,2,1)])
-%!assert (datenum ([2008 2009], 1, [1 2]), [datenum(2008,1,1) datenum(2009,1,2)])
+%!assert (datenum ([2008 2009], [1 2], 1),
+%!        [datenum(2008,1,1) datenum(2009,2,1)])
+%!assert (datenum ([2008 2009], 1, [1 2]),
+%!        [datenum(2008,1,1) datenum(2009,1,2)])
 %!assert (datenum (2008, [1 2], [1 2]), [datenum(2008,1,1) datenum(2008,2,2)])
 
 ## Test string and cellstr inputs

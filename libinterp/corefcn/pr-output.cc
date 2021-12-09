@@ -312,7 +312,7 @@ pr_max_internal (const MArray<T>& m)
   for (octave_idx_type j = 0; j < nc; j++)
     for (octave_idx_type i = 0; i < nr; i++)
       {
-        T val = m(i,j);
+        T val = m(i, j);
         if (! octave::math::isfinite (val))
           continue;
 
@@ -342,7 +342,7 @@ pr_min_internal (const MArray<T>& m)
   for (octave_idx_type j = 0; j < nc; j++)
     for (octave_idx_type i = 0; i < nr; i++)
       {
-        T val = m(i,j);
+        T val = m(i, j);
         if (! octave::math::isfinite (val))
           continue;
 
@@ -361,29 +361,29 @@ pr_min_internal (const MArray<T>& m)
 template <typename>
 struct pr_output_traits
 {
-  static const int digits10;
-  static const int max_field_width;
+  static const int DIGITS10;
+  static const int MAX_FIELD_WIDTH;
 };
 
 template <>
 struct pr_output_traits<double>
 {
-  static const int digits10;
-  static const int max_field_width;
+  static const int DIGITS10;
+  static const int MAX_FIELD_WIDTH;
 };
 
-const int pr_output_traits<double>::digits10 = 16;
-const int pr_output_traits<double>::max_field_width = 21;
+const int pr_output_traits<double>::DIGITS10 = 16;
+const int pr_output_traits<double>::MAX_FIELD_WIDTH = 21;
 
 template <>
 struct pr_output_traits<float>
 {
-  static const int digits10;
-  static const int max_field_width;
+  static const int DIGITS10;
+  static const int MAX_FIELD_WIDTH;
 };
 
-const int pr_output_traits<float>::digits10 = 8;
-const int pr_output_traits<float>::max_field_width = 13;
+const int pr_output_traits<float>::DIGITS10 = 8;
+const int pr_output_traits<float>::MAX_FIELD_WIDTH = 13;
 
 // FIXME: it would be nice to share more code among these functions,..
 
@@ -395,7 +395,7 @@ make_real_format (int digits, bool inf_or_nan, bool int_only)
 {
   float_format fmt;
 
-  int prec = std::min (output_precision (), pr_output_traits<T>::digits10);
+  int prec = std::min (output_precision (), pr_output_traits<T>::DIGITS10);
 
   int fw = 0, ld = 0, rd = 0;
 
@@ -454,8 +454,8 @@ make_real_format (int digits, bool inf_or_nan, bool int_only)
 
   if (! (rat_format || bank_format || hex_format || bit_format)
       && (print_e || print_g || print_eng
-          || ld + rd > pr_output_traits<T>::digits10
-          || fw > pr_output_traits<T>::max_field_width
+          || ld + rd > pr_output_traits<T>::DIGITS10
+          || fw > pr_output_traits<T>::MAX_FIELD_WIDTH
           || ld + rd > (1.5 * prec)))
     {
       if (print_g)
@@ -544,7 +544,7 @@ make_real_matrix_format (int x_max, int x_min, bool inf_or_nan,
 
   float_format fmt;
 
-  int prec = std::min (output_precision (), pr_output_traits<T>::digits10);
+  int prec = std::min (output_precision (), pr_output_traits<T>::DIGITS10);
 
   int fw = 0, ld = 0, rd = 0;
 
@@ -637,8 +637,8 @@ make_real_matrix_format (int x_max, int x_min, bool inf_or_nan,
   if (! (rat_format || bank_format || hex_format || bit_format)
       && (print_e || print_eng || print_g
           || (! Vfixed_point_format
-              && (ld + rd > pr_output_traits<T>::digits10
-                  || fw > pr_output_traits<T>::max_field_width
+              && (ld + rd > pr_output_traits<T>::DIGITS10
+                  || fw > pr_output_traits<T>::MAX_FIELD_WIDTH
                   || ld + rd > (1.5 * prec)))))
     {
       if (print_g)
@@ -726,7 +726,7 @@ make_complex_format (int x_max, int x_min, int r_x,
   float_format r_fmt;
   float_format i_fmt;
 
-  int prec = std::min (output_precision (), pr_output_traits<T>::digits10);
+  int prec = std::min (output_precision (), pr_output_traits<T>::DIGITS10);
 
   int i_fw = 0, r_fw = 0, ld = 0, rd = 0;
 
@@ -823,9 +823,9 @@ make_complex_format (int x_max, int x_min, int r_x,
 
   if (! (rat_format || bank_format || hex_format || bit_format)
       && (print_e || print_eng || print_g
-          || ld + rd > pr_output_traits<T>::digits10
-          || r_fw > pr_output_traits<T>::max_field_width
-          || i_fw > pr_output_traits<T>::max_field_width
+          || ld + rd > pr_output_traits<T>::DIGITS10
+          || r_fw > pr_output_traits<T>::MAX_FIELD_WIDTH
+          || i_fw > pr_output_traits<T>::MAX_FIELD_WIDTH
           || ld + rd > (1.5 * prec)))
     {
       if (print_g)
@@ -952,7 +952,7 @@ make_complex_matrix_format (int x_max, int x_min, int r_x_max,
   float_format r_fmt;
   float_format i_fmt;
 
-  int prec = std::min (output_precision (), pr_output_traits<T>::digits10);
+  int prec = std::min (output_precision (), pr_output_traits<T>::DIGITS10);
 
   int i_fw = 0, r_fw = 0, ld = 0, rd = 0;
 
@@ -1061,9 +1061,9 @@ make_complex_matrix_format (int x_max, int x_min, int r_x_max,
   if (! (rat_format || bank_format || hex_format || bit_format)
       && (print_e || print_eng || print_g
           || (! Vfixed_point_format
-              && (ld + rd > pr_output_traits<T>::digits10
-                  || r_fw > pr_output_traits<T>::max_field_width
-                  || i_fw > pr_output_traits<T>::max_field_width
+              && (ld + rd > pr_output_traits<T>::DIGITS10
+                  || r_fw > pr_output_traits<T>::MAX_FIELD_WIDTH
+                  || i_fw > pr_output_traits<T>::MAX_FIELD_WIDTH
                   || ld + rd > (1.5 * prec)))))
     {
       if (print_g)
@@ -1195,7 +1195,7 @@ make_range_format (int x_max, int x_min, int all_ints)
 
   float_format fmt;
 
-  int prec = std::min (output_precision (), pr_output_traits<T>::digits10);
+  int prec = std::min (output_precision (), pr_output_traits<T>::DIGITS10);
 
   int fw = 0, ld = 0, rd = 0;
 
@@ -1282,8 +1282,8 @@ make_range_format (int x_max, int x_min, int all_ints)
   if (! (rat_format || bank_format || hex_format || bit_format)
       && (print_e || print_eng || print_g
           || (! Vfixed_point_format
-              && (ld + rd > pr_output_traits<T>::digits10
-                  || fw > pr_output_traits<T>::max_field_width
+              && (ld + rd > pr_output_traits<T>::DIGITS10
+                  || fw > pr_output_traits<T>::MAX_FIELD_WIDTH
                   || ld + rd > (1.5 * prec)))))
     {
       if (print_g)
@@ -1825,7 +1825,7 @@ octave_print_free (std::ostream& os, const MT& m, bool pr_as_read_syntax)
   for (octave_idx_type i = 0; i < nr; i++)
     {
       for (octave_idx_type j = 0; j < nc; j++)
-        os << ' ' << m.elem(i,j);
+        os << ' ' << m.elem (i, j);
 
       if (i < nr - 1)
         os << "\n";
@@ -1848,7 +1848,7 @@ pr_plus_format_matrix (std::ostream& os, const MT& m)
         {
           octave_quit ();
 
-          pr_plus_format (os, m(i,j));
+          pr_plus_format (os, m(i, j));
         }
 
       if (i < nr - 1)
@@ -1934,7 +1934,7 @@ octave_print_matrix_internal (std::ostream& os, const MT& m,
                             os << "  ";
                         }
 
-                      pr_float (os, fmt, m(i,j));
+                      pr_float (os, fmt, m(i, j));
                     }
 
                   col += inc;
@@ -1974,7 +1974,7 @@ octave_print_matrix_internal (std::ostream& os, const MT& m,
 
                       os << "  ";
 
-                      pr_float (os, fmt, m(i,j));
+                      pr_float (os, fmt, m(i, j));
                     }
 
                   if (i < nr - 1)
@@ -2050,7 +2050,7 @@ octave_print_diag_matrix_internal (std::ostream& os, const DMT& m,
                         os << "  ";
                     }
 
-                  pr_float (os, fmt, m(j,j));
+                  pr_float (os, fmt, m(j, j));
                 }
 
               col += inc;
@@ -2099,7 +2099,7 @@ octave_print_diag_matrix_internal (std::ostream& os, const DMT& m,
                       os << "  ";
 
                       if (i == j)
-                        pr_float (os, fmt, m(i,j));
+                        pr_float (os, fmt, m(i, j));
                       else
                         os << std::setw (zero_fw) << '0';
                     }
@@ -2380,7 +2380,7 @@ octave_print_internal (std::ostream& os, const PermMatrix& m,
 
                       os << "  ";
 
-                      os << std::setw (fw) << m(i,j);
+                      os << std::setw (fw) << m(i, j);
                     }
 
                   if (i < nr - 1)
@@ -2536,7 +2536,7 @@ octave_print_internal (std::ostream& os, const octave::range<double>& r,
             {
               os << ' ';
               for (octave_idx_type i = 0; i < num_elem; i++)
-                os << ' ' << r.elem(i);
+                os << ' ' << r.elem (i);
               return;
             }
 
@@ -2558,7 +2558,8 @@ octave_print_internal (std::ostream& os, const octave::range<double>& r,
           octave_idx_type col = 0;
           while (col < num_elem)
             {
-              octave_idx_type lim = (col + inc < num_elem ? col + inc : num_elem);
+              octave_idx_type lim = (col + inc < num_elem ? col + inc
+                                                          : num_elem);
 
               pr_col_num_header (os, total_width, max_width, lim, col,
                                  extra_indent);
@@ -2769,7 +2770,7 @@ octave_print_internal (std::ostream& os, const Array<std::string>& nda,
           for (octave_idx_type ii = 0; ii < n_rows; ii++)
             {
               for (octave_idx_type jj = 0; jj < n_cols; jj++)
-                os << "  " << page(ii,jj);
+                os << "  " << page(ii, jj);
 
               os << "\n";
             }
@@ -3004,7 +3005,7 @@ octave_print_internal_template (std::ostream& os, const intNDArray<T>& nda,
                 {
                   octave_quit ();
 
-                  pr_plus_format (os, page(ii,jj));
+                  pr_plus_format (os, page(ii, jj));
                 }
 
               if ((ii < nr - 1) || (i < m -1))
@@ -3148,7 +3149,7 @@ octave_print_internal_template (std::ostream& os, const intNDArray<T>& nda,
                         {
                           octave_quit ();
                           os << "  ";
-                          pr_int (os, page(ii,jj), fw);
+                          pr_int (os, page(ii, jj), fw);
                         }
                       if ((ii < n_rows - 1) || (i < m -1))
                         os << "\n";
@@ -3193,6 +3194,8 @@ octave_print_internal (std::ostream&, const octave_value&, bool)
 {
   panic_impossible ();
 }
+
+OCTAVE_NAMESPACE_BEGIN
 
 DEFUN (rats, args, ,
        doc: /* -*- texinfo -*-
@@ -3242,7 +3245,7 @@ x = str2num (r)
       arg = arg.reshape (dv);
     }
 
-  octave::unwind_protect frame;
+  unwind_protect frame;
 
   frame.protect_var (rat_string_len);
 
@@ -3388,11 +3391,11 @@ Note that the output from @code{fdisp} always ends with a newline.
   if (args.length () != 2)
     print_usage ();
 
-  octave::stream_list& streams = interp.get_stream_list ();
+  stream_list& streams = interp.get_stream_list ();
 
   int fid = streams.get_file_number (args(0));
 
-  octave::stream os = streams.lookup (fid, "fdisp");
+  stream os = streams.lookup (fid, "fdisp");
 
   std::ostream *osp = os.output_stream ();
 
@@ -3514,12 +3517,12 @@ of properly displaying the object's name.  This can be done by using the
   // disp is done.
 
   bool print_newlines = false;
-  if (octave::valid_identifier (name))
+  if (valid_identifier (name))
     print_newlines = value.print_name_tag (octave_stdout, name);
 
   // Use feval so that dispatch will also work for disp.
 
-  octave::feval ("disp", ovl (value));
+  feval ("disp", ovl (value));
 
   if (print_newlines)
     octave_stdout << std::endl;
@@ -3588,7 +3591,7 @@ set_format_style (int argc, const string_vector& argv)
   int idx = 1;
   std::string format;
 
-  octave::unwind_protect frame;
+  unwind_protect frame;
 
   frame.protect_var (bank_format);
   frame.protect_var (bit_format);
@@ -3972,7 +3975,8 @@ is used.  In case of an error the format remains unchanged.
 If called with one to three output arguments, and no inputs, return the current
 format, format spacing, and uppercase preference.
 
-@seealso{fixed_point_format, output_precision, split_long_rows, print_empty_dimensions, rats}
+@seealso{fixed_point_format, output_precision, split_long_rows,
+print_empty_dimensions, rats}
 @end deftypefn */)
 {
   octave_value_list retval (std::min (nargout, 2));
@@ -4091,7 +4095,8 @@ The original variable value is restored when exiting the function.
 @seealso{format, output_precision}
 @end deftypefn */)
 {
-  return SET_INTERNAL_VARIABLE (fixed_point_format);
+  return set_internal_variable (Vfixed_point_format, args, nargout,
+                                "fixed_point_format");
 }
 
 DEFUN (print_empty_dimensions, args, nargout,
@@ -4121,7 +4126,8 @@ The original variable value is restored when exiting the function.
 @seealso{format}
 @end deftypefn */)
 {
-  return SET_INTERNAL_VARIABLE (print_empty_dimensions);
+  return set_internal_variable (Vprint_empty_dimensions, args, nargout,
+                                "print_empty_dimensions");
 }
 
 DEFUN (split_long_rows, args, nargout,
@@ -4160,5 +4166,8 @@ The original variable value is restored when exiting the function.
 @seealso{format}
 @end deftypefn */)
 {
-  return SET_INTERNAL_VARIABLE (split_long_rows);
+  return set_internal_variable (Vsplit_long_rows, args, nargout,
+                                "split_long_rows");
 }
+
+OCTAVE_NAMESPACE_END

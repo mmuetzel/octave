@@ -66,6 +66,8 @@
 #include "variables.h"
 #include "xnorm.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFUN (all, args, ,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {} all (@var{x})
@@ -451,24 +453,39 @@ map_2_xlog2 (const Array<T>& x, Array<T>& f, Array<ET>& e)
   for (octave_idx_type i = 0; i < x.numel (); i++)
     {
       int exp;
-      f.xelem (i) = octave::math::log2 (x(i), exp);
+      f.xelem (i) = math::log2 (x(i), exp);
       e.xelem (i) = exp;
     }
 }
 
 DEFUN (log2, args, nargout,
        doc: /* -*- texinfo -*-
-@deftypefn  {} {} log2 (@var{x})
+@deftypefn  {} {@var{y} =} log2 (@var{x})
 @deftypefnx {} {[@var{f}, @var{e}] =} log2 (@var{x})
 Compute the base-2 logarithm of each element of @var{x}.
 
-If called with two output arguments, split @var{x} into
-binary mantissa and exponent so that
+If called with one output, compute the base-2 logarithm such that
+@tex
+$2^y = x$.
+@end tex
+@ifnottex
+@code{2^@var{y} = @var{x}}.
+@end ifnottex
+
+If called with two output arguments, split @var{x} into binary mantissa
+(@var{f}) and exponent (@var{e}) such that
+@tex
+$x = f \cdot 2^e$
+@end tex
+@ifnottex
+@code{@var{x} = @var{f} * 2^@var{e}}
+@end ifnottex
+where
 @tex
 ${1 \over 2} \le \left| f \right| < 1$
 @end tex
 @ifnottex
-@w{@code{1/2 <= abs(f) < 1}}
+@w{@code{1/2 <= abs (@var{f}) < 1}}
 @end ifnottex
 and @var{e} is an integer.  If
 @tex
@@ -647,29 +664,29 @@ periodic, @code{mod} is a better choice.
   else if (args(0).is_single_type () || args(1).is_single_type ())
     {
       if (args(0).is_scalar_type () && args(1).is_scalar_type ())
-        retval = octave::math::rem (args(0).float_value (), args(1).float_value ());
+        retval = math::rem (args(0).float_value (), args(1).float_value ());
       else
         {
           FloatNDArray a0 = args(0).float_array_value ();
           FloatNDArray a1 = args(1).float_array_value ();
-          retval = binmap<float> (a0, a1, octave::math::rem<float>, "rem");
+          retval = binmap<float> (a0, a1, math::rem<float>, "rem");
         }
     }
   else
     {
       if (args(0).is_scalar_type () && args(1).is_scalar_type ())
-        retval = octave::math::rem (args(0).scalar_value (), args(1).scalar_value ());
+        retval = math::rem (args(0).scalar_value (), args(1).scalar_value ());
       else if (args(0).issparse () || args(1).issparse ())
         {
           SparseMatrix m0 = args(0).sparse_matrix_value ();
           SparseMatrix m1 = args(1).sparse_matrix_value ();
-          retval = binmap<double> (m0, m1, octave::math::rem<double>, "rem");
+          retval = binmap<double> (m0, m1, math::rem<double>, "rem");
         }
       else
         {
           NDArray a0 = args(0).array_value ();
           NDArray a1 = args(1).array_value ();
-          retval = binmap<double> (a0, a1, octave::math::rem<double>, "rem");
+          retval = binmap<double> (a0, a1, math::rem<double>, "rem");
         }
     }
 
@@ -686,8 +703,10 @@ periodic, @code{mod} is a better choice.
 %!assert (rem ([1, 2, 3; -1, -2, -3], 2), [1, 0, 1; -1, 0, -1])
 %!assert (rem ([1, 2, 3; -1, -2, -3], 2 * ones (2, 3)),[1, 0, 1; -1, 0, -1])
 %!assert (rem ([0, 1, 2], [0, 0, 1]), [NaN, NaN, 0])
-%!assert (rem (uint8 ([1, 2, 3; -1, -2, -3]), uint8 (2)), uint8 ([1, 0, 1; -1, 0, -1]))
-%!assert (uint8 (rem ([1, 2, 3; -1, -2, -3], 2 * ones (2, 3))),uint8 ([1, 0, 1; -1, 0, -1]))
+%!assert (rem (uint8 ([1, 2, 3; -1, -2, -3]), uint8 (2)),
+%!        uint8 ([1, 0, 1; -1, 0, -1]))
+%!assert (uint8 (rem ([1, 2, 3; -1, -2, -3], 2 * ones (2, 3))),
+%!        uint8 ([1, 0, 1; -1, 0, -1]))
 %!assert (rem (uint8 ([0, 1, 2]), [0, 0, 1]), uint8 ([0, 0, 0]))
 
 ## Test sparse implementations
@@ -829,29 +848,29 @@ negative numbers or when the values are periodic.
   else if (args(0).is_single_type () || args(1).is_single_type ())
     {
       if (args(0).is_scalar_type () && args(1).is_scalar_type ())
-        retval = octave::math::mod (args(0).float_value (), args(1).float_value ());
+        retval = math::mod (args(0).float_value (), args(1).float_value ());
       else
         {
           FloatNDArray a0 = args(0).float_array_value ();
           FloatNDArray a1 = args(1).float_array_value ();
-          retval = binmap<float> (a0, a1, octave::math::mod<float>, "mod");
+          retval = binmap<float> (a0, a1, math::mod<float>, "mod");
         }
     }
   else
     {
       if (args(0).is_scalar_type () && args(1).is_scalar_type ())
-        retval = octave::math::mod (args(0).scalar_value (), args(1).scalar_value ());
+        retval = math::mod (args(0).scalar_value (), args(1).scalar_value ());
       else if (args(0).issparse () || args(1).issparse ())
         {
           SparseMatrix m0 = args(0).sparse_matrix_value ();
           SparseMatrix m1 = args(1).sparse_matrix_value ();
-          retval = binmap<double> (m0, m1, octave::math::mod<double>, "mod");
+          retval = binmap<double> (m0, m1, math::mod<double>, "mod");
         }
       else
         {
           NDArray a0 = args(0).array_value ();
           NDArray a1 = args(1).array_value ();
-          retval = binmap<double> (a0, a1, octave::math::mod<double>, "mod");
+          retval = binmap<double> (a0, a1, math::mod<double>, "mod");
         }
     }
 
@@ -911,7 +930,6 @@ negative numbers or when the values are periodic.
 %!assert <*54602> (mod (int8 (0), int8 (-25)), int8 (0))
 
 */
-
 
 #define DATA_REDUCTION(FCN)                                             \
                                                                         \
@@ -1004,12 +1022,15 @@ cumprod ([1, 2; 3, 4; 5, 6])
 %!assert (cumprod ([1, 2, 3]), [1, 2, 6])
 %!assert (cumprod ([-1; -2; -3]), [-1; 2; -6])
 %!assert (cumprod ([i, 2+i, -3+2i, 4]), [i, -1+2i, -1-8i, -4-32i])
-%!assert (cumprod ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i]), [1, 2, 3; i, 4i, 9i; -1+i, -8+8i, -27+27i])
+%!assert (cumprod ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i]),
+%!        [1, 2, 3; i, 4i, 9i; -1+i, -8+8i, -27+27i])
 
 %!assert (cumprod (single ([1, 2, 3])), single ([1, 2, 6]))
 %!assert (cumprod (single ([-1; -2; -3])), single ([-1; 2; -6]))
-%!assert (cumprod (single ([i, 2+i, -3+2i, 4])), single ([i, -1+2i, -1-8i, -4-32i]))
-%!assert (cumprod (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])), single ([1, 2, 3; i, 4i, 9i; -1+i, -8+8i, -27+27i]))
+%!assert (cumprod (single ([i, 2+i, -3+2i, 4])),
+%!        single ([i, -1+2i, -1-8i, -4-32i]))
+%!assert (cumprod (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])),
+%!        single ([1, 2, 3; i, 4i, 9i; -1+i, -8+8i, -27+27i]))
 
 %!assert (cumprod ([2, 3; 4, 5], 1), [2, 3; 8, 15])
 %!assert (cumprod ([2, 3; 4, 5], 2), [2, 6; 4, 20])
@@ -1154,12 +1175,15 @@ For an explanation of the optional parameters @qcode{"native"} and
 %!assert (cumsum ([1, 2, 3]), [1, 3, 6])
 %!assert (cumsum ([-1; -2; -3]), [-1; -3; -6])
 %!assert (cumsum ([i, 2+i, -3+2i, 4]), [i, 2+2i, -1+4i, 3+4i])
-%!assert (cumsum ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i]), [1, 2, 3; 1+i, 2+2i, 3+3i; 2+2i, 4+4i, 6+6i])
+%!assert (cumsum ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i]),
+%!        [1, 2, 3; 1+i, 2+2i, 3+3i; 2+2i, 4+4i, 6+6i])
 
 %!assert (cumsum (single ([1, 2, 3])), single ([1, 3, 6]))
 %!assert (cumsum (single ([-1; -2; -3])), single ([-1; -3; -6]))
-%!assert (cumsum (single ([i, 2+i, -3+2i, 4])), single ([i, 2+2i, -1+4i, 3+4i]))
-%!assert (cumsum (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])), single ([1, 2, 3; 1+i, 2+2i, 3+3i; 2+2i, 4+4i, 6+6i]))
+%!assert (cumsum (single ([i, 2+i, -3+2i, 4])),
+%!        single ([i, 2+2i, -1+4i, 3+4i]))
+%!assert (cumsum (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])),
+%!        single ([1, 2, 3; 1+i, 2+2i, 3+3i; 2+2i, 4+4i, 6+6i]))
 
 %!assert (cumsum ([1, 2; 3, 4], 1), [1, 2; 4, 6])
 %!assert (cumsum ([1, 2; 3, 4], 2), [1, 3; 3, 7])
@@ -1238,35 +1262,53 @@ Given a matrix argument, instead of a vector, @code{diag} extracts the
 
 %!assert (full (diag ([1; 2; 3])), [1, 0, 0; 0, 2, 0; 0, 0, 3])
 %!assert (diag ([1; 2; 3], 1), [0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0])
-%!assert (diag ([1; 2; 3], 2), [0, 0, 1, 0, 0; 0, 0, 0, 2, 0; 0, 0, 0, 0, 3; 0, 0, 0, 0, 0; 0, 0, 0, 0, 0])
-%!assert (diag ([1; 2; 3],-1), [0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0])
-%!assert (diag ([1; 2; 3],-2), [0, 0, 0, 0, 0; 0, 0, 0, 0, 0; 1, 0, 0, 0, 0; 0, 2, 0, 0, 0; 0, 0, 3, 0, 0])
+%!assert (diag ([1; 2; 3], 2),
+%!        [0 0 1 0 0; 0 0 0 2 0; 0 0 0 0 3; 0 0 0 0 0; 0 0 0 0 0])
+%!assert (diag ([1; 2; 3],-1),
+%!       [0 0 0 0; 1 0 0 0; 0 2 0 0; 0 0 3 0])
+%!assert (diag ([1; 2; 3],-2),
+%!        [0 0 0 0 0; 0 0 0 0 0; 1 0 0 0 0; 0 2 0 0 0; 0 0 3 0 0])
 
 %!assert (diag ([1, 0, 0; 0, 2, 0; 0, 0, 3]), [1; 2; 3])
-%!assert (diag ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0], 1), [1; 2; 3])
-%!assert (diag ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0], -1), [1; 2; 3])
+%!assert (diag ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0], 1),
+%!        [1; 2; 3])
+%!assert (diag ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0], -1),
+%!        [1; 2; 3])
 %!assert (diag (ones (1, 0), 2), zeros (2))
 %!assert (diag (1:3, 4, 2), [1, 0; 0, 2; 0, 0; 0, 0])
 
-%!assert (full (diag (single ([1; 2; 3]))), single ([1, 0, 0; 0, 2, 0; 0, 0, 3]))
-%!assert (diag (single ([1; 2; 3]), 1), single ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]))
-%!assert (diag (single ([1; 2; 3]), 2), single ([0, 0, 1, 0, 0; 0, 0, 0, 2, 0; 0, 0, 0, 0, 3; 0, 0, 0, 0, 0; 0, 0, 0, 0, 0]))
-%!assert (diag (single ([1; 2; 3]),-1), single ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0]))
-%!assert (diag (single ([1; 2; 3]),-2), single ([0, 0, 0, 0, 0; 0, 0, 0, 0, 0; 1, 0, 0, 0, 0; 0, 2, 0, 0, 0; 0, 0, 3, 0, 0]))
+%!assert (full (diag (single ([1; 2; 3]))),
+%!        single ([1, 0, 0; 0, 2, 0; 0, 0, 3]))
+%!assert (diag (single ([1; 2; 3]), 1),
+%!        single ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]))
+%!assert (diag (single ([1; 2; 3]), 2),
+%!        single ([0 0 1 0 0; 0 0 0 2 0; 0 0 0 0 3; 0 0 0 0 0; 0 0 0 0 0]))
+%!assert (diag (single ([1; 2; 3]),-1),
+%!        single ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0]))
+%!assert (diag (single ([1; 2; 3]),-2),
+%!        single ([0 0 0 0 0; 0 0 0 0 0; 1 0 0 0 0; 0 2 0 0 0; 0 0 3 0 0]))
 
 %!assert (diag (single ([1, 0, 0; 0, 2, 0; 0, 0, 3])), single ([1; 2; 3]))
-%!assert (diag (single ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]), 1), single ([1; 2; 3]))
-%!assert (diag (single ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0]), -1), single ([1; 2; 3]))
+%!assert (diag (single ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]), 1),
+%!        single ([1; 2; 3]))
+%!assert (diag (single ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0]), -1),
+%!        single ([1; 2; 3]))
 
 %!assert (diag (int8 ([1; 2; 3])), int8 ([1, 0, 0; 0, 2, 0; 0, 0, 3]))
-%!assert (diag (int8 ([1; 2; 3]), 1), int8 ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]))
-%!assert (diag (int8 ([1; 2; 3]), 2), int8 ([0, 0, 1, 0, 0; 0, 0, 0, 2, 0; 0, 0, 0, 0, 3; 0, 0, 0, 0, 0; 0, 0, 0, 0, 0]))
-%!assert (diag (int8 ([1; 2; 3]),-1), int8 ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0]))
-%!assert (diag (int8 ([1; 2; 3]),-2), int8 ([0, 0, 0, 0, 0; 0, 0, 0, 0, 0; 1, 0, 0, 0, 0; 0, 2, 0, 0, 0; 0, 0, 3, 0, 0]))
+%!assert (diag (int8 ([1; 2; 3]), 1),
+%!        int8 ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]))
+%!assert (diag (int8 ([1; 2; 3]), 2),
+%!        int8 ([0 0 1 0 0; 0 0 0 2 0; 0 0 0 0 3; 0 0 0 0 0; 0 0 0 0 0]))
+%!assert (diag (int8 ([1; 2; 3]),-1),
+%!        int8 ([0 0 0 0; 1 0 0 0; 0 2 0 0; 0 0 3 0]))
+%!assert (diag (int8 ([1; 2; 3]),-2),
+%!        int8 ([0 0 0 0 0; 0 0 0 0 0; 1 0 0 0 0; 0 2 0 0 0; 0 0 3 0 0]))
 
 %!assert (diag (int8 ([1, 0, 0; 0, 2, 0; 0, 0, 3])), int8 ([1; 2; 3]))
-%!assert (diag (int8 ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]), 1), int8 ([1; 2; 3]))
-%!assert (diag (int8 ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0]), -1), int8 ([1; 2; 3]))
+%!assert (diag (int8 ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]), 1),
+%!        int8 ([1; 2; 3]))
+%!assert (diag (int8 ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0]), -1),
+%!        int8 ([1; 2; 3]))
 
 %!assert (diag (1, 3, 3), diag ([1, 0, 0]))
 %!assert (diag (i, 3, 3), diag ([i, 0, 0]))
@@ -1279,7 +1321,8 @@ Given a matrix argument, instead of a vector, @code{diag} extracts the
 
 %!assert <*37411> (diag (diag ([5, 2, 3])(:,1)), diag([5 0 0 ]))
 %!assert <*37411> (diag (diag ([5, 2, 3])(:,1), 2),  [0 0 5 0 0; zeros(4, 5)])
-%!assert <*37411> (diag (diag ([5, 2, 3])(:,1), -2), [[0 0 5 0 0]', zeros(5, 4)])
+%!assert <*37411> (diag (diag ([5, 2, 3])(:,1), -2),
+%!                 [[0 0 5 0 0]', zeros(5, 4)])
 
 ## Test non-square size
 %!assert (diag ([1,2,3], 6, 3), [1 0 0; 0 2 0; 0 0 3; 0 0 0; 0 0 0; 0 0 0])
@@ -1448,14 +1491,16 @@ in double precision even for single precision inputs.
 %!assert (prod (single ([1, 2, 3])), single (6))
 %!assert (prod (single ([-1; -2; -3])), single (-6))
 %!assert (prod (single ([i, 2+i, -3+2i, 4])), single (-4 - 32i))
-%!assert (prod (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])), single ([-1+i, -8+8i, -27+27i]))
+%!assert (prod (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])),
+%!        single ([-1+i, -8+8i, -27+27i]))
 
 ## Test sparse
 %!assert (prod (sparse ([1, 2, 3])), sparse (6))
 %!assert (prod (sparse ([-1; -2; -3])), sparse (-6))
 ## Commented out until bug #42290 is fixed
 #%!assert (prod (sparse ([i, 2+i, -3+2i, 4])), sparse (-4 - 32i))
-#%!assert (prod (sparse ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])), sparse ([-1+i, -8+8i, -27+27i]))
+#%!assert (prod (sparse ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])),
+#%!         sparse ([-1+i, -8+8i, -27+27i]))
 
 %!assert (prod ([1, 2; 3, 4], 1), [3, 8])
 %!assert (prod ([1, 2; 3, 4], 2), [2; 12])
@@ -1491,7 +1536,8 @@ in double precision even for single precision inputs.
 %!assert (prod (single ([1, 2, 3]), "double"), 6)
 %!assert (prod (single ([-1; -2; -3]), "double"), -6)
 %!assert (prod (single ([i, 2+i, -3+2i, 4]), "double"), -4 - 32i)
-%!assert (prod (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i]), "double"), [-1+i, -8+8i, -27+27i])
+%!assert (prod (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i]), "double"),
+%!        [-1+i, -8+8i, -27+27i])
 
 ## Test "native" type argument
 %!assert (prod (uint8 ([1, 2, 3]), "native"), uint8 (6))
@@ -1635,8 +1681,7 @@ attempt_type_conversion (const octave_value& ov, std::string dtype)
 
   std::string cname = ov.class_name ();
 
-  octave::symbol_table& symtab
-    = octave::__get_symbol_table__ ("attempt_type_conversion");
+  symbol_table& symtab = __get_symbol_table__ ("attempt_type_conversion");
 
   octave_value fcn = symtab.find_method (dtype, cname);
 
@@ -1646,9 +1691,9 @@ attempt_type_conversion (const octave_value& ov, std::string dtype)
 
       try
         {
-          result = octave::feval (fcn, ovl (ov), 1);
+          result = feval (fcn, ovl (ov), 1);
         }
-      catch (octave::execution_exception& ee)
+      catch (execution_exception& ee)
         {
           error (ee, "conversion from %s to %s failed", dtype.c_str (),
                  cname.c_str ());
@@ -1674,9 +1719,9 @@ attempt_type_conversion (const octave_value& ov, std::string dtype)
 
       try
         {
-          result = octave::feval (fcn, ovl (ov), 1);
+          result = feval (fcn, ovl (ov), 1);
         }
-      catch (octave::execution_exception& ee)
+      catch (execution_exception& ee)
         {
           error (ee, "%s constructor failed for %s argument", dtype.c_str (),
                  cname.c_str ());
@@ -1693,15 +1738,16 @@ attempt_type_conversion (const octave_value& ov, std::string dtype)
 }
 
 octave_value
-do_class_concat (const octave_value_list& ovl, std::string cattype, int dim)
+do_class_concat (const octave_value_list& ovl,
+                 const std::string& cattype, int dim)
 {
   octave_value retval;
 
   // Get dominant type for list
 
-  std::string dtype = octave::get_dispatch_type (ovl);
+  std::string dtype = get_dispatch_type (ovl);
 
-  octave::symbol_table& symtab = octave::__get_symbol_table__ ("do_class_concat");
+  symbol_table& symtab = __get_symbol_table__ ("do_class_concat");
 
   octave_value fcn = symtab.find_method (cattype, dtype);
 
@@ -1713,9 +1759,9 @@ do_class_concat (const octave_value_list& ovl, std::string cattype, int dim)
 
       try
         {
-          tmp2 = octave::feval (fcn, ovl, 1);
+          tmp2 = feval (fcn, ovl, 1);
         }
-      catch (octave::execution_exception& ee)
+      catch (execution_exception& ee)
         {
           error (ee, "%s/%s method failed", dtype.c_str (), cattype.c_str ());
         }
@@ -1800,7 +1846,7 @@ do_cat (const octave_value_list& xargs, int dim, std::string fname)
               first_elem_is_struct = args(i).isstruct ();
             }
           else
-            result_type = octave::get_concat_class (result_type, args(i).class_name ());
+            result_type = get_concat_class (result_type, args(i).class_name ());
 
           if (all_strings_p && ! args(i).is_string ())
             all_strings_p = false;
@@ -1876,7 +1922,7 @@ do_cat (const octave_value_list& xargs, int dim, std::string fname)
             warn_implicit_conversion ("Octave:num-to-str",
                                       "numeric", result_type);
           else
-            octave::maybe_warn_string_concat (all_dq_strings_p, all_sq_strings_p);
+            maybe_warn_string_concat (all_dq_strings_p, all_sq_strings_p);
 
           charNDArray result = do_single_type_concat<charNDArray> (args, dim);
 
@@ -1939,13 +1985,13 @@ do_cat (const octave_value_list& xargs, int dim, std::string fname)
           //
           // We might also start with a empty octave_value using
           //
-          //   tmp = octave::type_info::lookup_type (args(1).type_name());
+          //   tmp = type_info::lookup_type (args(1).type_name());
           //
           // and then directly resize.  However, for some types there might
           // be some additional setup needed, and so this should be avoided.
 
           octave_value tmp = args(0);
-          tmp = tmp.resize (dim_vector (0,0)).resize (dv);
+          tmp = tmp.resize (dim_vector (0, 0)).resize (dv);
 
           int dv_len = dv.ndims ();
           Array<octave_idx_type> ra_idx (dim_vector (dv_len, 1), 0);
@@ -1955,7 +2001,7 @@ do_cat (const octave_value_list& xargs, int dim, std::string fname)
               // Can't fast return here to skip empty matrices as something
               // like cat (1,[],single ([])) must return an empty matrix of
               // the right type.
-              tmp = octave::cat_op (tmp, args(j), ra_idx);
+              tmp = cat_op (tmp, args(j), ra_idx);
 
               dim_vector dv_tmp = args(j).dims ();
 
@@ -2238,7 +2284,8 @@ new matrices.  For example:
 /*
 %!test
 %! c = {"foo"; "bar"; "bazoloa"};
-%! assert (vertcat (c, "a", "bc", "def"), {"foo"; "bar"; "bazoloa"; "a"; "bc"; "def"});
+%! assert (vertcat (c, "a", "bc", "def"),
+%!         {"foo"; "bar"; "bazoloa"; "a"; "bc"; "def"});
 */
 
 DEFUN (cat, args, ,
@@ -2305,11 +2352,13 @@ cat (4, ones (2, 2), zeros (2, 2))
 %!  assert (cat (1, cast (1, t1), cast (2, t2)), cast ([1; 2], tr));
 %!  assert (cat (1, cast (1, t1), cast ([2; 3], t2)), cast ([1; 2; 3], tr));
 %!  assert (cat (1, cast ([1; 2], t1), cast (3, t2)), cast ([1; 2; 3], tr));
-%!  assert (cat (1, cast ([1; 2], t1), cast ([3; 4], t2)), cast ([1; 2; 3; 4], tr));
+%!  assert (cat (1, cast ([1; 2], t1), cast ([3; 4], t2)),
+%!          cast ([1; 2; 3; 4], tr));
 %!  assert (cat (2, cast (1, t1), cast (2, t2)), cast ([1, 2], tr));
 %!  assert (cat (2, cast (1, t1), cast ([2, 3], t2)), cast ([1, 2, 3], tr));
 %!  assert (cat (2, cast ([1, 2], t1), cast (3, t2)), cast ([1, 2, 3], tr));
-%!  assert (cat (2, cast ([1, 2], t1), cast ([3, 4], t2)), cast ([1, 2, 3, 4], tr));
+%!  assert (cat (2, cast ([1, 2], t1), cast ([3, 4], t2)),
+%!          cast ([1, 2, 3, 4], tr));
 %!
 %!  assert ([cast(1, t1); cast(2, t2)], cast ([1; 2], tr));
 %!  assert ([cast(1, t1); cast([2; 3], t2)], cast ([1; 2; 3], tr));
@@ -2324,12 +2373,13 @@ cat (4, ones (2, 2), zeros (2, 2))
 %!    assert (cat (1, cast (1i, t1), cast (2, t2)), cast ([1i; 2], tr));
 %!    assert (cat (1, cast (1i, t1), cast ([2; 3], t2)), cast ([1i; 2; 3], tr));
 %!    assert (cat (1, cast ([1i; 2], t1), cast (3, t2)), cast ([1i; 2; 3], tr));
-%!    assert (cat (1, cast ([1i; 2], t1), cast ([3; 4], t2)), cast ([1i; 2; 3; 4], tr));
+%!    assert (cat (1, cast ([1i; 2], t1), cast ([3; 4], t2)),
+%!            cast ([1i; 2; 3; 4], tr));
 %!    assert (cat (2, cast (1i, t1), cast (2, t2)), cast ([1i, 2], tr));
 %!    assert (cat (2, cast (1i, t1), cast ([2, 3], t2)), cast ([1i, 2, 3], tr));
 %!    assert (cat (2, cast ([1i, 2], t1), cast (3, t2)), cast ([1i, 2, 3], tr));
-%!    assert (cat (2, cast ([1i, 2], t1), cast ([3, 4], t2)), cast ([1i, 2, 3, 4], tr));
-%!
+%!    assert (cat (2, cast ([1i, 2], t1), cast ([3, 4], t2)),
+%!            cast ([1i, 2, 3, 4], tr));
 %!    assert ([cast(1i, t1); cast(2, t2)], cast ([1i; 2], tr));
 %!    assert ([cast(1i, t1); cast([2; 3], t2)], cast ([1i; 2; 3], tr));
 %!    assert ([cast([1i; 2], t1); cast(3, t2)], cast ([1i; 2; 3], tr));
@@ -2342,12 +2392,13 @@ cat (4, ones (2, 2), zeros (2, 2))
 %!    assert (cat (1, cast (1, t1), cast (2i, t2)), cast ([1; 2i], tr));
 %!    assert (cat (1, cast (1, t1), cast ([2i; 3], t2)), cast ([1; 2i; 3], tr));
 %!    assert (cat (1, cast ([1; 2], t1), cast (3i, t2)), cast ([1; 2; 3i], tr));
-%!    assert (cat (1, cast ([1; 2], t1), cast ([3i; 4], t2)), cast ([1; 2; 3i; 4], tr));
+%!    assert (cat (1, cast ([1; 2], t1), cast ([3i; 4], t2)),
+%!            cast ([1; 2; 3i; 4], tr));
 %!    assert (cat (2, cast (1, t1), cast (2i, t2)), cast ([1, 2i], tr));
 %!    assert (cat (2, cast (1, t1), cast ([2i, 3], t2)), cast ([1, 2i, 3], tr));
 %!    assert (cat (2, cast ([1, 2], t1), cast (3i, t2)), cast ([1, 2, 3i], tr));
-%!    assert (cat (2, cast ([1, 2], t1), cast ([3i, 4], t2)), cast ([1, 2, 3i, 4], tr));
-%!
+%!    assert (cat (2, cast ([1, 2], t1), cast ([3i, 4], t2)),
+%!            cast ([1, 2, 3i, 4], tr));
 %!    assert ([cast(1, t1); cast(2i, t2)], cast ([1; 2i], tr));
 %!    assert ([cast(1, t1); cast([2i; 3], t2)], cast ([1; 2i; 3], tr));
 %!    assert ([cast([1; 2], t1); cast(3i, t2)], cast ([1; 2; 3i], tr));
@@ -2358,22 +2409,30 @@ cat (4, ones (2, 2), zeros (2, 2))
 %!    assert ([cast([1, 2], t1), cast([3i, 4], t2)], cast ([1, 2, 3i, 4], tr));
 %!
 %!    assert (cat (1, cast (1i, t1), cast (2i, t2)), cast ([1i; 2i], tr));
-%!    assert (cat (1, cast (1i, t1), cast ([2i; 3], t2)), cast ([1i; 2i; 3], tr));
-%!    assert (cat (1, cast ([1i; 2], t1), cast (3i, t2)), cast ([1i; 2; 3i], tr));
-%!    assert (cat (1, cast ([1i; 2], t1), cast ([3i; 4], t2)), cast ([1i; 2; 3i; 4], tr));
+%!    assert (cat (1, cast (1i, t1), cast ([2i; 3], t2)),
+%!            cast ([1i; 2i; 3], tr));
+%!    assert (cat (1, cast ([1i; 2], t1), cast (3i, t2)),
+%!            cast ([1i; 2; 3i], tr));
+%!    assert (cat (1, cast ([1i; 2], t1), cast ([3i; 4], t2)),
+%!            cast ([1i; 2; 3i; 4], tr));
 %!    assert (cat (2, cast (1i, t1), cast (2i, t2)), cast ([1i, 2i], tr));
-%!    assert (cat (2, cast (1i, t1), cast ([2i, 3], t2)), cast ([1i, 2i, 3], tr));
-%!    assert (cat (2, cast ([1i, 2], t1), cast (3i, t2)), cast ([1i, 2, 3i], tr));
-%!    assert (cat (2, cast ([1i, 2], t1), cast ([3i, 4], t2)), cast ([1i, 2, 3i, 4], tr));
+%!    assert (cat (2, cast (1i, t1), cast ([2i, 3], t2)),
+%!            cast ([1i, 2i, 3], tr));
+%!    assert (cat (2, cast ([1i, 2], t1), cast (3i, t2)),
+%!            cast ([1i, 2, 3i], tr));
+%!    assert (cat (2, cast ([1i, 2], t1), cast ([3i, 4], t2)),
+%!            cast ([1i, 2, 3i, 4], tr));
 %!
 %!    assert ([cast(1i, t1); cast(2i, t2)], cast ([1i; 2i], tr));
 %!    assert ([cast(1i, t1); cast([2i; 3], t2)], cast ([1i; 2i; 3], tr));
 %!    assert ([cast([1i; 2], t1); cast(3i, t2)], cast ([1i; 2; 3i], tr));
-%!    assert ([cast([1i; 2], t1); cast([3i; 4], t2)], cast ([1i; 2; 3i; 4], tr));
+%!    assert ([cast([1i; 2], t1); cast([3i; 4], t2)],
+%!            cast ([1i; 2; 3i; 4], tr));
 %!    assert ([cast(1i, t1), cast(2i, t2)], cast ([1i, 2i], tr));
 %!    assert ([cast(1i, t1), cast([2i, 3], t2)], cast ([1i, 2i, 3], tr));
 %!    assert ([cast([1i, 2], t1), cast(3i, t2)], cast ([1i, 2, 3i], tr));
-%!    assert ([cast([1i, 2], t1), cast([3i, 4], t2)], cast ([1i, 2, 3i, 4], tr));
+%!    assert ([cast([1i, 2], t1), cast([3i, 4], t2)],
+%!            cast ([1i, 2, 3i, 4], tr));
 %!  endif
 %!  ret = true;
 %!endfunction
@@ -2630,8 +2689,7 @@ indexing, i.e., @code{object@{@dots{}@}} or @code{object(@dots{}).field}.
     {
       // Don't use numel (const octave_value_list&) here as that corresponds to
       // an overloaded call, not to builtin!
-      retval = octave::dims_to_numel (args(0).dims (),
-                                      args.slice (1, nargin-1));
+      retval = dims_to_numel (args(0).dims (), args.slice (1, nargin-1));
     }
 
   return retval;
@@ -2641,12 +2699,14 @@ DEFUN (size, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{sz} =} size (@var{a})
 @deftypefnx {} {@var{dim_sz} =} size (@var{a}, @var{dim})
+@deftypefnx {} {@var{dim_sz} =} size (@var{a}, @var{d1}, @var{d2}, @dots{})
 @deftypefnx {} {[@var{rows}, @var{cols}, @dots{}, @var{dim_N_sz}] =} size (@dots{})
 Return a row vector with the size (number of elements) of each dimension for
 the object @var{a}.
 
 When given a second argument, @var{dim}, return the size of the corresponding
-dimension.
+dimension.  If @var{dim} is a vector, return each of the corresponding
+dimensions.  Multiple dimensions may also be specified as separate arguments.
 
 With a single output argument, @code{size} returns a row vector.  When called
 with multiple output arguments, @code{size} returns the size of dimension N
@@ -2697,56 +2757,152 @@ Example 4: number of output arguments < number of dimensions
 @seealso{numel, ndims, length, rows, columns, size_equal, common_size}
 @end deftypefn */)
 {
-  octave_value_list retval;
-
   int nargin = args.length ();
+
+  if (nargin == 0)
+    print_usage ();
+
+  // For compatibility with Matlab, size returns dimensions as doubles.
+
+  Matrix m;
+
+  dim_vector dimensions = args(0).dims ();
+  int ndims = dimensions.ndims ();
 
   if (nargin == 1)
     {
-      const dim_vector dimensions = args(0).dims ();
-
       if (nargout > 1)
         {
-          const dim_vector rdims = dimensions.redim (nargout);
-          retval.resize (nargout);
-          for (int i = 0; i < nargout; i++)
-            retval(i) = rdims(i);
+          dimensions = dimensions.redim (nargout);
+          ndims = dimensions.ndims ();
         }
-      else
-        {
-          int ndims = dimensions.ndims ();
 
-          Matrix m (1, ndims);
+      m.resize (1, ndims);
 
-          for (int i = 0; i < ndims; i++)
-            m.xelem (i) = dimensions(i);
-
-          retval(0) = m;
-        }
-    }
-  else if (nargin == 2 && nargout < 2)
-    {
-      if (! args(1).is_real_scalar ())
-        error ("size: DIM must be a positive integer");
-
-      octave_idx_type nd = args(1).idx_type_value ();
-
-      const dim_vector dv = args(0).dims ();
-
-      if (nd < 1)
-        error ("size: requested dimension DIM (= %" OCTAVE_IDX_TYPE_FORMAT ") "
-               "out of range", nd);
-
-      if (nd <= dv.ndims ())
-        retval(0) = dv(nd-1);
-      else
-        retval(0) = 1;
+      for (octave_idx_type i = 0; i < ndims; i++)
+        m(i) = dimensions(i);
     }
   else
-    print_usage ();
+    {
+      Array<octave_idx_type> query_dims;
 
-  return retval;
+      if (nargin > 2)
+        {
+          query_dims.resize (dim_vector (1, nargin-1));
+
+          for (octave_idx_type i = 0; i < nargin-1; i++)
+            query_dims(i) = args(i+1).idx_type_value (true);
+        }
+      else
+        query_dims = args(1).octave_idx_type_vector_value (true);
+
+      if (nargout > 1 && nargout != query_dims.numel ())
+        error ("size: nargout > 1 but does not match number of requested dimensions");
+
+      octave_idx_type nidx = query_dims.numel ();
+
+      m.resize (1, nidx);
+
+      for (octave_idx_type i = 0; i < nidx; i++)
+        {
+          octave_idx_type nd = query_dims.xelem (i);
+
+          if (nd < 1)
+            error ("size: requested dimension DIM (= %"
+                   OCTAVE_IDX_TYPE_FORMAT ") out of range", nd);
+
+          m(i) = nd <= ndims ? dimensions (nd-1) : 1;
+        }
+    }
+
+  if (nargout > 1)
+    {
+      octave_value_list retval (nargout);
+
+      for (octave_idx_type i = 0; i < nargout; i++)
+        retval(i) = m(i);
+
+      return retval;
+    }
+
+  return ovl (m);
 }
+
+/*
+## Plain call
+
+%!assert (size ([1, 2; 3, 4; 5, 6]), [3, 2])
+
+%!test
+%! [nr, nc] = size ([1, 2; 3, 4; 5, 6]);
+%! assert (nr, 3)
+%! assert (nc, 2)
+
+%!test
+%! [nr, remainder] = size (ones (2, 3, 4, 5));
+%! assert (nr, 2)
+%! assert (remainder, 60)
+
+## Call for single existing dimension
+
+%!assert (size ([1, 2; 3, 4; 5, 6], 1), 3)
+%!assert (size ([1, 2; 3, 4; 5, 6], 2), 2)
+
+## Call for single non-existing dimension
+
+%!assert (size ([1, 2; 3, 4; 5, 6], 3), 1)
+%!assert (size ([1, 2; 3, 4; 5, 6], 4), 1)
+
+## Call for more than existing dimensions
+
+%!test
+%! [nr, nc, e1, e2] = size ([1, 2; 3, 4; 5, 6]);
+%! assert (nr, 3)
+%! assert (nc, 2)
+%! assert (e1, 1)
+%! assert (e2, 1)
+
+## Call for two arbitrary dimensions
+
+%!test
+%! dim = [3, 2, 1, 1, 1];
+%! for i = 1:5
+%!   for j = 1:5
+%!     assert (size ([1, 2; 3, 4; 5, 6], i, j), [dim(i), dim(j)])
+%!     assert (size ([1, 2; 3, 4; 5, 6], [i, j]), [dim(i), dim(j)])
+%!     [a, b] = size ([1, 2; 3, 4; 5, 6], i, j);
+%!     assert (a, dim(i));
+%!     assert (b, dim(j));
+%!     [a, b] = size ([1, 2; 3, 4; 5, 6], [i, j]);
+%!     assert (a, dim(i));
+%!     assert (b, dim(j));
+%!   end
+%! end
+
+## Call for three arbitrary dimensions
+
+%!test
+%! dim = [3, 2, 1, 1, 1];
+%! for i = 1:5
+%!   for j = 1:5
+%!     for k = 1:5
+%!       assert (size ([1, 2; 3, 4; 5, 6], i, j, k), [dim(i), dim(j), dim(k)])
+%!       assert (size ([1, 2; 3, 4; 5, 6], [i, j, k]), [dim(i), dim(j), dim(k)])
+%!       [a, b, c] = size ([1, 2; 3, 4; 5, 6], i, j, k);
+%!       assert (a, dim(i));
+%!       assert (b, dim(j));
+%!       assert (c, dim(k));
+%!       [a, b, c] = size ([1, 2; 3, 4; 5, 6], [i, j, k]);
+%!       assert (a, dim(i));
+%!       assert (b, dim(j));
+%!       assert (c, dim(k));
+%!     end
+%!   end
+%! end
+
+%!error <does not match number of requested dimensions>
+%! [a, b, c] = size ([1, 2; 3, 4; 5, 6], 1:4)
+*/
 
 DEFUN (size_equal, args, ,
        doc: /* -*- texinfo -*-
@@ -3060,7 +3216,8 @@ type @qcode{"extra"} has no effect.
 %!assert (sum (single ([1, 2, 3])), single (6))
 %!assert (sum (single ([-1; -2; -3])), single (-6))
 %!assert (sum (single ([i, 2+i, -3+2i, 4])), single (3+4i))
-%!assert (sum (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])), single ([2+2i, 4+4i, 6+6i]))
+%!assert (sum (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])),
+%!        single ([2+2i, 4+4i, 6+6i]))
 
 %!assert (sum ([1, 2; 3, 4], 1), [4, 6])
 %!assert (sum ([1, 2; 3, 4], 2), [3; 7])
@@ -3641,7 +3798,8 @@ Return true if @var{x} is a numeric object, i.e., an integer, real, or
 complex array.
 
 Logical and character arrays are not considered to be numeric.
-@seealso{isinteger, isfloat, isreal, iscomplex, ischar, islogical, isstring, iscell, isstruct, isa}
+@seealso{isinteger, isfloat, isreal, iscomplex, ischar, islogical, isstring,
+iscell, isstruct, isa}
 @end deftypefn */)
 {
   if (args.length () != 1)
@@ -3971,7 +4129,7 @@ fill_matrix (const octave_value_list& args, int val, const char *fcn)
       break;
 
     case 1:
-      octave::get_dimensions (args(0), fcn, dims);
+      get_dimensions (args(0), fcn, dims);
       break;
 
     default:
@@ -3986,7 +4144,7 @@ fill_matrix (const octave_value_list& args, int val, const char *fcn)
 
   dims.chop_trailing_singletons ();
 
-  octave::check_dimensions (dims, fcn);
+  check_dimensions (dims, fcn);
 
   // FIXME: Perhaps this should be made extensible by using the class name
   //        to lookup a function to call to create the new value.
@@ -4071,7 +4229,7 @@ fill_matrix (const octave_value_list& args, int val, const char *fcn)
           // benefit, then maybe there should be a special storage
           // type for constant value arrays.
           double dval = static_cast<double> (val);
-          retval = octave::range<double>::make_constant (dval, dims(1));
+          retval = range<double>::make_constant (dval, dims(1));
         }
       else
         retval = NDArray (dims, val);
@@ -4131,7 +4289,7 @@ fill_matrix (const octave_value_list& args, double val, float fval,
       break;
 
     case 1:
-      octave::get_dimensions (args(0), fcn, dims);
+      get_dimensions (args(0), fcn, dims);
       break;
 
     default:
@@ -4146,7 +4304,7 @@ fill_matrix (const octave_value_list& args, double val, float fval,
 
   dims.chop_trailing_singletons ();
 
-  octave::check_dimensions (dims, fcn);
+  check_dimensions (dims, fcn);
 
   // Note that automatic narrowing will handle conversion from
   // NDArray to scalar.
@@ -4176,12 +4334,11 @@ fill_matrix (const octave_value_list& args, double val, float fval,
     case oct_data_conv::dt_double:
       if (iscomplex)
         retval = ComplexNDArray (dims, Complex (val, 0));
-      else if (dims.ndims () == 2 && dims(0) == 1
-               && octave::math::isfinite (val))
+      else if (dims.ndims () == 2 && dims(0) == 1 && math::isfinite (val))
         // FIXME: If this optimization provides a significant benefit,
         // then maybe there should be a special storage type for
         // constant value arrays.
-        retval = octave::range<double>::make_constant (val, dims(1));
+        retval = range<double>::make_constant (val, dims(1));
       else
         retval = NDArray (dims, val);
       break;
@@ -4219,7 +4376,7 @@ fill_matrix (const octave_value_list& args, double val, const char *fcn)
       break;
 
     case 1:
-      octave::get_dimensions (args(0), fcn, dims);
+      get_dimensions (args(0), fcn, dims);
       break;
 
     default:
@@ -4234,7 +4391,7 @@ fill_matrix (const octave_value_list& args, double val, const char *fcn)
 
   dims.chop_trailing_singletons ();
 
-  octave::check_dimensions (dims, fcn);
+  check_dimensions (dims, fcn);
 
   // Note that automatic narrowing will handle conversion from
   // NDArray to scalar.
@@ -4246,11 +4403,11 @@ fill_matrix (const octave_value_list& args, double val, const char *fcn)
       break;
 
     case oct_data_conv::dt_double:
-      if (dims.ndims () == 2 && dims(0) == 1 && octave::math::isfinite (val))
+      if (dims.ndims () == 2 && dims(0) == 1 && math::isfinite (val))
         // FIXME: If this optimization provides a significant benefit,
         // then maybe there should be a special storage type for
         // constant value arrays.
-        retval = octave::range<double>::make_constant (val, dims(1));
+        retval = range<double>::make_constant (val, dims(1));
       else
         retval = NDArray (dims, val);
       break;
@@ -4289,7 +4446,7 @@ fill_matrix (const octave_value_list& args, const Complex& val,
       break;
 
     case 1:
-      octave::get_dimensions (args(0), fcn, dims);
+      get_dimensions (args(0), fcn, dims);
       break;
 
     default:
@@ -4304,7 +4461,7 @@ fill_matrix (const octave_value_list& args, const Complex& val,
 
   dims.chop_trailing_singletons ();
 
-  octave::check_dimensions (dims, fcn);
+  check_dimensions (dims, fcn);
 
   // Note that automatic narrowing will handle conversion from
   // NDArray to scalar.
@@ -4353,13 +4510,13 @@ fill_matrix (const octave_value_list& args, bool val, const char *fcn)
 
   if (nargin > 1 && args(nargin-2).is_string ()
       && args(nargin-2).string_value () == "like")
-  {
-    if (! args(nargin-1).islogical ())
-      error (R"(%s: input followed by "like" must be logical)", fcn);
+    {
+      if (! args(nargin-1).islogical ())
+        error (R"(%s: input followed by "like" must be logical)", fcn);
 
-    issparse = args(nargin-1).issparse ();
-    nargin -= 2;
-  }
+      issparse = args(nargin-1).issparse ();
+      nargin -= 2;
+    }
 
   switch (nargin)
     {
@@ -4367,7 +4524,7 @@ fill_matrix (const octave_value_list& args, bool val, const char *fcn)
       break;
 
     case 1:
-      octave::get_dimensions (args(0), fcn, dims);
+      get_dimensions (args(0), fcn, dims);
       break;
 
     default:
@@ -4382,7 +4539,7 @@ fill_matrix (const octave_value_list& args, bool val, const char *fcn)
 
   dims.chop_trailing_singletons ();
 
-  octave::check_dimensions (dims, fcn);
+  check_dimensions (dims, fcn);
 
   // Note that automatic narrowing will handle conversion from
   // NDArray to scalar.
@@ -4602,7 +4759,8 @@ DEFALIAS (inf, Inf);
 %!assert (Inf (3, 2), [Inf, Inf; Inf, Inf; Inf, Inf])
 %!assert (size (Inf (3, 4, 5)), [3, 4, 5])
 
-%!assert (Inf (3, "single"), single ([Inf, Inf, Inf; Inf, Inf, Inf; Inf, Inf, Inf]))
+%!assert (Inf (3, "single"),
+%!        single ([Inf, Inf, Inf; Inf, Inf, Inf; Inf, Inf, Inf]))
 %!assert (Inf (2, 3, "single"), single ([Inf, Inf, Inf; Inf, Inf, Inf]))
 %!assert (Inf (3, 2, "single"), single ([Inf, Inf; Inf, Inf; Inf, Inf]))
 %!assert (size (inf (3, 4, 5, "single")), [3, 4, 5])
@@ -4610,7 +4768,8 @@ DEFALIAS (inf, Inf);
 %!assert (Inf (2, 2, "like", speye (2)), sparse ([Inf, Inf; Inf, Inf]))
 %!assert (Inf (2, 2, "like", complex (ones (2, 2))), [Inf, Inf; Inf, Inf])
 %!assert (Inf (2, 2, "like", double (1)), double ([Inf, Inf; Inf, Inf]))
-%!assert (Inf (3, 3, "like", single (1)), single ([Inf, Inf, Inf; Inf, Inf, Inf; Inf, Inf, Inf]))
+%!assert (Inf (3, 3, "like", single (1)),
+%!        single ([Inf, Inf, Inf; Inf, Inf, Inf; Inf, Inf, Inf]))
 %!assert (Inf (2, "like", single (1i)), single ([Inf, Inf; Inf, Inf]))
 
 %!error Inf (3, "like", int8 (1))
@@ -4681,14 +4840,16 @@ DEFALIAS (nan, NaN);
 %!assert (NaN (3, 2), [NaN, NaN; NaN, NaN; NaN, NaN])
 %!assert (size (NaN (3, 4, 5)), [3, 4, 5])
 
-%!assert (NaN (3, "single"), single ([NaN, NaN, NaN; NaN, NaN, NaN; NaN, NaN, NaN]))
+%!assert (NaN (3, "single"),
+%!        single ([NaN, NaN, NaN; NaN, NaN, NaN; NaN, NaN, NaN]))
 %!assert (NaN (2, 3, "single"), single ([NaN, NaN, NaN; NaN, NaN, NaN]))
 %!assert (NaN (3, 2, "single"), single ([NaN, NaN; NaN, NaN; NaN, NaN]))
 %!assert (size (NaN (3, 4, 5, "single")), [3, 4, 5])
 
 %!assert (NaN (2, 2, "like", double (1)), double ([NaN, NaN; NaN, NaN]))
 %!assert (NaN (2, 2, "like", complex (ones(2, 2))), [NaN, NaN; NaN, NaN])
-%!assert (NaN (3, 3, "like", single (1)), single ([NaN, NaN, NaN; NaN, NaN, NaN; NaN, NaN, NaN]))
+%!assert (NaN (3, 3, "like", single (1)),
+%!        single ([NaN, NaN, NaN; NaN, NaN, NaN; NaN, NaN, NaN]))
 %!assert (NaN (2, "like", single (1i)), single ([NaN, NaN; NaN, NaN]))
 %!assert (NaN (2, 2, "like", speye (2)), sparse ([NaN, NaN; NaN, NaN]))
 
@@ -4752,14 +4913,14 @@ eps (const T& x)
   for (octave_idx_type i = 0; i < x.numel (); i++)
     {
       P val = epsval.xelem (i);
-      if (octave::math::isnan (val) || octave::math::isinf (val))
-        epsval(i) = octave::numeric_limits<P>::NaN ();
+      if (math::isnan (val) || math::isinf (val))
+        epsval(i) = numeric_limits<P>::NaN ();
       else if (val < std::numeric_limits<P>::min ())
         epsval(i) = std::numeric_limits<P>::denorm_min ();
       else
         {
           int exponent;
-          octave::math::frexp (val, &exponent);
+          math::frexp (val, &exponent);
           const P digits = std::numeric_limits<P>::digits;
           epsval(i) = std::pow (static_cast<P> (2.0),
                                 static_cast<P> (exponent - digits));
@@ -4839,7 +5000,7 @@ type and may be either @qcode{"double"} or @qcode{"single"}.
 %!assert (eps (Inf), NaN)
 %!assert (eps (NaN), NaN)
 %!assert (eps ([1/2 1 2 realmax 0 realmin/2 realmin/16 Inf NaN]),
-%!             [2^(-53) 2^(-52) 2^(-51) 2^971 2^(-1074) 2^(-1074) 2^(-1074) NaN NaN])
+%!        [2^-53 2^-52 2^-51 2^971 2^-1074 2^-1074 2^-1074 NaN NaN])
 %!assert (eps (single (1/2)), single (2^(-24)))
 %!assert (eps (single (1)), single (2^(-23)))
 %!assert (eps (single (2)), single (2^(-22)))
@@ -4850,7 +5011,7 @@ type and may be either @qcode{"double"} or @qcode{"single"}.
 %!assert (eps (single (Inf)), single (NaN))
 %!assert (eps (single (NaN)), single (NaN))
 %!assert (eps (single ([1/2 1 2 realmax("single") 0 realmin("single")/2 realmin("single")/16 Inf NaN])),
-%!             single ([2^(-24) 2^(-23) 2^(-22) 2^104 2^(-149) 2^(-149) 2^(-149) NaN NaN]))
+%!        single ([2^-24 2^-23 2^-22 2^104 2^-149 2^-149 2^-149 NaN NaN]))
 %!error <X must be of a floating point type> eps (uint8 ([0 1 2]))
 */
 
@@ -5151,7 +5312,7 @@ identity_matrix (int nr, int nc)
           int n = std::min (nr, nc);
 
           for (int i = 0; i < n; i++)
-            m(i,i) = one;
+            m(i, i) = one;
         }
 
       retval = m;
@@ -5313,14 +5474,14 @@ definitions are for compatibility with @sc{matlab}.
   else if (nargin == 1)
     {
       octave_idx_type nr, nc;
-      octave::get_dimensions (args(0), "eye", nr, nc);
+      get_dimensions (args(0), "eye", nr, nc);
 
       retval = identity_matrix (nr, nc, dt);
     }
   else
     {
       octave_idx_type nr, nc;
-      octave::get_dimensions (args(0), args(1), "eye", nr, nc);
+      get_dimensions (args(0), args(1), "eye", nr, nc);
 
       retval = identity_matrix (nr, nc, dt);
     }
@@ -5996,9 +6157,9 @@ compute the norms of each column and return a row vector.
       if (str == "fro")
         p_arg = octave_value (2);
       else if (str == "inf")
-        p_arg = octave::numeric_limits<double>::Inf ();
+        p_arg = numeric_limits<double>::Inf ();
       else if (str == "-inf")
-        p_arg = -octave::numeric_limits<double>::Inf ();
+        p_arg = -numeric_limits<double>::Inf ();
       else
         error ("norm: unrecognized option: %s", str.c_str ());
     }
@@ -6026,11 +6187,11 @@ compute the norms of each column and return a row vector.
       break;
 
     case sfinf:
-      retval = xnorm (x_arg, octave::numeric_limits<double>::Inf ());
+      retval = xnorm (x_arg, numeric_limits<double>::Inf ());
       break;
 
     case sfneginf:
-      retval = xnorm (x_arg, -octave::numeric_limits<double>::Inf ());
+      retval = xnorm (x_arg, -numeric_limits<double>::Inf ());
       break;
     }
 
@@ -6133,7 +6294,7 @@ unary_op_defun_body (octave_value::unary_op op,
   if (args.length () != 1)
     print_usage ();
 
-  return octave::unary_op (op, args(0));
+  return unary_op (op, args(0));
 }
 
 DEFUN (not, args, ,
@@ -6239,7 +6400,7 @@ binary_op_defun_body (octave_value::binary_op op,
   if (args.length () != 2)
     print_usage ();
 
-  return octave::binary_op (op, args(0), args(1));
+  return binary_op (op, args(0), args(1));
 }
 
 static octave_value
@@ -6255,10 +6416,10 @@ binary_assoc_op_defun_body (octave_value::binary_op op,
   octave_value retval;
 
   if (nargin == 2)
-    retval = octave::binary_op (op, args(0), args(1));
+    retval = binary_op (op, args(0), args(1));
   else
     {
-      retval = octave::binary_op (op, args(0), args(1));
+      retval = binary_op (op, args(0), args(1));
 
       for (int i = 2; i < nargin; i++)
         retval.assign (aop, args(i));
@@ -6335,6 +6496,9 @@ DEFUN (mrdivide, args, ,
 Return the matrix right division of @var{x} and @var{y}.
 
 This function and @w{@tcode{@var{x} / @var{y}}} are equivalent.
+
+If the system is not square, or if the coefficient matrix is singular, a
+minimum norm solution is computed.
 @seealso{mldivide, rdivide, plus, minus}
 @end deftypefn */)
 {
@@ -6359,7 +6523,10 @@ DEFUN (mldivide, args, ,
 Return the matrix left division of @var{x} and @var{y}.
 
 This function and @w{@tcode{@var{x} @backslashchar{} @var{y}}} are equivalent.
-@seealso{mrdivide, ldivide, rdivide}
+
+If the system is not square, or if the coefficient matrix is singular, a
+minimum norm solution is computed.
+@seealso{mrdivide, ldivide, rdivide, linsolve}
 @end deftypefn */)
 {
   return binary_op_defun_body (octave_value::op_ldiv, args);
@@ -6554,8 +6721,8 @@ This function is equivalent to the operator syntax
     print_usage ();
 
   return (nargin == 2
-          ? octave::colon_op (args(0), args(1))
-          : octave::colon_op (args(0), args(1), args(2)));
+          ? colon_op (args(0), args(1))
+          : colon_op (args(0), args(1), args(2)));
 }
 
 static double tic_toc_timestamp = -1.0;
@@ -6616,7 +6783,7 @@ This may include time spent processing other jobs or doing nothing at all.
     warning ("tic: ignoring extra arguments");
 
   octave_value retval;
-  octave::sys::time now;
+  sys::time now;
   double tmp = now.double_value ();
 
   if (nargout > 0)
@@ -6646,7 +6813,7 @@ since the last call to @code{tic}.
 When given the identifier @var{id} of a specific timer, return the number of
 seconds elapsed since the timer @var{id} was initialized.
 
-@xref{XREFtic, , tic}, for examples of the use of @code{tic}/@code{toc}.
+@xref{XREFtic,,@code{tic}}, for examples of the use of @code{tic}/@code{toc}.
 
 @seealso{tic, cputime}
 @end deftypefn */)
@@ -6676,7 +6843,7 @@ seconds elapsed since the timer @var{id} was initialized.
   if (start_time < 0)
     error ("toc: function called before timer initialization with tic()");
 
-  octave::sys::time now;
+  sys::time now;
 
   double etime = now.double_value () - start_time;
 
@@ -6718,7 +6885,7 @@ CPU time used is nonzero.
   if (args.length () != 0)
     print_usage ();
 
-  octave::sys::cpu_time cpu_tm;
+  sys::cpu_time cpu_tm;
 
   double usr = cpu_tm.user ();
   double sys = cpu_tm.system ();
@@ -6858,7 +7025,7 @@ ordered lists.
       // NOTE: Can not change this to ovl() call because arg.sort changes sidx
       //       and objects are declared const in ovl prototype.
       retval(0) = arg.sort (sidx, dim, smode);
-      retval(1) = octave::idx_vector (sidx, dv(dim));  // No checking, extent is known.
+      retval(1) = idx_vector (sidx, dv(dim));  // No checking, extent is known.
     }
   else
     retval = ovl (arg.sort (dim, smode));
@@ -6907,16 +7074,26 @@ ordered lists.
 
 ## Single
 %!assert (sort (single ([NaN, 1, -1, 2, Inf])), single ([-1, 1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 1), single ([NaN, 1, -1, 2, Inf]))
-%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 2), single ([-1, 1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 3), single ([NaN, 1, -1, 2, Inf]))
-%!assert (sort (single ([NaN, 1, -1, 2, Inf]), "ascend"), single ([-1, 1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 2, "ascend"), single ([-1, 1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1, -1, 2, Inf]), "descend"), single ([NaN, Inf, 2, 1, -1]))
-%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 2, "descend"), single ([NaN, Inf, 2, 1, -1]))
-%!assert (sort (single ([3, 1, 7, 5; 8, 2, 6, 4])), single ([3, 1, 6, 4; 8, 2, 7, 5]))
-%!assert (sort (single ([3, 1, 7, 5; 8, 2, 6, 4]), 1), single ([3, 1, 6, 4; 8, 2, 7, 5]))
-%!assert (sort (single ([3, 1, 7, 5; 8, 2, 6, 4]), 2), single ([1, 3, 5, 7; 2, 4, 6, 8]))
+%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 1),
+%!        single ([NaN, 1, -1, 2, Inf]))
+%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 2),
+%!        single ([-1, 1, 2, Inf, NaN]))
+%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 3),
+%!        single ([NaN, 1, -1, 2, Inf]))
+%!assert (sort (single ([NaN, 1, -1, 2, Inf]), "ascend"),
+%!        single ([-1, 1, 2, Inf, NaN]))
+%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 2, "ascend"),
+%!        single ([-1, 1, 2, Inf, NaN]))
+%!assert (sort (single ([NaN, 1, -1, 2, Inf]), "descend"),
+%!        single ([NaN, Inf, 2, 1, -1]))
+%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 2, "descend"),
+%!        single ([NaN, Inf, 2, 1, -1]))
+%!assert (sort (single ([3, 1, 7, 5; 8, 2, 6, 4])),
+%!        single ([3, 1, 6, 4; 8, 2, 7, 5]))
+%!assert (sort (single ([3, 1, 7, 5; 8, 2, 6, 4]), 1),
+%!        single ([3, 1, 6, 4; 8, 2, 7, 5]))
+%!assert (sort (single ([3, 1, 7, 5; 8, 2, 6, 4]), 2),
+%!        single ([1, 3, 5, 7; 2, 4, 6, 8]))
 %!assert (sort (single (1)), single (1))
 
 %!test
@@ -6926,16 +7103,26 @@ ordered lists.
 
 ## Single Complex
 %!assert (sort (single ([NaN, 1i, -1, 2, Inf])), single ([1i, -1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 1), single ([NaN, 1i, -1, 2, Inf]))
-%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 2), single ([1i, -1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 3), single ([NaN, 1i, -1, 2, Inf]))
-%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), "ascend"), single ([1i, -1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 2, "ascend"), single ([1i, -1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), "descend"), single ([NaN, Inf, 2, -1, 1i]))
-%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 2, "descend"), single ([NaN, Inf, 2, -1, 1i]))
-%!assert (sort (single ([3, 1i, 7, 5; 8, 2, 6, 4])), single ([3, 1i, 6, 4; 8, 2, 7, 5]))
-%!assert (sort (single ([3, 1i, 7, 5; 8, 2, 6, 4]), 1), single ([3, 1i, 6, 4; 8, 2, 7, 5]))
-%!assert (sort (single ([3, 1i, 7, 5; 8, 2, 6, 4]), 2), single ([1i, 3, 5, 7; 2, 4, 6, 8]))
+%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 1),
+%!        single ([NaN, 1i, -1, 2, Inf]))
+%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 2),
+%!        single ([1i, -1, 2, Inf, NaN]))
+%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 3),
+%!        single ([NaN, 1i, -1, 2, Inf]))
+%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), "ascend"),
+%!        single ([1i, -1, 2, Inf, NaN]))
+%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 2, "ascend"),
+%!        single ([1i, -1, 2, Inf, NaN]))
+%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), "descend"),
+%!        single ([NaN, Inf, 2, -1, 1i]))
+%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 2, "descend"),
+%!        single ([NaN, Inf, 2, -1, 1i]))
+%!assert (sort (single ([3, 1i, 7, 5; 8, 2, 6, 4])),
+%!        single ([3, 1i, 6, 4; 8, 2, 7, 5]))
+%!assert (sort (single ([3, 1i, 7, 5; 8, 2, 6, 4]), 1),
+%!        single ([3, 1i, 6, 4; 8, 2, 7, 5]))
+%!assert (sort (single ([3, 1i, 7, 5; 8, 2, 6, 4]), 2),
+%!        single ([1i, 3, 5, 7; 2, 4, 6, 8]))
 %!assert (sort (single (1i)), single (1i))
 
 %!test
@@ -6948,10 +7135,14 @@ ordered lists.
 %!assert (sort ([true, false, true, false], 1), [true, false, true, false])
 %!assert (sort ([true, false, true, false], 2), [false, false, true, true])
 %!assert (sort ([true, false, true, false], 3), [true, false, true, false])
-%!assert (sort ([true, false, true, false], "ascend"), [false, false, true, true])
-%!assert (sort ([true, false, true, false], 2, "ascend"), [false, false, true, true])
-%!assert (sort ([true, false, true, false], "descend"), [true, true, false, false])
-%!assert (sort ([true, false, true, false], 2, "descend"), [true, true, false, false])
+%!assert (sort ([true, false, true, false], "ascend"),
+%!        [false, false, true, true])
+%!assert (sort ([true, false, true, false], 2, "ascend"),
+%!        [false, false, true, true])
+%!assert (sort ([true, false, true, false], "descend"),
+%!        [true, true, false, false])
+%!assert (sort ([true, false, true, false], 2, "descend"),
+%!        [true, true, false, false])
 %!assert (sort (true), true)
 
 %!test
@@ -6960,14 +7151,22 @@ ordered lists.
 %! assert (i, [2, 4, 1, 3]);
 
 ## Sparse Double
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf])), sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 1), sparse ([0, NaN, 1, 0, -1, 2, Inf]))
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 2), sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 3), sparse ([0, NaN, 1, 0, -1, 2, Inf]))
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), "ascend"), sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 2, "ascend"), sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), "descend"), sparse ([NaN, Inf, 2, 1, 0, 0, -1]))
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 2, "descend"), sparse ([NaN, Inf, 2, 1, 0, 0, -1]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf])),
+%!        sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 1),
+%!        sparse ([0, NaN, 1, 0, -1, 2, Inf]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 2),
+%!        sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 3),
+%!        sparse ([0, NaN, 1, 0, -1, 2, Inf]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), "ascend"),
+%!        sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 2, "ascend"),
+%!        sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), "descend"),
+%!        sparse ([NaN, Inf, 2, 1, 0, 0, -1]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 2, "descend"),
+%!        sparse ([NaN, Inf, 2, 1, 0, 0, -1]))
 
 %!shared a
 %! a = randn (10, 10);
@@ -6982,14 +7181,22 @@ ordered lists.
 %! assert (is, i);
 
 ## Sparse Complex
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf])), sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 1), sparse ([0, NaN, 1i, 0, -1, 2, Inf]))
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 2), sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 3), sparse ([0, NaN, 1i, 0, -1, 2, Inf]))
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), "ascend"), sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 2, "ascend"), sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), "descend"), sparse ([NaN, Inf, 2, -1, 1i, 0, 0]))
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 2, "descend"), sparse ([NaN, Inf, 2, -1, 1i, 0, 0]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf])),
+%!        sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 1),
+%!        sparse ([0, NaN, 1i, 0, -1, 2, Inf]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 2),
+%!        sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 3),
+%!        sparse ([0, NaN, 1i, 0, -1, 2, Inf]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), "ascend"),
+%!        sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 2, "ascend"),
+%!        sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), "descend"),
+%!        sparse ([NaN, Inf, 2, -1, 1i, 0, 0]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 2, "descend"),
+%!        sparse ([NaN, Inf, 2, -1, 1i, 0, 0]))
 
 %!shared a
 %! a = randn (10, 10);
@@ -7005,14 +7212,22 @@ ordered lists.
 %! assert (is, i);
 
 ## Sparse Bool
-%!assert (sort (sparse ([true, false, true, false])), sparse ([false, false, true, true]))
-%!assert (sort (sparse ([true, false, true, false]), 1), sparse ([true, false, true, false]))
-%!assert (sort (sparse ([true, false, true, false]), 2), sparse ([false, false, true, true]))
-%!assert (sort (sparse ([true, false, true, false]), 3), sparse ([true, false, true, false]))
-%!assert (sort (sparse ([true, false, true, false]), "ascend"), sparse ([false, false, true, true]))
-%!assert (sort (sparse ([true, false, true, false]), 2, "ascend"), sparse ([false, false, true, true]))
-%!assert (sort (sparse ([true, false, true, false]), "descend"), sparse ([true, true, false, false]))
-%!assert (sort (sparse ([true, false, true, false]), 2, "descend"), sparse ([true, true, false, false]))
+%!assert (sort (sparse ([true, false, true, false])),
+%!        sparse ([false, false, true, true]))
+%!assert (sort (sparse ([true, false, true, false]), 1),
+%!        sparse ([true, false, true, false]))
+%!assert (sort (sparse ([true, false, true, false]), 2),
+%!        sparse ([false, false, true, true]))
+%!assert (sort (sparse ([true, false, true, false]), 3),
+%!        sparse ([true, false, true, false]))
+%!assert (sort (sparse ([true, false, true, false]), "ascend"),
+%!        sparse ([false, false, true, true]))
+%!assert (sort (sparse ([true, false, true, false]), 2, "ascend"),
+%!        sparse ([false, false, true, true]))
+%!assert (sort (sparse ([true, false, true, false]), "descend"),
+%!        sparse ([true, true, false, false]))
+%!assert (sort (sparse ([true, false, true, false]), 2, "descend"),
+%!        sparse ([true, true, false, false]))
 
 %!test
 %! [v, i] = sort (sparse ([true, false, true, false]));
@@ -7284,7 +7499,7 @@ the ratio K/M is small; otherwise, it may be better to use @code{sort}.
 
   try
     {
-      octave::idx_vector n = args(1).index_vector ();
+      idx_vector n = args(1).index_vector ();
 
       switch (argx.builtin_type ())
         {
@@ -7325,7 +7540,7 @@ the ratio K/M is small; otherwise, it may be better to use @code{sort}.
             err_wrong_type_arg ("nth_element", argx);
         }
     }
-  catch (const octave::index_exception& ie)
+  catch (const index_exception& ie)
     {
       error ("nth_element: invalid index %s", ie.what ());
     }
@@ -7350,7 +7565,7 @@ the ratio K/M is small; otherwise, it may be better to use @code{sort}.
 
 template <typename NDT>
 static NDT
-do_accumarray_sum (const octave::idx_vector& idx, const NDT& vals,
+do_accumarray_sum (const idx_vector& idx, const NDT& vals,
                    octave_idx_type n = -1)
 {
   typedef typename NDT::element_type T;
@@ -7389,7 +7604,7 @@ Undocumented internal function.
 
   try
     {
-      octave::idx_vector idx = args(0).index_vector ();
+      idx_vector idx = args(0).index_vector ();
       octave_idx_type n = -1;
       if (nargin == 3)
         n = args(2).idx_type_value (true);
@@ -7398,7 +7613,7 @@ Undocumented internal function.
 
       if (vals.is_range ())
         {
-          octave::range<double> r = vals.range_value ();
+          range<double> r = vals.range_value ();
           if (r.increment () == 0)
             vals = r.base ();
         }
@@ -7424,7 +7639,7 @@ Undocumented internal function.
       else
         err_wrong_type_arg ("accumarray", vals);
     }
-  catch (const octave::index_exception& ie)
+  catch (const index_exception& ie)
     {
       error ("__accumarray_sum__: invalid index %s", ie.what ());
     }
@@ -7434,7 +7649,7 @@ Undocumented internal function.
 
 template <typename NDT>
 static NDT
-do_accumarray_minmax (const octave::idx_vector& idx, const NDT& vals,
+do_accumarray_minmax (const idx_vector& idx, const NDT& vals,
                       octave_idx_type n, bool ismin,
                       const typename NDT::element_type& zero_val)
 {
@@ -7447,7 +7662,7 @@ do_accumarray_minmax (const octave::idx_vector& idx, const NDT& vals,
   NDT retval (dim_vector (n, 1), zero_val);
 
   // Pick minimizer or maximizer.
-  void (MArray<T>::*op) (const octave::idx_vector&, const MArray<T>&)
+  void (MArray<T>::*op) (const idx_vector&, const MArray<T>&)
     = ismin ? (&MArray<T>::idx_min) : (&MArray<T>::idx_max);
 
   octave_idx_type l = idx.length (n);
@@ -7477,7 +7692,7 @@ do_accumarray_minmax_fun (const octave_value_list& args,
 
   try
     {
-      octave::idx_vector idx = args(0).index_vector ();
+      idx_vector idx = args(0).index_vector ();
       octave_idx_type n = -1;
       if (nargin == 4)
         n = args(3).idx_type_value (true);
@@ -7535,7 +7750,7 @@ do_accumarray_minmax_fun (const octave_value_list& args,
           err_wrong_type_arg ("accumarray", vals);
         }
     }
-  catch (const octave::index_exception& ie)
+  catch (const index_exception& ie)
     {
       error ("do_accumarray_minmax_fun: invalid index %s", ie.what ());
     }
@@ -7563,7 +7778,7 @@ Undocumented internal function.
 
 template <typename NDT>
 static NDT
-do_accumdim_sum (const octave::idx_vector& idx, const NDT& vals,
+do_accumdim_sum (const idx_vector& idx, const NDT& vals,
                  int dim = -1, octave_idx_type n = -1)
 {
   typedef typename NDT::element_type T;
@@ -7610,7 +7825,7 @@ Undocumented internal function.
 
   try
     {
-      octave::idx_vector idx = args(0).index_vector ();
+      idx_vector idx = args(0).index_vector ();
       int dim = -1;
       if (nargin >= 3)
         dim = args(2).int_value () - 1;
@@ -7642,7 +7857,7 @@ Undocumented internal function.
       else
         err_wrong_type_arg ("accumdim", vals);
     }
-  catch (const octave::index_exception& ie)
+  catch (const index_exception& ie)
     {
       error ("__accumdim_sum__: invalid index %s", ie.what ());
     }
@@ -7832,7 +8047,7 @@ do_sparse_diff (const SparseT& array, octave_idx_type order,
       octave_idx_type k = retval.columns ();
       while (order > 0 && k > 0)
         {
-          octave::idx_vector col1 (':'), col2 (':'), sl1 (1, k), sl2 (0, k-1);
+          idx_vector col1 (':'), col2 (':'), sl1 (1, k), sl2 (0, k-1);
           retval = SparseT (retval.index (col1, sl1))
                    - SparseT (retval.index (col2, sl2));
           assert (retval.columns () == k-1);
@@ -7845,7 +8060,7 @@ do_sparse_diff (const SparseT& array, octave_idx_type order,
       octave_idx_type k = retval.rows ();
       while (order > 0 && k > 0)
         {
-          octave::idx_vector col1 (':'), col2 (':'), sl1 (1, k), sl2 (0, k-1);
+          idx_vector col1 (':'), col2 (':'), sl1 (1, k), sl2 (0, k-1);
           retval = SparseT (retval.index (sl1, col1))
                    - SparseT (retval.index (sl2, col2));
           assert (retval.rows () == k-1);
@@ -8160,18 +8375,18 @@ Encode a double matrix or array @var{x} into the base64 format string
 
   if (args(0).isinteger ())
     {
-#define MAKE_INT_BRANCH(X)                                               \
-      if (args(0).is_ ## X ## _type ())                                  \
-        {                                                                \
-          const X##NDArray in = args(0).  X## _array_value ();           \
-          std::size_t inlen = in.numel () * sizeof (X## _t) / sizeof (char);  \
+#define MAKE_INT_BRANCH(X)                                              \
+      if (args(0).is_ ## X ## _type ())                                 \
+        {                                                               \
+          const X##NDArray in = args(0).  X## _array_value ();          \
+          std::size_t inlen = in.numel () * sizeof (X## _t) / sizeof (char); \
           const char *inc = reinterpret_cast<const char *> (in.data ()); \
-          char *out;                                                     \
-          if (octave::base64_encode (inc, inlen, &out))                  \
-            {                                                            \
-              retval(0) = octave_value (out);                            \
-              ::free (out);                                              \
-            }                                                            \
+          char *out;                                                    \
+          if (base64_encode (inc, inlen, &out))                         \
+            {                                                           \
+              retval(0) = octave_value (out);                           \
+              ::free (out);                                             \
+            }                                                           \
         }
 
       MAKE_INT_BRANCH(int8)
@@ -8193,10 +8408,10 @@ Encode a double matrix or array @var{x} into the base64 format string
       const Array<float> in = args(0).float_array_value ();
       std::size_t inlen;
       inlen = in.numel () * sizeof (float) / sizeof (char);
-      const char*  inc;
+      const char *inc;
       inc = reinterpret_cast<const char *> (in.data ());
       char *out;
-      if (octave::base64_encode (inc, inlen, &out))
+      if (base64_encode (inc, inlen, &out))
         {
           retval(0) = octave_value (out);
           ::free (out);
@@ -8207,10 +8422,10 @@ Encode a double matrix or array @var{x} into the base64 format string
       const Array<double> in = args(0).array_value ();
       std::size_t inlen;
       inlen = in.numel () * sizeof (double) / sizeof (char);
-      const char*  inc;
+      const char *inc;
       inc = reinterpret_cast<const char *> (in.data ());
       char *out;
-      if (octave::base64_encode (inc, inlen, &out))
+      if (base64_encode (inc, inlen, &out))
         {
           retval(0) = octave_value (out);
           ::free (out);
@@ -8262,7 +8477,7 @@ dimensions of the decoded array.
 
   std::string str = args(0).string_value ();
 
-  Array<double> retval = octave::base64_decode (str);
+  Array<double> retval = base64_decode (str);
 
   if (nargin == 2)
     {
@@ -8318,7 +8533,7 @@ dimensions of the decoded array.
 
   std::string str = args(0).string_value ();
 
-  intNDArray<octave_uint8> retval = octave::base64_decode_bytes (str);
+  intNDArray<octave_uint8> retval = base64_decode_bytes (str);
 
   if (nargin == 2)
     {
@@ -8352,3 +8567,5 @@ dimensions of the decoded array.
 %!error __base64_decode_bytes__ (1, "this is not a valid set of dimensions")
 %!error <input was not valid base64> __base64_decode_bytes__ (1)
 */
+
+OCTAVE_NAMESPACE_END

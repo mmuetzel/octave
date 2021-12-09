@@ -20,6 +20,7 @@ TEST_FILES += \
   %reldir%/bug-55321.tst \
   %reldir%/bug-55322.tst \
   %reldir%/bug-59950.tst \
+  %reldir%/bug-61201.tst \
   %reldir%/colormaps.tst \
   %reldir%/command.tst \
   %reldir%/complex.tst \
@@ -36,7 +37,6 @@ TEST_FILES += \
   %reldir%/inline-fcn.tst \
   %reldir%/integer.tst \
   %reldir%/io.tst \
-  %reldir%/jit.tst \
   %reldir%/leftdiv.tst \
   %reldir%/line-continue.tst \
   %reldir%/logical-index.tst \
@@ -48,6 +48,7 @@ TEST_FILES += \
   %reldir%/return.tst \
   %reldir%/single-index.tst \
   %reldir%/slice.tst \
+  %reldir%/sparse-assign.tst \
   %reldir%/struct.tst \
   %reldir%/switch.tst \
   %reldir%/system.tst \
@@ -94,6 +95,9 @@ include %reldir%/bug-59661/module.mk
 include %reldir%/bug-59704/module.mk
 include %reldir%/bug-59937/module.mk
 include %reldir%/bug-60237/module.mk
+include %reldir%/bug-60882/module.mk
+include %reldir%/bug-61105/module.mk
+include %reldir%/bug-61191/module.mk
 include %reldir%/class-concat/module.mk
 include %reldir%/classdef/module.mk
 include %reldir%/classdef-multiple-inheritance/module.mk
@@ -102,6 +106,7 @@ include %reldir%/colon-op/module.mk
 include %reldir%/ctor-vs-method/module.mk
 include %reldir%/fcn-handle/module.mk
 include %reldir%/json/module.mk
+include %reldir%/jupyter-notebook/module.mk
 include %reldir%/local-functions/module.mk
 include %reldir%/mex/module.mk
 include %reldir%/nest/module.mk
@@ -125,11 +130,6 @@ endef
 
 check-local: $(GENERATED_TEST_FILES) $(MEX_TEST_FUNCTIONS) | $(OCTAVE_INTERPRETER_TARGETS) %reldir%/$(octave_dirstamp)
 	$(AM_V_at)$(call run-octave-tests)
-
-if AMCOND_HAVE_LLVM
-check-jit: $(GENERATED_TEST_FILES) | $(OCTAVE_INTERPRETER_TARGETS) %reldir%/$(octave_dirstamp)
-	$(AM_V_at)$(call run-octave-tests,--jit-compiler)
-endif
 
 COVERAGE_DIR = %reldir%/coverage
 COVERAGE_INFO = $(COVERAGE_DIR)/$(PACKAGE).info

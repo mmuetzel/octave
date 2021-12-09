@@ -41,6 +41,7 @@
 #include "QTerminal.h"
 
 #include "command-widget.h"
+#include "community-news.h"
 #include "documentation-dock-widget.h"
 #include "files-dock-widget.h"
 #include "history-dock-widget.h"
@@ -49,6 +50,7 @@
 #include "octave-qobject.h"
 #include "qt-application.h"
 #include "qt-interpreter-events.h"
+#include "release-notes.h"
 #include "resource-manager.h"
 #include "shortcut-manager.h"
 #include "terminal-dock-widget.h"
@@ -131,7 +133,7 @@ namespace octave
   // Disable all Qt messages by default.
 
   static void
-  message_handler (QtMsgType, const QMessageLogContext &, const QString &)
+  message_handler (QtMsgType, const QMessageLogContext&, const QString&)
   { }
 
   //! Reimplement QApplication::notify.  Octave's own exceptions are
@@ -277,6 +279,12 @@ namespace octave
     connect (qt_link (), &qt_interpreter_events::edit_variable_signal,
              this, &base_qobject::show_variable_editor_window);
 
+    connect (qt_link (), &qt_interpreter_events::show_community_news_signal,
+             this, &base_qobject::show_community_news);
+
+    connect (qt_link (), &qt_interpreter_events::show_release_notes_signal,
+             this, &base_qobject::show_release_notes);
+
     if (m_app_context.experimental_terminal_widget ())
       {
         m_qapplication->setQuitOnLastWindowClosed (false);
@@ -286,6 +294,12 @@ namespace octave
         if (gui_app)
           {
             m_main_window = new main_window (*this);
+
+            connect (m_main_window, &main_window::show_community_news_signal,
+                     this, &base_qobject::show_community_news);
+
+            connect (m_main_window, &main_window::show_release_notes_signal,
+                     this, &base_qobject::show_release_notes);
 
             if (m_interpreter_ready)
               m_main_window->handle_octave_ready ();
@@ -352,6 +366,9 @@ namespace octave
 
         if (m_variable_editor_widget)
           m_variable_editor_widget->close ();
+
+        if (m_community_news)
+          m_community_news->close ();
       }
     else
       {
@@ -365,6 +382,7 @@ namespace octave
     delete m_workspace_widget;
     delete m_editor_widget;
     delete m_variable_editor_widget;
+    delete m_community_news;
 
     delete m_interpreter_qobj;
     delete m_qsci_tr;
@@ -699,12 +717,29 @@ namespace octave
 
         connect (qt_link (),
                  &qt_interpreter_events::refresh_variable_editor_signal,
-                 this, &base_qobject::refresh_variable_editor);
+                 m_variable_editor_widget, &variable_editor::refresh);
 
         connect_interpreter_events<variable_editor> (m_variable_editor_widget);
       }
 
     return m_variable_editor_widget;
+  }
+
+  QPointer<community_news> base_qobject::community_news_widget (int serial)
+  {
+    if (! m_community_news)
+      m_community_news
+        = QPointer<community_news> (new community_news (*this, serial));
+
+    return m_community_news;
+  }
+
+  QPointer<release_notes> base_qobject::release_notes_widget (void)
+  {
+    if (! m_release_notes)
+      m_release_notes = QPointer<release_notes> (new release_notes ());
+
+    return m_release_notes;
   }
 
   bool base_qobject::confirm_shutdown (void)
@@ -735,6 +770,12 @@ namespace octave
 
         connect (m_main_window, &main_window::close_gui_signal,
                  this, &base_qobject::close_gui);
+
+        connect (m_main_window, &main_window::show_community_news_signal,
+                 this, &base_qobject::show_community_news);
+
+        connect (m_main_window, &main_window::show_release_notes_signal,
+                 this, &base_qobject::show_release_notes);
 
         if (m_interpreter_ready)
           m_main_window->handle_octave_ready ();
@@ -855,9 +896,20 @@ namespace octave
        });
   }
 
-  void base_qobject::refresh_variable_editor (void)
+  void base_qobject::show_community_news (int serial)
   {
-    m_variable_editor_widget->refresh ();
+    // Ensure widget exists.
+    community_news_widget (serial);
+
+    m_community_news->display ();
+  }
+
+  void base_qobject::show_release_notes (void)
+  {
+    // Ensure widget exists.
+    release_notes_widget ();
+
+    m_release_notes->display ();
   }
 
   void base_qobject::execute_command (const QString& command)

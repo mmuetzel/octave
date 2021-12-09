@@ -89,13 +89,8 @@ bool octave_completion_matches_called = false;
 // the next user prompt.
 bool Vdrawnow_requested = false;
 
-// TRUE if we are recording line numbers in a source file.
-// Always true except when debugging and taking input directly from
-// the terminal.
-bool Vtrack_line_num = true;
+OCTAVE_NAMESPACE_BEGIN
 
-namespace octave
-{
   static std::string
   quoting_filename (const std::string& text, int, char quote)
   {
@@ -695,12 +690,18 @@ namespace octave
   {
     octave_value_list retval;
 
-    int read_as_string = 0;
-
-    if (args.length () == 2)
-      read_as_string++;
-
     std::string prompt = args(0).xstring_value ("input: unrecognized argument");
+
+    bool read_as_string = false;
+    if (args.length () == 2)  // `input (..., "s")`?
+      {
+        std::string literal
+          = args(1).xstring_value ("input: second argument must be 's'.");
+        if (literal.length () != 1 || literal[0] != 's')
+          error ("input: second argument must be 's'.");
+
+        read_as_string = true;
+      }
 
     output_system& output_sys = m_interpreter.get_output_system ();
 
@@ -908,7 +909,7 @@ namespace octave
     file_reader (interpreter& interp, FILE *f_arg)
       : base_reader (interp), m_file (f_arg)
     {
-      octave::input_system& input_sys = interp.get_input_system ();
+      input_system& input_sys = interp.get_input_system ();
       m_encoding = input_sys.mfile_encoding ();
     }
 
@@ -960,7 +961,8 @@ namespace octave
     : m_rep (new file_reader (interp, file))
   { }
 
-  input_reader::input_reader (interpreter& interp, FILE *file, const std::string& enc)
+  input_reader::input_reader (interpreter& interp, FILE *file,
+                              const std::string& enc)
     : m_rep (new file_reader (interp, file, enc))
   { }
 
@@ -1045,7 +1047,7 @@ namespace octave
 
     eof = false;
 
-    std::string src_str = octave_fgets (m_file, eof);
+    std::string src_str = fgets (m_file, eof);
 
     std::string mfile_encoding;
 
@@ -1127,7 +1129,6 @@ namespace octave
 
     return retval;
   }
-}
 
 DEFMETHOD (input, interp, args, nargout,
            doc: /* -*- texinfo -*-
@@ -1173,7 +1174,7 @@ your prompt.
   if (nargin < 1 || nargin > 2)
     print_usage ();
 
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   return input_sys.get_user_input (args, std::max (nargout, 1));
 }
@@ -1197,7 +1198,7 @@ string @samp{(yes or no) } to it.  The user must confirm the answer with
   if (nargin > 1)
     print_usage ();
 
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   std::string prompt;
 
@@ -1230,7 +1231,7 @@ If @code{keyboard} is invoked without arguments, a default prompt of
   if (nargin > 1)
     print_usage ();
 
-  octave::tree_evaluator& tw = interp.get_evaluator ();
+  tree_evaluator& tw = interp.get_evaluator ();
 
   if (nargin == 1)
     {
@@ -1271,7 +1272,7 @@ a feature, not a bug.
 
   for (;;)
     {
-      std::string cmd = octave::generate_completion (hint, k);
+      std::string cmd = generate_completion (hint, k);
 
       if (! cmd.empty ())
         {
@@ -1337,7 +1338,7 @@ Read the readline library initialization file @var{file}.
 If @var{file} is omitted, read the default initialization file
 (normally @file{~/.inputrc}).
 
-@xref{Readline Init File, , , readline, GNU Readline Library},
+@xref{Readline Init File,,,readline, GNU Readline Library},
 for details.
 @seealso{readline_re_read_init_file}
 @end deftypefn */)
@@ -1348,12 +1349,12 @@ for details.
     print_usage ();
 
   if (nargin == 0)
-    octave::command_editor::read_init_file ();
+    command_editor::read_init_file ();
   else
     {
       std::string file = args(0).string_value ();
 
-      octave::command_editor::read_init_file (file);
+      command_editor::read_init_file (file);
     }
 
   return ovl ();
@@ -1364,7 +1365,7 @@ DEFUN (readline_re_read_init_file, args, ,
 @deftypefn {} {} readline_re_read_init_file ()
 Re-read the last readline library initialization file that was read.
 
-@xref{Readline Init File, , , readline, GNU Readline Library},
+@xref{Readline Init File,,,readline, GNU Readline Library},
 for details.
 @seealso{readline_read_init_file}
 @end deftypefn */)
@@ -1372,7 +1373,7 @@ for details.
   if (args.length () != 0)
     print_usage ();
 
-  octave::command_editor::re_read_init_file ();
+  command_editor::re_read_init_file ();
 
   return ovl ();
 }
@@ -1407,9 +1408,9 @@ list of input hook functions.
   if (nargin == 2)
     user_data = args(1);
 
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
-  octave::hook_function hook_fcn (args(0), user_data);
+  hook_function hook_fcn (args(0), user_data);
 
   input_sys.add_input_event_hook (hook_fcn);
 
@@ -1435,7 +1436,7 @@ for input.
 
   bool warn = (nargin < 2);
 
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   if (! input_sys.remove_input_event_hook (hook_fcn_id) && warn)
     warning ("remove_input_event_hook: %s not found in list",
@@ -1483,7 +1484,7 @@ The original variable value is restored when exiting the function.
 @seealso{PS2, PS4}
 @end deftypefn */)
 {
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   return input_sys.PS1 (args, nargout);
 }
@@ -1507,7 +1508,7 @@ The original variable value is restored when exiting the function.
 @seealso{PS1, PS4}
 @end deftypefn */)
 {
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   return input_sys.PS2 (args, nargout);
 }
@@ -1527,7 +1528,7 @@ variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
 @end deftypefn */)
 {
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   return input_sys.completion_append_char (args, nargout);
 }
@@ -1558,7 +1559,7 @@ DEFMETHOD (__gud_mode__, interp, args, nargout,
 Undocumented internal function.
 @end deftypefn */)
 {
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   return input_sys.gud_mode (args, nargout);
 }
@@ -1569,14 +1570,14 @@ DEFMETHOD (__mfile_encoding__, interp, args, nargout,
 Set and query the codepage that is used for reading .m files.
 @end deftypefn */)
 {
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   return input_sys.mfile_encoding (args, nargout);
 }
 
 DEFMETHOD (dir_encoding, interp, args, nargout,
            doc: /* -*- texinfo -*-
-@deftypefn {}  {@var{current_encoding} =} dir_encoding (@var{dir})
+@deftypefn  {} {@var{current_encoding} =} dir_encoding (@var{dir})
 @deftypefnx {} {@var{prev_encoding} =} dir_encoding (@var{dir}, @var{encoding})
 @deftypefnx {} {} dir_encoding (@dots{})
 Set and query the @var{encoding} that is used for reading m-files in @var{dir}.
@@ -1586,7 +1587,7 @@ That encoding overrides the (globally set) m-file encoding.
 The string @var{DIR} must match the form how the directory would appear in the
 load path.
 
-The @var{encoding} must be a valid encoding identifier or @code{"delete"}.  In
+The @var{encoding} must be a valid encoding identifier or @qcode{"delete"}.  In
 the latter case, the (globally set) m-file encoding will be used for the given
 @var{dir}.
 
@@ -1597,7 +1598,7 @@ requested.
 The directory encoding is automatically read from the file @file{.oct-config}
 when a new path is added to the load path (for example with @code{addpath}).
 To set the encoding for all files in the same folder, that file must contain
-a line starting with @code{"encoding="} followed by the encoding identifier.
+a line starting with @qcode{"encoding="} followed by the encoding identifier.
 
 For example to set the file encoding for all files in the same folder to
 ISO 8859-1 (Latin-1), create a file @file{.oct-config} with the following
@@ -1624,7 +1625,7 @@ with the command @code{clear all}.
 
   octave_value retval;
 
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   if (nargout > 0)
     retval = input_sys.dir_encoding (dir);
@@ -1655,7 +1656,9 @@ variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
 @end deftypefn */)
 {
-  octave::input_system& input_sys = interp.get_input_system ();
+  input_system& input_sys = interp.get_input_system ();
 
   return input_sys.auto_repeat_debug_command (args, nargout);
 }
+
+OCTAVE_NAMESPACE_END

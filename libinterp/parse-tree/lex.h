@@ -299,7 +299,7 @@ namespace octave
         m_block_comment_nesting_level (0),
         m_command_arg_paren_count (0),
         m_token_count (0),
-        m_filepos (),
+        m_filepos (1, 1),
         m_tok_beg (),
         m_tok_end (),
         m_string_text (),
@@ -313,7 +313,6 @@ namespace octave
         m_package_name (),
         m_looking_at_object_index (),
         m_parsed_function_name (),
-        m_pending_local_variables (),
         m_symtab_context (interp),
         m_nesting_level (),
         m_tokens ()
@@ -346,8 +345,6 @@ namespace octave
     bool previous_token_is_keyword (void) const;
 
     bool previous_token_may_be_command (void) const;
-
-    void maybe_mark_previous_token_as_variable (void);
 
     void mark_as_variable (const std::string& nm);
     void mark_as_variables (const std::list<std::string>& lst);
@@ -515,9 +512,6 @@ namespace octave
     // current_function_level > 0
     std::stack<bool> m_parsed_function_name;
 
-    // set of identifiers that might be local variable names.
-    std::set<std::string> m_pending_local_variables;
-
     // Track current symbol table scope and context.
     symbol_table_context m_symtab_context;
 
@@ -657,8 +651,6 @@ namespace octave
 
     bool inside_any_object_index (void);
 
-    bool is_variable (const std::string& name);
-
     int make_keyword_token (const std::string& s);
 
     bool fq_identifier_contains_keyword (const std::string& s);
@@ -698,6 +690,12 @@ namespace octave
     void warn_language_extension_continuation (void);
 
     void warn_language_extension_operator (const std::string& op);
+
+    void warn_deprecated_syntax (const std::string& msg);
+
+    void warn_deprecated_operator (const std::string& deprecated_op,
+                                   const std::string& recommended_op,
+                                   const std::string& version);
 
     void push_token (token *);
 
@@ -779,7 +777,8 @@ namespace octave
     { }
 
     lexer (FILE *file, interpreter& interp, const std::string& encoding)
-      : base_lexer (interp), m_reader (interp, file, encoding), m_initial_input (true)
+      : base_lexer (interp), m_reader (interp, file, encoding),
+        m_initial_input (true)
     { }
 
     lexer (const std::string& eval_string, interpreter& interp)

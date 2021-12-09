@@ -71,11 +71,8 @@
 #include "utils.h"
 #include "variables.h"
 
-//FIXME: This should be part of tree_evaluator
-#include "pt-jit.h"
+OCTAVE_NAMESPACE_BEGIN
 
-namespace octave
-{
   // Normal evaluator.
 
   class quit_debug_exception
@@ -192,7 +189,7 @@ namespace octave
 
             command_editor::run_event_hooks ();
 
-            octave::sleep (0.1);
+            sleep (0.1);
           }
         catch (const interrupt_exception&)
           {
@@ -842,6 +839,12 @@ namespace octave
                 break;
               }
           }
+        catch (const quit_debug_exception&)
+          {
+            m_interpreter.recover_from_exception ();
+
+            // FIXME: Does anything else need to happen here?
+          }
         catch (const std::bad_alloc&)
           {
             m_interpreter.recover_from_exception ();
@@ -896,7 +899,7 @@ namespace octave
 
             command_editor::run_event_hooks ();
 
-            octave::sleep (0.1);
+            sleep (0.1);
           }
         catch (const interrupt_exception&)
           {
@@ -1475,9 +1478,13 @@ namespace octave
     // the corresponding function name.  At least try to do it without N
     // string compares.
 
+    // FIXME: .+, .-, **, and .** are deprecated but still need to be
+    // handled here until they are removed.
+
     std::size_t len = name.length ();
 
     if (len == 3 && name == ".**")
+      // deprecated
       return "power";
     else if (len == 2)
       {
@@ -1489,9 +1496,11 @@ namespace octave
                 return "transpose";
 
               case '+':
+                // deprecated
                 return "plus";
 
               case '-':
+                // deprecated
                 return "minus";
 
               case '*':
@@ -1532,6 +1541,7 @@ namespace octave
               }
           }
         else if (name == "**")
+          // deprecated
           return "mpower";
       }
     else if (len == 1)
@@ -1727,14 +1737,20 @@ namespace octave
                       = m_call_stack.get_current_stack_frame ();
 
                     // If we are creating a handle to the current
-                    // function, then use the calling stack frame as the
-                    // context.
+                    // function or a handle to a sibling function (i.e.,
+                    // not a child of the current function), then use
+                    // the calling stack frame as the context instead of
+                    // the current stack frame.
 
-                    std::string curr_fcn_name;
-                    if (curr_fcn)
-                      curr_fcn_name = curr_fcn->name ();
+                    // FIXME:  Do we need both checks here or is it
+                    // sufficient to check that the parent of curr_fcn
+                    // is the same as the parent of fcn?  Is there any
+                    // case where curr_fcn could be nullptr, or does
+                    // that indicate an internal error of some kind?
 
-                    if (fcn_name == curr_fcn_name)
+                    if (curr_fcn
+                        && (fcn_name == curr_fcn->name ()
+                            || fcn->parent_fcn_name () == curr_fcn->parent_fcn_name ()))
                       frame = frame->access_link ();
 
                     octave_fcn_handle *fh
@@ -2190,6 +2206,9 @@ namespace octave
   tree_evaluator::define_parameter_list_from_arg_vector
     (tree_parameter_list *param_list, const octave_value_list& args)
   {
+    if (! param_list || param_list->varargs_only ())
+      return;
+
     int i = -1;
 
     for (tree_decl_elt *elt : *param_list)
@@ -2223,11 +2242,10 @@ namespace octave
         ref.assign (octave_value::op_asn_eq, octave_value ());
       }
   }
-}
 
 // END is documented in op-kw-docs.
-DEFCONSTMETHOD (end, interp, args, ,
-                doc: /* -*- texinfo -*-
+DEFMETHOD (end, interp, args, ,
+           doc: /* -*- texinfo -*-
 @deftypefn {} {} end
 Last element of an array or the end of any @code{for}, @code{parfor},
 @code{if}, @code{do}, @code{while}, @code{function}, @code{switch},
@@ -2252,7 +2270,7 @@ Example:
 @seealso{for, parfor, if, do, while, function, switch, try, unwind_protect}
 @end deftypefn */)
 {
-  octave::tree_evaluator& tw = interp.get_evaluator ();
+  tree_evaluator& tw = interp.get_evaluator ();
 
   return tw.evaluate_end_expression (args);
 }
@@ -2269,8 +2287,6 @@ Example:
 %! assert (x(minus (minus (end, 1), 1)), 8);
 */
 
-namespace octave
-{
   octave_value_list
   tree_evaluator::convert_to_const_vector (tree_argument_list *args)
   {
@@ -3057,11 +3073,6 @@ namespace octave
 
     octave_value rhs = expr->evaluate (*this);
 
-#if defined (HAVE_LLVM)
-    if (tree_jit::execute (cmd, rhs))
-      return;
-#endif
-
     if (rhs.is_undefined ())
       return;
 
@@ -3394,20 +3405,23 @@ namespace octave
 
     tree_parameter_list *param_list = user_function.parameter_list ();
 
+    bool takes_varargs = false;
+    int max_inputs = 0;
+
     if (param_list)
       {
-        int max_inputs = param_list->length ();
-
-        if (! param_list->takes_varargs () && nargin > max_inputs)
-          {
-            std::string name = user_function.name ();
-
-            error ("%s: function called with too many inputs", name.c_str ());
-          }
-
-        if (! param_list->varargs_only ())
-          define_parameter_list_from_arg_vector (param_list, args);
+        takes_varargs = param_list->takes_varargs ();
+        max_inputs = param_list->length ();
       }
+
+    if (! takes_varargs && nargin > max_inputs)
+      {
+        std::string name = user_function.name ();
+
+        error ("%s: function called with too many inputs", name.c_str ());
+      }
+
+    define_parameter_list_from_arg_vector (param_list, args);
 
     tree_parameter_list *ret_list = user_function.return_list ();
 
@@ -3422,14 +3436,6 @@ namespace octave
             error ("%s: function called with too many outputs", name.c_str ());
           }
       }
-
-    // FIXME: Is this in the right place now?
-
-#if defined (HAVE_LLVM)
-    if (user_function.is_special_expr ()
-        && tree_jit::execute (user_function, args, retval))
-      return retval;
-#endif
 
     bind_auto_fcn_vars (xargs.name_tags (), ignored_outputs, nargin,
                         nargout, user_function.takes_varargs (),
@@ -4150,11 +4156,6 @@ namespace octave
         line++;
       }
 
-#if defined (HAVE_LLVM)
-    if (tree_jit::execute (cmd))
-      return;
-#endif
-
     unwind_protect_var<bool> upv (m_in_loop_command, true);
 
     tree_expression *expr = cmd.condition ();
@@ -4198,16 +4199,9 @@ namespace octave
         line++;
       }
 
-#if defined (HAVE_LLVM)
-    if (tree_jit::execute (cmd))
-      return;
-#endif
-
     unwind_protect_var<bool> upv (m_in_loop_command, true);
 
     tree_expression *expr = cmd.condition ();
-    int until_line = cmd.line ();
-    int until_column = cmd.column ();
 
     if (! expr)
       panic_impossible ();
@@ -4227,8 +4221,6 @@ namespace octave
 
         if (m_debug_mode)
           do_breakpoint (cmd.is_active_breakpoint (*this));
-
-        m_call_stack.set_location (until_line, until_column);
 
         if (is_logically_true (expr, "do-until"))
           break;
@@ -4302,11 +4294,11 @@ namespace octave
           {
             if (m_dbstep_flag == 1 || is_end_of_fcn_or_script)
               {
-                // We get here if we are doing a "dbstep" or a "dbstep N" and the
-                // count has reached 1 so that we must stop and return to debug
-                // prompt.  Alternatively, "dbstep N" has been used but the end
-                // of the frame has been reached so we stop at the last line and
-                // return to prompt.
+                // We get here if we are doing a "dbstep" or a "dbstep N" and
+                // the count has reached 1 so that we must stop and return to
+                // debug prompt.  Alternatively, "dbstep N" has been used but
+                // the end of the frame has been reached so we stop at the last
+                // line and return to prompt.
 
                 break_on_this_statement = true;
               }
@@ -4367,6 +4359,8 @@ namespace octave
                                      const char *warn_for)
   {
     bool expr_value = false;
+
+    m_call_stack.set_location (expr->line (), expr->column ());
 
     octave_value t1 = expr->evaluate (*this);
 
@@ -5106,7 +5100,6 @@ namespace octave
 
     return full_name;
   }
-}
 
 DEFMETHOD (max_recursion_depth, interp, args, nargout,
            doc: /* -*- texinfo -*-
@@ -5126,7 +5119,7 @@ The original variable value is restored when exiting the function.
 @seealso{max_stack_depth}
 @end deftypefn */)
 {
-  octave::tree_evaluator& tw = interp.get_evaluator ();
+  tree_evaluator& tw = interp.get_evaluator ();
 
   return tw.max_recursion_depth (args, nargout);
 }
@@ -5161,7 +5154,8 @@ The following command sequences are available:
 
 @table @code
 @item %a
-Prints attributes of variables (g=global, p=persistent, f=formal parameter).
+Prints attributes of variables (c=complex, s=sparse, f=formal parameter,
+g=global, p=persistent).
 
 @item %b
 Prints number of bytes occupied by variables.
@@ -5208,7 +5202,9 @@ the left of the specified balance column.
 
 The default format is:
 
-@qcode{"  %a:4; %ln:6; %cs:16:6:1;  %rb:12;  %lc:-1;@backslashchar{}n"}
+@example
+"  %la:5; %ln:6; %cs:16:6:1;  %rb:12;  %lc:-1;@backslashchar{}n"
+@end example
 
 When called from inside a function with the @qcode{"local"} option, the
 variable is changed locally for the function and any subroutines it calls.
@@ -5216,7 +5212,7 @@ The original variable value is restored when exiting the function.
 @seealso{whos}
 @end deftypefn */)
 {
-  octave::tree_evaluator& tw = interp.get_evaluator ();
+  tree_evaluator& tw = interp.get_evaluator ();
 
   return tw.whos_line_format (args, nargout);
 }
@@ -5238,7 +5234,7 @@ variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
 @end deftypefn */)
 {
-  octave::tree_evaluator& tw = interp.get_evaluator ();
+  tree_evaluator& tw = interp.get_evaluator ();
 
   return tw.silent_functions (args, nargout);
 }
@@ -5281,7 +5277,7 @@ variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
 @end deftypefn */)
 {
-  octave::tree_evaluator& tw = interp.get_evaluator ();
+  tree_evaluator& tw = interp.get_evaluator ();
 
   return tw.string_fill_char (args, nargout);
 }
@@ -5321,7 +5317,7 @@ The original variable value is restored when exiting the function.
 @seealso{echo, PS1, PS2}
 @end deftypefn */)
 {
-  octave::tree_evaluator& tw = interp.get_evaluator ();
+  tree_evaluator& tw = interp.get_evaluator ();
 
   return tw.PS4 (args, nargout);
 }
@@ -5367,7 +5363,7 @@ With no arguments, @code{echo} toggles the current echo state.
 @seealso{PS4}
 @end deftypefn */)
 {
-  octave::tree_evaluator& tw = interp.get_evaluator ();
+  tree_evaluator& tw = interp.get_evaluator ();
 
   return tw.echo (args, nargout);
 }
@@ -5381,3 +5377,5 @@ With no arguments, @code{echo} toggles the current echo state.
 %!error echo ("on", "invalid")
 %!error echo ("on", "all", "all")
 */
+
+OCTAVE_NAMESPACE_END

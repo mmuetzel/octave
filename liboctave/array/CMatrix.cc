@@ -793,11 +793,11 @@ ComplexMatrix::tinverse (MatrixType& mattype, octave_idx_type& info,
 
   F77_INT tmp_info = 0;
 
-  F77_XFCN (ztrtri, ZTRTRI,(F77_CONST_CHAR_ARG2 (&uplo, 1),
-                            F77_CONST_CHAR_ARG2 (&udiag, 1),
-                            nr, F77_DBLE_CMPLX_ARG (tmp_data), nr, tmp_info
-                            F77_CHAR_ARG_LEN (1)
-                            F77_CHAR_ARG_LEN (1)));
+  F77_XFCN (ztrtri, ZTRTRI, (F77_CONST_CHAR_ARG2 (&uplo, 1),
+                             F77_CONST_CHAR_ARG2 (&udiag, 1),
+                             nr, F77_DBLE_CMPLX_ARG (tmp_data), nr, tmp_info
+                             F77_CHAR_ARG_LEN (1)
+                             F77_CHAR_ARG_LEN (1)));
 
   info = tmp_info;
 
@@ -935,7 +935,15 @@ ComplexMatrix::inverse (MatrixType& mattype, octave_idx_type& info,
   if (typ == MatrixType::Unknown)
     typ = mattype.type (*this);
 
-  if (typ == MatrixType::Upper || typ == MatrixType::Lower)
+  if (typ == MatrixType::Diagonal)  // a scalar is also classified as Diagonal.
+    {
+      if (std::real (this->elem (0)) == 0 && std::imag (this->elem (0)) == 0)
+        ret = ComplexMatrix (1, 1,
+                             Complex (octave::numeric_limits<double>::Inf (), 0.0));
+      else
+        ret = Complex (1, 0) / (*this);
+    }
+  else if (typ == MatrixType::Upper || typ == MatrixType::Lower)
     ret = tinverse (mattype, info, rcon, force, calc_cond);
   else
     {
@@ -959,11 +967,8 @@ ComplexMatrix::inverse (MatrixType& mattype, octave_idx_type& info,
 
       if ((calc_cond || mattype.ishermitian ()) && rcon == 0.0)
         {
-          if (numel () == 1)
-            ret = ComplexMatrix (1, 1, 0.0);
-          else
-            ret = ComplexMatrix (rows (), columns (),
-                                 Complex (octave::numeric_limits<double>::Inf (), 0.0));
+          ret = ComplexMatrix (rows (), columns (),
+                               Complex (octave::numeric_limits<double>::Inf (), 0.0));
         }
     }
 
@@ -1194,7 +1199,7 @@ ComplexMatrix::determinant (MatrixType& mattype,
   if (typ == MatrixType::Lower || typ == MatrixType::Upper)
     {
       for (F77_INT i = 0; i < nc; i++)
-        retval *= elem (i,i);
+        retval *= elem (i, i);
     }
   else if (typ == MatrixType::Hermitian)
     {
@@ -1241,7 +1246,7 @@ ComplexMatrix::determinant (MatrixType& mattype,
             }
 
           for (F77_INT i = 0; i < nc; i++)
-            retval *= atmp(i,i);
+            retval *= atmp(i, i);
 
           retval = retval.square ();
         }
@@ -1310,7 +1315,7 @@ ComplexMatrix::determinant (MatrixType& mattype,
             {
               for (F77_INT i = 0; i < nc; i++)
                 {
-                  Complex c = atmp(i,i);
+                  Complex c = atmp(i, i);
                   retval *= (ipvt(i) != (i+1)) ? -c : c;
                 }
             }
@@ -1349,7 +1354,7 @@ ComplexMatrix::rcond (MatrixType& mattype) const
       // Only calculate the condition number for LU/Cholesky
       if (typ == MatrixType::Upper)
         {
-          const Complex *tmp_data = fortran_vec ();
+          const Complex *tmp_data = data ();
           F77_INT info = 0;
           char norm = '1';
           char uplo = 'U';
@@ -1377,7 +1382,7 @@ ComplexMatrix::rcond (MatrixType& mattype) const
           ("permuted triangular matrix not implemented");
       else if (typ == MatrixType::Lower)
         {
-          const Complex *tmp_data = fortran_vec ();
+          const Complex *tmp_data = data ();
           F77_INT info = 0;
           char norm = '1';
           char uplo = 'L';
@@ -1530,7 +1535,7 @@ ComplexMatrix::utsolve (MatrixType& mattype, const ComplexMatrix& b,
         (*current_liboctave_error_handler)
           ("permuted triangular matrix not implemented");
 
-      const Complex *tmp_data = fortran_vec ();
+      const Complex *tmp_data = data ();
 
       retval = b;
       Complex *result = retval.fortran_vec ();
@@ -1628,7 +1633,7 @@ ComplexMatrix::ltsolve (MatrixType& mattype, const ComplexMatrix& b,
         (*current_liboctave_error_handler)
           ("permuted triangular matrix not implemented");
 
-      const Complex *tmp_data = fortran_vec ();
+      const Complex *tmp_data = data ();
 
       retval = b;
       Complex *result = retval.fortran_vec ();
@@ -1866,8 +1871,6 @@ ComplexMatrix::fsolve (MatrixType& mattype, const ComplexMatrix& b,
 
                   if (rcond_plus_one == 1.0 || octave::math::isnan (rcon))
                     {
-                      info = -2;
-
                       if (sing_handler)
                         sing_handler (rcon);
                       else
@@ -3235,10 +3238,10 @@ Sylvester (const ComplexMatrix& a, const ComplexMatrix& b,
 
   // Transform c to new coordinates.
 
-  ComplexMatrix ua = as.unitary_matrix ();
+  ComplexMatrix ua = as.unitary_schur_matrix ();
   ComplexMatrix sch_a = as.schur_matrix ();
 
-  ComplexMatrix ub = bs.unitary_matrix ();
+  ComplexMatrix ub = bs.unitary_schur_matrix ();
   ComplexMatrix sch_b = bs.schur_matrix ();
 
   ComplexMatrix cx = ua.hermitian () * c * ub;
@@ -3363,7 +3366,7 @@ xgemm (const ComplexMatrix& a, const ComplexMatrix& b,
                                    F77_CHAR_ARG_LEN (1)));
           for (F77_INT j = 0; j < a_nr; j++)
             for (F77_INT i = 0; i < j; i++)
-              retval.xelem (j,i) = octave::math::conj (retval.xelem (i,j));
+              retval.xelem (j, i) = octave::math::conj (retval.xelem (i, j));
         }
       else
         {
@@ -3375,7 +3378,7 @@ xgemm (const ComplexMatrix& a, const ComplexMatrix& b,
                                    F77_CHAR_ARG_LEN (1)));
           for (F77_INT j = 0; j < a_nr; j++)
             for (F77_INT i = 0; i < j; i++)
-              retval.xelem (j,i) = retval.xelem (i,j);
+              retval.xelem (j, i) = retval.xelem (i, j);
 
         }
 

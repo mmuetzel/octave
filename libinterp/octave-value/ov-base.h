@@ -238,18 +238,18 @@ public:
   {
   public:
     type_conv_info (type_conv_fcn f = nullptr, int t = -1)
-      : _fcn (f), _type_id (t) { }
+      : m_fcn (f), m_type_id (t) { }
 
-    operator type_conv_fcn (void) const { return _fcn; }
+    operator type_conv_fcn (void) const { return m_fcn; }
 
     octave_base_value * operator () (const octave_base_value& v) const
-    { return (*_fcn) (v); }
+    { return (*m_fcn) (v); }
 
-    int type_id (void) const { return _type_id; }
+    int type_id (void) const { return m_type_id; }
 
   private:
-    type_conv_fcn _fcn;
-    int _type_id;
+    type_conv_fcn m_fcn;
+    int m_type_id;
   };
 
   friend class octave_value;
@@ -301,7 +301,8 @@ public:
   virtual octave_value as_uint32 (void) const;
   virtual octave_value as_uint64 (void) const;
 
-  virtual octave_base_value * try_narrowing_conversion (void) { return nullptr; }
+  virtual octave_base_value * try_narrowing_conversion (void)
+  { return nullptr; }
 
   virtual void maybe_economize (void) { }
 
@@ -739,11 +740,11 @@ public:
          oct_data_conv::data_type output_type, int skip,
          octave::mach_info::float_format flt_fmt) const;
 
-  virtual void * mex_get_data (void) const { return nullptr; }
+  virtual const void * mex_get_data (void) const { return nullptr; }
 
-  virtual octave_idx_type * mex_get_ir (void) const { return nullptr; }
+  virtual const octave_idx_type * mex_get_ir (void) const { return nullptr; }
 
-  virtual octave_idx_type * mex_get_jc (void) const { return nullptr; }
+  virtual const octave_idx_type * mex_get_jc (void) const { return nullptr; }
 
   virtual mxArray * as_mxArray (bool interleaved) const;
 
@@ -753,7 +754,7 @@ public:
 
   virtual octave_value sort (octave_idx_type dim = 0,
                              sortmode mode = ASCENDING) const;
-  virtual octave_value sort (Array<octave_idx_type> &sidx,
+  virtual octave_value sort (Array<octave_idx_type>& sidx,
                              octave_idx_type dim = 0,
                              sortmode mode = ASCENDING) const;
 
@@ -863,21 +864,6 @@ public:
   virtual bool
   fast_elem_insert_self (void *where, builtin_type_t btyp) const;
 
-  // Grab the reference count.  For use by jit.
-  void
-  grab (void)
-  {
-    ++count;
-  }
-
-  // Release the reference count.  For use by jit.
-  void
-  release (void)
-  {
-    if (--count == 0)
-      delete this;
-  }
-
 protected:
 
   // This should only be called for derived types.
@@ -888,16 +874,16 @@ protected:
                   const octave_value& rhs);
 
   void reset_indent_level (void) const
-  { curr_print_indent_level = 0; }
+  { s_curr_print_indent_level = 0; }
 
   void increment_indent_level (void) const
-  { curr_print_indent_level += 2; }
+  { s_curr_print_indent_level += 2; }
 
   void decrement_indent_level (void) const
-  { curr_print_indent_level -= 2; }
+  { s_curr_print_indent_level -= 2; }
 
   int current_print_indent_level (void) const
-  { return curr_print_indent_level; }
+  { return s_curr_print_indent_level; }
 
   OCTINTERP_API void indent (std::ostream& os) const;
 
@@ -920,8 +906,10 @@ private:
 
   OCTINTERP_API void wrong_type_arg_error (void) const;
 
-  static int curr_print_indent_level;
-  static bool beginning_of_line;
+  //--------
+
+  static int s_curr_print_indent_level;
+  static bool s_beginning_of_line;
 
   DECLARE_OV_BASE_TYPEID_FUNCTIONS_AND_DATA
 };

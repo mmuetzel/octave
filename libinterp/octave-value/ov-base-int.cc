@@ -80,6 +80,7 @@
 template <typename T, bool is_signed = true, bool can_be_too_big = true>
 struct octave_base_int_helper
 {
+public:
   static bool
   char_value_out_of_range (T val)
   {
@@ -90,12 +91,14 @@ struct octave_base_int_helper
 template <typename T>
 struct octave_base_int_helper<T, false, false>
 {
+public:
   static bool char_value_out_of_range (T) { return false; }
 };
 
 template <typename T>
 struct octave_base_int_helper<T, false, true>
 {
+public:
   static bool char_value_out_of_range (T val)
   {
     return val > std::numeric_limits<unsigned char>::max ();
@@ -105,6 +108,7 @@ struct octave_base_int_helper<T, false, true>
 template <typename T>
 struct octave_base_int_helper<T, true, false>
 {
+public:
   static bool char_value_out_of_range (T val) { return val < 0; }
 };
 
@@ -276,7 +280,7 @@ octave_base_int_matrix<T>::edit_display (const float_display_format& fmt,
                                          octave_idx_type j) const
 {
   std::ostringstream buf;
-  octave_print_internal (buf, fmt, this->matrix(i,j));
+  octave_print_internal (buf, fmt, this->matrix(i, j));
   return buf.str ();
 }
 
@@ -449,7 +453,8 @@ octave_base_int_matrix<T>::save_hdf5_internal (octave_hdf5_id loc_id,
   if (space_hid < 0) return false;
 #if defined (HAVE_HDF5_18)
   data_hid = H5Dcreate (loc_id, name, save_type_hid, space_hid,
-                        octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                        octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                        octave_H5P_DEFAULT);
 #else
   data_hid = H5Dcreate (loc_id, name, save_type_hid, space_hid,
                         octave_H5P_DEFAULT);
@@ -738,7 +743,8 @@ octave_base_int_scalar<T>::save_hdf5_internal (octave_hdf5_id loc_id,
 
 #if defined (HAVE_HDF5_18)
   data_hid = H5Dcreate (loc_id, name, save_type_hid, space_hid,
-                        octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                        octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                        octave_H5P_DEFAULT);
 #else
   data_hid = H5Dcreate (loc_id, name, save_type_hid, space_hid,
                         octave_H5P_DEFAULT);

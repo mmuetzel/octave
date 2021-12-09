@@ -41,6 +41,8 @@
 #include "ovl.h"
 #include "ov.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 static
 bool
 contains_char (const std::string& str, char c)
@@ -120,7 +122,7 @@ do_numeric_lookup (const ArrayT& array, const ArrayT& values,
               idx.xelem (i) = std::max (zero, std::min (j, n-2));
             }
 
-          retval = octave::idx_vector (idx);
+          retval = idx_vector (idx);
         }
       else if (left_inf)
         {
@@ -132,7 +134,7 @@ do_numeric_lookup (const ArrayT& array, const ArrayT& values,
               idx.xelem (i) = std::max (zero, j);
             }
 
-          retval = octave::idx_vector (idx);
+          retval = idx_vector (idx);
         }
       else if (right_inf)
         {
@@ -347,3 +349,5 @@ will be unpredictable.
 %!assert (lookup ({"apple","lemon","orange"}, "potato"), 3)
 %!assert (lookup ({"orange","lemon","apple"}, "potato"), 0)
 */
+
+OCTAVE_NAMESPACE_END

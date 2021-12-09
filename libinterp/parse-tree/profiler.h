@@ -36,8 +36,8 @@
 
 class octave_value;
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   class
   OCTINTERP_API
   profiler
@@ -114,19 +114,23 @@ namespace octave
     // hierarchical call tree.
     struct stats
     {
+    public:
       stats (void);
+
+      typedef std::set<octave_idx_type> function_set;
+
+      // Convert a function_set list to an Octave array of indices.
+      static octave_value function_set_value (const function_set&);
+
+      //--------
 
       double m_time;
       std::size_t m_calls;
 
       bool m_recursive;
 
-      typedef std::set<octave_idx_type> function_set;
       function_set m_parents;
       function_set m_children;
-
-      // Convert a function_set list to an Octave array of indices.
-      static octave_value function_set_value (const function_set&);
     };
 
     typedef std::vector<stats> flat_profile;
@@ -181,7 +185,8 @@ namespace octave
 
     // Each function we see in the profiler is given a unique index (which
     // simply counts starting from 1).  We thus have to map profiler-names to
-    // those indices.  For all other stuff, we identify functions by their index.
+    // those indices.  For all other stuff, we identify functions by their
+    // index.
 
     typedef std::vector<std::string> function_set;
     typedef std::map<std::string, octave_idx_type> fcn_index_map;
@@ -194,7 +199,8 @@ namespace octave
     tree_node *m_call_tree;
     tree_node *m_active_fcn;
 
-    // Store last timestamp we had, when the currently active function was called.
+    // Store last timestamp we had, when the currently active function was
+    // called.
     double m_last_time;
 
     // These are private as only the unwind-protecting inner class enter
@@ -213,6 +219,7 @@ namespace octave
     // it as a separate function.
     void add_current_time (void);
   };
-}
+
+OCTAVE_NAMESPACE_END
 
 #endif

@@ -65,8 +65,10 @@
 
 #include "ov-fcn-handle.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 static octave_value_list
-get_output_list (octave::error_system& es,
+get_output_list (error_system& es,
                  octave_idx_type count, octave_idx_type nargout,
                  const octave_value_list& inputlist,
                  octave_value& func,
@@ -78,14 +80,14 @@ get_output_list (octave::error_system& es,
 
   try
     {
-      tmp = octave::feval (func, inputlist, nargout);
+      tmp = feval (func, inputlist, nargout);
     }
-  catch (const octave::execution_exception& ee)
+  catch (const execution_exception& ee)
     {
       if (error_handler.is_defined ())
         {
-          octave::interpreter& interp
-            = octave::__get_interpreter__ ("get_output_list");
+          interpreter& interp
+            = __get_interpreter__ ("get_output_list");
 
           es.save_exception (ee);
           interp.recover_from_exception ();
@@ -110,7 +112,7 @@ get_output_list (octave::error_system& es,
           octave_value_list errlist = inputlist;
           errlist.prepend (msg);
 
-          tmp = octave::feval (error_handler, errlist, nargout);
+          tmp = feval (error_handler, errlist, nargout);
         }
       else
         tmp.clear ();
@@ -223,7 +225,7 @@ try_cellfun_internal_ops (const octave_value_list& args, int nargin)
 }
 
 static void
-get_mapper_fun_options (octave::symbol_table& symtab,
+get_mapper_fun_options (symbol_table& symtab,
                         const octave_value_list& args,
                         int& nargin, bool& uniform_output,
                         octave_value& error_handler)
@@ -235,9 +237,9 @@ get_mapper_fun_options (octave::symbol_table& symtab,
       std::size_t compare_len
         = std::max (arg.length (), static_cast<std::size_t> (2));
 
-      if (octave::string::strncmpi (arg, "uniformoutput", compare_len))
+      if (string::strncmpi (arg, "uniformoutput", compare_len))
         uniform_output = args(nargin-1).bool_value ();
-      else if (octave::string::strncmpi (arg, "errorhandler", compare_len))
+      else if (string::strncmpi (arg, "errorhandler", compare_len))
         {
           if (args(nargin-1).is_function_handle ()
               || args(nargin-1).is_inline_function ())
@@ -417,11 +419,11 @@ v = cellfun (@@det, a); # faster
 
   octave_value func = args(0);
 
-  octave::symbol_table& symtab = interp.get_symbol_table ();
+  symbol_table& symtab = interp.get_symbol_table ();
 
   if (func.is_string ())
     {
-      retval = try_cellfun_internal_ops<boolNDArray,NDArray> (args, nargin);
+      retval = try_cellfun_internal_ops<boolNDArray, NDArray> (args, nargin);
 
       if (! retval.empty ())
         return retval;
@@ -430,8 +432,8 @@ v = cellfun (@@det, a); # faster
 
       std::string name = args(0).string_value ();
 
-      if (! octave::valid_identifier (name))
-        func = octave::get_function_handle (interp, args(0), "x");
+      if (! valid_identifier (name))
+        func = get_function_handle (interp, args(0), "x");
       else
         {
           func = symtab.find_function (name);
@@ -535,7 +537,7 @@ nevermind:
         }
     }
 
-  octave::error_system& es = interp.get_error_system ();
+  error_system& es = interp.get_error_system ();
 
   // Apply functions.
 
@@ -857,19 +859,27 @@ nevermind:
 %! A = cellfun (@(x,y) cell2str (x,y), {1.1, 4}, {3.1, 6}, ...
 %!              "ErrorHandler", @__cellfunerror);
 %! B = isfield (A(1), "message") && isfield (A(1), "index");
-%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))], [true, true]);
-%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))], [true, true]);
-%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))], [true, true]);
-%! assert ([(isempty (A(1).message)), (isempty (A(2).message))], [false, false]);
+%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))],
+%!         [true, true]);
+%! assert ([(isempty (A(1).message)), (isempty (A(2).message))],
+%!         [false, false]);
 %! assert ([A(1).index, A(2).index], [1, 2]);
 %!test  # Overwriting setting of "UniformOutput" true
 %! A = cellfun (@(x,y) cell2str (x,y), {1.1, 4}, {3.1, 6}, ...
 %!              "UniformOutput", true, "ErrorHandler", @__cellfunerror);
 %! B = isfield (A(1), "message") && isfield (A(1), "index");
-%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))], [true, true]);
-%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))], [true, true]);
-%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))], [true, true]);
-%! assert ([(isempty (A(1).message)), (isempty (A(2).message))], [false, false]);
+%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))],
+%!         [true, true]);
+%! assert ([(isempty (A(1).message)), (isempty (A(2).message))],
+%!         [false, false]);
 %! assert ([A(1).index, A(2).index], [1, 2]);
 
 ## Input arguments can be of type cell arrays of character or strings
@@ -884,18 +894,26 @@ nevermind:
 %!test
 %! A = cellfun (@(x,y) cell2str (x,y), {"a", "d"}, {"c", "f"}, ...
 %!              "ErrorHandler", @__cellfunerror);
-%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))], [true, true]);
-%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))], [true, true]);
-%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))], [true, true]);
-%! assert ([(isempty (A(1).message)), (isempty (A(2).message))], [false, false]);
+%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))],
+%!         [true, true]);
+%! assert ([(isempty (A(1).message)), (isempty (A(2).message))],
+%!         [false, false]);
 %! assert ([A(1).index, A(2).index], [1, 2]);
 %!test  # Overwriting setting of "UniformOutput" true
 %! A = cellfun (@(x,y) cell2str (x,y), {"a", "d"}, {"c", "f"}, ...
 %!              "UniformOutput", true, "ErrorHandler", @__cellfunerror);
-%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))], [true, true]);
-%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))], [true, true]);
-%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))], [true, true]);
-%! assert ([(isempty (A(1).message)), (isempty (A(2).message))], [false, false]);
+%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))],
+%!         [true, true]);
+%! assert ([(isempty (A(1).message)), (isempty (A(2).message))],
+%!         [false, false]);
 %! assert ([A(1).index, A(2).index], [1, 2]);
 
 ## Structures cannot be handled by cellfun
@@ -918,18 +936,26 @@ nevermind:
 %!test
 %! A = cellfun (@(x,y) mat2str (x,y), {{1.1}, {4.2}}, {{3.1}, {2}}, ...
 %!              "ErrorHandler", @__cellfunerror);
-%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))], [true, true]);
-%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))], [true, true]);
-%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))], [true, true]);
-%! assert ([(isempty (A(1).message)), (isempty (A(2).message))], [false, false]);
+%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))],
+%!         [true, true]);
+%! assert ([(isempty (A(1).message)), (isempty (A(2).message))],
+%!         [false, false]);
 %! assert ([A(1).index, A(2).index], [1, 2]);
 %!test  # Overwriting setting of "UniformOutput" true
 %! A = cellfun (@(x,y) mat2str (x,y), {{1.1}, {4.2}}, {{3.1}, {2}}, ...
 %!              "UniformOutput", true, "ErrorHandler", @__cellfunerror);
-%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))], [true, true]);
-%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))], [true, true]);
-%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))], [true, true]);
-%! assert ([(isempty (A(1).message)), (isempty (A(2).message))], [false, false]);
+%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))],
+%!         [true, true]);
+%! assert ([(isempty (A(1).message)), (isempty (A(2).message))],
+%!         [false, false]);
 %! assert ([A(1).index, A(2).index], [1, 2]);
 
 ## Input arguments can be of type cell array of structure arrays
@@ -982,7 +1008,8 @@ nevermind:
 %!assert (cellfun ("size", {zeros([1,2,3]),1}, 2), [2,1])
 %!assert (cellfun ("size", {zeros([1,2,3]),1}, 3), [3,1])
 %!assert (cellfun (@atan2, {1,1}, {1,2}), [atan2(1,1), atan2(1,2)])
-%!assert (cellfun (@atan2, {1,1}, {1,2},"UniformOutput", false), {atan2(1,1), atan2(1,2)})
+%!assert (cellfun (@atan2, {1,1}, {1,2},"UniformOutput", false),
+%!        {atan2(1,1), atan2(1,2)})
 %!assert (cellfun (@sin, {1,2;3,4}), sin ([1,2;3,4]))
 %!assert (cellfun (@atan2, {1,1;1,1}, {1,2;1,2}), atan2 ([1,1;1,1],[1,2;1,2]))
 %!error cellfun (@factorial, {-1,3})
@@ -995,9 +1022,12 @@ nevermind:
 %! assert (c, {".d", ".h"});
 
 %!assert <*40467> (cellfun (@isreal, {1 inf nan []}), [true, true, true, true])
-%!assert <*40467> (cellfun (@isreal, {1 inf nan []}, "UniformOutput", false), {true, true, true, true})
-%!assert <*40467> (cellfun (@iscomplex, {1 inf nan []}), [false, false, false, false])
-%!assert <*40467> (cellfun (@iscomplex, {1 inf nan []}, "UniformOutput", false), {false, false, false, false})
+%!assert <*40467> (cellfun (@isreal, {1 inf nan []}, "UniformOutput", false),
+%!                 {true, true, true, true})
+%!assert <*40467> (cellfun (@iscomplex, {1 inf nan []}),
+%!                 [false, false, false, false])
+%!assert <*40467> (cellfun (@iscomplex, {1 inf nan []}, "UniformOutput", false),
+%!                 {false, false, false, false})
 
 %!error cellfun (1)
 %!error cellfun ("isclass", 1)
@@ -1013,7 +1043,8 @@ nevermind:
 %!endfunction
 %!test <*58411>
 %! global __errmsg;
-%! assert (cellfun (@factorial, {1, 2, -3}, "ErrorHandler", @__errfcn), [1, 2, NaN]);
+%! assert (cellfun (@factorial, {1, 2, -3}, "ErrorHandler", @__errfcn),
+%!         [1, 2, NaN]);
 %! assert (! isempty (__errmsg));
 %! clear -global __errmsg;
 */
@@ -1147,15 +1178,15 @@ arrayfun (@@str2num, [1234],
   bool symbol_table_lookup = false;
   octave_value func = args(0);
 
-  octave::symbol_table& symtab = interp.get_symbol_table ();
+  symbol_table& symtab = interp.get_symbol_table ();
 
   if (func.is_string ())
     {
       // See if we can convert the string into a function.
       std::string name = args(0).string_value ();
 
-      if (! octave::valid_identifier (name))
-        func = octave::get_function_handle (interp, args(0), "x");
+      if (! valid_identifier (name))
+        func = get_function_handle (interp, args(0), "x");
       else
         {
           func = symtab.find_function (name);
@@ -1241,7 +1272,7 @@ arrayfun (@@str2num, [1234],
             }
         }
 
-      octave::error_system& es = interp.get_error_system ();
+      error_system& es = interp.get_error_system ();
 
       // Apply functions.
 
@@ -1535,19 +1566,27 @@ arrayfun (@@str2num, [1234],
 %! A = arrayfun (@(x,y) array2str (x,y), {1.1, 4}, {3.1, 6}, ...
 %!               "ErrorHandler", @__arrayfunerror);
 %! B = isfield (A(1), "message") && isfield (A(1), "index");
-%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))], [true, true]);
-%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))], [true, true]);
-%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))], [true, true]);
-%! assert ([(isempty (A(1).message)), (isempty (A(2).message))], [false, false]);
+%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))],
+%!         [true, true]);
+%! assert ([(isempty (A(1).message)), (isempty (A(2).message))],
+%!         [false, false]);
 %! assert ([A(1).index, A(2).index], [1, 2]);
 %!test  # Overwriting setting of "UniformOutput" true
 %! A = arrayfun (@(x,y) array2str (x,y), {1.1, 4}, {3.1, 6}, ...
 %!               "UniformOutput", true, "ErrorHandler", @__arrayfunerror);
 %! B = isfield (A(1), "message") && isfield (A(1), "index");
-%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))], [true, true]);
-%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))], [true, true]);
-%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))], [true, true]);
-%! assert ([(isempty (A(1).message)), (isempty (A(2).message))], [false, false]);
+%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))],
+%!         [true, true]);
+%! assert ([(isempty (A(1).message)), (isempty (A(2).message))],
+%!         [false, false]);
 %! assert ([A(1).index, A(2).index], [1, 2]);
 
 ## Input arguments can be of type character or strings
@@ -1563,7 +1602,8 @@ arrayfun (@@str2num, [1234],
 %!test
 %! A = arrayfun (@(x,y) cell2str (x,y), ["a", "d"], ["c", "f"], ...
 %!               "ErrorHandler", @__arrayfunerror);
-%! B = isfield (A(1), "identifier") && isfield (A(1), "message") && isfield (A(1), "index");
+%! B = isfield (A(1), "identifier") && isfield (A(1), "message") ...
+%!     && isfield (A(1), "index");
 %! assert (B, true);
 
 ## Input arguments can be of type structure
@@ -1607,18 +1647,26 @@ arrayfun (@@str2num, [1234],
 %! assert (A, {true, false});
 %!test
 %! A = arrayfun (@(x,y) num2str(x,y), {1.1, 4.2}, {3.1, 2}, "ErrorHandler", @__arrayfunerror);
-%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))], [true, true]);
-%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))], [true, true]);
-%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))], [true, true]);
-%! assert ([(isempty (A(1).message)), (isempty (A(2).message))], [false, false]);
+%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))],
+%!         [true, true]);
+%! assert ([(isempty (A(1).message)), (isempty (A(2).message))],
+%!         [false, false]);
 %! assert ([A(1).index, A(2).index], [1, 2]);
 %!test
 %! A = arrayfun (@(x,y) num2str (x,y), {1.1, 4.2}, {3.1, 2}, ...
 %!               "UniformOutput", true, "ErrorHandler", @__arrayfunerror);
-%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))], [true, true]);
-%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))], [true, true]);
-%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))], [true, true]);
-%! assert ([(isempty (A(1).message)), (isempty (A(2).message))], [false, false]);
+%! assert ([(isfield (A(1), "identifier")), (isfield (A(2), "identifier"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "message")), (isfield (A(2), "message"))],
+%!         [true, true]);
+%! assert ([(isfield (A(1), "index")), (isfield (A(2), "index"))],
+%!         [true, true]);
+%! assert ([(isempty (A(1).message)), (isempty (A(2).message))],
+%!         [false, false]);
 %! assert ([A(1).index, A(2).index], [1, 2]);
 */
 
@@ -1917,18 +1965,18 @@ mat2cell_mismatch (const dim_vector& dv,
 template <typename container>
 static void
 prepare_idx (container *idx, int idim, int nd,
-             const Array<octave_idx_type>* d)
+             const Array<octave_idx_type> *d)
 {
   octave_idx_type nidx = (idim < nd ? d[idim].numel () : 1);
   if (nidx == 1)
-    idx[0] = octave::idx_vector::colon;
+    idx[0] = idx_vector::colon;
   else
     {
       octave_idx_type l = 0;
       for (octave_idx_type i = 0; i < nidx; i++)
         {
           octave_idx_type u = l + d[idim](i);
-          idx[i] = octave::idx_vector (l, u);
+          idx[i] = idx_vector (l, u);
           l = u;
         }
     }
@@ -1966,17 +2014,17 @@ do_mat2cell_2d (const Array2D& a, const Array<octave_idx_type> *d, int nd)
       for (octave_idx_type i = 0; i < nidx; i++)
         {
           octave_idx_type u = l + d[ivec](i);
-          retval.xelem (i) = a.index (octave::idx_vector (l, u));
+          retval.xelem (i) = a.index (idx_vector (l, u));
           l = u;
         }
     }
   else
     {
       // General 2D case.  Use 2D indexing.
-      OCTAVE_LOCAL_BUFFER (octave::idx_vector, ridx, nridx);
+      OCTAVE_LOCAL_BUFFER (idx_vector, ridx, nridx);
       prepare_idx (ridx, 0, nd, d);
 
-      OCTAVE_LOCAL_BUFFER (octave::idx_vector, cidx, ncidx);
+      OCTAVE_LOCAL_BUFFER (idx_vector, cidx, ncidx);
       prepare_idx (cidx, 1, nd, d);
 
       for (octave_idx_type j = 0; j < ncidx; j++)
@@ -1984,7 +2032,7 @@ do_mat2cell_2d (const Array2D& a, const Array<octave_idx_type> *d, int nd)
           {
             octave_quit ();
 
-            retval.xelem (i,j) = a.index (ridx[i], cidx[j]);
+            retval.xelem (i, j) = a.index (ridx[i], cidx[j]);
           }
     }
 
@@ -2015,8 +2063,8 @@ do_mat2cell_nd (const ArrayND& a, const Array<octave_idx_type> *d, int nd)
 
   retval.clear (rdv);
 
-  OCTAVE_LOCAL_BUFFER (octave::idx_vector, xidx, idxtot);
-  OCTAVE_LOCAL_BUFFER (octave::idx_vector *, idx, nd);
+  OCTAVE_LOCAL_BUFFER (idx_vector, xidx, idxtot);
+  OCTAVE_LOCAL_BUFFER (idx_vector *, idx, nd);
 
   idxtot = 0;
   for (int i = 0; i < nd; i++)
@@ -2027,8 +2075,8 @@ do_mat2cell_nd (const ArrayND& a, const Array<octave_idx_type> *d, int nd)
     }
 
   OCTAVE_LOCAL_BUFFER_INIT (octave_idx_type, ridx, nd, 0);
-  Array<octave::idx_vector> ra_idx
-    (dim_vector (1, std::max (nd, a.ndims ())), octave::idx_vector::colon);
+  Array<idx_vector> ra_idx
+    (dim_vector (1, std::max (nd, a.ndims ())), idx_vector::colon);
 
   for (octave_idx_type j = 0; j < retval.numel (); j++)
     {
@@ -2301,7 +2349,7 @@ do_cellslices_nda (const NDA& array,
                             || (dim == 1 && array.rows () == 1)))
     {
       for (octave_idx_type i = 0; i < n; i++)
-        retval.xelem (i) = array.index (octave::idx_vector (lb(i) - 1, ub(i)));
+        retval.xelem (i) = array.index (idx_vector (lb(i) - 1, ub(i)));
     }
   else
     {
@@ -2311,11 +2359,11 @@ do_cellslices_nda (const NDA& array,
         dim = dv.first_non_singleton ();
       ndims = std::max (ndims, dim + 1);
 
-      Array<octave::idx_vector> idx (dim_vector (ndims, 1), octave::idx_vector::colon);
+      Array<idx_vector> idx (dim_vector (ndims, 1), idx_vector::colon);
 
       for (octave_idx_type i = 0; i < n; i++)
         {
-          idx(dim) = octave::idx_vector (lb(i) - 1, ub(i));
+          idx(dim) = idx_vector (lb(i) - 1, ub(i));
           retval.xelem (i) = array.index (idx);
         }
     }
@@ -2435,7 +2483,7 @@ slicing is done along the first non-singleton dimension.
       octave_value_list idx (ndims, octave_value::magic_colon_t);
       for (octave_idx_type i = 0; i < n; i++)
         {
-          idx(dim) = octave::range<double> (lb(i), ub(i));
+          idx(dim) = range<double> (lb(i), ub(i));
           retcell.xelem (i) = x.index_op (idx);
         }
     }
@@ -2492,3 +2540,5 @@ indexing keyword @code{end} is not available.
 
   return octave_value (y);
 }
+
+OCTAVE_NAMESPACE_END

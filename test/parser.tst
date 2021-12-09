@@ -91,7 +91,7 @@
 %! assert (1 && a ++, false);
 %! assert (0 || a --, true);
 %! a = 5; b = 2;
-%! b +=a ++;
+%! b += a ++;
 %! assert (b, 7);
 
 ## Level 11 (transpose and exponentiation)
@@ -225,7 +225,7 @@
 ## No tests possible since a++-- is not valid
 ## Level 11 (transpose and exponentiation)
 %!test
-%! assert (2^3**2, 64);
+%! assert (2^3^2, 64);
 %! assert ([2 3].^2.', [4;9]);
 %! assert ([2 3].'.^2, [4;9]);
 %! assert (3*4i'.', 0 - 12i);

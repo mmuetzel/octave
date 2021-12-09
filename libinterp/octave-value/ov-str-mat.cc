@@ -393,7 +393,7 @@ octave_char_matrix_str::load_ascii (std::istream& is)
         {
           char *ftmp = tmp.fortran_vec ();
 
-          skip_preceeding_newline (is);
+          octave::skip_preceeding_newline (is);
 
           if (! is.read (ftmp, dv.numel ()) || ! is)
             error ("load: failed to load string constant");
@@ -593,7 +593,8 @@ octave_char_matrix_str::save_hdf5 (octave_hdf5_id loc_id, const char *name,
     return false;
 #if defined (HAVE_HDF5_18)
   data_hid = H5Dcreate (loc_id, name, H5T_NATIVE_CHAR, space_hid,
-                        octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                        octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                        octave_H5P_DEFAULT);
 #else
   data_hid = H5Dcreate (loc_id, name, H5T_NATIVE_CHAR, space_hid,
                         octave_H5P_DEFAULT);

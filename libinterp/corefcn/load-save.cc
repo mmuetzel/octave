@@ -87,11 +87,11 @@
 #endif
 
 #if defined (HAVE_ZLIB)
-#  include "zfstream.h"
+#  include "gzfstream.h"
 #endif
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   OCTAVE_NORETURN static
   void
   err_file_open (const std::string& fcn, const std::string& file)
@@ -330,7 +330,11 @@ namespace octave
   {
     load_save_format retval = UNKNOWN;
 
+#if defined (HAVE_HDF5_UTF8)
+    std::string ascii_fname = fname;
+#else
     std::string ascii_fname = sys::get_ASCII_filename (fname);
+#endif
 
 #if defined (HAVE_HDF5)
     // check this before we open the file
@@ -851,7 +855,8 @@ namespace octave
                                       OCTAVE_VERSION ", %Y-%m-%d %T UTC";
           std::string comment_string = now.strftime (matlab_format);
 
-          std::size_t len = std::min (comment_string.length (), static_cast<std::size_t> (124));
+          std::size_t len = std::min (comment_string.length (),
+                                      static_cast<std::size_t> (124));
           memset (headertext, ' ', 124);
           memcpy (headertext, comment_string.data (), len);
 
@@ -1481,10 +1486,15 @@ namespace octave
             if (append)
               error ("save: appending to HDF5 files is not implemented");
 
+#  if defined (HAVE_HDF5_UTF8)
+            bool write_header_info
+              = ! (append && H5Fis_hdf5 (fname.c_str ()) > 0);
+#  else
             std::string ascii_fname = sys::get_ASCII_filename (fname);
 
             bool write_header_info
               = ! (append && H5Fis_hdf5 (ascii_fname.c_str ()) > 0);
+#  endif
 
             hdf5_ofstream hdf5_file (fname.c_str (), mode);
 
@@ -1536,16 +1546,6 @@ namespace octave
 
     return retval;
   }
-}
-
-void
-dump_octave_core (void)
-{
-  octave::load_save_system& load_save_sys
-    = octave::__get_load_save_system__ ("dump_octave_core");
-
-  load_save_sys.dump_octave_core ();
-}
 
 DEFMETHOD (load, interp, args, nargout,
            doc: /* -*- texinfo -*-
@@ -1655,7 +1655,7 @@ Force Octave to assume the file is in @sc{matlab}'s version 4 binary format.
 @seealso{save, dlmwrite, csvwrite, fwrite}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.load (args, nargout);
 }
@@ -1806,10 +1806,11 @@ save -binary data a b*
 @noindent
 saves the variable @samp{a} and all variables beginning with @samp{b} to the
 file @file{data} in Octave's binary format.
-@seealso{load, save_default_options, save_header_format_string, save_precision, dlmread, csvread, fread}
+@seealso{load, save_default_options, save_header_format_string, save_precision,
+dlmread, csvread, fread}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.save (args, nargout);
 }
@@ -1923,10 +1924,11 @@ crashes or receives a hangup, terminate or similar signal.
 When called from inside a function with the @qcode{"local"} option, the
 variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
-@seealso{octave_core_file_limit, octave_core_file_name, octave_core_file_options}
+@seealso{octave_core_file_limit, octave_core_file_name,
+octave_core_file_options}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.crash_dumps_octave_core (args, nargout);
 }
@@ -1948,7 +1950,7 @@ The original variable value is restored when exiting the function.
 @seealso{save, save_header_format_string, save_precision}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.save_default_options (args, nargout);
 }
@@ -1973,10 +1975,11 @@ the limit.  The default value is -1 (unlimited).
 When called from inside a function with the @qcode{"local"} option, the
 variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
-@seealso{crash_dumps_octave_core, octave_core_file_name, octave_core_file_options}
+@seealso{crash_dumps_octave_core, octave_core_file_name,
+octave_core_file_options}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.octave_core_file_limit (args, nargout);
 }
@@ -1994,10 +1997,11 @@ The default value is @qcode{"octave-workspace"}
 When called from inside a function with the @qcode{"local"} option, the
 variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
-@seealso{crash_dumps_octave_core, octave_core_file_name, octave_core_file_options}
+@seealso{crash_dumps_octave_core, octave_core_file_name,
+octave_core_file_options}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.octave_core_file_name (args, nargout);
 }
@@ -2020,7 +2024,7 @@ The original variable value is restored when exiting the function.
 @seealso{crash_dumps_octave_core, octave_core_file_name, octave_core_file_limit}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.octave_core_file_options (args, nargout);
 }
@@ -2050,7 +2054,20 @@ The original variable value is restored when exiting the function.
 @seealso{strftime, save_default_options}
 @end deftypefn */)
 {
-  octave::load_save_system& load_save_sys = interp.get_load_save_system ();
+  load_save_system& load_save_sys = interp.get_load_save_system ();
 
   return load_save_sys.save_header_format_string (args, nargout);
+}
+
+OCTAVE_NAMESPACE_END
+
+// DEPRECATED in Octave 7
+
+void
+dump_octave_core (void)
+{
+  octave::load_save_system& load_save_sys
+    = octave::__get_load_save_system__ ("dump_octave_core");
+
+  load_save_sys.dump_octave_core ();
 }

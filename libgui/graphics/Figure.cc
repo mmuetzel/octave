@@ -65,7 +65,7 @@
 #include "builtin-defun-decls.h"
 #include "interpreter.h"
 
-namespace QtHandles
+namespace octave
 {
 
   DECLARE_GENERICEVENTNOTIFY_SENDER(MenuBar, QMenuBar);
@@ -96,9 +96,9 @@ namespace QtHandles
     for (octave_idx_type ii = 0; ii < cdata.rows (); ii++)
       for (octave_idx_type jj = 0; jj < cdata.columns (); jj++)
         {
-          if (cdata(ii,jj) == 1.0)
+          if (cdata(ii, jj) == 1.0)
             tmp = black;
-          else if (cdata(ii,jj) == 2.0)
+          else if (cdata(ii, jj) == 2.0)
             tmp = white;
           else
             tmp.setAlpha (0);
@@ -109,7 +109,7 @@ namespace QtHandles
     return retval;
   }
 
-  Figure*
+  Figure *
   Figure::create (octave::base_qobject& oct_qobj, octave::interpreter& interp,
                   const graphics_object& go)
   {
@@ -125,11 +125,11 @@ namespace QtHandles
     m_container = new Container (win, oct_qobj, interp);
     win->setCentralWidget (m_container);
 
-    connect (m_container, SIGNAL (interpeter_event (const fcn_callback&)),
-             this, SIGNAL (interpeter_event (const fcn_callback&)));
+    connect (m_container, QOverload<const octave::fcn_callback&>::of (&Container::interpreter_event),
+             this, QOverload<const octave::fcn_callback&>::of (&Figure::interpreter_event));
 
-    connect (m_container, SIGNAL (interpeter_event (const meth_callback&)),
-             this, SIGNAL (interpeter_event (const meth_callback&)));
+    connect (m_container, QOverload<const octave::meth_callback&>::of (&Container::interpreter_event),
+             this, QOverload<const octave::meth_callback&>::of (&Figure::interpreter_event));
 
     figure::properties& fp = properties<figure> ();
 
@@ -279,7 +279,7 @@ namespace QtHandles
       }
   }
 
-  Container*
+  Container *
   Figure::innerContainer (void)
   {
     return m_container;
@@ -293,7 +293,7 @@ namespace QtHandles
     if (canvas)
       canvas->redraw ();
 
-    for (auto *qobj : qWidget<QWidget> ()->findChildren<QObject*> ())
+    for (auto *qobj : qWidget<QWidget> ()->findChildren<QObject *> ())
       {
         if (qobj->objectName () == "UIPanel"
             || qobj->objectName () == "UIButtonGroup"
@@ -383,7 +383,7 @@ namespace QtHandles
           int toffset = 0;
           int boffset = 0;
 
-          for (auto *tb : win->findChildren<QToolBar*> ())
+          for (auto *tb : win->findChildren<QToolBar *> ())
             if (! tb->isHidden ())
               toffset += tb->sizeHint ().height ();
 
@@ -449,7 +449,7 @@ namespace QtHandles
         else
           m_container->canvas (m_handle)->addEventMask (Canvas::KeyPress);
         // Signal the change to uipanels as well
-        for (auto *qobj : qWidget<QWidget> ()->findChildren<QObject*> ())
+        for (auto *qobj : qWidget<QWidget> ()->findChildren<QObject *> ())
           {
             if (qobj->objectName () == "UIPanel")
               {
@@ -475,7 +475,7 @@ namespace QtHandles
           m_container->canvas (m_handle)->addEventMask (Canvas::KeyRelease);
         break;
         // Signal the change to uipanels as well
-        for (auto *qobj : qWidget<QWidget> ()->findChildren<QObject*> ())
+        for (auto *qobj : qWidget<QWidget> ()->findChildren<QObject *> ())
           {
             if (qobj->objectName () == "UIPanel")
               {
@@ -592,13 +592,13 @@ namespace QtHandles
   }
 
   void
-  Figure::do_connections (const QObject *receiver, const QObject* /* emitter */)
+  Figure::do_connections (const QObject *receiver, const QObject * /* emitter */)
   {
     Object::do_connections (receiver);
     Object::do_connections (receiver, m_container->canvas (m_handle));
   }
 
-  QWidget*
+  QWidget *
   Figure::menu (void)
   {
     return qWidget<QMainWindow> ()->menuBar ();
@@ -857,8 +857,8 @@ namespace QtHandles
   Figure::figureWindowShown ()
   {
 #if defined (HAVE_QSCREEN_DEVICEPIXELRATIO)
-    QWindow* window = qWidget<QMainWindow> ()->windowHandle ();
-    QScreen* screen = window->screen ();
+    QWindow *window = qWidget<QMainWindow> ()->windowHandle ();
+    QScreen *screen = window->screen ();
 
     gh_manager& gh_mgr = m_interpreter.get_gh_manager ();
 
@@ -872,7 +872,7 @@ namespace QtHandles
   }
 
   void
-  Figure::screenChanged (QScreen* screen)
+  Figure::screenChanged (QScreen *screen)
   {
 #if defined (HAVE_QSCREEN_DEVICEPIXELRATIO)
     gh_manager& gh_mgr = m_interpreter.get_gh_manager ();
@@ -901,7 +901,7 @@ namespace QtHandles
     // Enable mouse tracking on every widgets
     m_container->setMouseTracking (true);
     m_container->canvas (m_handle)->qWidget ()->setMouseTracking (true);
-    for (auto *w : m_container->findChildren<QWidget*> ())
+    for (auto *w : m_container->findChildren<QWidget *> ())
       w->setMouseTracking (true);
   }
 

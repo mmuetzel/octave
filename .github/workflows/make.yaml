@@ -49,7 +49,7 @@ jobs:
             libhdf5-dev liblapack-dev libosmesa6-dev libpcre3-dev \
             libqhull-dev libqscintilla2-qt5-dev libqrupdate-dev \
             libreadline-dev librsvg2-bin libsndfile1-dev libsuitesparse-dev \
-            libsundials-dev libtool libxft-dev llvm-dev make openjdk-8-jdk \
+            libsundials-dev libtool libxft-dev make openjdk-8-jdk \
             perl portaudio19-dev pstoedit qtbase5-dev qttools5-dev \
             qttools5-dev-tools rapidjson-dev rsync tar texinfo \
             texlive-latex-extra xvfb zlib1g-dev
@@ -60,7 +60,7 @@ jobs:
         run: |
           echo "::set-output name=TIMESTAMP::$(date +"%Y-%m-%d_%H-%M-%S")"
 
-      - name: setup ccache
+      - name: restore ccache
         # setup the github cache used to maintain the ccache from one job to the next
         # uses: actions/cache@v2
         # The original action doesn't upload on error. Use this fork instead.
@@ -68,7 +68,7 @@ jobs:
         #        See: https://github.com/actions/cache/issues/92
         uses: pat-s/always-upload-cache@v2
         with:
-          path: /home/runner/.ccache
+          path: ~/.ccache
           key: ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
           restore-keys: |
             ccache:${{ matrix.os }}:${{ matrix.compiler }}:${{ github.ref }}
@@ -78,14 +78,15 @@ jobs:
         env:
           CCACHE_MAX: ${{ matrix.ccache-max }}
         run: |
-          test -d /home/runner/.ccache || mkdir /home/runner/.ccache
-          echo "max_size = $CCACHE_MAX" >> /home/runner/.ccache/ccache.conf
+          test -d ~/.ccache || mkdir ~/.ccache
+          echo "max_size = $CCACHE_MAX" >> ~/.ccache/ccache.conf
           ccache -s
 
       - name: bootstrap
-        run: ./bootstrap
+        run: GNULIB_URL=https://github.com/coreutils/gnulib.git ./bootstrap
 
       - name: configure
+        timeout-minutes: 30
         env:
           MY_CC: ${{ matrix.cc }}
           MY_CXX: ${{ matrix.cxx }}
@@ -103,31 +104,24 @@ jobs:
             LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial"
 
       - name: build
-        env:
-          XDG_RUNTIME_DIR: "/home/runner/tmp"
         # Parallel make seems to fail intermittently when creating the figures
         # for the manual. The error message says it fails to connect to a
         # display. Maybe an xvfb issue?
         # Use single job make for now which seems to work more reliably.
-        run: |
-          test -d $XDG_RUNTIME_DIR || mkdir $XDG_RUNTIME_DIR
-          xvfb-run -a make -C ./.build all V=1
+        run: XDG_RUNTIME_DIR=$RUNNER_TEMP xvfb-run -a make -C ./.build all V=1
 
       - name: ccache status
         run: ccache -s
 
       - name: check
-        # Continuing on error in this step means that jobs will be "green" even
-        # if the test suite crashes.  But if we don't continue, we'll loose the
-        # ccache and other jobs will be cancelled.
-        # It would be nice if we could mark the job as "yellow" (and continue)
-        # in that case.
-        # It would also be nice if we could analyze the test suite results
-        # automatically.
+        timeout-minutes: 60
+        run: XDG_RUNTIME_DIR=$RUNNER_TEMP xvfb-run -a make -C ./.build check | tee ./test-suite.log
+
+      - name: display test log
         continue-on-error: true
-        env:
-          XDG_RUNTIME_DIR: "/home/runner/tmp"
-        run: xvfb-run -a make -C ./.build check V=1 | tee ./test-suite.log
+        # Displaying the log shouldn't take long. Cancel the step if it does.
+        timeout-minutes: 5
+        run: cat ./.build/test/fntests.log
 
       - name: analyze test suite results
         # Make sure the test summary lists 0 "FAIL"s and no "REGRESSION"
@@ -141,9 +135,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      # Allow other runners in the matrix to continue if some fail
+      fail-fast: false
+
       matrix:
         # For available GitHub-hosted runners, see: https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners
-        os: [macos-10.15]
+        os: [macos-10.15, macos-11]
         # Most (or all) homebrew packages are compiled with clang and link
         # against libc++.  So we also use clang to avoid issues with symbols
         # that don't match.
@@ -160,13 +157,19 @@ jobs:
             cxx: "clang++"
 
     env:
-      MY_PATH: "/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/bison/bin:/usr/local/opt/texinfo/bin:/usr/local/opt/qt@5/bin:/Library/TeX/texbin"
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
 
     steps:
       - name: checkout repository
         uses: actions/checkout@v2
 
       - name: install dependencies
+        # This step sometimes takes long and still recovers. But sometimes it
+        # seems to hang indefinitely.
+        # Use a pretty long timeout (but still less than the default 6 hours).
+        timeout-minutes: 75
+
         # It looks like "gfortran" isn't working correctly unless "gcc" is
         # re-installed.
 
@@ -185,6 +188,11 @@ jobs:
             ccache gnu-sed openjdk pkg-config \
             automake autoconf bison gettext icoutils librsvg mactex-no-gui
           eval "$(/usr/libexec/path_helper)"
+          echo "/Library/TeX/texbin" >> $GITHUB_PATH
+          echo "/usr/local/opt/qt@5/bin" >> $GITHUB_PATH
+          echo "/usr/local/opt/texinfo/bin" >> $GITHUB_PATH
+          echo "/usr/local/opt/bison/bin" >> $GITHUB_PATH
+          echo "/usr/local/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
 
       - name: prepare ccache
         # create human readable timestamp
@@ -192,7 +200,7 @@ jobs:
         run: |
           echo "::set-output name=TIMESTAMP::$(date +"%Y-%m-%d_%H-%M-%S")"
 
-      - name: setup ccache
+      - name: restore ccache
         # setup the github cache used to maintain the ccache from one job to the next
         uses: actions/cache@v2
         with:
@@ -207,18 +215,16 @@ jobs:
         # Limit the maximum size to avoid exceeding the total cache limits.
         run: |
           test -d /Users/runner/Library/Preferences/ccache || mkdir /Users/runner/Library/Preferences/ccache
-          echo "max_size = 1.5G" >> /Users/runner/Library/Preferences/ccache/ccache.conf
+          echo "max_size = 0.9G" >> /Users/runner/Library/Preferences/ccache/ccache.conf
           ccache -s
+          echo "$(brew --prefix)/opt/ccache/libexec" >> $GITHUB_PATH
 
       - name: bootstrap
-        run: |
-          export PATH="$MY_PATH:$PATH"
-          ./bootstrap
+        run: GNULIB_URL=https://github.com/coreutils/gnulib.git ./bootstrap
 
       - name: configure
+        timeout-minutes: 30
         env:
-          MY_CC: ${{ matrix.cc }}
-          MY_CXX: ${{ matrix.cxx }}
           MY_CPPFLAGS: ${{ matrix.cppflags }}
           MY_LDFLAGS: ${{ matrix.ldflags }}
         # This is a hodgepodge of configure flags put together from the
@@ -229,16 +235,20 @@ jobs:
         # Amended with additional flags that seem to be needed.
         # Not all of those might be needed or be correct.
         run: |
-          export PATH="$MY_PATH:$PATH"
           echo $PATH
-          echo $MY_CC --version
-          $MY_CC --version
-          echo $MY_CXX --version
-          $MY_CXX --version
+          echo which ccache
+          which ccache
+          which $CC
+          echo $CC --version
+          $CC --version
+          which $CXX
+          echo $CXX --version
+          $CXX --version
+          which gfortran
+          echo gfortran --version
+          gfortran --version
           mkdir .build
           cd .build && ../configure \
-            CC="ccache $MY_CC" \
-            CXX="ccache $MY_CXX" \
             F77="ccache gfortran" \
             CPPFLAGS="-I/usr/local/opt/gettext/include -I/usr/local/opt/icu4c/include -I/usr/local/opt/qt@5/include -I/usr/local/opt/readline/include -I/usr/local/opt/sqlite/include $MY_CPPFLAGS" \
             CXXFLAGS="-O2 -g -std=c++11" \
@@ -251,9 +261,7 @@ jobs:
             --prefix="${HOME}/usr"
 
       - name: build
-        run: |
-          export PATH="$MY_PATH:$PATH"
-          make -C ./.build all -j3 V=1
+        run: make -C ./.build all -j3 V=1
 
       - name: ccache status
         run: ccache -s
@@ -267,7 +275,16 @@ jobs:
         # It would also be nice if we could analyze the test suite results
         # automatically.
         continue-on-error: true
-        run: make -C ./.build check V=1
+        timeout-minutes: 60
+        run: |
+          echo 'makeinfo_program ("/usr/local/opt/texinfo/bin/makeinfo");' >> ./scripts/startup/site-rcfile
+          make -C ./.build check
+
+      - name: display test log
+        continue-on-error: true
+        # Displaying the log shouldn't take long. Cancel the step if it does.
+        timeout-minutes: 5
+        run: cat ./.build/test/fntests.log
 
 
   windows:
@@ -275,11 +292,13 @@ jobs:
 
     defaults:
       run:
-        # Use pre-installed MSYS2 as default shell
-        shell: C:/msys64/usr/bin/bash.exe --login -eo pipefail "{0}"
+        # Use MSYS2 as default shell
+        shell: msys2 {0}
 
     strategy:
+      # Allow other runners in the matrix to continue if some fail
       fail-fast: false
+
       matrix:
         # For available GitHub-hosted runners, see: https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners
         os: [windows-2019]
@@ -292,48 +311,90 @@ jobs:
             target-prefix: mingw-w64-x86_64
             msystem: MINGW64
             mingw-prefix: mingw64
-            cc: x86_64-w64-mingw32-gcc
-            cxx: x86_64-w64-mingw32-g++
-            f77: x86_64-w64-mingw32-gfortran
+            cc: gcc
+            cxx: g++
+            f77: gfortran
           - compiler: gcc
             target: i686
             target-triplet: i686-w64-mingw32
             target-prefix: mingw-w64-i686
             msystem: MINGW32
             mingw-prefix: mingw32
-            cc: i686-w64-mingw32-gcc
-            cxx: i686-w64-mingw32-g++
-            f77: i686-w64-mingw32-gfortran
+            cc: gcc
+            cxx: g++
+            f77: gfortran
 
     env:
-      MSYSTEM: ${{ matrix.msystem }}
       CHERE_INVOKING: 1
       CC:  ${{ matrix.cc }}
       CXX:  ${{ matrix.cxx }}
       F77:  ${{ matrix.f77 }}
       TARGET_TRIPLET:  ${{ matrix.target-triplet }}
-      TARGET_PREFIX:  ${{ matrix.target-prefix }}
       # perl uses cmd shell by default
       PERL5SHELL: bash -l -c
 
     steps:
-      - name: update MSYS2
-        # This step might update the runtime which requires a console restart
-        # In this case, it will kill the console which shouldn't count as an error.
-        continue-on-error: true
-        run: pacman --noconfirm -Syu
+      - name: get CPU name
+        # The runners for the 32-bit target sometimes get stuck in configure
+        # when using the Fortran compiler.
+        # Does that error depend on the processor of the selected runner?
+        shell: pwsh
+        run : |
+          Get-CIMInstance -Class Win32_Processor | Select-Object -Property Name
 
-      - name: install dependencies
-        # The packages are listed in (alphabetically sorted) blocks:
-        # The first block is for mandatory dependencies.
-        # The second block is for optional dependencies needed when building from a release tarball.
-        # The third block is for additional dependencies needed when building from a repository checkout.
-        run: |
-          pacman --noconfirm -Syu
-          pacman --noconfirm -S --needed --overwrite * \
-            base-devel ${TARGET_PREFIX}-toolchain ${TARGET_PREFIX}-lapack ${TARGET_PREFIX}-openblas ${TARGET_PREFIX}-pcre \
-            ${TARGET_PREFIX}-arpack ${TARGET_PREFIX}-curl ${TARGET_PREFIX}-cvode ${TARGET_PREFIX}-fftw ${TARGET_PREFIX}-fltk ${TARGET_PREFIX}-gl2ps ${TARGET_PREFIX}-glpk ${TARGET_PREFIX}-ghostscript ${TARGET_PREFIX}-gnuplot ${TARGET_PREFIX}-graphicsmagick ${TARGET_PREFIX}-hdf5 ${TARGET_PREFIX}-libsndfile ${TARGET_PREFIX}-portaudio ${TARGET_PREFIX}-qhull ${TARGET_PREFIX}-qrupdate ${TARGET_PREFIX}-qscintilla ${TARGET_PREFIX}-qt5 ${TARGET_PREFIX}-rapidjson ${TARGET_PREFIX}-suitesparse \
-            git ${TARGET_PREFIX}-ccache ${TARGET_PREFIX}-icoutils ${TARGET_PREFIX}-librsvg texinfo
+      - uses: msys2/setup-msys2@v2
+        with:
+          update: true
+
+          # Use pre-installed version to save disc space on partition with source.
+          # We need that space for building.
+          release: false
+
+          # The packages are listed in (alphabetically sorted) blocks:
+          # The first block is for mandatory dependencies.
+          # The second block is for optional dependencies needed when building from a release tarball.
+          # The third block is for additional dependencies needed when building from a repository checkout.
+          # The fourth block is for additional run-time dependencies that aren't needed to build (to run test suite).
+          install: >-
+            base-devel
+            ${{ matrix.target-prefix }}-toolchain
+            ${{ matrix.target-prefix }}-lapack
+            ${{ matrix.target-prefix }}-openblas
+            ${{ matrix.target-prefix }}-pcre
+
+            ${{ matrix.target-prefix }}-arpack
+            ${{ matrix.target-prefix }}-curl
+            ${{ matrix.target-prefix }}-fftw
+            ${{ matrix.target-prefix }}-fltk
+            ${{ matrix.target-prefix }}-gl2ps
+            ${{ matrix.target-prefix }}-glpk
+            ${{ matrix.target-prefix }}-ghostscript
+            ${{ matrix.target-prefix }}-gnuplot
+            ${{ matrix.target-prefix }}-graphicsmagick
+            ${{ matrix.target-prefix }}-hdf5
+            ${{ matrix.target-prefix }}-libsndfile
+            ${{ matrix.target-prefix }}-portaudio
+            ${{ matrix.target-prefix }}-qhull
+            ${{ matrix.target-prefix }}-qrupdate
+            ${{ matrix.target-prefix }}-qscintilla
+            ${{ matrix.target-prefix }}-qt5-base
+            ${{ matrix.target-prefix }}-qt5-imageformats
+            ${{ matrix.target-prefix }}-qt5-svg
+            ${{ matrix.target-prefix }}-qt5-tools
+            ${{ matrix.target-prefix }}-rapidjson
+            ${{ matrix.target-prefix }}-suitesparse
+            ${{ matrix.target-prefix }}-sundials
+
+            git
+            ${{ matrix.target-prefix }}-ccache
+            ${{ matrix.target-prefix }}-icoutils
+            ${{ matrix.target-prefix }}-librsvg
+            texinfo
+
+            unzip
+            zip
+
+          msystem: ${{ matrix.msystem }}
 
       - name: checkout repository
         uses: actions/checkout@v2
@@ -344,7 +405,7 @@ jobs:
         run: |
           echo "::set-output name=TIMESTAMP::$(date +"%Y-%m-%d_%H-%M-%S")"
 
-      - name: setup ccache
+      - name: restore ccache
         # Setup the github cache used to maintain the ccache from one job to the next
         uses: actions/cache@v2
         with:
@@ -359,7 +420,7 @@ jobs:
         run: |
           which ccache
           test -d ~/.ccache || mkdir -p ~/.ccache
-          echo "max_size = 1.2G" > ~/.ccache/ccache.conf
+          echo "max_size = 0.9G" > ~/.ccache/ccache.conf
           echo "compression = true" >> ~/.ccache/ccache.conf
           ccache -s
           # create ccache helper script for Fortran compiler
@@ -368,14 +429,12 @@ jobs:
           echo 'export PATH="$MINGW_PREFIX/lib/ccache/bin:$PATH"' >> ~/.bash_profile
 
       - name: bootstrap
-        run: |
-          ./bootstrap
+        run: GNULIB_URL=https://github.com/coreutils/gnulib.git ./bootstrap
 
       - name: configure
         # configure sometimes hangs while compiling 32bit Fortran.
         # It should take much less than 30 minutes. Cancel the step if it takes longer.
         timeout-minutes: 30
-        # PortAudio requires linking to libuuid. But its pkg-config file doesn't reference the path to that library.
         # FIXME: Fix building with Java support. Override JAVA_HOME for now.
         # FIXME: How do we get a working TeX environment in MSYS2? Disable building the documentation for now.
         # Linking with ncurses fails. Use termcap library instead.
@@ -397,14 +456,8 @@ jobs:
 
       - name: build
         # Spawning processes seems to have a big overhead on this platform. Use a somewhat larger number of parallel processes to compensate for that.
-        # MSYS2's "fltk-config" returns wrong LIBS. Override them for make.
-        # See: https://github.com/msys2/MINGW-packages/issues/8806
-        # MSYS2's "portaudio" doesn't depend on uuid. But its package-config file still contains "-luuid". Override the flags for make.
-        # See: https://github.com/msys2/MINGW-packages/issues/8805
         run: |
-          make -C ./.build all -j8 V=1 \
-            FLTK_LIBS="-lfltk_gl -lopengl32 -lglu32 -lfltk -lpthread" \
-            PORTAUDIO_LIBS="-lportaudio -ldsound -lsetupapi -lwinmm -lm -lole32"
+          make -C ./.build all -j8 V=1
 
       - name: ccache status
         continue-on-error: true
@@ -412,11 +465,9 @@ jobs:
 
       - name: install
         # Install Octave
-        # Create symlinks to the libexec binaries in bin (or they won't find their libraries?)
-        run: |
-          make -C ./.build install V=1
-          ln -sf ${MINGW_PREFIX}/libexec/octave/7.0.0/exec/${TARGET_TRIPLET}/octave-gui.exe ${MINGW_PREFIX}/bin/octave-gui.exe
-          ln -sf ${MINGW_PREFIX}/libexec/octave/7.0.0/exec/${TARGET_TRIPLET}/octave-svgconvert.exe ${MINGW_PREFIX}/bin/octave-svgconvert.exe
+        # Relocation issues with the graphicsmagick++ libraries on mingw require
+        # installing Octave before running the test suite.
+        run: make -C ./.build install V=1
 
       - name: check
         # Continuing on error in this step means that jobs will be "green" even
@@ -427,6 +478,7 @@ jobs:
         # It would also be nice if we could analyze the test suite results
         # automatically.
         continue-on-error: true
+        timeout-minutes: 60
 
         # We cannot run "make check" in the MSYS2 shell because it will fail with backslash as a file separator.
         # Instead, use the CMD shell and set up the environment to pick up what we just built.
@@ -446,9 +498,9 @@ jobs:
           echo cd "%%~dp0" >> C:/msys64/usr/bin/makeinfo.bat
           echo perl "%%~n0" %%* >> C:/msys64/usr/bin/makeinfo.bat
           rem Start Octave and run test suite
-          octave-gui --eval "__run_test_suite__"
+          octave --eval "__run_test_suite__"
 
-      - name: display test results
+      - name: display test log
         continue-on-error: true
         # Displaying the log shouldn't take long. Cancel the step if it does.
         timeout-minutes: 5

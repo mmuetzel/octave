@@ -41,6 +41,8 @@
 #include "ov.h"
 #include "ovl.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 /*
 ## Restore all rand* "state" values
 %!function restore_rand_states (state)
@@ -58,7 +60,7 @@
 
 template <typename MT>
 static octave_value
-get_qr_r (const octave::math::qr<MT>& fact)
+get_qr_r (const math::qr<MT>& fact)
 {
   MT R = fact.R ();
   if (R.issquare () && fact.regular ())
@@ -68,15 +70,15 @@ get_qr_r (const octave::math::qr<MT>& fact)
 }
 
 template <typename T>
-static typename octave::math::qr<T>::type
+static typename math::qr<T>::type
 qr_type (int nargout, bool economy)
 {
   if (nargout == 0 || nargout == 1)
-    return octave::math::qr<T>::raw;
+    return math::qr<T>::raw;
   else if (economy)
-    return octave::math::qr<T>::economy;
+    return math::qr<T>::economy;
   else
-    return octave::math::qr<T>::std;
+    return math::qr<T>::std;
 }
 
 // dense X
@@ -229,11 +231,11 @@ returns
 @end example
 
 If the input matrix @var{A} is sparse, the sparse QR@tie{}factorization
-is computed by using @sc{SPQR} or @sc{CXSparse} (e.g., if @sc{SPQR} is not
+is computed by using @sc{SPQR} or @sc{cxsparse} (e.g., if @sc{SPQR} is not
 available).  Because the matrix @var{Q} is, in general, a full matrix, it is
 recommended to request only one return value @var{R}.  In that case, the
-computation avoids the construction of @var{Q} and returns a sparse @var{R} such
-that @code{@var{R} = chol (@var{A}' * @var{A})}.
+computation avoids the construction of @var{Q} and returns a sparse @var{R}
+such that @code{@var{R} = chol (@var{A}' * @var{A})}.
 
 If @var{A} is dense, an additional matrix @var{B} is supplied and two
 return values are requested, then @code{qr} returns @var{C}, where
@@ -259,7 +261,7 @@ it uses less memory and can handle rank-deficient matrices better.
 
 If the final argument is the string @qcode{"vector"} then @var{P} is a
 permutation vector (of the columns of @var{A}) instead of a permutation
-matrix. In this case, the defining relationship is:
+matrix.  In this case, the defining relationship is:
 
 @example
 @var{Q} * @var{R} = @var{A}(:, @var{P})
@@ -274,7 +276,7 @@ returned.  If the original matrix @var{A} has size MxN and M > N, then the
 columns in @var{Q} and omit the zeros in @var{R}.  If M @leq{} N, there is no
 difference between the economy and standard factorizations.  When calculating
 an @qcode{"economy"} factorization and @var{A} is dense, the output @var{P} is
-always a vector rather than a matrix. If @var{A} is sparse, output
+always a vector rather than a matrix.  If @var{A} is sparse, output
 @var{P} is a sparse permutation matrix.
 
 Background: The QR factorization has applications in the solution of least
@@ -369,25 +371,25 @@ orthogonal basis of @code{span (A)}.
 
               if (! args(1).issparse () && args(1).iscomplex ())
                 retval = ovl
-                  (octave::math::sparse_qr<SparseComplexMatrix>::solve
+                  (math::sparse_qr<SparseComplexMatrix>::solve
                      <MArray<Complex>, ComplexMatrix>
                      (arg.sparse_complex_matrix_value (),
                       args(1).complex_matrix_value (), info));
               else if (args(1).issparse () && args(1).iscomplex ())
                 retval = ovl
-                  (octave::math::sparse_qr<SparseComplexMatrix>::solve
+                  (math::sparse_qr<SparseComplexMatrix>::solve
                      <SparseComplexMatrix, SparseComplexMatrix>
                      (arg.sparse_complex_matrix_value (),
                       args(1).sparse_complex_matrix_value (), info));
               else if (! args(1).issparse () && ! args(1).iscomplex ())
                 retval = ovl
-                  (octave::math::sparse_qr<SparseComplexMatrix>::solve
+                  (math::sparse_qr<SparseComplexMatrix>::solve
                      <MArray<double>, ComplexMatrix>
                      (arg.sparse_complex_matrix_value (),
                       args(1).matrix_value (), info));
               else if (args(1).issparse () && ! args(1).iscomplex ())
                 retval = ovl
-                  (octave::math::sparse_qr<SparseComplexMatrix>::solve
+                  (math::sparse_qr<SparseComplexMatrix>::solve
                      <SparseMatrix, SparseComplexMatrix>
                      (arg.sparse_complex_matrix_value (),
                       args(1).sparse_matrix_value (), info));
@@ -396,14 +398,14 @@ orthogonal basis of @code{span (A)}.
             }
           else if (have_b && nargout == 2)
             {
-              octave::math::sparse_qr<SparseComplexMatrix>
+              math::sparse_qr<SparseComplexMatrix>
               q (arg.sparse_complex_matrix_value (), 0);
               retval = ovl (q.C (args(1).complex_matrix_value (), economy),
                             q.R (economy));
             }
           else if (have_b && nargout == 3)
             {
-              octave::math::sparse_qr<SparseComplexMatrix>
+              math::sparse_qr<SparseComplexMatrix>
               q (arg.sparse_complex_matrix_value ());
               if (vector_p)
                 retval = ovl (q.C (args(1).complex_matrix_value (), economy),
@@ -416,7 +418,7 @@ orthogonal basis of @code{span (A)}.
             {
               if (nargout > 2)
                 {
-                  octave::math::sparse_qr<SparseComplexMatrix>
+                  math::sparse_qr<SparseComplexMatrix>
                   q (arg.sparse_complex_matrix_value ());
                   if (vector_p)
                     retval = ovl (q.Q (economy), q.R (economy), q.E ());
@@ -426,13 +428,13 @@ orthogonal basis of @code{span (A)}.
                 }
               else if (nargout > 1)
                 {
-                  octave::math::sparse_qr<SparseComplexMatrix>
+                  math::sparse_qr<SparseComplexMatrix>
                   q (arg.sparse_complex_matrix_value (), 0);
                   retval = ovl (q.Q (economy), q.R (economy));
                 }
               else
                 {
-                  octave::math::sparse_qr<SparseComplexMatrix>
+                  math::sparse_qr<SparseComplexMatrix>
                   q (arg.sparse_complex_matrix_value (), 0);
                   retval = ovl (q.R (economy));
                 }
@@ -444,22 +446,22 @@ orthogonal basis of @code{span (A)}.
             {
               octave_idx_type info;
               if (args(1).issparse () && ! args(1).iscomplex ())
-                retval = ovl (octave::math::sparse_qr<SparseMatrix>::solve
+                retval = ovl (math::sparse_qr<SparseMatrix>::solve
                                 <SparseMatrix, SparseMatrix>
                                 (arg.sparse_matrix_value (),
                                  args (1).sparse_matrix_value (), info));
               else if (! args(1).issparse () && args(1).iscomplex ())
-                retval = ovl (octave::math::sparse_qr<SparseMatrix>::solve
+                retval = ovl (math::sparse_qr<SparseMatrix>::solve
                                 <MArray<Complex>, ComplexMatrix>
                                 (arg.sparse_matrix_value (),
                                  args (1).complex_matrix_value (), info));
               else if (! args(1).issparse () && ! args(1).iscomplex ())
-                retval = ovl (octave::math::sparse_qr<SparseMatrix>::solve
+                retval = ovl (math::sparse_qr<SparseMatrix>::solve
                                 <MArray<double>, Matrix>
                                 (arg.sparse_matrix_value (),
                                  args (1).matrix_value (), info));
               else if (args(1).issparse () &&  args(1).iscomplex ())
-                retval = ovl (octave::math::sparse_qr<SparseMatrix>::solve
+                retval = ovl (math::sparse_qr<SparseMatrix>::solve
                                 <SparseComplexMatrix, SparseComplexMatrix>
                                 (arg.sparse_matrix_value (),
                                  args(1).sparse_complex_matrix_value (),
@@ -469,14 +471,14 @@ orthogonal basis of @code{span (A)}.
             }
           else if (have_b && nargout == 2)
             {
-              octave::math::sparse_qr<SparseMatrix>
+              math::sparse_qr<SparseMatrix>
               q (arg.sparse_matrix_value (), 0);
               retval = ovl (q.C (args(1).matrix_value (), economy),
                             q.R (economy));
             }
           else if (have_b && nargout == 3)
             {
-              octave::math::sparse_qr<SparseMatrix>
+              math::sparse_qr<SparseMatrix>
               q (arg.sparse_matrix_value ());
               if (vector_p)
                 retval = ovl (q.C (args(1).matrix_value (), economy),
@@ -490,7 +492,7 @@ orthogonal basis of @code{span (A)}.
             {
               if (nargout > 2)
                 {
-                  octave::math::sparse_qr<SparseMatrix>
+                  math::sparse_qr<SparseMatrix>
                   q (arg.sparse_matrix_value ());
                   if (vector_p)
                     retval = ovl (q.Q (economy), q.R (economy), q.E ());
@@ -500,13 +502,13 @@ orthogonal basis of @code{span (A)}.
                 }
               else if (nargout > 1)
                 {
-                  octave::math::sparse_qr<SparseMatrix>
+                  math::sparse_qr<SparseMatrix>
                   q (arg.sparse_matrix_value (), 0);
                   retval = ovl (q.Q (economy), q.R (economy));
                 }
               else
                 {
-                  octave::math::sparse_qr<SparseMatrix>
+                  math::sparse_qr<SparseMatrix>
                   q (arg.sparse_matrix_value (), 0);
                   retval = ovl (q.R (economy));
                 }
@@ -522,7 +524,7 @@ orthogonal basis of @code{span (A)}.
         {
           if (arg.isreal ())
             {
-              octave::math::qr<FloatMatrix>::type type
+              math::qr<FloatMatrix>::type type
                 = qr_type<FloatMatrix> (nargout, economy);
 
               FloatMatrix m = arg.float_matrix_value ();
@@ -532,14 +534,14 @@ orthogonal basis of @code{span (A)}.
                 case 0:
                 case 1:
                   {
-                    octave::math::qr<FloatMatrix> fact (m, type);
+                    math::qr<FloatMatrix> fact (m, type);
                     retval = ovl (fact.R ());
                   }
                   break;
 
                 case 2:
                   {
-                    octave::math::qr<FloatMatrix> fact (m, type);
+                    math::qr<FloatMatrix> fact (m, type);
                     retval = ovl (fact.Q (), get_qr_r (fact));
                     if (have_b)
                       {
@@ -555,7 +557,7 @@ orthogonal basis of @code{span (A)}.
 
                 default:
                   {
-                    octave::math::qrp<FloatMatrix> fact (m, type);
+                    math::qrp<FloatMatrix> fact (m, type);
 
                     if (economy || vector_p)
                       retval = ovl (fact.Q (), get_qr_r (fact), fact.Pvec ());
@@ -567,7 +569,7 @@ orthogonal basis of @code{span (A)}.
             }
           else if (arg.iscomplex ())
             {
-              octave::math::qr<FloatComplexMatrix>::type type
+              math::qr<FloatComplexMatrix>::type type
                 = qr_type<FloatComplexMatrix> (nargout, economy);
 
               FloatComplexMatrix m = arg.float_complex_matrix_value ();
@@ -577,14 +579,14 @@ orthogonal basis of @code{span (A)}.
                 case 0:
                 case 1:
                   {
-                    octave::math::qr<FloatComplexMatrix> fact (m, type);
+                    math::qr<FloatComplexMatrix> fact (m, type);
                     retval = ovl (fact.R ());
                   }
                   break;
 
                 case 2:
                   {
-                    octave::math::qr<FloatComplexMatrix> fact (m, type);
+                    math::qr<FloatComplexMatrix> fact (m, type);
                     retval = ovl (fact.Q (), get_qr_r (fact));
                     if (have_b)
                       retval(0) = conj (fact.Q ().transpose ())
@@ -594,7 +596,7 @@ orthogonal basis of @code{span (A)}.
 
                 default:
                   {
-                    octave::math::qrp<FloatComplexMatrix> fact (m, type);
+                    math::qrp<FloatComplexMatrix> fact (m, type);
                     if (economy || vector_p)
                       retval = ovl (fact.Q (), get_qr_r (fact), fact.Pvec ());
                     else
@@ -608,7 +610,7 @@ orthogonal basis of @code{span (A)}.
         {
           if (arg.isreal ())
             {
-              octave::math::qr<Matrix>::type type
+              math::qr<Matrix>::type type
                 = qr_type<Matrix> (nargout, economy);
 
               Matrix m = arg.matrix_value ();
@@ -618,14 +620,14 @@ orthogonal basis of @code{span (A)}.
                 case 0:
                 case 1:
                   {
-                    octave::math::qr<Matrix> fact (m, type);
+                    math::qr<Matrix> fact (m, type);
                     retval = ovl (fact.R ());
                   }
                   break;
 
                 case 2:
                   {
-                    octave::math::qr<Matrix> fact (m, type);
+                    math::qr<Matrix> fact (m, type);
                     retval = ovl (fact.Q (), get_qr_r (fact));
                     if (have_b)
                       {
@@ -641,7 +643,7 @@ orthogonal basis of @code{span (A)}.
 
                 default:
                   {
-                    octave::math::qrp<Matrix> fact (m, type);
+                    math::qrp<Matrix> fact (m, type);
                     if (economy || vector_p)
                       retval = ovl (fact.Q (), get_qr_r (fact), fact.Pvec ());
                     else
@@ -652,7 +654,7 @@ orthogonal basis of @code{span (A)}.
             }
           else if (arg.iscomplex ())
             {
-              octave::math::qr<ComplexMatrix>::type type
+              math::qr<ComplexMatrix>::type type
                 = qr_type<ComplexMatrix> (nargout, economy);
 
               ComplexMatrix m = arg.complex_matrix_value ();
@@ -662,14 +664,14 @@ orthogonal basis of @code{span (A)}.
                 case 0:
                 case 1:
                   {
-                    octave::math::qr<ComplexMatrix> fact (m, type);
+                    math::qr<ComplexMatrix> fact (m, type);
                     retval = ovl (fact.R ());
                   }
                   break;
 
                 case 2:
                   {
-                    octave::math::qr<ComplexMatrix> fact (m, type);
+                    math::qr<ComplexMatrix> fact (m, type);
                     retval = ovl (fact.Q (), get_qr_r (fact));
                     if (have_b)
                       retval(0) = conj (fact.Q ().transpose ())
@@ -679,7 +681,7 @@ orthogonal basis of @code{span (A)}.
 
                 default:
                   {
-                    octave::math::qrp<ComplexMatrix> fact (m, type);
+                    math::qrp<ComplexMatrix> fact (m, type);
                     if (economy || vector_p)
                       retval = ovl (fact.Q (), get_qr_r (fact), fact.Pvec ());
                     else
@@ -1310,7 +1312,7 @@ economized (R is square).
           FloatMatrix u = argu.float_matrix_value ();
           FloatMatrix v = argv.float_matrix_value ();
 
-          octave::math::qr<FloatMatrix> fact (Q, R);
+          math::qr<FloatMatrix> fact (Q, R);
           fact.update (u, v);
 
           retval = ovl (fact.Q (), get_qr_r (fact));
@@ -1322,7 +1324,7 @@ economized (R is square).
           Matrix u = argu.matrix_value ();
           Matrix v = argv.matrix_value ();
 
-          octave::math::qr<Matrix> fact (Q, R);
+          math::qr<Matrix> fact (Q, R);
           fact.update (u, v);
 
           retval = ovl (fact.Q (), get_qr_r (fact));
@@ -1339,7 +1341,7 @@ economized (R is square).
           FloatComplexMatrix u = argu.float_complex_matrix_value ();
           FloatComplexMatrix v = argv.float_complex_matrix_value ();
 
-          octave::math::qr<FloatComplexMatrix> fact (Q, R);
+          math::qr<FloatComplexMatrix> fact (Q, R);
           fact.update (u, v);
 
           retval = ovl (fact.Q (), get_qr_r (fact));
@@ -1351,7 +1353,7 @@ economized (R is square).
           ComplexMatrix u = argu.complex_matrix_value ();
           ComplexMatrix v = argv.complex_matrix_value ();
 
-          octave::math::qr<ComplexMatrix> fact (Q, R);
+          math::qr<ComplexMatrix> fact (Q, R);
           fact.update (u, v);
 
           retval = ovl (fact.Q (), get_qr_r (fact));
@@ -1415,14 +1417,16 @@ economized (R is square).
 %! [Q,R] = qrupdate (Q, R, single (u), single (v));
 %! assert (norm (vec (Q'*Q - eye (5,"single")), Inf) < 1e1*eps ("single"));
 %! assert (norm (vec (triu (R)-R), Inf) == 0);
-%! assert (norm (vec (Q*R - single (A) - single (u)*single (v)'), Inf) < norm (single (A))*1e1*eps ("single"));
+%! assert (norm (vec (Q*R - single (A) - single (u)*single (v)'), Inf)
+%!         < norm (single (A))*1e1*eps ("single"));
 %!
 %!test
 %! [Q,R] = qr (single (Ac));
 %! [Q,R] = qrupdate (Q, R, single (uc), single (vc));
 %! assert (norm (vec (Q'*Q - eye (5,"single")), Inf) < 1e1*eps ("single"));
 %! assert (norm (vec (triu (R)-R), Inf) == 0);
-%! assert (norm (vec (Q*R - single (Ac) - single (uc)*single (vc)'), Inf) < norm (single (Ac))*1e1*eps ("single"));
+%! assert (norm (vec (Q*R - single (Ac) - single (uc)*single (vc)'), Inf)
+%!         < norm (single (Ac))*1e1*eps ("single"));
 */
 
 DEFUN (qrinsert, args, ,
@@ -1498,7 +1502,7 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
           FloatMatrix R = argr.float_matrix_value ();
           FloatMatrix x = argx.float_matrix_value ();
 
-          octave::math::qr<FloatMatrix> fact (Q, R);
+          math::qr<FloatMatrix> fact (Q, R);
 
           if (col)
             fact.insert_col (x, j-one);
@@ -1513,7 +1517,7 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
           Matrix R = argr.matrix_value ();
           Matrix x = argx.matrix_value ();
 
-          octave::math::qr<Matrix> fact (Q, R);
+          math::qr<Matrix> fact (Q, R);
 
           if (col)
             fact.insert_col (x, j-one);
@@ -1533,7 +1537,7 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
           FloatComplexMatrix R = argr.float_complex_matrix_value ();
           FloatComplexMatrix x = argx.float_complex_matrix_value ();
 
-          octave::math::qr<FloatComplexMatrix> fact (Q, R);
+          math::qr<FloatComplexMatrix> fact (Q, R);
 
           if (col)
             fact.insert_col (x, j-one);
@@ -1548,7 +1552,7 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
           ComplexMatrix R = argr.complex_matrix_value ();
           ComplexMatrix x = argx.complex_matrix_value ();
 
-          octave::math::qr<ComplexMatrix> fact (Q, R);
+          math::qr<ComplexMatrix> fact (Q, R);
 
           if (col)
             fact.insert_col (x, j-one);
@@ -1597,13 +1601,15 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
 %! [Q,R] = qrinsert (Q, R, 3, single (u));
 %! assert (norm (vec (Q'*Q - eye (5,"single")), Inf) < 1e1*eps ("single"));
 %! assert (norm (vec (triu (R) - R), Inf) == 0);
-%! assert (norm (vec (Q*R - single ([A(:,1:2) u A(:,3)])), Inf) < norm (single (A))*1e1*eps ("single"));
+%! assert (norm (vec (Q*R - single ([A(:,1:2) u A(:,3)])), Inf)
+%!         < norm (single (A))*1e1*eps ("single"));
 %!test
 %! [Q,R] = qr (single (Ac));
 %! [Q,R] = qrinsert (Q, R, 3, single (uc));
 %! assert (norm (vec (Q'*Q - eye (5,"single")), Inf) < 1e1*eps ("single"));
 %! assert (norm (vec (triu (R) - R), Inf) == 0);
-%! assert (norm (vec (Q*R - single ([Ac(:,1:2) uc Ac(:,3)])), Inf) < norm (single (Ac))*1e1*eps ("single"));
+%! assert (norm (vec (Q*R - single ([Ac(:,1:2) uc Ac(:,3)])), Inf)
+%!         < norm (single (Ac))*1e1*eps ("single"));
 %!test
 %! x = single ([0.85082  0.76426  0.42883 ]);
 %!
@@ -1611,7 +1617,8 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
 %! [Q,R] = qrinsert (Q, R, 3, x, "row");
 %! assert (norm (vec (Q'*Q - eye (6,"single")), Inf) < 1e1*eps ("single"));
 %! assert (norm (vec (triu (R) - R), Inf) == 0);
-%! assert (norm (vec (Q*R - single ([A(1:2,:);x;A(3:5,:)])), Inf) < norm (single (A))*1e1*eps ("single"));
+%! assert (norm (vec (Q*R - single ([A(1:2,:);x;A(3:5,:)])), Inf)
+%!         < norm (single (A))*1e1*eps ("single"));
 %!test
 %! x = single ([0.20351 + 0.05401i  0.13141 + 0.43708i  0.29808 + 0.08789i ]);
 %!
@@ -1619,7 +1626,8 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
 %! [Q,R] = qrinsert (Q, R, 3, x, "row");
 %! assert (norm (vec (Q'*Q - eye (6,"single")), Inf) < 1e1*eps ("single"));
 %! assert (norm (vec (triu (R) - R), Inf) == 0);
-%! assert (norm (vec (Q*R - single ([Ac(1:2,:);x;Ac(3:5,:)])), Inf) < norm (single (Ac))*1e1*eps ("single"));
+%! assert (norm (vec (Q*R - single ([Ac(1:2,:);x;Ac(3:5,:)])), Inf)
+%!         < norm (single (Ac))*1e1*eps ("single"));
 */
 
 DEFUN (qrdelete, args, ,
@@ -1689,7 +1697,7 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
           FloatMatrix Q = argq.float_matrix_value ();
           FloatMatrix R = argr.float_matrix_value ();
 
-          octave::math::qr<FloatMatrix> fact (Q, R);
+          math::qr<FloatMatrix> fact (Q, R);
 
           if (col)
             fact.delete_col (j-one);
@@ -1703,7 +1711,7 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
           Matrix Q = argq.matrix_value ();
           Matrix R = argr.matrix_value ();
 
-          octave::math::qr<Matrix> fact (Q, R);
+          math::qr<Matrix> fact (Q, R);
 
           if (col)
             fact.delete_col (j-one);
@@ -1721,7 +1729,7 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
           FloatComplexMatrix Q = argq.float_complex_matrix_value ();
           FloatComplexMatrix R = argr.float_complex_matrix_value ();
 
-          octave::math::qr<FloatComplexMatrix> fact (Q, R);
+          math::qr<FloatComplexMatrix> fact (Q, R);
 
           if (col)
             fact.delete_col (j-one);
@@ -1735,7 +1743,7 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
           ComplexMatrix Q = argq.complex_matrix_value ();
           ComplexMatrix R = argr.complex_matrix_value ();
 
-          octave::math::qr<ComplexMatrix> fact (Q, R);
+          math::qr<ComplexMatrix> fact (Q, R);
 
           if (col)
             fact.delete_col (j-one);
@@ -1813,7 +1821,8 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
 %! [Q,R] = qrdelete (Q, R, 3);
 %! assert (norm (vec (Q'*Q - eye (5,"single")), Inf) < 1e1*eps ("single"));
 %! assert (norm (vec (triu (R) - R), Inf) == 0);
-%! assert (norm (vec (Q*R - [AA(:,1:2) AA(:,4)]), Inf) < norm (AA)*1e1*eps ("single"));
+%! assert (norm (vec (Q*R - [AA(:,1:2) AA(:,4)]), Inf)
+%!         < norm (AA)*1e1*eps ("single"));
 %!
 %!test
 %! AA = single ([0.364554 + 0.993117i  0.669818 + 0.510234i  0.426568 + 0.041337i  0.847051 + 0.233291i;
@@ -1826,8 +1835,9 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
 %! [Q,R] = qrdelete (Q, R, 3);
 %! assert (norm (vec (Q'*Q - eye (5,"single")), Inf) < 1e1*eps ("single"));
 %! assert (norm (vec (triu (R) - R), Inf) == 0);
-%! assert (norm (vec (Q*R - [AA(:,1:2) AA(:,4)]), Inf) < norm (AA)*1e1*eps ("single"));
-%!
+%! assert (norm (vec (Q*R - [AA(:,1:2) AA(:,4)]), Inf)
+%!         < norm (AA)*1e1*eps ("single"));
+
 %!test
 %! AA = single ([0.091364  0.613038  0.027504  0.999083;
 %!               0.594638  0.425302  0.562834  0.603537;
@@ -1839,7 +1849,8 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
 %! [Q,R] = qrdelete (Q, R, 3, "row");
 %! assert (norm (vec (Q'*Q - eye (4,"single")), Inf) < 1.5e1*eps ("single"));
 %! assert (norm (vec (triu (R) - R), Inf) == 0);
-%! assert (norm (vec (Q*R - [AA(1:2,:);AA(4:5,:)]), Inf) < norm (AA)*1e1*eps ("single"));
+%! assert (norm (vec (Q*R - [AA(1:2,:);AA(4:5,:)]), Inf)
+%!         < norm (AA)*1e1*eps ("single"));
 %!testif HAVE_QRUPDATE
 %! ## Same test as above but with more precicision
 %! AA = single ([0.091364  0.613038  0.027504  0.999083;
@@ -1852,7 +1863,8 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
 %! [Q,R] = qrdelete (Q, R, 3, "row");
 %! assert (norm (vec (Q'*Q - eye (4,"single")), Inf) < 1e1*eps ("single"));
 %! assert (norm (vec (triu (R) - R), Inf) == 0);
-%! assert (norm (vec (Q*R - [AA(1:2,:);AA(4:5,:)]), Inf) < norm (AA)*1e1*eps ("single"));
+%! assert (norm (vec (Q*R - [AA(1:2,:);AA(4:5,:)]), Inf)
+%!         < norm (AA)*1e1*eps ("single"));
 %!
 %!test
 %! AA = single ([0.364554 + 0.993117i  0.669818 + 0.510234i  0.426568 + 0.041337i  0.847051 + 0.233291i;
@@ -1865,7 +1877,8 @@ If @var{orient} is @qcode{"row"}, full factorization is needed.
 %! [Q,R] = qrdelete (Q, R, 3, "row");
 %! assert (norm (vec (Q'*Q - eye (4,"single")), Inf) < 1e1*eps ("single"));
 %! assert (norm (vec (triu (R) - R), Inf) == 0);
-%! assert (norm (vec (Q*R - [AA(1:2,:);AA(4:5,:)]), Inf) < norm (AA)*1e1*eps ("single"));
+%! assert (norm (vec (Q*R - [AA(1:2,:);AA(4:5,:)]), Inf)
+%!         < norm (AA)*1e1*eps ("single"));
 */
 
 DEFUN (qrshift, args, ,
@@ -1916,7 +1929,7 @@ of @w{@var{A}(:,p)}, where @w{p} is the permutation @*
           FloatMatrix Q = argq.float_matrix_value ();
           FloatMatrix R = argr.float_matrix_value ();
 
-          octave::math::qr<FloatMatrix> fact (Q, R);
+          math::qr<FloatMatrix> fact (Q, R);
           fact.shift_cols (i-1, j-1);
 
           retval = ovl (fact.Q (), get_qr_r (fact));
@@ -1926,7 +1939,7 @@ of @w{@var{A}(:,p)}, where @w{p} is the permutation @*
           Matrix Q = argq.matrix_value ();
           Matrix R = argr.matrix_value ();
 
-          octave::math::qr<Matrix> fact (Q, R);
+          math::qr<Matrix> fact (Q, R);
           fact.shift_cols (i-1, j-1);
 
           retval = ovl (fact.Q (), get_qr_r (fact));
@@ -1941,7 +1954,7 @@ of @w{@var{A}(:,p)}, where @w{p} is the permutation @*
           FloatComplexMatrix Q = argq.float_complex_matrix_value ();
           FloatComplexMatrix R = argr.float_complex_matrix_value ();
 
-          octave::math::qr<FloatComplexMatrix> fact (Q, R);
+          math::qr<FloatComplexMatrix> fact (Q, R);
           fact.shift_cols (i-1, j-1);
 
           retval = ovl (fact.Q (), get_qr_r (fact));
@@ -1951,7 +1964,7 @@ of @w{@var{A}(:,p)}, where @w{p} is the permutation @*
           ComplexMatrix Q = argq.complex_matrix_value ();
           ComplexMatrix R = argr.complex_matrix_value ();
 
-          octave::math::qr<ComplexMatrix> fact (Q, R);
+          math::qr<ComplexMatrix> fact (Q, R);
           fact.shift_cols (i-1, j-1);
 
           retval = ovl (fact.Q (), get_qr_r (fact));
@@ -2034,3 +2047,5 @@ of @w{@var{A}(:,p)}, where @w{p} is the permutation @*
 %! assert (norm (vec (triu (R) - R), Inf) == 0);
 %! assert (norm (vec (Q*R - AA(:,p)), Inf) < norm (AA)*1e1*eps ("single"));
 */
+
+OCTAVE_NAMESPACE_END

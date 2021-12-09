@@ -59,6 +59,8 @@
 #include "utils.h"
 #include "variables.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 static octave_value
 bp_lines_to_ov (const octave::bp_table::bp_lines& lines)
 {
@@ -162,7 +164,8 @@ Octave will set the real breakpoint at the next executable line.
 When a file is re-parsed, such as when it is modified outside the GUI,
 all breakpoints within the file are cleared.
 
-@seealso{dbclear, dbstatus, dbstep, debug_on_error, debug_on_warning, debug_on_interrupt}
+@seealso{dbclear, dbstatus, dbstep, debug_on_error, debug_on_warning,
+debug_on_interrupt}
 @end deftypefn */)
 {
   octave::bp_table::bp_lines retmap;
@@ -510,7 +513,7 @@ The @qcode{"warn"} field is set similarly by @code{dbstop if warning}.
         }
       else
         {
-          octave_map outer (dim_vector (3,1));
+          octave_map outer (dim_vector (3, 1));
           outer.assign ("bkpt", Cell (retmap));
           for (auto f = ew.begin (); f != ew.end (); f++)
             outer.setfield (f->first, ew.contents (f));
@@ -1206,3 +1209,5 @@ With a logical argument @var{flag}, set the state on or off.
 
   return ovl ();
 }
+
+OCTAVE_NAMESPACE_END

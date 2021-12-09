@@ -40,10 +40,10 @@
 
 #define RANGE_INT_MAX 1000000
 
-namespace QtHandles
+namespace octave
 {
 
-  SliderControl*
+  SliderControl *
   SliderControl::create (octave::base_qobject& oct_qobj,
                          octave::interpreter& interp,
                          const graphics_object& go)

@@ -44,7 +44,7 @@
 #include "graphics.h"
 #include "interpreter.h"
 
-namespace QtHandles
+namespace octave
 {
 
   static int
@@ -92,7 +92,7 @@ namespace QtHandles
     return bw;
   }
 
-  Panel*
+  Panel *
   Panel::create (octave::base_qobject& oct_qobj, octave::interpreter& interp,
                  const graphics_object& go)
   {
@@ -139,7 +139,7 @@ namespace QtHandles
 
     if (frame->hasMouseTracking ())
       {
-        for (auto *w : frame->findChildren<QWidget*> ())
+        for (auto *w : frame->findChildren<QWidget *> ())
           w->setMouseTracking (true);
       }
 
@@ -421,7 +421,7 @@ namespace QtHandles
   }
 
   void
-  Panel::do_connections (const QObject *receiver, const QObject* /* emitter */)
+  Panel::do_connections (const QObject *receiver, const QObject * /* emitter */)
   {
     Object::do_connections (receiver);
     Object::do_connections (receiver, m_container->canvas (m_handle));

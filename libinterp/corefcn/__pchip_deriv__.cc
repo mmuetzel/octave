@@ -36,6 +36,8 @@
 #include "utils.h"
 #include "f77-fcn.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 // Wrapper for SLATEC/PCHIP function DPCHIM to calculate the derivates
 // for piecewise polynomials.
 
@@ -57,7 +59,7 @@ Undocumented internal function.
           FloatColumnVector xvec (args(0).float_vector_value ());
           FloatMatrix ymat (args(1).float_matrix_value ());
 
-          F77_INT nx = octave::to_f77_int (xvec.numel ());
+          F77_INT nx = to_f77_int (xvec.numel ());
 
           if (nx < 2)
             error ("__pchip_deriv__: X must be at least of length 2");
@@ -71,7 +73,7 @@ Undocumented internal function.
           FloatMatrix dmat (nyr, nyc);
 
           F77_INT ierr;
-          const F77_INT incfd = (rows ? octave::to_f77_int (nyr) : 1);
+          const F77_INT incfd = (rows ? to_f77_int (nyr) : 1);
           volatile const octave_idx_type inc = (rows ? 1 : nyr);
           volatile octave_idx_type k = 0;
 
@@ -96,7 +98,7 @@ Undocumented internal function.
           ColumnVector xvec (args(0).vector_value ());
           Matrix ymat (args(1).matrix_value ());
 
-          F77_INT nx = octave::to_f77_int (xvec.numel ());
+          F77_INT nx = to_f77_int (xvec.numel ());
 
           if (nx < 2)
             error ("__pchip_deriv__: X must be at least of length 2");
@@ -110,7 +112,7 @@ Undocumented internal function.
           Matrix dmat (nyr, nyc);
 
           F77_INT ierr;
-          const F77_INT incfd = (rows ? octave::to_f77_int (nyr) : 1);
+          const F77_INT incfd = (rows ? to_f77_int (nyr) : 1);
           volatile const octave_idx_type inc = (rows ? 1 : nyr);
           volatile octave_idx_type k = 0;
 
@@ -138,3 +140,5 @@ Undocumented internal function.
 ## No test needed for internal helper function.
 %!assert (1)
 */
+
+OCTAVE_NAMESPACE_END

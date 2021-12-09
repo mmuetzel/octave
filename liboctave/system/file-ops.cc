@@ -49,7 +49,7 @@
 #include "lo-sysdep.h"
 #include "oct-env.h"
 #include "oct-locbuf.h"
-#include "oct-passwd.h"
+#include "oct-password.h"
 #include "quit.h"
 #include "stat-wrappers.h"
 #include "str-vec.h"
@@ -713,7 +713,7 @@ namespace octave
           return retval;
         }
 
-      octave::unwind_action close_file_handle (CloseHandle, h_file);
+      unwind_action close_file_handle (CloseHandle, h_file);
 
       const std::size_t buf_size = 32767;
       wchar_t buffer[buf_size] = L"";
@@ -722,10 +722,10 @@ namespace octave
       DWORD len = GetFinalPathNameByHandleW (h_file, buffer, buf_size,
                                              FILE_NAME_NORMALIZED);
       if (len >= buf_size)
-      {
+        {
           msg = "Error querying normalized name for \"" + name + "\"";
           return retval;
-      }
+        }
 
       retval = u8_from_wstring (std::wstring (buffer, len));
 

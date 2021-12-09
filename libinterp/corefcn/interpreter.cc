@@ -28,6 +28,7 @@
 #endif
 
 #include <cstdio>
+#include <clocale>
 
 #include <iostream>
 #include <set>
@@ -55,7 +56,6 @@
 #include "display.h"
 #include "error.h"
 #include "event-manager.h"
-#include "file-io.h"
 #include "graphics.h"
 #include "help.h"
 #include "input.h"
@@ -92,6 +92,8 @@ bool octave_interpreter_ready = false;
 
 // TRUE means we've processed all the init code and we are good to go.
 bool octave_initialized = false;
+
+OCTAVE_NAMESPACE_BEGIN
 
 DEFUN (__version_info__, args, ,
        doc: /* -*- texinfo -*-
@@ -306,8 +308,6 @@ Undocumented internal function.
   return ovl (interp.traditional ());
 }
 
-namespace octave
-{
   temporary_file_list::~temporary_file_list (void)
   {
     cleanup ();
@@ -489,16 +489,21 @@ namespace octave
     //
     //   only one Octave interpreter may be active in any given thread
 
-    if (instance)
+    if (m_instance)
       throw std::runtime_error
         ("only one Octave interpreter may be active");
 
-    instance = this;
+    m_instance = this;
 
+#if defined (OCTAVE_HAVE_WINDOWS_UTF8_LOCALE)
+    // Force a UTF-8 locale on Windows if possible
+    std::setlocale (LC_ALL, ".UTF8");
+#else
+    std::setlocale (LC_ALL, "");
+#endif
     // Matlab uses "C" locale for LC_NUMERIC class regardless of local setting
-    setlocale (LC_ALL, "");
-    setlocale (LC_NUMERIC, "C");
-    setlocale (LC_TIME, "C");
+    std::setlocale (LC_NUMERIC, "C");
+    std::setlocale (LC_TIME, "C");
     sys::env::putenv ("LC_NUMERIC", "C");
     sys::env::putenv ("LC_TIME", "C");
 
@@ -567,12 +572,20 @@ namespace octave
         m_interactive = (! is_octave_program && stdin_is_tty
                          && octave_isatty_wrapper (fileno (stdout)));
 
+        // Don't force interactive if we're already interactive (bug #60696).
+        bool forced_interactive = options.forced_interactive ();
+        if (m_interactive)
+          {
+            m_app_context->forced_interactive (false);
+            forced_interactive = false;
+          }
+
         // Check if the user forced an interactive session.
-        if (options.forced_interactive ())
+        if (forced_interactive)
           m_interactive = true;
 
         line_editing = options.line_editing ();
-        if ((! m_interactive || options.forced_interactive ())
+        if ((! m_interactive || forced_interactive)
             && ! options.forced_line_editing ())
           line_editing = false;
 
@@ -601,12 +614,6 @@ namespace octave
         std::string info_program = options.info_program ();
         if (! info_program.empty ())
           Finfo_program (*this, octave_value (info_program));
-
-        if (options.debug_jit ())
-          Fdebug_jit (octave_value (true));
-
-        if (options.jit_compiler ())
-          Fjit_enable (octave_value (true));
 
         std::string texi_macros_file = options.texi_macros_file ();
         if (! texi_macros_file.empty ())
@@ -642,7 +649,7 @@ namespace octave
     octave_interpreter_ready = true;
   }
 
-  OCTAVE_THREAD_LOCAL interpreter *interpreter::instance = nullptr;
+  OCTAVE_THREAD_LOCAL interpreter *interpreter::m_instance = nullptr;
 
   interpreter::~interpreter (void)
   {
@@ -1990,22 +1997,6 @@ namespace octave
     return found;
   }
 
-  void interpreter::add_atexit_function (const std::string& fname)
-  {
-    interpreter& interp
-      = __get_interpreter__ ("interpreter::add_atexit_function");
-
-    interp.add_atexit_fcn (fname);
-  }
-
-  bool interpreter::remove_atexit_function (const std::string& fname)
-  {
-    interpreter& interp
-      = __get_interpreter__ ("interpreter::remove_atexit_function");
-
-    return interp.remove_atexit_fcn (fname);
-  }
-
   // What internal options get configured by --traditional.
 
   void interpreter::maximum_braindamage (void)
@@ -2021,21 +2012,22 @@ namespace octave
     m_history_system.timestamp_format_string ("%%-- %D %I:%M %p --%%");
 
     m_error_system.beep_on_error (true);
-    Fconfirm_recursive_rmdir (octave_value (false));
 
-    Fdisable_diagonal_matrix (octave_value (true));
-    Fdisable_permutation_matrix (octave_value (true));
-    Fdisable_range (octave_value (true));
+    Fconfirm_recursive_rmdir (octave_value (false));
+    Foptimize_diagonal_matrix (octave_value (false));
+    Foptimize_permutation_matrix (octave_value (false));
+    Foptimize_range (octave_value (false));
     Ffixed_point_format (octave_value (true));
     Fprint_empty_dimensions (octave_value (false));
+    Fprint_struct_array_contents (octave_value (true));
     Fstruct_levels_to_print (octave_value (0));
 
-    disable_warning ("Octave:abbreviated-property-match");
-    disable_warning ("Octave:colon-nonscalar-argument");
-    disable_warning ("Octave:data-file-in-path");
-    disable_warning ("Octave:empty-index");
-    disable_warning ("Octave:function-name-clash");
-    disable_warning ("Octave:possible-matlab-short-circuit-operator");
+    m_error_system.disable_warning ("Octave:abbreviated-property-match");
+    m_error_system.disable_warning ("Octave:colon-nonscalar-argument");
+    m_error_system.disable_warning ("Octave:data-file-in-path");
+    m_error_system.disable_warning ("Octave:empty-index");
+    m_error_system.disable_warning ("Octave:function-name-clash");
+    m_error_system.disable_warning ("Octave:possible-matlab-short-circuit-operator");
   }
 
   void interpreter::execute_pkg_add (const std::string& dir)
@@ -2053,4 +2045,5 @@ namespace octave
         handle_exception (ee);
       }
   }
-}
+
+OCTAVE_NAMESPACE_END

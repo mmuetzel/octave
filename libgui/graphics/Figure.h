@@ -43,7 +43,7 @@ namespace octave
   class interpreter;
 }
 
-namespace QtHandles
+namespace octave
 {
 
   enum MouseMode
@@ -63,9 +63,9 @@ namespace QtHandles
   class ToolBar;
 
   class Figure :
-  public Object,
-  public MenuContainer,
-  public GenericEventNotifyReceiver
+    public Object,
+    public MenuContainer,
+    public GenericEventNotifyReceiver
   {
     Q_OBJECT
 
@@ -123,13 +123,15 @@ namespace QtHandles
     void updateFigureHeight (int delta_h);
     void updateContainer (void);
     void figureWindowShown ();
-    void screenChanged (QScreen*);
+    void screenChanged (QScreen *);
 
   public slots:
     uint8NDArray slotGetPixels (void);
 
   signals:
     void asyncUpdate (void);
+    void interpreter_event (const octave::fcn_callback& fcn);
+    void interpreter_event (const octave::meth_callback& meth);
 
   private:
     Container *m_container;

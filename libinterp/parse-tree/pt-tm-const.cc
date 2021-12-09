@@ -442,14 +442,14 @@ namespace octave
             for (const auto& elt : tmrc)
               row(i++) = elt;
 
-            rows(j++) = ::do_class_concat (row, "horzcat", 1);
+            rows(j++) = do_class_concat (row, "horzcat", 1);
           }
       }
 
     if (rows.length () == 1)
       retval = rows(0);
     else
-      retval = ::do_class_concat (rows, "vertcat", 0);
+      retval = do_class_concat (rows, "vertcat", 0);
 
     return retval;
   }
@@ -507,7 +507,7 @@ namespace octave
       found_non_empty:
 
         if (! m_all_empty)
-          ctmp = ctmp.resize (dim_vector (0,0)).resize (m_dv);
+          ctmp = ctmp.resize (dim_vector (0, 0)).resize (m_dv);
       }
 
     // Now, extract the values from the individual elements and insert

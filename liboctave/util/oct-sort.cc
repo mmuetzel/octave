@@ -1593,11 +1593,12 @@ octave_sort<T>::issorted (const T *data, octave_idx_type nel)
   return retval;
 }
 
-// FIXME: is there really no way to make this local to the following function?
 struct sortrows_run_t
 {
+public:
   sortrows_run_t (octave_idx_type c, octave_idx_type o, octave_idx_type n)
     : col (c), ofs (o), nel (n) { }
+  //--------
   octave_idx_type col, ofs, nel;
 };
 

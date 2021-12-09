@@ -89,6 +89,9 @@ function arg_st = __print_parse_opts__ (varargin)
   endif
 
   for i = 1:numel (varargin)
+    if (! ischar (varargin{i}) && ! iscellstr (varargin{i}))
+      error ("print: input arguments must be a graphics handle or strings.");
+    endif
     arg = strtrim (varargin{i});
     if (ischar (arg))
       if (isempty (arg))
@@ -631,23 +634,6 @@ function bin = __svgconv_binary__ ()
 
   persistent binary = "";
 
-  if (isempty (binary) && ispc ())
-    ## On Windows, prefer the executable in the bin directory
-    ## (linking issue, see bug #59546)
-    bindir = getenv ("OCTAVE_BINDIR");
-    if (isempty (bindir))
-      bindir = __octave_config_info__ ("bindir");
-    endif
-
-    binary = fullfile (bindir, ...
-                       ["octave-svgconvert", ...
-                        __octave_config_info__("EXEEXT")]);
-
-    if (! exist (binary, "file"))
-      binary = "";
-    endif
-  endif
-
   if (isempty (binary))
     ## default installation location is the archlib directory
     bindir = getenv ("OCTAVE_ARCHLIBDIR");
@@ -777,6 +763,7 @@ function value = convert2points (value, units)
 endfunction
 
 function device_list = gs_device_list ()
+
   ## Graphics formats/languages, not printers.
   device_list = {"bmp16"; "bmp16m"; "bmp256"; "bmp32b"; "bmpgray"; ...
                  "epswrite"; "eps2write"; "jpeg"; "jpegcymk"; "jpeggray";

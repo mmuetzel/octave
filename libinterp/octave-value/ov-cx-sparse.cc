@@ -263,7 +263,7 @@ octave_sparse_complex_matrix::save_binary (std::ostream& os,
     {
       double max_val, min_val;
       if (matrix.all_integers (max_val, min_val))
-        st = get_save_type (max_val, min_val);
+        st = octave::get_save_type (max_val, min_val);
     }
 
   // add one to the printed indices to go from
@@ -400,7 +400,8 @@ octave_sparse_complex_matrix::save_hdf5 (octave_hdf5_id loc_id,
 
 #if defined (HAVE_HDF5_18)
   data_hid = H5Dcreate (group_hid, "nr", H5T_NATIVE_IDX, space_hid,
-                        octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                        octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                        octave_H5P_DEFAULT);
 #else
   data_hid = H5Dcreate (group_hid, "nr", H5T_NATIVE_IDX, space_hid,
                         octave_H5P_DEFAULT);
@@ -425,7 +426,8 @@ octave_sparse_complex_matrix::save_hdf5 (octave_hdf5_id loc_id,
 
 #if defined (HAVE_HDF5_18)
   data_hid = H5Dcreate (group_hid, "nc", H5T_NATIVE_IDX, space_hid,
-                        octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                        octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                        octave_H5P_DEFAULT);
 #else
   data_hid = H5Dcreate (group_hid, "nc", H5T_NATIVE_IDX, space_hid,
                         octave_H5P_DEFAULT);
@@ -450,7 +452,8 @@ octave_sparse_complex_matrix::save_hdf5 (octave_hdf5_id loc_id,
 
 #if defined (HAVE_HDF5_18)
   data_hid = H5Dcreate (group_hid, "nz", H5T_NATIVE_IDX, space_hid,
-                        octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                        octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                        octave_H5P_DEFAULT);
 #else
   data_hid = H5Dcreate (group_hid, "nz", H5T_NATIVE_IDX, space_hid,
                         octave_H5P_DEFAULT);
@@ -488,7 +491,8 @@ octave_sparse_complex_matrix::save_hdf5 (octave_hdf5_id loc_id,
 
 #if defined (HAVE_HDF5_18)
   data_hid = H5Dcreate (group_hid, "cidx", H5T_NATIVE_IDX, space_hid,
-                        octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                        octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                        octave_H5P_DEFAULT);
 #else
   data_hid = H5Dcreate (group_hid, "cidx", H5T_NATIVE_IDX, space_hid,
                         octave_H5P_DEFAULT);
@@ -526,7 +530,8 @@ octave_sparse_complex_matrix::save_hdf5 (octave_hdf5_id loc_id,
 
 #if defined (HAVE_HDF5_18)
   data_hid = H5Dcreate (group_hid, "ridx", H5T_NATIVE_IDX, space_hid,
-                        octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                        octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                        octave_H5P_DEFAULT);
 #else
   data_hid = H5Dcreate (group_hid, "ridx", H5T_NATIVE_IDX, space_hid,
                         octave_H5P_DEFAULT);
@@ -569,7 +574,7 @@ octave_sparse_complex_matrix::save_hdf5 (octave_hdf5_id loc_id,
 
       if (m.all_integers (max_val, min_val))
         save_type_hid
-          = save_type_to_hdf5 (get_save_type (max_val, min_val));
+          = save_type_to_hdf5 (octave::get_save_type (max_val, min_val));
     }
 #endif
 
@@ -582,7 +587,8 @@ octave_sparse_complex_matrix::save_hdf5 (octave_hdf5_id loc_id,
     }
 #if defined (HAVE_HDF5_18)
   data_hid = H5Dcreate (group_hid, "data", type_hid, space_hid,
-                        octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                        octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                        octave_H5P_DEFAULT);
 #else
   data_hid = H5Dcreate (group_hid, "data", type_hid, space_hid,
                         octave_H5P_DEFAULT);
@@ -601,8 +607,8 @@ octave_sparse_complex_matrix::save_hdf5 (octave_hdf5_id loc_id,
     {
       Complex *ctmp = m.xdata ();
 
-      retval = H5Dwrite (data_hid, complex_type_hid, octave_H5S_ALL, octave_H5S_ALL,
-                         octave_H5P_DEFAULT, ctmp) >= 0;
+      retval = H5Dwrite (data_hid, complex_type_hid, octave_H5S_ALL,
+                         octave_H5S_ALL, octave_H5P_DEFAULT, ctmp) >= 0;
     }
 
   H5Dclose (data_hid);

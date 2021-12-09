@@ -47,7 +47,7 @@ namespace octave
     template <typename SPARSE_T>
     class
     cxsparse_types
-      { };
+    { };
 
     template <>
     class
@@ -310,7 +310,7 @@ namespace octave
 
     // Convert real dense octave matrix to complex dense cholmod matrix.
     // Returns a "deep" copy of a.
-    static cholmod_dense*
+    static cholmod_dense *
     rod2ccd (const MArray<double>& a, cholmod_common *cc1)
     {
       cholmod_dense *A
@@ -329,7 +329,7 @@ namespace octave
     // Convert real dense octave matrix to real dense cholmod matrix.
     // Returns a "shallow" copy of a.
     static cholmod_dense
-    rod2rcd (const MArray<double> &a)
+    rod2rcd (const MArray<double>& a)
     {
       cholmod_dense A;
 
@@ -348,7 +348,7 @@ namespace octave
     // Convert complex dense octave matrix to complex dense cholmod matrix.
     // Returns a "shallow" copy of a.
     static cholmod_dense
-    cod2ccd (const ComplexMatrix &a)
+    cod2ccd (const ComplexMatrix& a)
     {
       cholmod_dense A;
 
@@ -359,7 +359,7 @@ namespace octave
       A.dtype = CHOLMOD_DOUBLE;
       A.z = nullptr;
       A.d = a.rows ();
-      A.x = const_cast<Complex*> (reinterpret_cast<const Complex*> (a.data ()));
+      A.x = const_cast<Complex *> (reinterpret_cast<const Complex *> (a.data ()));
 
       return A;
     }
@@ -416,7 +416,7 @@ namespace octave
 
     // Convert real sparse octave matrix to complex sparse cholmod matrix.
     // Returns a "deep" copy of a.
-    static cholmod_sparse*
+    static cholmod_sparse *
     ros2ccs (const SparseMatrix& a, cholmod_common *cc)
     {
       cholmod_sparse *A
@@ -690,7 +690,7 @@ namespace octave
 
     template <>
     Matrix
-    sparse_qr<SparseMatrix>::sparse_qr_rep::C (const Matrix &b, bool econ)
+    sparse_qr<SparseMatrix>::sparse_qr_rep::C (const Matrix& b, bool econ)
     {
 #if (defined (HAVE_SPQR) && defined (HAVE_CHOLMOD))
       octave_idx_type nr = (econ
@@ -737,7 +737,7 @@ namespace octave
       octave_idx_type nc = N->L->n;
       octave_idx_type nr = nrows;
 
-      const double *bvec = b.fortran_vec ();
+      const double *bvec = b.data ();
 
       Matrix ret (b_nr, b_nc);
       double *vec = ret.fortran_vec ();
@@ -808,7 +808,7 @@ namespace octave
         (reinterpret_cast<double *> (I->x))[i] = 0.0;
 
       for (octave_idx_type i = 0; i < nrows; i++)
-       (reinterpret_cast<double *> (I->x))[i * nrows + i] = 1.0;
+        (reinterpret_cast<double *> (I->x))[i * nrows + i] = 1.0;
 
       q = SuiteSparseQR_qmult<double> (SPQR_QX, m_H, m_Htau, m_HPinv, I, &m_cc);
       spqr_error_handler (&m_cc);
@@ -933,13 +933,13 @@ namespace octave
       else
         {
           R2_p = new suitesparse_integer[ncols+1];
-          SuiteSparse_long * R_p = reinterpret_cast<SuiteSparse_long *> (m_R->p);
+          SuiteSparse_long *R_p = reinterpret_cast<SuiteSparse_long *> (m_R->p);
           for (octave_idx_type i = 0; i < ncols+1; i++)
             R2_p[i] = suitesparse_long_to_suitesparse_integer (R_p[i]);
           R2.p = R2_p;
           octave_idx_type nnz = m_R->nzmax;
           R2_i = new suitesparse_integer[nnz];
-          SuiteSparse_long * R_i = reinterpret_cast<SuiteSparse_long *> (m_R->i);
+          SuiteSparse_long *R_i = reinterpret_cast<SuiteSparse_long *> (m_R->i);
           for (octave_idx_type i = 0; i < nnz; i++)
             R2_i[i] =  suitesparse_long_to_suitesparse_integer (R_i[i]);
           R2.i = R2_i;
@@ -1118,7 +1118,7 @@ namespace octave
           octave_quit ();
 
           for (octave_idx_type j = 0; j < b_nr; j++)
-            Xx[j] = b.xelem (j,i);
+            Xx[j] = b.xelem (j, i);
 
           for (octave_idx_type j = nr; j < S->m2; j++)
             buf[j] = 0.;
@@ -1205,7 +1205,7 @@ namespace octave
           octave_quit ();
 
           for (octave_idx_type j = 0; j < b_nr; j++)
-            Xx[j] = b.xelem (j,i);
+            Xx[j] = b.xelem (j, i);
 
           for (octave_idx_type j = nr; j < nbuf; j++)
             buf[j] = 0.;
@@ -1289,7 +1289,7 @@ namespace octave
 
           for (octave_idx_type j = 0; j < b_nr; j++)
             {
-              Complex c = b.xelem (j,i);
+              Complex c = b.xelem (j, i);
               Xx[j] = c.real ();
               Xz[j] = c.imag ();
             }
@@ -1375,7 +1375,7 @@ namespace octave
 
           for (octave_idx_type j = 0; j < b_nr; j++)
             {
-              Complex c = b.xelem (j,i);
+              Complex c = b.xelem (j, i);
               Xx[j] = c.real ();
               Xz[j] = c.imag ();
             }
@@ -1672,7 +1672,7 @@ namespace octave
       octave_idx_type nc = N->L->n;
       octave_idx_type nr = nrows;
       const cs_complex_t *bvec
-        = reinterpret_cast<const cs_complex_t *> (b.fortran_vec ());
+        = reinterpret_cast<const cs_complex_t *> (b.data ());
       ComplexMatrix ret (b_nr, b_nc);
       Complex *vec = ret.fortran_vec ();
 
@@ -1750,7 +1750,7 @@ namespace octave
       spqr_error_handler (&m_cc);
 
       Complex *q_x = reinterpret_cast<Complex *> (q->x);
-      Complex *ret_vec = const_cast<Complex*> (ret.fortran_vec ());
+      Complex *ret_vec = const_cast<Complex *> (ret.fortran_vec ());
 
       for (octave_idx_type j = 0; j < nc; j++)
         for (octave_idx_type i = 0; i < nrows; i++)
@@ -1857,7 +1857,7 @@ namespace octave
 
           for (octave_idx_type j = 0; j < b_nr; j++)
             {
-              Complex c = b.xelem (j,i);
+              Complex c = b.xelem (j, i);
               Xx[j] = c.real ();
               Xz[j] = c.imag ();
             }
@@ -1965,7 +1965,7 @@ namespace octave
 
           for (octave_idx_type j = 0; j < b_nr; j++)
             {
-              Complex c = b.xelem (j,i);
+              Complex c = b.xelem (j, i);
               Xx[j] = c.real ();
               Xz[j] = c.imag ();
             }
@@ -2066,7 +2066,7 @@ namespace octave
           octave_quit ();
 
           for (octave_idx_type j = 0; j < b_nr; j++)
-            Xx[j] = b.xelem (j,i);
+            Xx[j] = b.xelem (j, i);
 
           for (octave_idx_type j = nr; j < S->m2; j++)
             buf[j] = cs_complex_t (0.0, 0.0);
@@ -2136,7 +2136,7 @@ namespace octave
           octave_quit ();
 
           for (octave_idx_type j = 0; j < b_nr; j++)
-            Xx[j] = b.xelem (j,i);
+            Xx[j] = b.xelem (j, i);
 
           for (octave_idx_type j = nr; j < nbuf; j++)
             buf[j] = cs_complex_t (0.0, 0.0);
@@ -2199,7 +2199,7 @@ namespace octave
           octave_quit ();
 
           for (octave_idx_type j = 0; j < b_nr; j++)
-            Xx[j] = b.xelem (j,i);
+            Xx[j] = b.xelem (j, i);
 
           for (octave_idx_type j = nr; j < S->m2; j++)
             buf[j] = cs_complex_t (0.0, 0.0);
@@ -2297,7 +2297,7 @@ namespace octave
           octave_quit ();
 
           for (octave_idx_type j = 0; j < b_nr; j++)
-            Xx[j] = b.xelem (j,i);
+            Xx[j] = b.xelem (j, i);
 
           for (octave_idx_type j = nr; j < nbuf; j++)
             buf[j] = cs_complex_t (0.0, 0.0);
@@ -2374,7 +2374,7 @@ namespace octave
       octave_idx_type b_nr = b.rows ();
 
       const cs_complex_t *bvec = reinterpret_cast<const cs_complex_t *>
-                                 (b.fortran_vec ());
+                                 (b.data ());
 
       ComplexMatrix x (nc, b_nc);
       cs_complex_t *vec = reinterpret_cast<cs_complex_t *>
@@ -2437,7 +2437,7 @@ namespace octave
       octave_idx_type b_nr = b.rows ();
 
       const cs_complex_t *bvec = reinterpret_cast<const cs_complex_t *>
-                                 (b.fortran_vec ());
+                                 (b.data ());
 
       ComplexMatrix x (nc, b_nc);
       cs_complex_t *vec = reinterpret_cast<cs_complex_t *> (x.fortran_vec ());
@@ -2515,7 +2515,7 @@ namespace octave
           octave_quit ();
 
           for (octave_idx_type j = 0; j < b_nr; j++)
-            Xx[j] = b.xelem (j,i);
+            Xx[j] = b.xelem (j, i);
 
           for (octave_idx_type j = nr; j < S->m2; j++)
             buf[j] = cs_complex_t (0.0, 0.0);
@@ -2613,7 +2613,7 @@ namespace octave
           octave_quit ();
 
           for (octave_idx_type j = 0; j < b_nr; j++)
-            Xx[j] = b.xelem (j,i);
+            Xx[j] = b.xelem (j, i);
 
           for (octave_idx_type j = nr; j < nbuf; j++)
             buf[j] = cs_complex_t (0.0, 0.0);
@@ -2672,47 +2672,47 @@ namespace octave
 
     template <typename SPARSE_T>
     sparse_qr<SPARSE_T>::sparse_qr (void)
-      : rep (new sparse_qr_rep (SPARSE_T (), 0))
+      : m_rep (new sparse_qr_rep (SPARSE_T (), 0))
     { }
 
     template <typename SPARSE_T>
     sparse_qr<SPARSE_T>::sparse_qr (const SPARSE_T& a, int order)
-      : rep (new sparse_qr_rep (a, order))
+      : m_rep (new sparse_qr_rep (a, order))
     { }
 
     template <typename SPARSE_T>
     bool
     sparse_qr<SPARSE_T>::ok (void) const
     {
-      return rep->ok ();
+      return m_rep->ok ();
     }
 
     template <typename SPARSE_T>
     SPARSE_T
     sparse_qr<SPARSE_T>::V (void) const
     {
-      return rep->V ();
+      return m_rep->V ();
     }
 
     template <typename SPARSE_T>
     ColumnVector
     sparse_qr<SPARSE_T>::Pinv (void) const
     {
-      return rep->P ();
+      return m_rep->P ();
     }
 
     template <typename SPARSE_T>
     ColumnVector
     sparse_qr<SPARSE_T>::P (void) const
     {
-      return rep->P ();
+      return m_rep->P ();
     }
 
     template <typename SPARSE_T>
     ColumnVector
     sparse_qr<SPARSE_T>::E (void) const
     {
-      return rep->E();
+      return m_rep->E();
     }
 
 
@@ -2720,11 +2720,11 @@ namespace octave
     SparseMatrix
     sparse_qr<SPARSE_T>::E_MAT (void) const
     {
-      ColumnVector perm = rep->E ();
+      ColumnVector perm = m_rep->E ();
       octave_idx_type nrows = perm.rows ();
-      SparseMatrix ret (nrows,nrows,nrows);
+      SparseMatrix ret (nrows, nrows, nrows);
       for (octave_idx_type i = 0; i < nrows; i++)
-        ret(perm(i) - 1,i) = 1.0;
+        ret(perm(i) - 1, i) = 1.0;
       return ret;
     }
 
@@ -2733,7 +2733,7 @@ namespace octave
     SPARSE_T
     sparse_qr<SPARSE_T>::R (bool econ) const
     {
-      return rep->R (econ);
+      return m_rep->R (econ);
     }
 
     template <typename SPARSE_T>
@@ -2741,14 +2741,14 @@ namespace octave
     sparse_qr<SPARSE_T>::C (const typename SPARSE_T::dense_matrix_type& b,
                             bool econ) const
     {
-      return rep->C (b, econ);
+      return m_rep->C (b, econ);
     }
 
     template <typename SPARSE_T>
     typename SPARSE_T::dense_matrix_type
     sparse_qr<SPARSE_T>::Q (bool econ) const
     {
-      return rep->Q (econ);
+      return m_rep->Q (econ);
     }
 
 #if (defined (HAVE_SPQR) && defined (HAVE_CHOLMOD))
@@ -2969,7 +2969,7 @@ namespace octave
       Complex *vec = x.fortran_vec ();
 
       for (volatile octave_idx_type i = 0; i < nc * b_nc; i++)
-       vec[i] = reinterpret_cast<Complex *> (X->x)[i];
+        vec[i] = reinterpret_cast<Complex *> (X->x)[i];
 
       if (sizeof (octave_idx_type) != sizeof (SuiteSparse_long))
         {
@@ -3233,7 +3233,7 @@ namespace octave
     RET_T
     sparse_qr<SPARSE_T>::tall_solve (const RHS_T& b, octave_idx_type& info) const
     {
-      return rep->template tall_solve<RHS_T, RET_T> (b, info);
+      return m_rep->template tall_solve<RHS_T, RET_T> (b, info);
     }
 
     template <typename SPARSE_T>
@@ -3241,7 +3241,7 @@ namespace octave
     RET_T
     sparse_qr<SPARSE_T>::wide_solve (const RHS_T& b, octave_idx_type& info) const
     {
-      return rep->template wide_solve<RHS_T, RET_T> (b, info);
+      return m_rep->template wide_solve<RHS_T, RET_T> (b, info);
     }
 
     // Explicitly instantiate all member functions

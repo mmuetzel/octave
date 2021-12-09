@@ -86,6 +86,8 @@ namespace octave
     void start_gui (bool gui_app = false);
     void close_gui (void);
 
+    bool have_dialogs (void) const { return true; }
+
     std::list<std::string>
     file_dialog (const filter_list& filter, const std::string& title,
                  const std::string& filename, const std::string& pathname,
@@ -126,6 +128,9 @@ namespace octave
     void show_command_history (void);
 
     void show_workspace (void);
+
+    void show_community_news (int serial);
+    void show_release_notes (void);
 
     bool edit_file (const std::string& file);
 
@@ -278,6 +283,9 @@ namespace octave
     void show_command_history_signal (void);
 
     void show_workspace_signal (void);
+
+    void show_community_news_signal (int serial);
+    void show_release_notes_signal (void);
 
     // Note: this signal currently not used by the old terminal widget.
     void interpreter_output_signal (const QString& msg);

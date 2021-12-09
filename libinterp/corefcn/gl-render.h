@@ -63,7 +63,7 @@ namespace octave
     virtual void set_viewport (int w, int h);
     virtual void set_device_pixel_ratio (double dpr) { m_devpixratio = dpr; }
     virtual Matrix get_viewport_scaled (void) const;
-    virtual graphics_xform get_transform (void) const { return xform; }
+    virtual graphics_xform get_transform (void) const { return m_xform; }
     virtual uint8NDArray get_pixels (int width, int height);
 
     virtual void draw_zoom_box (int width, int height,
@@ -76,6 +76,7 @@ namespace octave
     virtual void finish (void);
 
   protected:
+
     virtual void draw_figure (const figure::properties& props);
     virtual void draw_axes (const axes::properties& props);
     virtual void draw_line (const line::properties& props);
@@ -102,7 +103,7 @@ namespace octave
     virtual void set_color (const Matrix& c);
     virtual void set_interpreter (const caseless_str& interp)
     {
-      interpreter = interp;
+      m_interpreter = interp;
     }
     virtual void set_linewidth (float w);
     virtual void set_linestyle (const std::string& s, bool stipple = false,
@@ -112,7 +113,7 @@ namespace octave
     virtual void set_polygon_offset (bool on, float offset = 0.0f);
     virtual void set_selecting (bool on)
     {
-      selecting = on;
+      m_selecting = on;
     }
 
     virtual void init_marker (const std::string& m, double size, float width);
@@ -145,7 +146,8 @@ namespace octave
                               double p1, double p1N, double p2, double p2N,
                               int xyz, bool is_3D);
 
-    virtual void render_tickmarks (const Matrix& ticks, double lim1, double lim2,
+    virtual void render_tickmarks (const Matrix& ticks,
+                                   double lim1, double lim2,
                                    double p1, double p1N, double p2, double p2N,
                                    double dx, double dy, double dz,
                                    int xyz, bool doubleside);
@@ -159,7 +161,24 @@ namespace octave
 
     virtual void draw_zoom_rect (int x1, int y1, int x2, int y2);
 
+    //--------
+
+    opengl_functions& m_glfcns;
+
+    // axis limits in model scaled coordinate
+    double m_xmin, m_xmax;
+    double m_ymin, m_ymax;
+    double m_zmin, m_zmax;
+
+    // Factor used for translating Octave pixels to actual device pixels
+    double m_devpixratio;
+
+    // axes transformation data
+    graphics_xform m_xform;
+
   private:
+
+    class patch_tessellator;
 
     void init_maxlights (void);
 
@@ -175,12 +194,12 @@ namespace octave
 
     uint8_t clip_code (double x, double y, double z) const
     {
-      return ((x < xmin ? 1 : 0)
-              | (x > xmax ? 1 : 0) << 1
-              | (y < ymin ? 1 : 0) << 2
-              | (y > ymax ? 1 : 0) << 3
-              | (z < zmin ? 1 : 0) << 4
-              | (z > zmax ? 1 : 0) << 5
+      return ((x < m_xmin ? 1 : 0)
+              | (x > m_xmax ? 1 : 0) << 1
+              | (y < m_ymin ? 1 : 0) << 2
+              | (y > m_ymax ? 1 : 0) << 3
+              | (z < m_zmin ? 1 : 0) << 4
+              | (z > m_zmax ? 1 : 0) << 5
               | (is_nan_or_inf (x, y, z) ? 0 : 1) << 6);
     }
 
@@ -214,52 +233,34 @@ namespace octave
     void draw_texture_image (const octave_value cdata,
                              Matrix x, Matrix y, bool ortho = false);
 
-  protected:
+    //--------
 
-    opengl_functions& m_glfcns;
-
-    // axis limits in model scaled coordinate
-    double xmin, xmax;
-    double ymin, ymax;
-    double zmin, zmax;
-
-    // Factor used for translating Octave pixels to actual device pixels
-    double m_devpixratio;
-
-    // axes transformation data
-    graphics_xform xform;
-
-  private:
-
-    // The graphics toolkit associated with the figure being rendered.
-    graphics_toolkit toolkit;
+    // The graphics m_toolkit associated with the figure being rendered.
+    graphics_toolkit m_toolkit;
 
     // Z projection limits in windows coordinate
-    double xZ1, xZ2;
+    double m_xZ1, m_xZ2;
 
     // call lists identifiers for markers
-    unsigned int marker_id, filled_marker_id;
+    unsigned int m_marker_id, m_filled_marker_id;
 
     // camera information for primitive sorting and lighting
-    ColumnVector camera_pos, camera_dir, view_vector;
+    ColumnVector m_camera_pos, m_camera_dir, m_view_vector;
 
     // interpreter to be used by text_to_pixels
-    caseless_str interpreter;
+    caseless_str m_interpreter;
 
-    text_renderer txt_renderer;
+    text_renderer m_txt_renderer;
 
     // light object present and visible
     unsigned int m_current_light;
     unsigned int m_max_lights;
 
     // Indicate we are drawing for selection purpose
-    bool selecting;
+    bool m_selecting;
 
     // Indicate we are drawing for printing purpose
     bool m_printing;
-
-  private:
-    class patch_tessellator;
   };
 }
 

@@ -37,12 +37,12 @@
 
 // These only appear as reference arguments or return values.
 
-template <typename T> class Array;
 class Cell;
 class octave_value;
 class octave_value_list;
 class string_vector;
 
+#include "Array-fwd.h"
 #include "data-conv.h"
 #include "mach-info.h"
 
@@ -476,7 +476,8 @@ namespace octave
     lookup (const octave_value& fid, const std::string& who = "") const;
 
     OCTINTERP_API int remove (int fid, const std::string& who = "");
-    OCTINTERP_API int remove (const octave_value& fid, const std::string& who = "");
+    OCTINTERP_API int remove (const octave_value& fid,
+                              const std::string& who = "");
 
     OCTINTERP_API void clear (bool flush = true);
 

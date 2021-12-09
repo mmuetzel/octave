@@ -7,9 +7,9 @@
 //
 // This file is part of Octave.
 //
-// Octave is free software; you can redistribute it and/or modify it
+// Octave is free software: you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 3 of the License, or
+// the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
 // Octave is distributed in the hope that it will be useful, but
@@ -19,7 +19,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Octave; see the file COPYING.  If not, see
-// <http://www.gnu.org/licenses/>.
+// <https://www.gnu.org/licenses/>.
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -832,10 +832,11 @@ wmain (int argc, wchar_t **wargv)
   // convert wide character strings to multibyte UTF-8 strings
   std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wchar_conv;
   for (int i_arg = 0; i_arg < argc; i_arg++)
-    {
-      argv_str.push_back (wchar_conv.to_bytes (wargv[i_arg]));
-      argv[i_arg] = &argv_str[i_arg][0];
-    }
+    argv_str.push_back (wchar_conv.to_bytes (wargv[i_arg]));
+
+  // Get pointers to C strings not before vector is stable.
+  for (int i_arg = 0; i_arg < argc; i_arg++)
+    argv[i_arg] = &argv_str[i_arg][0];
   argv[argc] = nullptr;
 
 #else

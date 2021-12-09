@@ -35,8 +35,8 @@
 #include "pager.h"
 #include "profiler.h"
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   profiler::stats::stats (void)
     : m_time (0.0), m_calls (0), m_recursive (false),
       m_parents (), m_children ()
@@ -99,7 +99,8 @@ namespace octave
   void
   profiler::tree_node::build_flat (flat_profile& data) const
   {
-    // If this is not the top-level node, update profile entry for this function.
+    // If this is not the top-level node,
+    // update profile entry for this function.
     if (m_fcn_id != 0)
       {
         stats& entry = data[m_fcn_id - 1];
@@ -230,19 +231,21 @@ namespace octave
     if (m_active_fcn)
       {
         assert (m_call_tree);
-        // FIXME: This assert statements doesn't make sense if profile() is called
-        //        from within a function hierarchy to begin with.  See bug #39587.
+        // FIXME: This assert statements doesn't make sense if profile() is
+        // called from within a function hierarchy to begin with.  See bug
+        // #39587.
         //assert (m_active_fcn != m_call_tree);
 
-        // Usually, if we are disabled this function is not even called.  But the
-        // call disabling the profiler is an exception.  So also check here
+        // Usually, if we are disabled this function is not even called.  But
+        // the call disabling the profiler is an exception.  So also check here
         // and only record the time if enabled.
         if (enabled ())
           add_current_time ();
 
         fcn_index_map::iterator pos = m_fcn_index.find (fcn);
-        // FIXME: This assert statements doesn't make sense if profile() is called
-        //        from within a function hierarchy to begin with.  See bug #39587.
+        // FIXME: This assert statements doesn't make sense if profile() is
+        // called from within a function hierarchy to begin with.  See bug
+        // #39587.
         //assert (pos != m_fcn_index.end ());
         m_active_fcn = m_active_fcn->exit (pos->second);
 
@@ -381,7 +384,6 @@ namespace octave
         m_active_fcn->add_time (t - m_last_time);
       }
   }
-}
 
 // Enable or disable the profiler data collection.
 DEFMETHOD (__profiler_enable__, interp, args, ,
@@ -395,7 +397,7 @@ Undocumented internal function.
   if (nargin > 1)
     print_usage ();
 
-  octave::profiler& profiler = interp.get_profiler ();
+  profiler& profiler = interp.get_profiler ();
 
   if (nargin == 1)
     {
@@ -405,7 +407,7 @@ Undocumented internal function.
       if (args(0).bool_value ())
         status = "on";
 
-      octave::event_manager& evmgr = interp.get_event_manager ();
+      event_manager& evmgr = interp.get_event_manager ();
       evmgr.gui_status_update ("profiler", status);  // tell GUI
     }
 
@@ -422,7 +424,7 @@ Undocumented internal function.
   if (args.length () != 0)
     print_usage ();
 
-  octave::profiler& profiler = interp.get_profiler ();
+  profiler& profiler = interp.get_profiler ();
 
   profiler.reset ();
 
@@ -439,10 +441,12 @@ Undocumented internal function.
   if (args.length () != 0)
     print_usage ();
 
-  octave::profiler& profiler = interp.get_profiler ();
+  profiler& profiler = interp.get_profiler ();
 
   if (nargout > 1)
     return ovl (profiler.get_flat (), profiler.get_hierarchical ());
   else
     return ovl (profiler.get_flat ());
 }
+
+OCTAVE_NAMESPACE_END

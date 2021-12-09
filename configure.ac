@@ -27,7 +27,7 @@ dnl
 
 ### Initialize Autoconf
 AC_PREREQ([2.65])
-AC_INIT([GNU Octave], [7.0.0], [https://octave.org/bugs.html], [octave],
+AC_INIT([GNU Octave], [8.0.0], [https://octave.org/bugs.html], [octave],
         [https://www.gnu.org/software/octave/])
 
 ### Declare version numbers
@@ -39,16 +39,16 @@ dnl AC_INIT requires it to be static, not computed from shell variables.
 ## explains how to update these numbers for release and development
 ## versions.
 
-OCTAVE_MAJOR_VERSION=7
+OCTAVE_MAJOR_VERSION=8
 OCTAVE_MINOR_VERSION=0
 OCTAVE_PATCH_VERSION=0
 
 dnl PACKAGE_VERSION is set by the AC_INIT VERSION argument.
 OCTAVE_VERSION="$PACKAGE_VERSION"
 
-OCTAVE_COPYRIGHT="Copyright (C) 2020 The Octave Project Developers."
+OCTAVE_COPYRIGHT="Copyright (C) 2021 The Octave Project Developers."
 
-OCTAVE_RELEASE_DATE="2020-08-26"
+OCTAVE_RELEASE_DATE="2021-11-24"
 
 ## The "API version" is used as a way of checking that interfaces in the
 ## liboctave and libinterp libraries haven't changed in a backwardly
@@ -107,8 +107,15 @@ OCTAVE_SET_DEFAULT([octlibdir], '${libdir}/octave/${version}')
 ## Where to put executables to be run by Octave, rather than the user.
 ## This path usually includes the Octave version and configuration name, so
 ## that configurations for multiple versions of Octave may be installed at once.
-OCTAVE_SET_DEFAULT([archlibdir],
-  '${libexecdir}/octave/${version}/exec/${canonical_host_type}')
+## Windows search paths and relocation oddities require all binaries must be
+## installed in the same directory.
+case $host_os in
+  mingw* | msdosmsvc)
+    OCTAVE_SET_DEFAULT([archlibdir], '${bindir}') ;;
+  *)
+    OCTAVE_SET_DEFAULT([archlibdir],
+      '${libexecdir}/octave/${version}/exec/${canonical_host_type}') ;;
+esac
 
 ## Where to put executables to be run by Octave, rather than the user, that
 ## are specific to this site.
@@ -1378,43 +1385,50 @@ OCTAVE_CHECK_LIB(pcre, PCRE,
 
 ### Check for RapidJSON header only library.
 
+check_for_rapidjson=yes
+AC_ARG_ENABLE([rapidjson],
+  [AS_HELP_STRING([--disable-rapidjson],
+    [disable rapidjson])],
+  [if test "$enableval" = no; then check_for_rapidjson=no; fi], [])
 warn_rapidjson=
-AC_LANG_PUSH(C++)
-AC_CHECK_HEADER([rapidjson/rapidjson.h],
-                [have_rapidjson=yes],
-                [have_rapidjson=no
-                 warn_rapidjson="RapidJSON library not found.  Octave will not be able to read or write JSON files."])
+if test $check_for_rapidjson = yes; then
+  AC_LANG_PUSH(C++)
+  AC_CHECK_HEADER([rapidjson/rapidjson.h],
+                  [have_rapidjson=yes],
+                  [have_rapidjson=no
+                   warn_rapidjson="RapidJSON library not found.  Octave will not be able to read or write JSON files."])
 
-if test $have_rapidjson = yes; then
-  AC_DEFINE(HAVE_RAPIDJSON, 1, [Define to 1 if RapidJSON is available.])
+  if test $have_rapidjson = yes; then
+    AC_DEFINE(HAVE_RAPIDJSON, 1, [Define to 1 if RapidJSON is available.])
 
-  ## Additional check on RapidJSON library that was found
-  ## Some features of the version of RapidJSON that is packaged in many
-  ## distributions do not build correctly with newer compilers.
-  ## See also:
-  ## https://github.com/Tencent/rapidjson/issues/909
-  ## https://github.com/Tencent/rapidjson/issues/1718
-  AC_CACHE_CHECK([for working PrettyWriter in RapidJSON],
-    [octave_cv_rapidjson_has_prettywriter],
-    [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-      #include <rapidjson/prettywriter.h>
-      ]], [[
-      rapidjson::StringBuffer json;
-      rapidjson::PrettyWriter<rapidjson::StringBuffer, rapidjson::UTF8<>,
-                              rapidjson::UTF8<>, rapidjson::CrtAllocator,
-                              rapidjson::kWriteNanAndInfFlag> writer (json);
-      ]])],
-      [octave_cv_rapidjson_has_prettywriter=yes],
-      [octave_cv_rapidjson_has_prettywriter=no])
-    ])
-  if test $octave_cv_rapidjson_has_prettywriter = yes; then
-    AC_DEFINE(HAVE_RAPIDJSON_PRETTYWRITER, 1,
-      [Define to 1 if the RapidJSON PrettyWriter function is available.])
-  else
-    warn_rapidjson='RapidJSON library found, but some features do not seem to work properly.  The "PrettyWriter" option in jsonencode will be disabled.'
+    ## Additional check on RapidJSON library that was found
+    ## Some features of the version of RapidJSON that is packaged in many
+    ## distributions do not build correctly with newer compilers.
+    ## See also:
+    ## https://github.com/Tencent/rapidjson/issues/909
+    ## https://github.com/Tencent/rapidjson/issues/1718
+    AC_CACHE_CHECK([for working PrettyWriter in RapidJSON],
+      [octave_cv_rapidjson_has_prettywriter],
+      [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+        #include <rapidjson/prettywriter.h>
+        ]], [[
+        rapidjson::StringBuffer json;
+        rapidjson::PrettyWriter<rapidjson::StringBuffer, rapidjson::UTF8<>,
+                                rapidjson::UTF8<>, rapidjson::CrtAllocator,
+                                rapidjson::kWriteNanAndInfFlag> writer (json);
+        ]])],
+        [octave_cv_rapidjson_has_prettywriter=yes],
+        [octave_cv_rapidjson_has_prettywriter=no])
+      ])
+    if test $octave_cv_rapidjson_has_prettywriter = yes; then
+      AC_DEFINE(HAVE_RAPIDJSON_PRETTYWRITER, 1,
+        [Define to 1 if the RapidJSON PrettyWriter function is available.])
+    else
+      warn_rapidjson='RapidJSON library found, but some features do not seem to work properly.  The "PrettyWriter" option in jsonencode will be disabled.'
+    fi
   fi
+  AC_LANG_POP([C++])
 fi
-AC_LANG_POP([C++])
 
 if test -n "$warn_rapidjson"; then
   OCTAVE_CONFIGURE_WARNING([warn_rapidjson])
@@ -1456,119 +1470,6 @@ OCTAVE_CHECK_LIB(bz2, BZIP2,
   [BZIP2 library not found.  Octave will not be able to compress or decompress bzip2 files.],
   [bzlib.h], [BZ2_bzCompressInit])
 
-### Check for the LLVM library (JIT compiler).
-
-ENABLE_JIT=no
-AC_ARG_ENABLE([jit],
-  [AS_HELP_STRING([--enable-jit],
-    [(EXPERIMENTAL) enable JIT compiler])],
-  [if test "$enableval" = yes; then ENABLE_JIT=yes; fi], [])
-
-LLVM_CPPFLAGS=
-LLVM_LDFLAGS=
-LLVM_LIBS=
-
-if test $ENABLE_JIT = yes; then
-
-  ## Find llvm-config program from environment variable or by searching
-  AC_ARG_VAR([LLVM_CONFIG], [path to llvm-config utility])
-  AC_CHECK_PROG([LLVM_CONFIG], llvm-config, llvm-config, [])
-
-  if test -z "$LLVM_CONFIG"; then
-    warn_llvm="llvm-config utility not found.  JIT compiler is disabled."
-  else
-    dnl Preset warning message in case compile fails
-    warn_llvm="LLVM was not found or is to old.  JIT compiler is disabled."
-
-    save_CPPFLAGS="$CPPFLAGS"
-    save_LDFLAGS="$LDFLAGS"
-
-    dnl Use -isystem if available because we don't want to see warnings in LLVM
-    LLVM_INCLUDE_FLAG=-I
-    OCTAVE_CC_FLAG([-isystem .], [
-      LLVM_INCLUDE_FLAG=-isystem
-      AC_MSG_NOTICE([using -isystem for LLVM headers])])
-
-    dnl Use -isystem so we don't get warnings from llvm headers
-    LLVM_CPPFLAGS="$LLVM_INCLUDE_FLAG `$LLVM_CONFIG --includedir`"
-    LLVM_LDFLAGS="-L`$LLVM_CONFIG --libdir`"
-
-    LDFLAGS="$LDFLAGS $LLVM_LDFLAGS"
-    LLVM_SO=LLVM-`$LLVM_CONFIG --version`
-    AC_CHECK_LIB([$LLVM_SO], [LLVMBuildAdd], [LLVM_LIBS="-l$LLVM_SO"],
-                 [LLVM_LIBS="`$LLVM_CONFIG --libs` `$LLVM_CONFIG --system-libs`"])
-
-    dnl Define some extra flags that LLVM requires in order to include headers.
-    dnl Ideally we should get these from llvm-config, but llvm-config isn't
-    dnl very helpful.
-    CPPFLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS $LLVM_CPPFLAGS $CPPFLAGS"
-    AC_LANG_PUSH(C++)
-    AC_CHECK_HEADER([llvm/Support/TargetSelect.h], [warn_llvm=""])
-
-    have_function_h=no
-    AC_CHECK_HEADERS([llvm/IR/Function.h llvm/Function.h],
-                     [have_function_h=yes; break])
-    if test $have_function_h = no; then
-      warn_llvm="Missing LLVM file Function.h.  JIT compiler is disabled."
-    fi
-
-    have_irbuilder_h=no
-    AC_CHECK_HEADERS([llvm/Support/IRBuilder.h llvm/IR/IRBuilder.h \
-                      llvm/IRBuilder.h], [have_irbuilder_h=yes; break])
-    if test $have_irbuilder_h = no; then
-      warn_llvm="Missing LLVM file IRBuilder.h.  JIT compiler is disabled."
-    fi
-
-    have_llvm_data_h=no
-    AC_CHECK_HEADERS([llvm/Target/TargetData.h llvm/IR/DataLayout.h \
-                      llvm/DataLayout.h], [have_llvm_data_h=yes; break])
-    if test $have_llvm_data_h = no; then
-      warn_llvm="Missing LLVM file TargetData.h.  JIT compiler is disabled."
-    fi
-
-    AC_CHECK_HEADERS([llvm/IR/Verifier.h])
-    AC_CHECK_HEADERS([llvm/Analysis/BasicAliasAnalysis.h])
-    AC_CHECK_HEADERS([llvm/Transforms/Scalar/GVN.h])
-    AC_CHECK_HEADERS([llvm/Bitcode/ReaderWriter.h])
-
-    OCTAVE_LLVM_FUNCTION_ADDATTRIBUTE_API
-    OCTAVE_LLVM_FUNCTION_ADDFNATTR_API
-    OCTAVE_LLVM_CALLINST_ADDATTRIBUTE_API
-    OCTAVE_LLVM_RAW_FD_OSTREAM_API
-    OCTAVE_LLVM_LEGACY_PASSMANAGER_API
-    OCTAVE_LLVM_IRBUILDER_API
-    OCTAVE_LLVM_HAS_CREATEALWAYSINLINERPASS
-    OCTAVE_LLVM_IRBUILDER_CREATECONSTINBOUNDSGEP1_32_API
-
-    AC_LANG_POP(C++)
-    CPPFLAGS="$save_CPPFLAGS"
-    LDFLAGS="$save_LDFLAGS"
-  fi
-
-  if test -z "$warn_llvm"; then
-    AC_DEFINE(HAVE_LLVM, 1, [Define to 1 if LLVM is available.])
-  else
-    ENABLE_JIT=no
-    LLVM_CPPFLAGS=
-    LLVM_LDFLAGS=
-    LLVM_LIBS=
-    OCTAVE_CONFIGURE_WARNING([warn_llvm])
-  fi
-dnl FIXME: Re-instate when JIT is enabled by default
-dnl else
-dnl   ## JIT build disabled
-dnl   warn_llvm="JIT compiler disabled, some performance loss for loops"
-dnl   OCTAVE_CONFIGURE_WARNING([warn_llvm])
-fi
-if test $ENABLE_JIT = yes; then
-  AC_DEFINE(ENABLE_JIT, 1, [Define to 1 to enable JIT compiler.])
-fi
-
-AC_SUBST(LLVM_CPPFLAGS)
-AC_SUBST(LLVM_LDFLAGS)
-AC_SUBST(LLVM_LIBS)
-AM_CONDITIONAL([AMCOND_HAVE_LLVM], [test -z "$warn_llvm"])
-
 ### Check for HDF5 library.
 
 save_CPPFLAGS="$CPPFLAGS"
@@ -1580,6 +1481,7 @@ OCTAVE_CHECK_LIB(hdf5, HDF5,
   [hdf5.h], [H5Gget_num_objs], [], [],
   [warn_hdf5=
    OCTAVE_CHECK_HDF5_HAS_VER_16_API
+   OCTAVE_CHECK_HDF5_HAS_UTF8_API
    AC_DEFINE(HAVE_HDF5, 1,
      [Define to 1 if HDF5 is available and newer than version 1.6.])
    if test $have_msvc = yes; then
@@ -1730,12 +1632,12 @@ check_magick=yes
 use_magick=no
 AC_ARG_WITH([magick],
   [AS_HELP_STRING([--with-magick=LIB],
-    [select library to use for image I/O (options: GraphicsMagick(default) or ImageMagick)])],
+    [select library to use for image I/O (options: GraphicsMagick++(default) or ImageMagick++)])],
   [if test x"$withval" = xno; then
      check_magick=no
    else
      magick="$withval"
-   fi], [magick="GraphicsMagick"])
+   fi], [magick="GraphicsMagick++"])
 
 if test $check_magick = yes; then
 
@@ -1743,16 +1645,21 @@ if test $check_magick = yes; then
   MAGICK_LDFLAGS=
   MAGICK_LIBS=
 
-  PKG_CHECK_EXISTS([$magick++], [
-    dnl Make sure we only get -I, -L, and -l flags.
-    dnl Some Graphics/ImageMagick++ dnl packages add extra flags that are
-    dnl useful when building Graphics/ImageMagick++ extensions.  These extra
-    dnl flags break the Octave build.
-    MAGICK_CPPFLAGS="$($PKG_CONFIG --cflags-only-I $magick++ | $SED -e 's/^ *$//')"
-    MAGICK_LDFLAGS="$($PKG_CONFIG --libs-only-L $magick++ | $SED -e 's/^ *$//')"
-    MAGICK_LIBS="$($PKG_CONFIG --libs-only-l $magick++ | $SED -e 's/^ *$//')"
+  PKG_CHECK_EXISTS([$magick], [
+    dnl We are using --cflags now instead of --cflags-only-I because some
+    dnl Graphics/ImageMagick++ packages will provide -D options for
+    dnl MAGICKCORE_HDRI_ENABLE and MAGICKCORE_QUANTUM_DEPTH that are needed
+    dnl for building with a particular verison of the library.  If there
+    dnl are other flags in the output from pkg-config --cflags that cause
+    dnl trouble, then we may need to go back to using --cflags-only-I and
+    dnl have a configure test to determine the proper definitions of
+    dnl MAGICKCORE_HDRI_ENABLE and MAGICKCORE_QUANTUM_DEPTH.
+    dnl See also bug #49563.
+    MAGICK_CPPFLAGS="$($PKG_CONFIG --cflags $magick | $SED -e 's/^ *$//')"
+    MAGICK_LDFLAGS="$($PKG_CONFIG --libs-only-L $magick | $SED -e 's/^ *$//')"
+    MAGICK_LIBS="$($PKG_CONFIG --libs-only-l $magick | $SED -e 's/^ *$//')"
 
-    warn_magick="$magick++ library fails tests.  The imread, imwrite, and imfinfo functions for reading and writing image files will not be fully functional."
+    warn_magick="$magick library fails tests.  The imread, imwrite, and imfinfo functions for reading and writing image files will not be fully functional."
 
     save_CPPFLAGS="$CPPFLAGS"
     save_LIBS="$LIBS"
@@ -1762,7 +1669,7 @@ if test $check_magick = yes; then
     AC_CHECK_HEADER([Magick++.h], [
       AC_CACHE_CHECK([for Magick::ColorRGB in Magick++.h],
         [octave_cv_func_magick_colorrgb],
-        [AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+        [AC_LINK_IFELSE([AC_LANG_PROGRAM([[
           #include <Magick++.h>
           ]], [[
           Magick::ColorRGB c;
@@ -1780,7 +1687,7 @@ if test $check_magick = yes; then
     LIBS="$save_LIBS"
   ],
   [use_magick=no
-   warn_magick="$magick++ library not found.  The imread, imwrite, and imfinfo functions for reading and writing image files will not be fully functional."])
+   warn_magick="$magick library not found.  The imread, imwrite, and imfinfo functions for reading and writing image files will not be fully functional."])
 fi
 
 if test $use_magick = yes; then
@@ -2214,7 +2121,7 @@ if test -n "$CXSPARSE_LIBS"; then
   if test $octave_cv_lib_cxsparse = yes; then
     OCTAVE_CHECK_CXSPARSE_VERSION_OK
     if test $octave_cv_cxsparse_version_ok = no; then
-      AC_MSG_ERROR([CXSparse library is too old (< version 2.2).  Upgrade CXSparse (SuiteSparse) or configure Octave with --disable-cxsparse"])
+      AC_MSG_ERROR([CXSparse library is too old (< version 2.2).  Upgrade CXSparse (SuiteSparse) or configure Octave with --without-cxsparse"])
     fi
   fi
 fi
@@ -2720,6 +2627,7 @@ AC_SUBST(OCTAVE_RELOCATE_ALL)
 if test $OCTAVE_RELOCATE_ALL = yes; then
   AC_DEFINE(OCTAVE_REPLACE_PREFIX, 1, [Replace prefix in mkoctfile flags.])
 fi
+AM_CONDITIONAL([AMCOND_RELOCATE_ALL], [test $OCTAVE_RELOCATE_ALL = yes])
 
 ### Determine whether Mercurial ID should be embedded in library binaries.
 
@@ -2880,7 +2788,9 @@ fi
 AM_CONDITIONAL([AMCOND_ADDRESS_SANITIZER_ENABLED],
   [test $try_address_sanitizer_flags = yes])
 
+ADDRESS_SANITIZER_ENABLED=no
 if test $try_address_sanitizer_flags = yes; then
+  ADDRESS_SANITIZER_ENABLED=yes
   for flag in $GCC_ADDRESS_SANITIZER_FLAGS; do
     OCTAVE_CC_FLAG([$flag], [
       WARN_CFLAGS="$WARN_CFLAGS $flag";
@@ -2898,6 +2808,7 @@ if test $try_address_sanitizer_flags = yes; then
       AC_MSG_RESULT([adding $flag to WARN_LDFLAGS])])
   done
 fi
+AC_SUBST(ADDRESS_SANITIZER_ENABLED)
 
 AC_SUBST(WARN_CFLAGS)
 AC_SUBST(WARN_CXXFLAGS)
@@ -2966,9 +2877,9 @@ LIBOCTAVE_LINK_OPTS="$CURL_LDFLAGS $SPARSE_XLDFLAGS $ARPACK_LDFLAGS $QRUPDATE_LD
 AC_SUBST(LIBOCTAVE_LINK_DEPS)
 AC_SUBST(LIBOCTAVE_LINK_OPTS)
 
-LIBOCTINTERP_LINK_DEPS="$FT2_LIBS $HDF5_LIBS $MAGICK_LIBS $Z_LIBS $SPARSE_XLIBS $FFTW_XLIBS $OPENGL_LIBS $FONTCONFIG_LIBS $FREETYPE_LIBS $X11_LIBS $CARBON_LIBS $GL2PS_LIBS $LLVM_LIBS $JAVA_LIBS $LAPACK_LIBS"
+LIBOCTINTERP_LINK_DEPS="$FT2_LIBS $HDF5_LIBS $MAGICK_LIBS $Z_LIBS $SPARSE_XLIBS $FFTW_XLIBS $OPENGL_LIBS $FONTCONFIG_LIBS $FREETYPE_LIBS $X11_LIBS $CARBON_LIBS $GL2PS_LIBS $JAVA_LIBS $LAPACK_LIBS"
 
-LIBOCTINTERP_LINK_OPTS="$FT2_LDFLAGS $HDF5_LDFLAGS $MAGICK_LDFLAGS $Z_LDFLAGS $SPARSE_XLDFLAGS $FFTW_XLDFLAGS $LLVM_LDFLAGS"
+LIBOCTINTERP_LINK_OPTS="$FT2_LDFLAGS $HDF5_LDFLAGS $MAGICK_LDFLAGS $Z_LDFLAGS $SPARSE_XLDFLAGS $FFTW_XLDFLAGS"
 
 OCTAVE_LINK_DEPS=""
 OCTAVE_LINK_OPTS=""
@@ -3240,9 +3151,6 @@ Octave is now configured for $canonical_host_type
   KLU LDFLAGS:                   $KLU_LDFLAGS
   KLU libraries:                 $KLU_LIBS
   LAPACK libraries:              $LAPACK_LIBS
-  LLVM CPPFLAGS:                 $LLVM_CPPFLAGS
-  LLVM LDFLAGS:                  $LLVM_LDFLAGS
-  LLVM libraries:                $LLVM_LIBS
   Magick++ CPPFLAGS:             $MAGICK_CPPFLAGS
   Magick++ LDFLAGS:              $MAGICK_LDFLAGS
   Magick++ libraries:            $MAGICK_LIBS
@@ -3302,7 +3210,6 @@ Octave is now configured for $canonical_host_type
   gnuplot:                       $GNUPLOT_BINARY
 
   Build Octave Qt GUI:                  $BUILD_QT_SUMMARY_MSG
-  JIT compiler for loops:               $ENABLE_JIT
   Build Java interface:                 $build_java
   Build static libraries:               $STATIC_LIBS
   Build shared libraries:               $SHARED_LIBS

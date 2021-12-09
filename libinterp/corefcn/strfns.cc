@@ -48,6 +48,8 @@
 
 #include "oct-string.h"
 
+OCTAVE_NAMESPACE_BEGIN
+
 DEFUN (char, args, ,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {} char (@var{x})
@@ -529,12 +531,12 @@ do_strcmp_fun (const octave_value& arg0, const octave_value& arg1,
 template <typename T, typename T_size_type>
 static bool
 strcmp_ignore_n (const T& s1, const T& s2, T_size_type)
-{ return octave::string::strcmp (s1, s2); }
+{ return string::strcmp (s1, s2); }
 
 template <typename T, typename T_size_type>
 static bool
 strcmpi_ignore_n (const T& s1, const T& s2, T_size_type)
-{ return octave::string::strcmpi (s1, s2); }
+{ return string::strcmpi (s1, s2); }
 
 
 DEFUN (strcmp, args, ,
@@ -650,8 +652,8 @@ This is just the opposite of the corresponding C library function.
 
   if (n > 0)
     return ovl (do_strcmp_fun (args(0), args(1), n, "strncmp",
-                               octave::string::strncmp,
-                               octave::string::strncmp));
+                               string::strncmp,
+                               string::strncmp));
   else
     error ("strncmp: N must be greater than 0");
 }
@@ -663,7 +665,8 @@ This is just the opposite of the corresponding C library function.
 %!assert (strncmp ("abce", {"abcd", "bca", "abc"}, 3), logical ([1, 0, 1]))
 %!assert (strncmp ("abc",  {"abcd", "bca", "abc"}, 4), logical ([0, 0, 1]))
 %!assert (strncmp ({"abcd", "bca", "abc"},"abce", 3), logical ([1, 0, 1]))
-%!assert (strncmp ({"abcd", "bca", "abc"},{"abcd", "bca", "abe"}, 3), logical ([1, 1, 0]))
+%!assert (strncmp ({"abcd", "bca", "abc"},{"abcd", "bca", "abe"}, 3),
+%!        logical ([1, 1, 0]))
 %!assert (strncmp ("abc", {"abcd", 10}, 2), logical ([1, 0]))
 
 %!assert <*54373> (strncmp ("abc", "abc", 100))
@@ -730,8 +733,8 @@ This is just the opposite of the corresponding C library function.
 
   if (n > 0)
     return ovl (do_strcmp_fun (args(0), args(1), n, "strncmpi",
-                               octave::string::strncmpi,
-                               octave::string::strncmpi));
+                               string::strncmpi,
+                               string::strncmpi));
   else
     error ("strncmpi: N must be greater than 0");
 }
@@ -797,31 +800,31 @@ risk of using @code{eval} on unknown data.
   if (args(0).is_string ())
     {
       if (args(0).rows () == 0 || args(0).columns () == 0)
-        retval = Matrix (1, 1, octave::numeric_limits<double>::NaN ());
+        retval = Matrix (1, 1, numeric_limits<double>::NaN ());
       else if (args(0).rows () == 1 && args(0).ndims () == 2)
-        retval = octave::string::str2double (args(0).string_value ());
+        retval = string::str2double (args(0).string_value ());
       else
         {
           const string_vector sv = args(0).string_vector_value ();
 
-          retval = sv.map<Complex> (octave::string::str2double);
+          retval = sv.map<Complex> (string::str2double);
         }
     }
   else if (args(0).iscell ())
     {
       const Cell cell = args(0).cell_value ();
 
-      ComplexNDArray output (cell.dims (), octave::numeric_limits<double>::NaN ());
+      ComplexNDArray output (cell.dims (), numeric_limits<double>::NaN ());
 
       for (octave_idx_type i = 0; i < cell.numel (); i++)
         {
           if (cell(i).is_string ())
-            output(i) = octave::string::str2double (cell(i).string_value ());
+            output(i) = string::str2double (cell(i).string_value ());
         }
       retval = output;
     }
   else
-    retval = Matrix (1, 1, octave::numeric_limits<double>::NaN ());
+    retval = Matrix (1, 1, numeric_limits<double>::NaN ());
 
   return retval;
 }
@@ -908,7 +911,7 @@ Convert byte stream @var{native_bytes} to UTF-8 using @var{codepage}.
                codepage, std::strerror (errno));
     }
 
-  octave::unwind_action free_utf8_str ([=] () { ::free (utf8_str); });
+  unwind_action free_utf8_str ([=] () { ::free (utf8_str); });
 
   octave_idx_type len = length;
 
@@ -953,7 +956,7 @@ Convert UTF-8 string @var{utf8_str} to byte stream @var{native_bytes} using
                codepage, std::strerror (errno));
     }
 
-  octave::unwind_action free_native_bytes ([=] () { ::free (native_bytes); });
+  unwind_action free_native_bytes ([=] () { ::free (native_bytes); });
 
   octave_idx_type len = length;
 
@@ -1018,15 +1021,85 @@ unicode_idx ("aäbc")
       if (mblen < 1)
         mblen = 1;
       for (octave_idx_type j = 0; j < mblen; j++)
-        idx (i+j) = u8_char_num;
+        idx(i+j) = u8_char_num;
       i += mblen;
     }
 
-  return ovl(str.ndims () > 1 ? idx.permute (p, true) : idx);
+  return ovl (str.ndims () > 1 ? idx.permute (p, true) : idx);
 }
 
 /*
 %!assert (unicode_idx (["aäou"; "Ä∞"]), [1 2 2 3 4; 5 5 6 6 6])
+*/
+
+DEFUN (__unicode_length__, args, ,
+       doc: /* -*- texinfo -*-
+@deftypefn {} {@var{len} =} __unicode_length__ (@var{str})
+Return number of Unicode code points in @var{str}.
+
+The input @var{str} must be a UTF-8 encoded character vector or cell string.
+
+@example
+@group
+length ("aäbc")
+     @result{} 5
+__unicode_length__ ("aäbc")
+     @result{} 4
+@end group
+@end example
+
+@end deftypefn */)
+{
+  if (args.length () != 1)
+    print_usage ();
+
+  bool arg_char = args(0).is_char_matrix ();
+
+  if (! arg_char && ! args(0).iscellstr ())
+    error ("STR must be a character array or cell string.");
+
+  octave_value_list retval;
+
+  if (arg_char)
+    {
+      charNDArray str = args(0).char_array_value ();
+      Array<octave_idx_type> p (dim_vector (str.ndims (), 1));
+      if (str.ndims () > 1)
+        {
+          for (octave_idx_type i=0; i < str.ndims (); i++)
+            p(i) = i;
+          p(0) = 1;
+          p(1) = 0;
+          str = str.permute (p);
+        }
+
+      const uint8_t *src = reinterpret_cast<const uint8_t *> (str.data ());
+      octave_idx_type mbsnlen = octave_u8_mbsnlen_wrapper (src, str.numel ());
+
+      retval = ovl (mbsnlen);
+    }
+  else
+    {
+      const Array<std::string> cellstr = args(0).cellstr_value ();
+      NDArray output (args(0).dims (), false);
+      for (octave_idx_type i = 0; i < cellstr.numel (); i++)
+        {
+          const uint8_t *src
+            = reinterpret_cast<const uint8_t *> (cellstr(i).c_str ());
+          output(i) = octave_u8_mbsnlen_wrapper (src, cellstr(i).size ());
+        }
+
+      retval = ovl (output);
+    }
+
+  return retval;
+}
+
+/*
+%!assert (__unicode_length__ (""), 0)
+%!assert (__unicode_length__ ("aäbc"), 4)
+%!assert (__unicode_length__ (["aä"; "öo"]), 4)
+%!assert (__unicode_length__ ({"aäbc", "abc"}), [4, 3])
 */
 
 DEFUN (__u8_validate__, args, ,
@@ -1054,15 +1127,15 @@ U+0080–U+00FF with the same value as the byte (if @var{mode} is the string
   if (nargin == 2)
     mode = args(1).xstring_value ("__u8_validate__: MODE must be a string");
 
-  octave::string::u8_fallback_type fb_type;
+  string::u8_fallback_type fb_type;
   if (mode == "replace")
-    fb_type = octave::string::U8_REPLACEMENT_CHAR;
+    fb_type = string::U8_REPLACEMENT_CHAR;
   else if (mode == "unicode")
-    fb_type = octave::string::U8_ISO_8859_1;
+    fb_type = string::U8_ISO_8859_1;
   else
     error (R"(__u8_validate__: MODE must be either "replace" or "unicode")");
 
-  octave::string::u8_validate ("__u8_validate__", in_str, fb_type);
+  string::u8_validate ("__u8_validate__", in_str, fb_type);
 
   return ovl (in_str);
 }
@@ -1184,3 +1257,5 @@ whos ans
 %!error list_in_columns (["abc", "def"], 20, "  ", 3)
 %!error <list_in_columns: WIDTH must be an integer> list_in_columns (["abc", "def"], "a")
 */
+
+OCTAVE_NAMESPACE_END

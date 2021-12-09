@@ -52,8 +52,8 @@
 #include "utils.h"
 #include "variables.h"
 
-namespace octave
-{
+OCTAVE_NAMESPACE_BEGIN
+
   static bool
   pager_event_handler (pid_t pid, int status)
   {
@@ -146,19 +146,19 @@ namespace octave
   void
   pager_buf::flush_current_contents_to_diary (void)
   {
-    char *buf = pbase () + diary_skip;
+    char *buf = pbase () + m_diary_skip;
 
     std::size_t len = pptr () - buf;
 
     octave_diary.write (buf, len);
 
-    diary_skip = 0;
+    m_diary_skip = 0;
   }
 
   void
   pager_buf::set_diary_skip (void)
   {
-    diary_skip = pptr () - pbase ();
+    m_diary_skip = pptr () - pbase ();
   }
 
   int
@@ -183,17 +183,17 @@ namespace octave
     return 0;
   }
 
-  pager_stream::pager_stream (void) : std::ostream (nullptr), pb (nullptr)
+  pager_stream::pager_stream (void) : std::ostream (nullptr), m_pb (nullptr)
   {
-    pb = new pager_buf ();
-    rdbuf (pb);
+    m_pb = new pager_buf ();
+    rdbuf (m_pb);
     setf (unitbuf);
   }
 
   pager_stream::~pager_stream (void)
   {
     flush ();
-    delete pb;
+    delete m_pb;
   }
 
   std::ostream& pager_stream::stream (void)
@@ -203,14 +203,14 @@ namespace octave
 
   void pager_stream::flush_current_contents_to_diary (void)
   {
-    if (pb)
-      pb->flush_current_contents_to_diary ();
+    if (m_pb)
+      m_pb->flush_current_contents_to_diary ();
   }
 
   void pager_stream::set_diary_skip (void)
   {
-    if (pb)
-      pb->set_diary_skip ();
+    if (m_pb)
+      m_pb->set_diary_skip ();
   }
 
   // Reinitialize the pager buffer to avoid hanging on to large internal
@@ -220,23 +220,23 @@ namespace octave
 
   void pager_stream::reset (void)
   {
-    delete pb;
-    pb = new pager_buf ();
-    rdbuf (pb);
+    delete m_pb;
+    m_pb = new pager_buf ();
+    rdbuf (m_pb);
     setf (unitbuf);
   }
 
-  diary_stream::diary_stream (void) : std::ostream (nullptr), db (nullptr)
+  diary_stream::diary_stream (void) : std::ostream (nullptr), m_db (nullptr)
   {
-    db = new diary_buf ();
-    rdbuf (db);
+    m_db = new diary_buf ();
+    rdbuf (m_db);
     setf (unitbuf);
   }
 
   diary_stream::~diary_stream (void)
   {
     flush ();
-    delete db;
+    delete m_db;
   }
 
   std::ostream& diary_stream::stream (void)
@@ -251,9 +251,9 @@ namespace octave
 
   void diary_stream::reset (void)
   {
-    delete db;
-    db = new diary_buf ();
-    rdbuf (db);
+    delete m_db;
+    m_db = new diary_buf ();
+    rdbuf (m_db);
     setf (unitbuf);
   }
 
@@ -502,7 +502,6 @@ namespace octave
 
     return output_sys.__diary__ ();
   }
-}
 
 DEFMETHOD (diary, interp, args, nargout,
            doc: /* -*- texinfo -*-
@@ -543,7 +542,7 @@ stored.
   if (nargin > 1)
     print_usage ();
 
-  octave::output_system& output_sys = interp.get_output_system ();
+  output_system& output_sys = interp.get_output_system ();
 
   if (nargout > 0)
     {
@@ -603,7 +602,7 @@ The current state can be determined via @code{page_screen_output}.
   if (nargin > 1)
     print_usage ();
 
-  octave::output_system& output_sys = interp.get_output_system ();
+  output_system& output_sys = interp.get_output_system ();
 
   if (nargin > 0)
     {
@@ -641,8 +640,8 @@ when using readline for command-line editing.
 
   RowVector size (2, 0.0);
 
-  size(0) = octave::command_editor::terminal_rows ();
-  size(1) = octave::command_editor::terminal_cols ();
+  size(0) = command_editor::terminal_rows ();
+  size(1) = command_editor::terminal_cols ();
 
   if (nargin == 1)
     {
@@ -651,13 +650,13 @@ when using readline for command-line editing.
       if (m.numel () != 2)
         error ("terminal_size: argument must be a 2-element array");
 
-      int rows = octave::math::x_nint (m(0));
-      int cols = octave::math::x_nint (m(1));
+      int rows = math::x_nint (m(0));
+      int cols = math::x_nint (m(1));
 
       if (rows <= 0 || cols <= 0)
         error ("terminal_size: rows and columns must be positive integers");
 
-      octave::command_editor::set_screen_size (rows, cols);
+      command_editor::set_screen_size (rows, cols);
     }
 
   return ovl (size);
@@ -682,7 +681,7 @@ The original variable value is restored when exiting the function.
 @seealso{page_screen_output, more, PAGER, PAGER_FLAGS}
 @end deftypefn */)
 {
-  octave::output_system& output_sys = interp.get_output_system ();
+  output_system& output_sys = interp.get_output_system ();
 
   return output_sys.page_output_immediately (args, nargout);
 }
@@ -697,7 +696,7 @@ for the terminal window that is longer than one page is sent through a
 pager.
 
 This allows you to view one screenful at a time.  Some pagers
-(such as @code{less}---see @ref{Installation}) are also capable of moving
+(such as @code{less}---@pxref{Installation}) are also capable of moving
 backward on the output.
 
 When called from inside a function with the @qcode{"local"} option, the
@@ -706,7 +705,7 @@ The original variable value is restored when exiting the function.
 @seealso{more, page_output_immediately, PAGER, PAGER_FLAGS}
 @end deftypefn */)
 {
-  octave::output_system& output_sys = interp.get_output_system ();
+  output_system& output_sys = interp.get_output_system ();
 
   return output_sys.page_screen_output (args, nargout);
 }
@@ -729,7 +728,7 @@ The original variable value is restored when exiting the function.
 @seealso{PAGER_FLAGS, page_output_immediately, more, page_screen_output}
 @end deftypefn */)
 {
-  octave::output_system& output_sys = interp.get_output_system ();
+  output_system& output_sys = interp.get_output_system ();
 
   return output_sys.PAGER (args, nargout);
 }
@@ -748,7 +747,9 @@ The original variable value is restored when exiting the function.
 @seealso{PAGER, more, page_screen_output, page_output_immediately}
 @end deftypefn */)
 {
-  octave::output_system& output_sys = interp.get_output_system ();
+  output_system& output_sys = interp.get_output_system ();
 
   return output_sys.PAGER_FLAGS (args, nargout);
 }
+
+OCTAVE_NAMESPACE_END

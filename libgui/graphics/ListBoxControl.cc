@@ -37,7 +37,7 @@
 
 #include "octave-qobject.h"
 
-namespace QtHandles
+namespace octave
 {
 
   static void
@@ -69,7 +69,7 @@ namespace QtHandles
       }
   }
 
-  ListBoxControl*
+  ListBoxControl *
   ListBoxControl::create (octave::base_qobject& oct_qobj,
                           octave::interpreter& interp,
                           const graphics_object& go)
@@ -152,13 +152,21 @@ namespace QtHandles
         break;
 
       case uicontrol::properties::ID_MIN:
-
       case uicontrol::properties::ID_MAX:
         if ((up.get_max () - up.get_min ()) > 1)
           list->setSelectionMode (QAbstractItemView::ExtendedSelection);
         else
           list->setSelectionMode (QAbstractItemView::SingleSelection);
         break;
+
+      case uicontrol::properties::ID_LISTBOXTOP:
+        {
+          int idx = octave::math::fix (up.get_listboxtop ());
+          if (idx > 0)
+            list->scrollToItem (list->item (idx-1),
+                                QAbstractItemView::PositionAtTop);
+          break;
+        }
 
       case uicontrol::properties::ID_VALUE:
         m_blockCallback = true;
@@ -201,12 +209,12 @@ namespace QtHandles
   }
 
   void
-  ListBoxControl::itemActivated (const QModelIndex &)
+  ListBoxControl::itemActivated (const QModelIndex&)
   {
     m_selectionChanged = true;
   }
   void
-  ListBoxControl::itemPressed (QListWidgetItem*)
+  ListBoxControl::itemPressed (QListWidgetItem *)
   {
     m_selectionChanged = true;
   }

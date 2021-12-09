@@ -42,6 +42,7 @@ function [pass, fail, xfail, xbug, skip, rtskip, regress] = __run_test_suite__ (
   endif
   files_with_no_tests = {};
   files_with_tests = {};
+  summary_failure_info = struct ([]);
   ## FIXME: These names don't really make sense if we are running
   ##        tests for an installed copy of Octave.
   if (isempty (topsrcdir))
@@ -90,6 +91,14 @@ function [pass, fail, xfail, xbug, skip, rtskip, regress] = __run_test_suite__ (
         drtsk += rtsk;
         drgrs += rgrs;
       endfor
+      if (! isempty (summary_failure_info))
+        puts ("\nFailure Summary:\n\n");
+        for i = 1:numel (summary_failure_info)
+          info = summary_failure_info(i);
+          print_test_file_name (info.name);
+          print_pass_fail (info);
+        endfor
+      endif
       puts ("\nSummary:\n\n");
       nfail = dn - dp - dxf - dxb - drgrs;
       printf ("  %-30s %6d\n", "PASS", dp);
@@ -214,6 +223,13 @@ function [pass, fail, xfail, xbug, skip, rtskip, regress] = __run_test_suite__ (
             drtsk += rtsk;
             drgrs += rgrs;
             files_with_tests(end+1) = ffnm;
+            if (n - p > 0)
+              ## Save info for summary if there were any failed
+              ## tests for this file.
+              failure_info = struct ("name", tmp, "pass", p, "ntst", n,
+                                     "xf", xf, "xb", xb, "rgrs", rgrs);
+              summary_failure_info(end+1) = failure_info;
+            endif
           else
             ## To reduce the list length, only mark .cc files that contain
             ## DEFUN definitions.
@@ -230,15 +246,30 @@ function [pass, fail, xfail, xbug, skip, rtskip, regress] = __run_test_suite__ (
 endfunction
 
 function print_test_file_name (nm)
+
   nmlen = numel (nm);
   filler = repmat (".", 1, 63-nmlen);
   if (nmlen > 63)
     nm = ["..", nm(nmlen-60:end)];
   endif
   printf ("  %s %s", nm, filler);
+
 endfunction
 
-function print_pass_fail (p, n, xf, xb, sk, rtsk, rgrs)
+function fail_info = print_pass_fail (p, n, xf, xb, sk, rtsk, rgrs)
+
+  if (nargin == 1)
+    ## The summary info struct just contains info about failures, not
+    ## skipped tests.
+    info = p;
+    p = info.pass;
+    n = info.ntst;
+    xf = info.xf;
+    xb = info.xb;
+    sk = 0;
+    rtsk = 0;
+    rgrs = info.rgrs;
+  endif
 
   if ((n + sk + rtsk + rgrs) > 0)
     printf (" pass %4d/%-4d", p, n);
@@ -326,11 +357,13 @@ function n = num_elts_matching_pattern (lst, pat)
 endfunction
 
 function report_files_with_no_tests (with, without, typ)
+
   pat = ['\' typ "$"];
   n_with = num_elts_matching_pattern (with, pat);
   n_without = num_elts_matching_pattern (without, pat);
   n_tot = n_with + n_without;
   printf ("\n%d (of %d) %s files have no tests.\n", n_without, n_tot, typ);
+
 endfunction
 
 
