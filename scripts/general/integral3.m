@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2017-2021 The Octave Project Developers
+## Copyright (C) 2017-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -256,6 +256,7 @@ function q = integral3 (f, xa, xb, ya, yb, za, zb, varargin)
 endfunction
 
 function q = inner (x, f, ya, yb, za, zb, vectorized, method, abstol, reltol)
+
   q = zeros (size (x));
   for i = 1 : length (x)
     za2 = @(y) za(x(i), y);
@@ -272,6 +273,7 @@ function q = inner (x, f, ya, yb, za, zb, vectorized, method, abstol, reltol)
                      "AbsTol", abstol, "RelTol", reltol);
     endif
   endfor
+
 endfunction
 
 function q = inner_iterated (y, f2, za2, zb2, abstol, reltol)
@@ -310,7 +312,8 @@ endfunction
 %! f = @(x,y,z) 1 ./ (x + y + z);
 %! ymax = @(x) 1 - x;
 %! zmax = @(x, y) 1 - x - y;
-%! assert (integral3 (f, 0, 1, 0, ymax, 0, zmax, "method", "tiled"), 0.25, 1e-6);
+%! assert (integral3 (f, 0, 1, 0, ymax, 0, zmax, "method", "tiled"),
+%!         0.25, 1e-6);
 
 ## Test input validation
 %!error integral3

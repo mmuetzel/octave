@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2012-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -33,6 +33,7 @@
 
 #include "oct-refcount.h"
 
+#include "cdef-fwd.h"
 #include "error.h"
 #include "oct-map.h"
 #include "ov.h"
@@ -40,9 +41,6 @@
 
 namespace octave
 {
-  class cdef_object;
-  class cdef_class;
-
   // This is mainly a bootstrap class to declare the expected interface.
   // The actual base class is cdef_class_base, which is declared after
   // cdef_object, such that it can contain cdef_object objects.
@@ -201,6 +199,7 @@ namespace octave
   };
 
   class
+  OCTINTERP_API
   cdef_object
   {
   public:
@@ -208,7 +207,8 @@ namespace octave
     // FIXME: use a null object?
     cdef_object (void) : m_rep (new cdef_object_rep ()) { }
 
-    cdef_object (const cdef_object& obj) : m_rep (obj.m_rep) { m_rep->m_count++; }
+    cdef_object (const cdef_object& obj) : m_rep (obj.m_rep)
+    { m_rep->m_count++; }
 
     cdef_object (cdef_object_rep *r) : m_rep (r) { }
 
@@ -257,7 +257,8 @@ namespace octave
 
     bool is_meta_object (void) const { return m_rep->is_meta_object (); }
 
-    Array<cdef_object> array_value (void) const { return m_rep->array_value (); }
+    Array<cdef_object> array_value (void) const
+    { return m_rep->array_value (); }
 
     void put (const std::string& pname, const octave_value& val)
     {
@@ -350,6 +351,7 @@ namespace octave
   };
 
   class
+  OCTINTERP_API
   cdef_object_base : public cdef_object_rep
   {
   public:
@@ -387,6 +389,7 @@ namespace octave
   };
 
   class
+  OCTINTERP_API
   cdef_object_array : public cdef_object_base
   {
   public:
@@ -454,6 +457,7 @@ namespace octave
   };
 
   class
+  OCTINTERP_API
   cdef_object_scalar : public cdef_object_base
   {
   public:
@@ -540,6 +544,7 @@ namespace octave
   };
 
   class
+  OCTINTERP_API
   handle_cdef_object : public cdef_object_scalar
   {
   public:
@@ -575,6 +580,7 @@ namespace octave
   };
 
   class
+  OCTINTERP_API
   value_cdef_object : public cdef_object_scalar
   {
   public:
@@ -605,6 +611,7 @@ namespace octave
   };
 
   class
+  OCTINTERP_API
   cdef_meta_object_rep : public handle_cdef_object
   {
   public:
@@ -652,6 +659,7 @@ namespace octave
   };
 
   class
+  OCTINTERP_API
   cdef_meta_object : public cdef_object
   {
   public:

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2010-2021 The Octave Project Developers
+## Copyright (C) 2010-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -29,7 +29,8 @@
 ## graphics object with handle @var{h}.
 ##
 ## @var{h} may also be a vector of graphics handles.
-## @seealso{getappdata, setappdata, rmappdata, guidata, get, set, getpref, setpref}
+## @seealso{getappdata, setappdata, rmappdata, guidata, get, set, getpref,
+## setpref}
 ## @end deftypefn
 
 function valid = isappdata (h, name)

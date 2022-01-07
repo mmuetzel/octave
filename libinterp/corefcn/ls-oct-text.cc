@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -463,7 +463,7 @@ DEFUN (save_precision, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} save_precision ()
 @deftypefnx {} {@var{old_val} =} save_precision (@var{new_val})
-@deftypefnx {} {} save_precision (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} save_precision (@var{new_val}, "local")
 Query or set the internal variable that specifies the number of digits to
 keep when saving data in text format.
 

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2009-2021 The Octave Project Developers
+// Copyright (C) 2009-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -497,7 +497,7 @@ namespace octave
 
         // In EPS terminal read the header line by line and insert a
         // new procedure
-        const char* fcn = "/SRX  { gsave FCT moveto rotate xshow grestore } BD\n";
+        const char *fcn = "/SRX  { gsave FCT moveto rotate xshow grestore } BD\n";
         bool header_found = ! (m_term.find ("eps") != std::string::npos
                                || m_term.find ("svg") != std::string::npos);
 
@@ -1315,7 +1315,7 @@ namespace octave
 
     ColumnVector vp_lim_min
       = m_xform.untransform (std::numeric_limits <float>::epsilon (),
-                           std::numeric_limits <float>::epsilon ());
+                             std::numeric_limits <float>::epsilon ());
     ColumnVector vp_lim_max = m_xform.untransform (vp(2), vp(3));
 
     if (vp_lim_min(0) > vp_lim_max(0))
@@ -1325,16 +1325,20 @@ namespace octave
       std::swap (vp_lim_min(1), vp_lim_max(1));
 
     float clip_xmin
-      = do_clip ? (vp_lim_min(0) > m_xmin ? vp_lim_min(0) : m_xmin) : vp_lim_min(0);
+      = do_clip ? (vp_lim_min(0) > m_xmin ? vp_lim_min(0) : m_xmin)
+                : vp_lim_min(0);
 
     float clip_ymin
-      = do_clip ? (vp_lim_min(1) > m_ymin ? vp_lim_min(1) : m_ymin) : vp_lim_min(1);
+      = do_clip ? (vp_lim_min(1) > m_ymin ? vp_lim_min(1) : m_ymin)
+                : vp_lim_min(1);
 
     float clip_xmax
-      = do_clip ? (vp_lim_max(0) < m_xmax ? vp_lim_max(0) : m_xmax) : vp_lim_max(0);
+      = do_clip ? (vp_lim_max(0) < m_xmax ? vp_lim_max(0) : m_xmax)
+                : vp_lim_max(0);
 
     float clip_ymax
-      = do_clip ? (vp_lim_max(1) < m_ymax ? vp_lim_max(1) : m_ymax) : vp_lim_max(1);
+      = do_clip ? (vp_lim_max(1) < m_ymax ? vp_lim_max(1) : m_ymax)
+                : vp_lim_max(1);
 
     if (im_xmin < clip_xmin)
       j0 += (clip_xmin - im_xmin)/nor_dx + 1;
@@ -1383,9 +1387,9 @@ namespace octave
                     else
                       jj = w - j - 1;
 
-                    a[idx]   = xcdata(ii,jj,0);
-                    a[idx+1] = xcdata(ii,jj,1);
-                    a[idx+2] = xcdata(ii,jj,2);
+                    a[idx]   = xcdata(ii, jj, 0);
+                    a[idx+1] = xcdata(ii, jj, 1);
+                    a[idx+2] = xcdata(ii, jj, 2);
                   }
               }
 
@@ -1413,9 +1417,9 @@ namespace octave
                     else
                       jj = w - j - 1;
 
-                    a[idx]   = xcdata(ii,jj,0);
-                    a[idx+1] = xcdata(ii,jj,1);
-                    a[idx+2] = xcdata(ii,jj,2);
+                    a[idx]   = xcdata(ii, jj, 0);
+                    a[idx+1] = xcdata(ii, jj, 1);
+                    a[idx+2] = xcdata(ii, jj, 2);
                   }
               }
 
@@ -1443,9 +1447,9 @@ namespace octave
                     else
                       jj = w - j - 1;
 
-                    a[idx]   = xcdata(ii,jj,0);
-                    a[idx+1] = xcdata(ii,jj,1);
-                    a[idx+2] = xcdata(ii,jj,2);
+                    a[idx]   = xcdata(ii, jj, 0);
+                    a[idx+1] = xcdata(ii, jj, 1);
+                    a[idx+2] = xcdata(ii, jj, 2);
                   }
               }
 
@@ -1473,9 +1477,9 @@ namespace octave
                     else
                       jj = w - j - 1;
 
-                    a[idx]   = xcdata(ii,jj,0);
-                    a[idx+1] = xcdata(ii,jj,1);
-                    a[idx+2] = xcdata(ii,jj,2);
+                    a[idx]   = xcdata(ii, jj, 0);
+                    a[idx+1] = xcdata(ii, jj, 1);
+                    a[idx+2] = xcdata(ii, jj, 2);
                   }
               }
 

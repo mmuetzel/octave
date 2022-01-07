@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1995-2021 The Octave Project Developers
+## Copyright (C) 1995-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,7 +24,7 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {@var{Z} =} iqr (@var{x})
+## @deftypefn  {} {@var{Z} =} iqr (@var{x})
 ## @deftypefnx {} {@var{Z} =} iqr (@var{x}, @var{dim})
 ## @deftypefnx {} {@var{Z} =} iqr (@var{x}, @qcode{"ALL"})
 ## Return the interquartile range of @var{x}, defined as the distance between
@@ -45,8 +45,8 @@
 ## The optional variable @var{dim} can be used to force @code{iqr} to operate
 ## over the specified dimension.  @var{dim} can either be a scalar dimension or
 ## a vector of non-repeating dimensions over which to operate.  In either case
-## @var{dim} must be positive integers. A vector @var{dim} concatenates all
-## specified diminsions for independent operation by @code{iqr}.
+## @var{dim} must be positive integers.  A vector @var{dim} concatenates all
+## specified dimensions for independent operation by @code{iqr}.
 ##
 ## Specifying dimension @qcode{"ALL"} will force @code{iqr} to operate
 ## on all elements of @var{x}, and is equivalent to @code{iqr (@var{x}(:))}.
@@ -82,7 +82,7 @@ function z = iqr (x, dim)
   nd = ndims (x);
   sz = size (x);
 
-  if isempty (dim)
+  if (isempty (dim))
     ## Find first non-singleton dimension.
     if (max (sz) == 1)
       dim = 2;
@@ -91,10 +91,10 @@ function z = iqr (x, dim)
     endif
   else
 
-    if (isvector (dim) && isnumeric (dim) && all (dim > 0) && all (rem (dim, 1) == 0))
+    if (isvector (dim) && isnumeric (dim)
+        && all (dim > 0) && all (rem (dim, 1) == 0))
 
-      if (((num_vecdims = numel (dim)) > 1) ...
-          && all (diff (sort (dim))))
+      if (((num_vecdims = numel (dim)) > 1) && all (diff (sort (dim))))
         ## DIM must be 1D and non repeating.
 
         ## Detect trivial case of DIM being all dimensions (same as "all").
@@ -174,6 +174,7 @@ function z = iqr (x, dim)
 
 endfunction
 
+
 %!assert (iqr (17), 0)
 %!assert (iqr (17, 1), 0)
 %!assert (iqr (17, 4), 0)
@@ -183,15 +184,15 @@ endfunction
 %!assert (iqr (1:10), 5)
 %!assert (iqr ((1:10).'), 5)
 %!assert (iqr (1:10, 2), 5)
-%!assert (iqr (1:10, 1), zeros(1, 10))
-%!assert (iqr (1:10, 3), zeros(1, 10))
+%!assert (iqr (1:10, 1), zeros (1, 10))
+%!assert (iqr (1:10, 3), zeros (1, 10))
 %!assert (iqr ([1:5; 2:6], "all"), 3)
 
 %!test
 %! x = reshape (1:6, [1 2 3]);
 %! assert (iqr (x), ones (1, 1, 3));
 %! assert (iqr (x, 1), zeros (1, 2, 3));
-%! assert (iqr (x, 2), ones( 1, 1, 3));
+%! assert (iqr (x, 2), ones (1, 1, 3));
 %! assert (iqr (x, 3), [3 3]);
 
 ## n-D arrays

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2001-2021 The Octave Project Developers
+// Copyright (C) 2001-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -262,7 +262,7 @@ Mathematics, Manchester, England, January 1999.
 
 /*
 %!assert (sqrtm (2*ones (2)), ones (2), 3*eps)
-%!assert (real (sqrtm (ones (4))), 0.5*ones (4), 4*eps)
+%!assert <*60797> (sqrtm (ones (4))^2, ones (4), 5*eps)
 
 ## The following two tests are from the reference in the docstring above.
 %!test

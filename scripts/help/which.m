@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2009-2021 The Octave Project Developers
+## Copyright (C) 2009-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -93,7 +93,7 @@ endfunction
 %!test
 %! str = which ("fftw");
 %! assert (str(end-7:end), "fftw.oct");
-%!assert <49434> (which ("inputParser"), file_in_loadpath ("inputParser.m"));
+%!assert <*49434> (which ("inputParser"), file_in_loadpath ("inputParser.m"));
 %!test
 %! x = 3;
 %! str = which ("x");

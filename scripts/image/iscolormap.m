@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2012-2021 The Octave Project Developers
+## Copyright (C) 2012-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,7 +24,7 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} iscolormap (@var{cmap})
+## @deftypefn {} {@var{tf} =} iscolormap (@var{cmap})
 ## Return true if @var{cmap} is a colormap.
 ##
 ## A colormap is a real matrix, of class single or double, with 3 columns.
@@ -38,15 +38,14 @@
 ## @seealso{colormap, rgbplot}
 ## @end deftypefn
 
-function retval = iscolormap (cmap)
+function tf = iscolormap (cmap)
 
   if (nargin < 1)
     print_usage ();
   endif
 
-  retval = (isnumeric (cmap) && isreal (cmap)
-            && ndims (cmap) == 2 && columns (cmap) == 3
-            && isfloat (cmap));
+  tf = isnumeric (cmap) && isreal (cmap) && isfloat (cmap) ...
+       && ndims (cmap) == 2 && columns (cmap) == 3;
 
 endfunction
 

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2018-2021 The Octave Project Developers
+## Copyright (C) 2018-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -29,7 +29,8 @@
 ##
 ## If @var{f} is a cell array of strings, @var{tf} is a logical array of the
 ## same size.
-## @seealso{isfolder, exist, stat, is_absolute_filename, is_rooted_relative_filename}
+## @seealso{isfolder, exist, stat, is_absolute_filename,
+## is_rooted_relative_filename}
 ## @end deftypefn
 
 function retval = isfile (f)

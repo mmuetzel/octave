@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2016-2021 The Octave Project Developers
+// Copyright (C) 2016-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -28,7 +28,7 @@
 
 #include "octave-config.h"
 
-template <typename T> class octave_int;
+template <typename T> class OCTAVE_API octave_int;
 
 typedef octave_int<int8_t> octave_int8;
 typedef octave_int<int16_t> octave_int16;

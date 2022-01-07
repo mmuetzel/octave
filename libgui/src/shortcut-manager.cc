@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2014-2021 The Octave Project Developers
+// Copyright (C) 2014-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -188,7 +188,7 @@ namespace octave
     init (tr ("Reset Default Window Layout"), sc_main_window_reset);
 
     // help
-    init (tr ("Show Ondisk Documentation"), sc_main_help_ondisk_doc);
+    init (tr ("Show On-disk Documentation"), sc_main_help_ondisk_doc);
     init (tr ("Show Online Documentation"), sc_main_help_online_doc);
     init (tr ("Report Bug"), sc_main_help_report_bug);
     init (tr ("Octave Packages"), sc_main_help_packages);
@@ -463,7 +463,7 @@ namespace octave
       {
         shortcut_t sc = m_sc.at (i);
 
-        QTreeWidgetItem *section = m_level_hash[sc.m_settings_key.section (':',0,0)];
+        QTreeWidgetItem *section = m_level_hash[sc.m_settings_key.section (':', 0, 0)];
 
         // handle sections which have changed and do not correspond to the
         // previously defined keyname
@@ -761,7 +761,7 @@ namespace octave
         else
           sc.m_actual_sc = QKeySequence (sc.m_default_sc); // get default shortcut
 
-        m_sc.replace (i,sc);                   // replace the old with the new one
+        m_sc.replace (i, sc);                  // replace the old with the new one
 
         // update the tree view
         QTreeWidgetItem *tree_item = m_index_item_hash[i]; // get related tree item

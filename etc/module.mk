@@ -9,8 +9,10 @@
   %reldir%/NEWS.2 \
   %reldir%/NEWS.3 \
   %reldir%/NEWS.4 \
-  %reldir%/NEWS.5 \
-  %reldir%/PROJECTS \
+  %reldir%/NEWS.5.md \
+  %reldir%/NEWS.6.md \
+  %reldir%/NEWS.7.md \
+  %reldir%/NEWS.8.md \
   %reldir%/gdbinit
 
 %canon_reldir%_EXTRA_DIST += \

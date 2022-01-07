@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2017-2021 The Octave Project Developers
+## Copyright (C) 2017-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,7 +24,7 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} isstring (@var{s})
+## @deftypefn {} {@var{tf} =} isstring (@var{s})
 ## Return true if @var{s} is a string array.
 ##
 ## A string array is a data type that stores strings (row vectors of
@@ -40,13 +40,13 @@
 ## @seealso{ischar, iscellstr, isfloat, isinteger, islogical, isnumeric, isa}
 ## @end deftypefn
 
-function retval = isstring (s)
+function tf = isstring (s)
 
   if (nargin < 1)
     print_usage ();
   endif
 
-  retval = false;
+  tf = false;
 
 endfunction
 

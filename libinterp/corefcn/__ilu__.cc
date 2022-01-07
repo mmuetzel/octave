@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2013-2021 The Octave Project Developers
+// Copyright (C) 2013-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -857,7 +857,7 @@ void ilu_tp (octave_matrix_t& sm, octave_matrix_t& L, octave_matrix_t& U,
   for (i = 0; i < n; i++)
     {
       if (opt == ROW)
-        diag.elem (i,i) = data_u[uptr[i]];
+        diag.elem (i, i) = data_u[uptr[i]];
       j = cidx_l[i];
 
       while (j < cidx_l[i+1])

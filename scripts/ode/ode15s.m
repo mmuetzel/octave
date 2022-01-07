@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2016-2021 The Octave Project Developers
+## Copyright (C) 2016-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -368,6 +368,7 @@ endfunction
 
 function [jac, jact] = wrapjacfun (t, y, yp, Jac, Mass,
                                    havetimedep, havejacfun)
+
   if (havejacfun)
     jac = - Jac (t, y);
   else

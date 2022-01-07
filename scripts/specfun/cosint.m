@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2017-2021 The Octave Project Developers
+## Copyright (C) 2017-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -140,7 +140,7 @@ function y = cosint (x)
   ssum = - xx .^ 2 / 4; # First term of the series expansion
   ## FIXME: This is way more precision than a double value can hold.
   gma = 0.57721566490153286060651209008; # Euler gamma constant
-  yy = gma + log (complex (xx)) + ssum;  # log (complex (...) handles signed zero
+  yy = gma + log (complex (xx)) + ssum;  # log (complex (Z)) handles signed zero
   flag_sum = true (nnz (todo), 1);
   it = 0;
   maxit = 300;

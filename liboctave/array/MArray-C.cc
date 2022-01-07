@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1995-2021 The Octave Project Developers
+// Copyright (C) 1995-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -34,7 +34,7 @@
 #include "MArray.h"
 #include "MArray.cc"
 
-INSTANTIATE_MARRAY (Complex);
+INSTANTIATE_MARRAY (Complex, OCTAVE_API);
 
 INSTANTIATE_MARRAY_FRIENDS (Complex, OCTAVE_API)
 

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2015-2021 The Octave Project Developers
+## Copyright (C) 2015-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -276,12 +276,14 @@ endfunction
 ## General helper functions.
 
 function __writeToFile (file, str)
+
   fid = fopen (file, "w");
   if (fid < 0)
     error ("profexport: failed to open '%s' for writing", file);
   endif
   fputs (fid, str);
   fclose (fid);
+
 endfunction
 
 function fn = __dataFilename (name)

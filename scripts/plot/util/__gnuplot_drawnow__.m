@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2005-2021 The Octave Project Developers
+## Copyright (C) 2005-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -112,6 +112,7 @@ function __gnuplot_drawnow__ (h, term, file, debug_file)
 endfunction
 
 function enhanced = gnuplot_set_term (plot_stream, new_stream, h, term, file)
+
   ## Generate the gnuplot "set terminal <term> ..." command.
   ## When "term" originates from print.m, it may include other options.
   if (nargin < 4)
@@ -151,7 +152,8 @@ function enhanced = gnuplot_set_term (plot_stream, new_stream, h, term, file)
       if (output_to_screen (term) && ! strcmp (term, "dumb"))
         fig.numbertitle = get (h, "numbertitle");
         fig.name = strrep (get (h, "name"), '"', '\"');
-        if (! isempty (get (h, "number")) && strcmp (get (h, "numbertitle"), "on"))
+        if (! isempty (get (h, "number"))
+            && strcmp (get (h, "numbertitle"), "on"))
           title_str = sprintf ("Figure %d", h);
           if (! isempty (fig.name))
             title_str = sprintf ("%s: %s", title_str, fig.name);
@@ -362,15 +364,18 @@ function term = gnuplot_default_term (plot_stream)
 endfunction
 
 function [term, opts] = gnuplot_trim_term (string)
+
   ## Extract the terminal type and terminal options (from print.m)
   string = strtrim (string);
   [term, opts] = strtok (string, ' ');
   if (! isempty (opts))
     opts(1) = "";  # trim extra space from strtok
   endif
+
 endfunction
 
 function have_enhanced = gnuplot_is_enhanced_term (plot_stream, term)
+
   ## Don't include pstex, pslatex or epslatex here as the TeX commands
   ## should not be interpreted in that case.
   persistent enhanced_terminals = {"aqua", "canvas", "dumb", "emf", "gif", ...
@@ -383,6 +388,7 @@ function have_enhanced = gnuplot_is_enhanced_term (plot_stream, term)
     term = gnuplot_default_term (plot_stream);
   endif
   have_enhanced = any (strcmp (term, enhanced_terminals));
+
 endfunction
 
 function ret = output_to_screen (term)

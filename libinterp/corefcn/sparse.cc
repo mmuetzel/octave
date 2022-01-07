@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1998-2021 The Octave Project Developers
+// Copyright (C) 1998-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -46,7 +46,7 @@ OCTAVE_NAMESPACE_BEGIN
 
 DEFUN (issparse, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} issparse (@var{x})
+@deftypefn {} {@var{tf} =} issparse (@var{x})
 Return true if @var{x} is a sparse matrix.
 @seealso{ismatrix}
 @end deftypefn */)
@@ -144,7 +144,8 @@ sparse (@var{i}, @var{j}, @var{sv}, 3, 4, "unique")
      (2, 2) ->  5
 @end group
 @end example
-@seealso{full, accumarray, spalloc, spdiags, speye, spones, sprand, sprandn, sprandsym, spconvert, spfun}
+@seealso{full, accumarray, spalloc, spdiags, speye, spones, sprand, sprandn,
+sprandsym, spconvert, spfun}
 @end deftypefn */)
 {
   int nargin = args.length ();
@@ -221,7 +222,7 @@ sparse (@var{i}, @var{j}, @var{sv}, 3, 4, "unique")
           idx_vector j = args(1).index_vector ();
 
           if (args(2).islogical ())
-            retval = SparseBoolMatrix (args(2).bool_array_value (), i,j,
+            retval = SparseBoolMatrix (args(2).bool_array_value (), i, j,
                                        m, n, summation, nzmax);
           else if (args(2).iscomplex ())
             retval = SparseComplexMatrix (args(2).complex_array_value(),

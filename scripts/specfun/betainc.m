@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2018-2021 The Octave Project Developers
+## Copyright (C) 2018-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -136,7 +136,7 @@ function y = betainc (x, a, b, tail = "lower")
   non_trivial = a_not_one & b_not_one;
   a_one &= b_not_one;
   b_one &= a_not_one;
-  
+
   if (strcmpi (tail, "lower"))
     y(a_b_one) = x(a_b_one);
     y(a_one) = 1 - (1 - x(a_one)) .^ b(a_one);
@@ -146,13 +146,13 @@ function y = betainc (x, a, b, tail = "lower")
     y(a_one) = (1 - x(a_one)) .^ b(a_one);
     y(b_one) = 1 - x(b_one) .^ a(b_one);
   endif
-  
+
   ## Non-Trivial cases
   ## In the following, we use the fact that the continued fraction Octave uses
   ## is more efficient when x <= a / (a + b).  Moreover, to compute the upper
   ## version, which is defined as I_x(a,b,"upper") = 1 - I_x(a,b) we use the
   ## property I_x(a,b) + I_(1-x) (b,a) = 1.
-  
+
   x = x(non_trivial);
   a = a(non_trivial);
   b = b(non_trivial);
@@ -182,7 +182,7 @@ function y = betainc (x, a, b, tail = "lower")
          + (gammaln (a + b) - gammaln (a) - gammaln (b)) + log (f);
   y_nt = real (exp (y_nt));
   y_nt(fflag) = 1 - y_nt(fflag);
-  
+
   y(non_trivial) = y_nt;
 
   ## Restore original shape
@@ -223,7 +223,7 @@ endfunction
 %! v2 = single ([1,1,1,1]);
 %! x = [.2, .4, .6, .8];
 %! v3 = betainc (x, a, b);
-%! v4 = 1-betainc (1.-x, b, a);
+%! v4 = 1 - betainc (1. - x, b, a);
 %! assert (v1, v2, sqrt (eps ("single")));
 %! assert (v3, v4, sqrt (eps ("single")));
 
@@ -234,7 +234,8 @@ endfunction
 
 %!assert (betainc (0.001, 20, 30), 2.750687665855991e-47, -3e-14)
 %!assert (betainc (0.0001, 20, 30), 2.819953178893307e-67, -7e-14)
-%!assert <*54383> (betainc (0.99, 20, 30, "upper"), 1.5671643161872703e-47, -7e-14)
+%!assert <*54383> (betainc (0.99, 20, 30, "upper"),
+%!                 1.5671643161872703e-47, -7e-14)
 %!assert (betainc (0.999, 20, 30, "upper"), 1.850806276141535e-77, -7e-14)
 %!assert (betainc (0.5, 200, 300), 0.9999964565197356, -1e-15)
 %!assert (betainc (0.5, 200, 300, "upper"), 3.54348026439253e-06, -3e-13)

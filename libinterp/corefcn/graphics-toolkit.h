@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2007-2021 The Octave Project Developers
+// Copyright (C) 2007-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -283,13 +283,5 @@ namespace octave
     std::shared_ptr<base_graphics_toolkit> m_rep;
   };
 }
-
-#if defined (OCTAVE_PROVIDE_DEPRECATED_SYMBOLS)
-OCTAVE_DEPRECATED (6, "use 'octave::graphics_toolkit' instead")
-typedef octave::graphics_toolkit graphics_toolkit;
-
-OCTAVE_DEPRECATED (6, "use 'octave::base_graphics_toolkit' instead")
-typedef octave::base_graphics_toolkit base_graphics_toolkit;
-#endif
 
 #endif

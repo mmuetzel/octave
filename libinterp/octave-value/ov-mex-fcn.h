@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -100,7 +100,7 @@ public:
 
   octave::dynamic_library get_shlib (void) const { return m_sh_lib; }
 
-  void *mex_fcn_ptr (void) const { return m_mex_fcn_ptr; }
+  void * mex_fcn_ptr (void) const { return m_mex_fcn_ptr; }
 
   bool is_fmex (void) const { return m_is_fmex; }
 

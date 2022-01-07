@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2006-2021 The Octave Project Developers
+## Copyright (C) 2006-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -230,15 +230,19 @@ endfunction
 %!assert (datenum ([2008;2009],1,1), [datenum(2008,1,1);datenum(2009,1,1)])
 %!assert (datenum (2008, [1;2], 1), [datenum(2008,1,1);datenum(2008,2,1)])
 %!assert (datenum (2008, 1, [1;2]), [datenum(2008,1,1);datenum(2008,1,2)])
-%!assert (datenum ([2008;2009], [1;2], 1), [datenum(2008,1,1);datenum(2009,2,1)])
-%!assert (datenum ([2008;2009], 1, [1;2]), [datenum(2008,1,1);datenum(2009,1,2)])
+%!assert (datenum ([2008;2009], [1;2], 1),
+%!        [datenum(2008,1,1);datenum(2009,2,1)])
+%!assert (datenum ([2008;2009], 1, [1;2]),
+%!        [datenum(2008,1,1);datenum(2009,1,2)])
 %!assert (datenum (2008, [1;2], [1;2]), [datenum(2008,1,1);datenum(2008,2,2)])
 ## And the other orientation
 %!assert (datenum ([2008 2009], 1, 1), [datenum(2008,1,1) datenum(2009,1,1)])
 %!assert (datenum (2008, [1 2], 1), [datenum(2008,1,1) datenum(2008,2,1)])
 %!assert (datenum (2008, 1, [1 2]), [datenum(2008,1,1) datenum(2008,1,2)])
-%!assert (datenum ([2008 2009], [1 2], 1), [datenum(2008,1,1) datenum(2009,2,1)])
-%!assert (datenum ([2008 2009], 1, [1 2]), [datenum(2008,1,1) datenum(2009,1,2)])
+%!assert (datenum ([2008 2009], [1 2], 1),
+%!        [datenum(2008,1,1) datenum(2009,2,1)])
+%!assert (datenum ([2008 2009], 1, [1 2]),
+%!        [datenum(2008,1,1) datenum(2009,1,2)])
 %!assert (datenum (2008, [1 2], [1 2]), [datenum(2008,1,1) datenum(2008,2,2)])
 
 ## Test string and cellstr inputs

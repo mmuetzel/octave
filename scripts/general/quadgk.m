@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2008-2021 The Octave Project Developers
+## Copyright (C) 2008-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -409,6 +409,7 @@ endfunction
 
 ## FIXME: too_close output is never used in function that calls this one.
 function [q, err, too_close] = __quadgk_eval__ (f, subs, eps1, trans)
+
   ## A (15,7) point pair of Gauss-Kronrod quadrature rules.
   ## The abscissa and weights are copied directly from dqk15w.f from quadpack.
 

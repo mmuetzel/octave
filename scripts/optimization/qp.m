@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2000-2021 The Octave Project Developers
+## Copyright (C) 2000-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -347,7 +347,12 @@ function [x, obj, INFO, lambda] = qp (x0, H, varargin)
   in_infeasible = (n_in > 0 && any (Ain*x0-bin < -rtol*(1+abs (bin))));
 
   info = 0;
-  if (eq_infeasible || in_infeasible)
+
+  if (isdefinite (H) != 1)
+    info = 2;
+  endif
+
+  if (info == 0 && (eq_infeasible || in_infeasible))
     ## The initial guess is not feasible.
     ## First, define an xbar that is feasible with respect to the
     ## equality constraints.
@@ -393,18 +398,25 @@ function [x, obj, INFO, lambda] = qp (x0, H, varargin)
           lb = [-Inf(n-n_eq,1); zeros(n_in,1)];
           ub = [];
           ctype = repmat ("L", n_in, 1);
-          [P, dummy, status] = glpk (ctmp, Atmp, btmp, lb, ub, ctype);
-          if ((status == 0)
-              && all (abs (P(n-n_eq+1:end)) < rtol * (1 + norm (btmp))))
-            ## We found a feasible starting point
-            if (n_eq > 0)
-              x0 = xbar + Z*P(1:n-n_eq);
-            else
-              x0 = P(1:n);
-            endif
+          [P, FMIN, status] = glpk (ctmp, Atmp, btmp, lb, ub, ctype);
+          ## FIXME: Test based only on rtol occasionally fails (Bug #38353).
+          ## This seems to be a problem in glpk in which return value XOPT(1)
+          ## is the same as FMIN.  Workaround this by explicit test
+          if (status != 0)
+            info = 6;  # The problem is infeasible
           else
-            ## The problem is infeasible
-            info = 6;
+            if (all (abs (P(n-n_eq+2:end)) < rtol * (1 + norm (btmp)))
+                && (P(n-n_eq+1) < rtol * (1 + norm (btmp))
+                    || P(n-n_eq+1) == FMIN))
+              ## We found a feasible starting point
+              if (n_eq > 0)
+                x0 = xbar + Z*P(1:n-n_eq);
+              else
+                x0 = P(1:n);
+              endif
+            else
+              info = 6;  # The problem is infeasible
+            endif
           endif
         endif
       else
@@ -447,3 +459,9 @@ endfunction
 %!
 %! assert (isstruct (INFO) && isfield (INFO, "info") && (INFO.info == 0));
 %! assert ([x obj_qp], [1.0 0.5], eps);
+
+%!test <*61762>
+%! [x, obj, info] = qp ([], [21, 30, 39; 30, 45, 60; 39, 60, 81], [-40; -65; -90]);
+%! assert (x, zeros (3, 1));
+%! assert (obj, 0);
+%! assert (info.info, 2);

@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 dnl
 ########################################################################
 ##
-## Copyright (C) 1993-2021 The Octave Project Developers
+## Copyright (C) 1993-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -27,7 +27,7 @@ dnl
 
 ### Initialize Autoconf
 AC_PREREQ([2.65])
-AC_INIT([GNU Octave], [7.0.0], [https://octave.org/bugs.html], [octave],
+AC_INIT([GNU Octave], [8.0.0], [https://octave.org/bugs.html], [octave],
         [https://www.gnu.org/software/octave/])
 
 ### Declare version numbers
@@ -39,16 +39,16 @@ dnl AC_INIT requires it to be static, not computed from shell variables.
 ## explains how to update these numbers for release and development
 ## versions.
 
-OCTAVE_MAJOR_VERSION=7
+OCTAVE_MAJOR_VERSION=8
 OCTAVE_MINOR_VERSION=0
 OCTAVE_PATCH_VERSION=0
 
 dnl PACKAGE_VERSION is set by the AC_INIT VERSION argument.
 OCTAVE_VERSION="$PACKAGE_VERSION"
 
-OCTAVE_COPYRIGHT="Copyright (C) 2020 The Octave Project Developers."
+OCTAVE_COPYRIGHT="Copyright (C) 2021-2022 The Octave Project Developers."
 
-OCTAVE_RELEASE_DATE="2020-08-26"
+OCTAVE_RELEASE_DATE="2022-01-05"
 
 ## The "API version" is used as a way of checking that interfaces in the
 ## liboctave and libinterp libraries haven't changed in a backwardly
@@ -63,7 +63,7 @@ dnl
 dnl FIXME: Since we also set libtool versions for liboctave and libinterp,
 dnl perhaps we should be computing the "api version" from those versions numbers
 dnl in some way instead of setting it independently here.
-OCTAVE_API_VERSION="api-v56+"
+OCTAVE_API_VERSION="api-v57+"
 
 AC_SUBST(OCTAVE_MAJOR_VERSION)
 AC_SUBST(OCTAVE_MINOR_VERSION)
@@ -107,8 +107,15 @@ OCTAVE_SET_DEFAULT([octlibdir], '${libdir}/octave/${version}')
 ## Where to put executables to be run by Octave, rather than the user.
 ## This path usually includes the Octave version and configuration name, so
 ## that configurations for multiple versions of Octave may be installed at once.
-OCTAVE_SET_DEFAULT([archlibdir],
-  '${libexecdir}/octave/${version}/exec/${canonical_host_type}')
+## Windows search paths and relocation oddities require all binaries must be
+## installed in the same directory.
+case $host_os in
+  mingw* | msdosmsvc)
+    OCTAVE_SET_DEFAULT([archlibdir], '${bindir}') ;;
+  *)
+    OCTAVE_SET_DEFAULT([archlibdir],
+      '${libexecdir}/octave/${version}/exec/${canonical_host_type}') ;;
+esac
 
 ## Where to put executables to be run by Octave, rather than the user, that
 ## are specific to this site.
@@ -326,12 +333,7 @@ AC_PROG_CXX
 AC_PROG_CXXCPP
 
 ## Ensure that the C++ compiler fully supports C++11.
-dnl Test must occur after calling AC_PROG_CXX, which tests for language
-dnl features and sets the shell variable ac_cv_prog_cxx_cxx11 appropriately.
-
-if test x"$ac_cv_prog_cxx_cxx11" = xno; then
-  AC_MSG_ERROR([a compiler that fully supports C++11 is required to build Octave])
-fi
+AX_CXX_COMPILE_STDCXX(11, [], [])
 
 ### Determine which C compiler to use (we expect to find gcc).
 
@@ -396,6 +398,20 @@ AM_CONDITIONAL([AMCOND_HAVE_BROKEN_STL_ALGO_H],
 if test $octave_cv_broken_stl_algo_h = yes; then
   warn_stl_algo_h="Found nth_element broken in g++ $GXX_VERSION.  Attempting to repair by using local patched version of bits/stl_algo.h."
   OCTAVE_CONFIGURE_WARNING([warn_stl_algo_h])
+fi
+
+ENABLE_STD_PMR_POLYMORPHIC_ALLOCATOR=no
+AC_ARG_ENABLE(std-pmr-polymorphic-allocator,
+  [AS_HELP_STRING([--enable-std-pmr-polymorphic-allocator],
+    [build libraries requiring std::pmr::polymorphic_allocator if possible. This allows more efficient transfer of arrays at the .mex file interface. That also means that all libraries including Octave headers (e.g., .oct files) must be able to compile with that C++17 feature.])],
+  [case $enableval in
+     yes) ENABLE_STD_PMR_POLYMORPHIC_ALLOCATOR=yes ;;
+     no) ENABLE_STD_PMR_POLYMORPHIC_ALLOCATOR=no ;;
+     *) AC_MSG_ERROR([bad value $enableval for --enable-std-pmr-polymorphic-allocator]) ;;
+   esac])
+
+if test $ENABLE_STD_PMR_POLYMORPHIC_ALLOCATOR = yes; then
+  OCTAVE_CHECK_STD_PMR_POLYMORPHIC_ALLOCATOR
 fi
 
 ### Check version number when using gcc.
@@ -2253,7 +2269,7 @@ if test -n "$SUNDIALS_IDA_LIBS" && test -n "$SUNDIALS_NVECSERIAL_LIBS"; then
   LIBS="$save_LIBS"
 fi
 
-dnl Define this way instead of with an #if in oct-conf-post.h so that
+dnl Define this way instead of with an #if in oct-conf-post-private.h so that
 dnl the build features script will get the correct value.
 dnl
 dnl The test on the sunlinsol_klu.h header is a bit of a kluge.
@@ -2620,6 +2636,7 @@ AC_SUBST(OCTAVE_RELOCATE_ALL)
 if test $OCTAVE_RELOCATE_ALL = yes; then
   AC_DEFINE(OCTAVE_REPLACE_PREFIX, 1, [Replace prefix in mkoctfile flags.])
 fi
+AM_CONDITIONAL([AMCOND_RELOCATE_ALL], [test $OCTAVE_RELOCATE_ALL = yes])
 
 ### Determine whether Mercurial ID should be embedded in library binaries.
 
@@ -2651,10 +2668,17 @@ AC_ARG_ENABLE(lib-visibility-flags,
      *) AC_MSG_ERROR([bad value $enableval for --enable-lib-visibility-flags]) ;;
    esac])
 
-if test $ENABLE_LIB_VISIBILITY_FLAGS = yes && test $HAVE_VISIBILITY = 0; then
-  AC_MSG_NOTICE([cannot build with visibility flags on this platform])
-  ENABLE_LIB_VISIBILITY_FLAGS=no
-fi
+case $host_os in
+  msdosmsvc | mingw* | cygwin*)
+    # Assume that symbol export is working on that platform
+  ;;
+  *)
+    if test $ENABLE_LIB_VISIBILITY_FLAGS = yes && test $HAVE_VISIBILITY = 0; then
+      AC_MSG_NOTICE([cannot build with visibility flags on this platform])
+      ENABLE_LIB_VISIBILITY_FLAGS=no
+    fi
+  ;;
+esac
 
 if test $ENABLE_LIB_VISIBILITY_FLAGS = yes; then
   AC_DEFINE(OCTAVE_ENABLE_LIB_VISIBILITY_FLAGS, 1,
@@ -2809,11 +2833,11 @@ AC_SUBST(WARN_LDFLAGS)
 ### Check for GCC-specific pragmas to control warnings.
 
 AC_LANG_PUSH(C++)
-AC_CACHE_CHECK([for @%:@pragma GCC diagnostic push/pop/ignore],
+AC_CACHE_CHECK([for @%:@pragma GCC diagnostic push/pop/ignored],
   [octave_cv_gcc_has_pragma_GCC_diagnostic],
   [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignore "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
   int three = (int) 3.1415926;
 #pragma GCC diagnostic pop
     ]])],
@@ -2824,14 +2848,30 @@ AC_LANG_POP(C++)
 
 if test $octave_cv_gcc_has_pragma_GCC_diagnostic = yes; then
   AC_DEFINE(HAVE_PRAGMA_GCC_DIAGNOSTIC, 1,
-    [Define to 1 if GCC supports @%:@pragma GCC diagnostic ...])
+    [Define to 1 if compiler supports @%:@pragma GCC diagnostic ...])
+fi
+
+AC_CACHE_CHECK([for @%:@pragma GCC visibility push/pop],
+  [octave_cv_gcc_has_pragma_GCC_visiblity],
+  [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
+#pragma GCC visibility push(default)
+  int three = 3;
+#pragma GCC visiblity pop(default)
+    ]])],
+    [octave_cv_gcc_has_pragma_GCC_visiblity=yes],
+    [octave_cv_gcc_has_pragma_GCC_visiblity=no])],
+  ])
+
+if test $octave_cv_gcc_has_pragma_GCC_visiblity = yes; then
+  AC_DEFINE(HAVE_PRAGMA_GCC_VISIBILITY, 1,
+    [Define to 1 if compiler supports @%:@pragma GCC visiblity ...])
 fi
 
 ## Check for one unusual warning used in pragmas that is not always available
 if test $octave_cv_gcc_has_pragma_GCC_diagnostic = yes; then
   OCTAVE_CC_FLAG([-Wimplicit-fallthrough],
     [AC_DEFINE(HAVE_WARN_IMPLICIT_FALLTHROUGH, 1,
-      [Define to 1 if GCC supports -Wimplicit-fallthrough warning])])
+      [Define to 1 if compiler supports -Wimplicit-fallthrough warning])])
 fi
 
 ### These are recommended by the gnulib bootstrap script:
@@ -2954,7 +2994,8 @@ CXXFLAGS="$original_octave_configure_CXXFLAGS"
 
 ### Add footer to config.h
 
-AH_BOTTOM([#include "oct-conf-post.h"])
+AH_BOTTOM([#include "oct-conf-post-private.h"])
+AH_BOTTOM([#include "oct-conf-post-public.h"])
 
 ### Make all AC_DEFINES available to testif feature of test.m function.
 dnl This must reside at the bottom of configure.ac after all AC_DEFINES
@@ -3051,12 +3092,19 @@ AC_CONFIG_FILES([
   liboctave/octave.pc:liboctave/octave.in.pc
   libinterp/octinterp.pc:libinterp/octinterp.in.pc])
 
-dnl We use a .in.h file for oct-conf-post.h simply to copy it to the build tree
+dnl We use a .in.h file for oct-conf-post-private.h and
+dnl oct-conf-post-public.h simply to copy it to the build tree
 dnl so that we don't have to add the -I${top_srcdir} to any CPPFLAGS variables.
 
-AC_CONFIG_FILES([oct-conf-post.h-tmp:oct-conf-post.in.h])
-AC_CONFIG_COMMANDS([oct-conf-post.h],
-  [$SHELL $srcdir/build-aux/move-if-change oct-conf-post.h-tmp oct-conf-post.h])
+AC_CONFIG_FILES([
+  oct-conf-post-private.h-tmp:oct-conf-post-private.in.h
+  oct-conf-post-public.h-tmp:oct-conf-post-public.in.h])
+
+AC_CONFIG_COMMANDS([oct-conf-post-private.h],
+  [$SHELL $srcdir/build-aux/move-if-change oct-conf-post-private.h-tmp oct-conf-post-private.h])
+
+AC_CONFIG_COMMANDS([oct-conf-post-public.h],
+  [$SHELL $srcdir/build-aux/move-if-change oct-conf-post-public.h-tmp oct-conf-post-public.h])
 
 OCTAVE_CONFIG_MOVE_IF_CHANGE_FILES([
   liboctave/external/mk-f77-def.sh

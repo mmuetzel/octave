@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2007-2021 The Octave Project Developers
+## Copyright (C) 2007-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -90,7 +90,8 @@ function vi = griddata3 (x, y, z, v, xi, yi, zi, method = "linear", varargin)
     error ("griddata3: XI, YI, and ZI must be vectors or matrices of the same size");
   endif
 
-  vi = griddatan ([x(:), y(:), z(:)], v(:), [xi(:), yi(:), zi(:)], method, varargin{:});
+  vi = griddatan ([x(:), y(:), z(:)], v(:), [xi(:), yi(:), zi(:)], method, ...
+                  varargin{:});
   vi = reshape (vi, size (xi));
 
 endfunction

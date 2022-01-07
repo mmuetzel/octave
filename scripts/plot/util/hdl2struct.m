@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2012-2021 The Octave Project Developers
+## Copyright (C) 2012-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -155,7 +155,7 @@ function propstruct = getprops (h)
   propstruct = rmfield (obj, fields(tf));
 
   ## hidden properties
-  hidden_props = {"__autopos_tag__", "looseinset", ...
+  hidden_props = {"__appdata__", "__autopos_tag__", "looseinset", ...
                   "positionmode", "rotationmode", ...
                   "horizontalalignmentmode", "verticalalignmentmode"};
   for prop = hidden_props

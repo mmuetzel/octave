@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -261,7 +261,7 @@ namespace octave
     // Build an anonymous function handle.
     OCTINTERP_API tree_anon_fcn_handle *
     make_anon_fcn_handle (tree_parameter_list *param_list,
-                          tree_expression * expr, const filepos& at_pos);
+                          tree_expression *expr, const filepos& at_pos);
 
     // Build a colon expression.
     OCTINTERP_API tree_expression *

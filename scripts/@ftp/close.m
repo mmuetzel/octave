@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2009-2021 The Octave Project Developers
+## Copyright (C) 2009-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -28,6 +28,7 @@
 ## Close the FTP connection represented by the FTP object @var{f}.
 ##
 ## @var{f} is an FTP object returned by the @code{ftp} function.
+## @seealso{@ftp/ftp}
 ## @end deftypefn
 
 function close (f)

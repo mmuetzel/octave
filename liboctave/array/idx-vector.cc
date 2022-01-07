@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -456,7 +456,7 @@ namespace octave
         if (uniq)
           {
             octave_idx_type new_len = std::unique (new_data, new_data + m_len)
-              - new_data;
+                                      - new_data;
             new_rep->m_len = new_len;
             if (new_rep->m_orig_dims.ndims () == 2 && new_rep->m_orig_dims(0) == 1)
               new_rep->m_orig_dims = dim_vector (1, new_len);

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2013-2021 The Octave Project Developers
+## Copyright (C) 2013-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,17 +24,19 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} isplaying (@var{player})
+## @deftypefn {} {@var{tf} =} isplaying (@var{player})
 ## Return true if the audioplayer object @var{player} is currently playing back
 ## audio and false otherwise.
+## @seealso{@audioplayer/pause, @audioplayer/audioplayer}
 ## @end deftypefn
 
-function result = isplaying (player)
+function tf = isplaying (player)
 
-  if (nargin < 1)
-    print_usage ();
-  endif
-
-  result = __player_isplaying__ (struct (player).player);
+  tf = __player_isplaying__ (struct (player).player);
 
 endfunction
+
+
+%!testif HAVE_PORTAUDIO; audiodevinfo (1) > 0
+%! player = audioplayer ([-1, 1], 44100, 8);
+%! assert (isplaying (player), false);

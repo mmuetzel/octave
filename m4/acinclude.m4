@@ -2,7 +2,7 @@ dnl aclocal.m4 -- extra macros for configuring Octave
 dnl
 dnl --------------------------------------------------------------------
 dnl
-dnl Copyright (C) 1995-2021 The Octave Project Developers
+dnl Copyright (C) 1995-2022 The Octave Project Developers
 dnl
 dnl See the file COPYRIGHT.md in the top-level directory of this
 dnl or <https://octave.org/copyright/>.
@@ -255,6 +255,51 @@ return v[3] == 207089 ? 0 : 1;
   fi
 ])
 dnl
+dnl Check whether std::pmr::polymorphic_allocator is available.
+dnl
+AC_DEFUN([OCTAVE_CHECK_STD_PMR_POLYMORPHIC_ALLOCATOR], [
+  AC_CACHE_CHECK([whether std::pmr::polymorphic_allocator is available],
+    [octave_cv_std_pmr_polymorphic_allocator],
+    [AC_LANG_PUSH(C++)
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      #include <cstdlib>
+      #include <memory_resource>
+      #include <vector>
+      class mx_memory_resource : public std::pmr::memory_resource
+      {
+      private:
+        void * do_allocate (std::size_t bytes, size_t /*alignment*/)
+        {
+          void *ptr = std::malloc (bytes);
+          if (! ptr)
+            throw std::bad_alloc ();
+            return ptr;
+        }
+        void do_deallocate (void* ptr, std::size_t /*bytes*/,
+                            std::size_t /*alignment*/)
+        {
+          std::free (ptr);
+        }
+        bool do_is_equal (const std::pmr::memory_resource& other) const noexcept
+        {
+          return this == dynamic_cast<const mx_memory_resource *> (&other);
+          return true;
+        }
+      };
+      mx_memory_resource the_mx_memory_resource;
+    ]], [[
+      std::pmr::vector<int> my_int_vec { &the_mx_memory_resource };
+    ]])],
+    octave_cv_std_pmr_polymorphic_allocator=yes,
+    octave_cv_std_pmr_polymorphic_allocator=no)
+    AC_LANG_POP(C++)
+  ])
+  if test $octave_cv_std_pmr_polymorphic_allocator = yes; then
+    AC_DEFINE(OCTAVE_HAVE_STD_PMR_POLYMORPHIC_ALLOCATOR, 1,
+      [Define to 1 if std::pmr::polymorphic_allocator is available.])
+  fi
+])
+dnl
 dnl Check whether CXSparse is version 2.2 or later
 dnl FIXME: This test uses a version number.  It potentially could
 dnl        be re-written to actually call a function, but is it worth it?
@@ -491,7 +536,7 @@ AC_DEFUN([OCTAVE_CHECK_FUNC_QGUIAPPLICATION_SETDESKTOPFILENAME], [
     ac_octave_save_CPPFLAGS="$CPPFLAGS"
     ac_octave_save_CXXFLAGS="$CXXFLAGS"
     CPPFLAGS="$QT_CPPFLAGS $CXXPICFLAG $CPPFLAGS"
-    CXXFLAGS="$CXXPICFLAG $CPPFLAGS"
+    CXXFLAGS="$CXXPICFLAG $CXXFLAGS"
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
         #include <QGuiApplication>
         ]], [[
@@ -556,7 +601,7 @@ AC_DEFUN([OCTAVE_CHECK_FUNC_QHELPSEARCHQUERYWIDGET_SEARCHINPUT], [
     ac_octave_save_CPPFLAGS="$CPPFLAGS"
     ac_octave_save_CXXFLAGS="$CXXFLAGS"
     CPPFLAGS="$QT_CPPFLAGS $CXXPICFLAG $CPPFLAGS"
-    CXXFLAGS="$CXXPICFLAG $CPPFLAGS"
+    CXXFLAGS="$CXXPICFLAG $CXXFLAGS"
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
         #include <QHelpSearchQueryWidget>
         #include <QString>
@@ -1572,7 +1617,7 @@ AC_DEFUN([OCTAVE_CHECK_NEW_QHELPINDEXWIDGET_API], [
     ac_octave_save_CPPFLAGS="$CPPFLAGS"
     ac_octave_save_CXXFLAGS="$CXXFLAGS"
     CPPFLAGS="$QT_CPPFLAGS $CXXPICFLAG $CPPFLAGS"
-    CXXFLAGS="$CXXPICFLAG $CPPFLAGS"
+    CXXFLAGS="$CXXPICFLAG $CXXFLAGS"
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
         #include <QHelpLink>
         ]], [[
@@ -2312,7 +2357,7 @@ AC_DEFUN([OCTAVE_CHECK_SUNDIALS_COMPATIBLE_API], [
   ac_octave_save_LIBS=$LIBS
   LIBS="$SUNDIALS_IDA_LIBS $SUNDIALS_NVECSERIAL_LIBS $LIBS"
   dnl Current API functions present in SUNDIALS version 4
-  AC_CHECK_FUNCS([IDASetJacFn IDASetLinearSolver SUNLinSol_Dense SUNSparseMatrix_Reallocate])
+  AC_CHECK_FUNCS([IDASetJacFn IDASetLinearSolver SUNLinSol_Dense SUNSparseMatrix_Reallocate SUNContext_Create])
   dnl FIXME: The purpose of the following tests is to detect the deprecated
   dnl API from SUNDIALS version 3, which should only be used if the current
   dnl API tests above failed. For now, always test for ida_direct.h.
@@ -2333,6 +2378,10 @@ AC_DEFUN([OCTAVE_CHECK_SUNDIALS_COMPATIBLE_API], [
     octave_have_sundials_compatible_api=no
   fi
   AC_MSG_RESULT([$octave_have_sundials_compatible_api])
+  if test "x$ac_cv_func_SUNContext_Create" = xyes; then
+    AC_DEFINE(HAVE_SUNDIALS_SUNCONTEXT, 1,
+      [Define to 1 if SUNDIALS' API is using a SUNContext object.])
+  fi
   if test $octave_have_sundials_compatible_api = no; then
     warn_sundials_disabled="SUNDIALS libraries do not provide an API that is compatible with Octave.  The solvers ode15i and ode15s will be disabled."
     OCTAVE_CONFIGURE_WARNING([warn_sundials_disabled])
@@ -2399,11 +2448,12 @@ AC_DEFUN([OCTAVE_CHECK_SUNDIALS_SUNLINSOL_KLU], [
      #  include <ufsparse/klu.h>
      #endif
     ])
+  ## Check for current KLU function name first.
   OCTAVE_CHECK_LIB(sundials_sunlinsolklu, SUNLINSOL_KLU, [],
-    [], [SUNKLU], [],
+    [], [SUNLinSol_KLU], [],
     [don't use SUNDIALS SUNLINSOL_KLU library, disable ode15i and ode15s sparse Jacobian],
-    [AC_CHECK_FUNCS([SUNLinSol_KLU SUNKLU])
-     AC_CACHE_CHECK([whether compiling a program that calls SUNKLU works],
+    [AC_CHECK_FUNCS([SUNLinSol_KLU])
+     AC_CACHE_CHECK([whether compiling a program that calls SUNLinSol_KLU works],
       [octave_cv_sundials_sunlinsol_klu],
       [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
          #if defined (HAVE_IDA_IDA_H)
@@ -2425,11 +2475,53 @@ AC_DEFUN([OCTAVE_CHECK_SUNDIALS_SUNLINSOL_KLU], [
          #include <sunlinsol/sunlinsol_klu.h>
          #endif
          ]], [[
-         SUNKLU (0, 0);
+         #if defined (HAVE_SUNCONTEXT_CREATE)
+           SUNContext *sunContext;
+           if (SUNContext_Create (NULL, sunContext) < 0)
+             1/0;  // provoke an error
+           SUNLinSol_KLU (0, 0, *sunContext);
+           SUNContext_Free (sunContext);
+         #else
+           SUNLinSol_KLU (0, 0);
+         #endif
       ]])],
       octave_cv_sundials_sunlinsol_klu=yes,
       octave_cv_sundials_sunlinsol_klu=no)
     ])])
+  if test "x$octave_cv_sundials_sunlinsol_klu" = xno; then
+    ## Check for deprecated KLU function name second.
+    OCTAVE_CHECK_LIB(sundials_sunlinsolklu, SUNLINSOL_KLU, [],
+      [], [SUNKLU], [],
+      [don't use SUNDIALS SUNLINSOL_KLU library, disable ode15i and ode15s sparse Jacobian],
+      [AC_CHECK_FUNCS([SUNKLU])
+       AC_CACHE_CHECK([whether compiling a program that calls SUNLinSol_KLU works],
+        [octave_cv_sundials_sunlinsol_klu],
+        [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+           #if defined (HAVE_IDA_IDA_H)
+           #include <ida/ida.h>
+           #endif
+           #if defined (HAVE_KLU_H)
+           #include <klu.h>
+           #endif
+           #if defined (HAVE_KLU_KLU_H)
+           #include <klu/klu.h>
+           #endif
+           #if defined (HAVE_SUITESPARSE_KLU_H)
+           #include <suitesparse/klu.h>
+           #endif
+           #if defined (HAVE_UFPARSE_KLU_H)
+           #include <ufsparse/klu.h>
+           #endif
+           #if defined (HAVE_SUNLINSOL_SUNLINSOL_KLU_H)
+           #include <sunlinsol/sunlinsol_klu.h>
+           #endif
+           ]], [[
+           SUNKLU (0, 0);
+        ]])],
+        octave_cv_sundials_sunlinsol_klu=yes,
+        octave_cv_sundials_sunlinsol_klu=no)
+      ])])
+  fi
   if test "x$ac_cv_header_sunlinsol_sunlinsol_klu_h" = xyes \
      && test "x$octave_cv_sundials_sunlinsol_klu" = xyes; then
     AC_DEFINE(HAVE_SUNDIALS_SUNLINSOL_KLU, 1,

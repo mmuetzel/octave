@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2013-2021 The Octave Project Developers
+// Copyright (C) 2013-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -500,7 +500,8 @@ recording using those parameters.
 %! devinfo = audiodevinfo;
 %! nout = audiodevinfo (0);
 %! nin = audiodevinfo (1);
-%! ## There might be multiple devices with the same name (e.g. on Windows WDM-KS)
+%! ## There might be multiple devices with the same name
+%! ## (e.g., on Windows WDM-KS)
 %! ## Check only the first of each unique device name.
 %! [unq_out_name, idx_unique] = unique ({devinfo.output(:).Name});
 %! unq_out_id = [devinfo.output(idx_unique).ID];
@@ -564,8 +565,8 @@ public:
   octave_value get_userdata (void);
   PaStream * get_stream (void);
 
-  void playblocking (void);
   void play (void);
+  void playblocking (void);
   void pause (void);
   void resume (void);
   void stop (void);
@@ -700,7 +701,7 @@ octave_play_callback (const void *, void *output, unsigned long frames,
 
 static int
 portaudio_play_callback (const void *, void *output, unsigned long frames,
-                         const PaStreamCallbackTimeInfo*,
+                         const PaStreamCallbackTimeInfo *,
                          PaStreamCallbackFlags, void *data)
 {
   audioplayer *player = static_cast<audioplayer *> (data);
@@ -885,7 +886,7 @@ audioplayer::~audioplayer (void)
   if (isplaying ())
     {
       warning_with_id ("Octave:audio-interrupt",
-                       "interrupting playing audioplayer");
+                       "interrupting audioplayer during playback");
       stop ();
     }
 }
@@ -1369,8 +1370,8 @@ octave_record_callback (const void *input, void *, unsigned long frames,
           float sample_l = input8[i*channels] / scale_factor;
           float sample_r = input8[i*channels + (channels - 1)] / scale_factor;
 
-          sound(i,0) = sample_l;
-          sound(i,1) = sample_r;
+          sound(i, 0) = sample_l;
+          sound(i, 1) = sample_r;
         }
     }
   // FIXME: This is a workaround for a bug in PortAudio affecting 8-Bit
@@ -1389,8 +1390,8 @@ octave_record_callback (const void *input, void *, unsigned long frames,
           float sample_r = (input16[i*channels + (channels - 1)] >> 8)
                            / scale_factor;
 
-          sound(i,0) = sample_l;
-          sound(i,1) = sample_r;
+          sound(i, 0) = sample_l;
+          sound(i, 1) = sample_r;
         }
     }
   else if (recorder->get_sampleFormat () == bits_to_format (16))
@@ -1404,8 +1405,8 @@ octave_record_callback (const void *input, void *, unsigned long frames,
           float sample_l = input16[i*channels] / scale_factor;
           float sample_r = input16[i*channels + (channels - 1)] / scale_factor;
 
-          sound(i,0) = sample_l;
-          sound(i,1) = sample_r;
+          sound(i, 0) = sample_l;
+          sound(i, 1) = sample_r;
         }
     }
   else if (recorder->get_sampleFormat () == bits_to_format (24))
@@ -1436,8 +1437,8 @@ octave_record_callback (const void *input, void *, unsigned long frames,
           if (sample_r32 & 0x00800000)
             sample_r32 |= 0xff000000;
 
-          sound(i,0) = sample_l32 / scale_factor;
-          sound(i,1) = sample_r32 / scale_factor;
+          sound(i, 0) = sample_l32 / scale_factor;
+          sound(i, 1) = sample_r32 / scale_factor;
         }
     }
 
@@ -1557,7 +1558,7 @@ audiorecorder::~audiorecorder (void)
   if (isrecording ())
     {
       warning_with_id ("Octave:audio-interrupt",
-                       "interrupting recording audiorecorder");
+                       "interrupting audiorecorder during recording");
       stop ();
     }
 }
@@ -1656,7 +1657,9 @@ audiorecorder::get_id (void)
 void
 audiorecorder::set_channels (int channels_arg)
 {
-  assert (channels_arg == 1 || channels_arg == 2);
+  if (channels_arg != 1 && channels_arg != 2)
+    error ("audiorecorder: number of channels must be 1 or 2");
+
   channels = channels_arg;
 }
 
@@ -1742,8 +1745,8 @@ audiorecorder::getaudiodata (void)
 
   for (unsigned int i = 0; i < ls; i++)
     {
-      audio(0,i) = left[i];
-      audio(1,i) = right[i];
+      audio(0, i) = left[i];
+      audio(1, i) = right[i];
     }
 
   return audio;
@@ -1934,7 +1937,7 @@ Undocumented internal function.
                           || args(0).is_inline_function ());
 
       if (is_function)
-        error ("audiorecorder: callbacks not yet implemented");
+        error ("audiorecorder: callback functions are not yet implemented");
     }
 
   if (nargin >= 3)
@@ -2368,7 +2371,7 @@ Undocumented internal function.
                       || args(0).is_inline_function ());
 
   if (is_function)
-    error ("audioplayer: callbacks not yet implemented");
+    error ("audioplayer: callback functions are not yet implemented");
 
   recorder->set_y (args(0));
   recorder->set_fs (args(1).int_value ());

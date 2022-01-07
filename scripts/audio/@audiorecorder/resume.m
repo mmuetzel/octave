@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2013-2021 The Octave Project Developers
+## Copyright (C) 2013-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -26,14 +26,16 @@
 ## -*- texinfo -*-
 ## @deftypefn {} {} resume (@var{recorder})
 ## Resume recording with the paused audiorecorder object @var{recorder}.
+## @seealso{@audiorecorder/pause, @audiorecorder/stop,
+## @audiorecorder/audiorecorder}
 ## @end deftypefn
 
 function resume (recorder)
 
-  if (nargin < 1)
-    print_usage ();
-  endif
-
   __recorder_resume__ (struct (recorder).recorder);
 
 endfunction
+
+
+## No tests possible for this function
+%!assert (1)

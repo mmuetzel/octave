@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2001-2021 The Octave Project Developers
+// Copyright (C) 2001-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -164,7 +164,8 @@ Octave will set the real breakpoint at the next executable line.
 When a file is re-parsed, such as when it is modified outside the GUI,
 all breakpoints within the file are cleared.
 
-@seealso{dbclear, dbstatus, dbstep, debug_on_error, debug_on_warning, debug_on_interrupt}
+@seealso{dbclear, dbstatus, dbstep, debug_on_error, debug_on_warning,
+debug_on_interrupt}
 @end deftypefn */)
 {
   octave::bp_table::bp_lines retmap;
@@ -512,7 +513,7 @@ The @qcode{"warn"} field is set similarly by @code{dbstop if warning}.
         }
       else
         {
-          octave_map outer (dim_vector (3,1));
+          octave_map outer (dim_vector (3, 1));
           outer.assign ("bkpt", Cell (retmap));
           for (auto f = ew.begin (); f != ew.end (); f++)
             outer.setfield (f->first, ew.contents (f));
@@ -528,12 +529,12 @@ The @qcode{"warn"} field is set similarly by @code{dbstop if warning}.
 %!test
 %! if (isguirunning ())
 %!   orig_show_dbg = __event_manager_gui_preference__ ("editor/show_dbg_file",
-%!                                                   "0");
+%!                                                     "0");
 %! endif
 %! unwind_protect
 %!   dbclear all;   # Clear out breakpoints before test
 %!   dbstop @ftp/dir;
-%!   dbstop @audioplayer/set 70;
+%!   dbstop @audioplayer/set 75;
 %!   dbstop quantile>__quantile__;
 %!   dbstop ls;
 %!   s = dbstatus;
@@ -1170,7 +1171,7 @@ exit all debugging levels and return to the Octave prompt.
 
 DEFMETHOD (isdebugmode, interp, args, ,
            doc: /* -*- texinfo -*-
-@deftypefn {} {} isdebugmode ()
+@deftypefn {} {@var{tf} =} isdebugmode ()
 Return true if in debugging mode, otherwise false.
 @seealso{dbwhere, dbstack, dbstatus}
 @end deftypefn */)

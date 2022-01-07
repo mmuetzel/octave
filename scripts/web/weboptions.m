@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2018-2021 The Octave Project Developers
+## Copyright (C) 2018-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -31,10 +31,10 @@ classdef weboptions < handle
   ##
   ## Specify parameters for RESTful web services.
   ##
-  ## @code{weboptions} with no inputs returns a default @code{weboptions} object
-  ## to specify parameters for a request to a web service.  A @code{weboptions}
-  ## object can be an optional input argument to the @code{webread} and
-  ## @code{webwrite} functions.
+  ## @code{weboptions} with no inputs returns a default @code{weboptions}
+  ## object to specify parameters for a request to a web service.  A
+  ## @code{weboptions} object can be an optional input argument to the
+  ## @code{webread} and @code{webwrite} functions.
   ##
   ## Multiple name and value pair arguments may be specified in any order as
   ## @var{name1}, @var{value1}, @var{name2}, @var{value2}, etc.
@@ -58,7 +58,8 @@ classdef weboptions < handle
   ## current version of Octave as returned by @code{version}.
   ##
   ## @item
-  ## @samp{Timeout} --- Specify the timeout value for the connection in seconds.
+  ## @samp{Timeout} --- Specify the timeout value for the connection in
+  ## seconds.
   ##
   ## Default is 10 seconds.  @samp{Inf} is not currently supported.
   ##
@@ -71,8 +72,8 @@ classdef weboptions < handle
   ## @samp{Password} --- User authentication password for HTTP connection.
   ##
   ## Default is NULL@.  It must be a string or character vector.
-  ## Programming Note: If you display a @code{weboption} object with the Password
-  ## property set, the value is displayed as a string containing
+  ## Programming Note: If you display a @code{weboption} object with the
+  ## Password property set, the value is displayed as a string containing
   ## @qcode{'*'}.  However, the object stores the value of the Password
   ## property as plain text.
   ##
@@ -98,8 +99,8 @@ classdef weboptions < handle
   ## @example
   ## @group
   ## weboptions ("HeaderFields", @{"Content-Length" "78";"Content-Type" "application/json"@})
-  ## Creates a weboptions object that contains two header fields: Content-Length
-  ## with value 78 and Content-Type with value application/json.
+  ## Creates a weboptions object that contains two header fields:
+  ## Content-Length with value 78 and Content-Type with value application/json.
   ## @end group
   ## @end example
   ##
@@ -127,8 +128,8 @@ classdef weboptions < handle
   ## The following methods are available:
   ## @samp{get}, @samp{put}, @samp{post}, @samp{delete}, @samp{patch}
   ##
-  ## @code{webread} uses the HTTP GET method.  @code{webwrite} uses the HTTP POST
-  ## method as default.
+  ## @code{webread} uses the HTTP GET method.  @code{webwrite} uses the HTTP
+  ## POST method as default.
   ##
   ## @item
   ## @samp{ArrayFormat} -- Not yet implemented.  Only for @sc{matlab}
@@ -162,6 +163,7 @@ classdef weboptions < handle
   methods
 
     function f = weboptions (varargin)
+
       if (rem (numel (varargin), 2) != 0)
         error ("weboptions: invalid number of arguments");
       else

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2012-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -34,6 +34,7 @@
 
 #include "oct-refcount.h"
 
+#include "cdef-fwd.h"
 #include "cdef-object.h"
 #include "ov.h"
 
@@ -42,6 +43,7 @@ namespace octave
   class interpreter;
 
   class
+  OCTINTERP_API
   cdef_package : public cdef_meta_object
   {
     friend class cdef_class;
@@ -59,7 +61,8 @@ namespace octave
 
       ~cdef_package_rep (void) = default;
 
-      cdef_object_rep * copy (void) const { return new cdef_package_rep (*this); }
+      cdef_object_rep * copy (void) const
+      { return new cdef_package_rep (*this); }
 
       bool is_package (void) const { return true; }
 

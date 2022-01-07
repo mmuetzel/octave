@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -28,10 +28,9 @@
 
 #include "octave-config.h"
 
-#include "Array.h"
+#include "mx-fwd.h"
 
-class ColumnVector;
-class PermMatrix;
+#include "Array.h"
 
 namespace octave
 {

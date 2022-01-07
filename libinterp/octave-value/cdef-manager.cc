@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2012-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -281,7 +281,8 @@ namespace octave
 
   static octave_value_list
   package_getAllPackages (interpreter& interp,
-                          const octave_value_list& /* args */, int /* nargout */)
+                          const octave_value_list& /* args */,
+                          int /* nargout */)
   {
     std::map<std::string, cdef_package> toplevel_packages;
 
@@ -301,7 +302,7 @@ namespace octave
     int i = 0;
 
     for (const auto& nm_pkg : toplevel_packages)
-      c(i++,0) = to_ov (nm_pkg.second);
+      c(i++, 0) = to_ov (nm_pkg.second);
 
     return octave_value_list (octave_value (c));
   }

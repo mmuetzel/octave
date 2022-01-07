@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2005-2021 The Octave Project Developers
+## Copyright (C) 2005-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -130,12 +130,14 @@ function [retval, errmsg] = license (cmd, feature, toggle)
 endfunction
 
 function username = get_username ()
+
   pw = getpwuid (getuid ());
   if (isstruct (pw))
     username = pw.name;
   else
     username = "octave_user";
   endif
+
 endfunction
 
 function [features, loaded] = get_all_features ()

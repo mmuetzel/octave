@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1998-2021 The Octave Project Developers
+// Copyright (C) 1998-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -31,10 +31,9 @@
 #include <iosfwd>
 #include <string>
 
+#include "Array-fwd.h"
 #include "str-vec.h"
 #include "dColVector.h"
-
-template <typename T> class Array;
 
 #define OCTAVE_SPARSE_CONTROLS_SIZE 13
 

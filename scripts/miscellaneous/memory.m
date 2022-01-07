@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2020-2021 The Octave Project Developers
+## Copyright (C) 2020-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -232,6 +232,7 @@ function [userdata, systemdata] = memory ()
 endfunction
 
 function [status, meminfo] = lmemory ()
+
   ## Read pseudo files to gather memory information on Linux
 
   ## Read the proc/self/status pseudofile.

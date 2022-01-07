@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1994-2021 The Octave Project Developers
+// Copyright (C) 1994-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -285,7 +285,7 @@ namespace octave
     {
       static typename T::element_type zero (0);
       for (octave_idx_type i = 0; i < a.rows (); i++)
-        if (a(i,i) == zero) return true;
+        if (a(i, i) == zero) return true;
       return false;
     }
 

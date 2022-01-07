@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2003-2021 The Octave Project Developers
+## Copyright (C) 2003-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -61,7 +61,8 @@
 ## contourf (x, y, z, -7:9)
 ## @end group
 ## @end example
-## @seealso{ezcontourf, contour, contourc, contour3, clabel, meshc, surfc, caxis, colormap, plot}
+## @seealso{ezcontourf, contour, contourc, contour3, clabel, meshc, surfc,
+## caxis, colormap, plot}
 ## @end deftypefn
 
 function [c, h] = contourf (varargin)

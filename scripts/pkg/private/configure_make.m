@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2005-2021 The Octave Project Developers
+## Copyright (C) 2005-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -187,6 +187,7 @@ function [status, output] = shell (cmd, verbose)
 endfunction
 
 function body = __extract_test_code__ (nm)
+
   ## Collect all BIST lines starting %! from the file named nm
   ## and return them as a single \n-delimited string.
   fid = fopen (nm, "rt");
@@ -199,4 +200,5 @@ function body = __extract_test_code__ (nm)
     endwhile
     fclose (fid);
   endif
+
 endfunction

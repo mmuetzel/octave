@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2014-2021 The Octave Project Developers
+## Copyright (C) 2014-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -43,7 +43,8 @@
 ## @xref{XREFload,,load function}.
 ##
 ## @item .ofig
-## Open the figure with @code{hgload}.  @xref{XREFhgload,,hgload function}.
+## Open the figure with @code{hgload}.
+## @xref{XREFhgload,,hgload function}.
 ##
 ## @item .fig, .ofig
 ## Load the figure

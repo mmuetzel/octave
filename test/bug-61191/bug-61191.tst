@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2021 The Octave Project Developers
+## Copyright (C) 2021-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -23,7 +23,7 @@
 ##
 ########################################################################
 
-%!test <61191>
+%!test <*61191>
 %! unwind_protect
 %!   addpath ("subdir");
 %!   omc_1 = rand (3, 1);

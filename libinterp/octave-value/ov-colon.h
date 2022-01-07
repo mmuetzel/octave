@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -73,7 +73,8 @@ public:
 
   OCTINTERP_API void print (std::ostream& os, bool pr_as_read_syntax = false);
 
-  OCTINTERP_API void print_raw (std::ostream& os, bool pr_as_read_syntax = false) const;
+  OCTINTERP_API void print_raw (std::ostream& os,
+                                bool pr_as_read_syntax = false) const;
 
 private:
 

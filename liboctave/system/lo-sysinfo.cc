@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2018-2021 The Octave Project Developers
+// Copyright (C) 2018-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -54,7 +54,7 @@ namespace octave
       // Check for functions that are specific to certain BLAS implementations.
 
       // FlexiBLAS
-      typedef void (*flexi_f_type) (int*, int*, int*);
+      typedef void (*flexi_f_type) (int *, int *, int *);
       flexi_f_type flexi_f_ptr = reinterpret_cast<flexi_f_type>
                                  (dyn_libs.search ("flexiblas_get_version"));
 
@@ -115,7 +115,7 @@ namespace octave
         }
 
       // ACML
-      typedef void (*acml_f_type) (int*, int*, int*);
+      typedef void (*acml_f_type) (int *, int *, int *);
       acml_f_type acml_f_ptr = reinterpret_cast<acml_f_type>
                                (dyn_libs.search ("acmlversion"));
 
@@ -137,7 +137,7 @@ namespace octave
         }
 
       // Intel MKL
-      typedef void (*mkl_f_type) (char*, int);
+      typedef void (*mkl_f_type) (char *, int);
       mkl_f_type mkl_f_ptr = reinterpret_cast<mkl_f_type>
                              (dyn_libs.search ("mkl_get_version_string"));
 

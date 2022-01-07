@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2009-2021 The Octave Project Developers
+// Copyright (C) 2009-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -28,25 +28,7 @@
 
 #include "octave-config.h"
 
-class ColumnVector;
-class RowVector;
-class Matrix;
-class NDArray;
-
-class ComplexColumnVector;
-class ComplexRowVector;
-class ComplexMatrix;
-class ComplexNDArray;
-
-class FloatColumnVector;
-class FloatRowVector;
-class FloatMatrix;
-class FloatNDArray;
-
-class FloatComplexColumnVector;
-class FloatComplexRowVector;
-class FloatComplexMatrix;
-class FloatComplexNDArray;
+#include "mx-fwd.h"
 
 // The remaining includes can be removed when the global enum
 // declaration, the convert_enum function, and the deprecated functions
@@ -67,20 +49,20 @@ class FloatComplexNDArray;
 // public functions that also need to be tagged as deprecated?
 
 enum convn_type
+{
+  convn_full,
+  convn_same,
+  convn_valid
+};
+
+namespace octave
+{
+  enum convn_type
   {
     convn_full,
     convn_same,
     convn_valid
   };
-
-namespace octave
-{
-  enum convn_type
-    {
-      convn_full,
-      convn_same,
-      convn_valid
-    };
 
   // double real X double real
 

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2013-2021 The Octave Project Developers
+// Copyright (C) 2013-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -460,7 +460,7 @@ namespace octave
 
       Cell cval = m_value.cell_value ();
 
-      return edit_display_sub (cval(row,col), role);
+      return edit_display_sub (cval(row, col), role);
     }
 
     bool requires_sub_editor (const QModelIndex& idx) const
@@ -473,7 +473,7 @@ namespace octave
 
       Cell cval = m_value.cell_value ();
 
-      return do_requires_sub_editor_sub (cval(row,col));
+      return do_requires_sub_editor_sub (cval(row, col));
     }
 
     char quote_char (const QModelIndex& idx) const
@@ -506,7 +506,7 @@ namespace octave
 
       Cell cval = m_value.cell_value ();
 
-      return cval(row,col);
+      return cval(row, col);
     }
   };
 
@@ -880,7 +880,7 @@ namespace octave
 
       octave_map m = m_value.map_value ();
 
-      return do_requires_sub_editor_sub (m(row,col));
+      return do_requires_sub_editor_sub (m(row, col));
     }
 
     char quote_char (const QModelIndex& idx) const
@@ -916,7 +916,7 @@ namespace octave
 
       octave_map m = m_value.map_value ();
 
-      return m(row,col);
+      return m(row, col);
     }
   };
 

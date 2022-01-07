@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -3031,17 +3031,25 @@ OCTAVE_NAMESPACE_BEGIN
     if (base.isempty () || increment.isempty () || limit.isempty ())
       return octave_value (range<T> (), for_cmd_expr);
 
+    bool reverse = (base.is_uint8_type () || base.is_uint16_type ()
+                    || base.is_uint32_type () || base.is_uint64_type ()
+                    || limit.is_uint8_type () || limit.is_uint16_type ()
+                    || limit.is_uint32_type () || limit.is_uint64_type ())
+                   && increment.scalar_value () < 0;
+
+    octave_value inc = (reverse ? -increment : increment);
+
     check_colon_operand<T> (base, "lower bound");
-    check_colon_operand<T> (increment, "increment");
+    check_colon_operand<T> (inc, "increment");
     check_colon_operand<T> (limit, "upper bound");
 
     T base_val = octave_value_extract<T> (base);
 
-    T increment_val = octave_value_extract<T> (increment);
+    T increment_val = octave_value_extract<T> (inc);
 
     T limit_val = octave_value_extract<T> (limit);
 
-    range<T> r (base_val, increment_val, limit_val);
+    range<T> r (base_val, increment_val, limit_val, reverse);
 
     return octave_value (r, for_cmd_expr);
   }
@@ -3171,28 +3179,36 @@ OCTAVE_NAMESPACE_BEGIN
         return make_range<float> (base, increment, limit, is_for_cmd_expr);
 
       case btyp_int8:
-        return make_range<octave_int8> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_int8> (base, increment, limit,
+                                        is_for_cmd_expr);
 
       case btyp_int16:
-        return make_range<octave_int16> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_int16> (base, increment, limit,
+                                         is_for_cmd_expr);
 
       case btyp_int32:
-        return make_range<octave_int32> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_int32> (base, increment, limit,
+                                         is_for_cmd_expr);
 
       case btyp_int64:
-        return make_range<octave_int64> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_int64> (base, increment, limit,
+                                         is_for_cmd_expr);
 
       case btyp_uint8:
-        return make_range<octave_uint8> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_uint8> (base, increment, limit,
+                                         is_for_cmd_expr);
 
       case btyp_uint16:
-        return make_range<octave_uint16> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_uint16> (base, increment, limit,
+                                          is_for_cmd_expr);
 
       case btyp_uint32:
-        return make_range<octave_uint32> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_uint32> (base, increment, limit,
+                                          is_for_cmd_expr);
 
       case btyp_uint64:
-        return make_range<octave_uint64> (base, increment, limit, is_for_cmd_expr);
+        return make_range<octave_uint64> (base, increment, limit,
+                                          is_for_cmd_expr);
 
       case btyp_char:
         return make_range<char> (base, increment, limit, is_for_cmd_expr);
@@ -3609,7 +3625,7 @@ If @var{idx} is an empty structure array with fields @samp{type} and
 
 DEFUN (is_sq_string, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} is_sq_string (@var{x})
+@deftypefn {} {@var{tf} =} is_sq_string (@var{x})
 Return true if @var{x} is a single-quoted character string.
 @seealso{is_dq_string, ischar}
 @end deftypefn */)
@@ -3632,7 +3648,7 @@ Return true if @var{x} is a single-quoted character string.
 
 DEFUN (is_dq_string, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} is_dq_string (@var{x})
+@deftypefn {} {@var{tf} =} is_dq_string (@var{x})
 Return true if @var{x} is a double-quoted character string.
 @seealso{is_sq_string, ischar}
 @end deftypefn */)
@@ -3657,7 +3673,7 @@ DEFUN (optimize_permutation_matrix, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} optimize_permutation_matrix ()
 @deftypefnx {} {@var{old_val} =} optimize_permutation_matrix (@var{new_val})
-@deftypefnx {} {} optimize_permutation_matrix (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} optimize_permutation_matrix (@var{new_val}, "local")
 Query or set whether a special space-efficient format is used for storing
 permutation matrices.
 
@@ -3688,7 +3704,7 @@ DEFUN (optimize_diagonal_matrix, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} optimize_diagonal_matrix ()
 @deftypefnx {} {@var{old_val} =} optimize_diagonal_matrix (@var{new_val})
-@deftypefnx {} {} optimize_diagonal_matrix (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} optimize_diagonal_matrix (@var{new_val}, "local")
 Query or set whether a special space-efficient format is used for storing
 diagonal matrices.
 
@@ -3696,7 +3712,7 @@ The default value is true.  If this option is set to false, Octave will store
 diagonal matrices as full matrices.
 
 When called from inside a function with the @qcode{"local"} option, the setting
-is changed locally for the function and any subroutines it calls. The original
+is changed locally for the function and any subroutines it calls.  The original
 setting is restored when exiting the function.
 @seealso{optimize_range, optimize_permutation_matrix}
 @end deftypefn */)
@@ -3733,7 +3749,7 @@ DEFUN (optimize_range, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} optimize_range ()
 @deftypefnx {} {@var{old_val} =} optimize_range (@var{new_val})
-@deftypefnx {} {} optimize_range (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} optimize_range (@var{new_val}, "local")
 Query or set whether a special space-efficient format is used for storing
 ranges.
 

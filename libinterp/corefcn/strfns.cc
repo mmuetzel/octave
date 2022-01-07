@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1994-2021 The Octave Project Developers
+// Copyright (C) 1994-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -290,7 +290,7 @@ strvcat ([97, 98, 99], "", @{"98", "99", 100@}, "str1", ["ha", "lf"])
 
 DEFUN (ischar, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} ischar (@var{x})
+@deftypefn {} {@var{tf} =} ischar (@var{x})
 Return true if @var{x} is a character array.
 @seealso{isfloat, isinteger, islogical, isnumeric, isstring, iscellstr, isa}
 @end deftypefn */)
@@ -665,7 +665,8 @@ This is just the opposite of the corresponding C library function.
 %!assert (strncmp ("abce", {"abcd", "bca", "abc"}, 3), logical ([1, 0, 1]))
 %!assert (strncmp ("abc",  {"abcd", "bca", "abc"}, 4), logical ([0, 0, 1]))
 %!assert (strncmp ({"abcd", "bca", "abc"},"abce", 3), logical ([1, 0, 1]))
-%!assert (strncmp ({"abcd", "bca", "abc"},{"abcd", "bca", "abe"}, 3), logical ([1, 1, 0]))
+%!assert (strncmp ({"abcd", "bca", "abc"},{"abcd", "bca", "abe"}, 3),
+%!        logical ([1, 1, 0]))
 %!assert (strncmp ("abc", {"abcd", 10}, 2), logical ([1, 0]))
 
 %!assert <*54373> (strncmp ("abc", "abc", 100))
@@ -1083,7 +1084,7 @@ __unicode_length__ ("aäbc")
       NDArray output (args(0).dims (), false);
       for (octave_idx_type i = 0; i < cellstr.numel (); i++)
         {
-          const uint8_t *src 
+          const uint8_t *src
             = reinterpret_cast<const uint8_t *> (cellstr(i).c_str ());
           output(i) = octave_u8_mbsnlen_wrapper (src, cellstr(i).size ());
         }

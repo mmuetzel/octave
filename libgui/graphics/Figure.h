@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -63,9 +63,9 @@ namespace octave
   class ToolBar;
 
   class Figure :
-  public Object,
-  public MenuContainer,
-  public GenericEventNotifyReceiver
+    public Object,
+    public MenuContainer,
+    public GenericEventNotifyReceiver
   {
     Q_OBJECT
 
@@ -123,7 +123,7 @@ namespace octave
     void updateFigureHeight (int delta_h);
     void updateContainer (void);
     void figureWindowShown ();
-    void screenChanged (QScreen*);
+    void screenChanged (QScreen *);
 
   public slots:
     uint8NDArray slotGetPixels (void);

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2006-2021 The Octave Project Developers
+## Copyright (C) 2006-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,7 +24,7 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} sind (@var{x})
+## @deftypefn {} {@var{y} =} sind (@var{x})
 ## Compute the sine for each element of @var{x} in degrees.
 ##
 ## The function is more accurate than @code{sin} for large values of @var{x}

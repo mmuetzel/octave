@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2012-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -286,7 +286,7 @@ namespace octave
   Cell
   cdef_class::cdef_class_rep::get_methods (bool include_ctor)
   {
-    std::map<std::string,cdef_method> meths;
+    std::map<std::string, cdef_method> meths;
 
     find_methods (meths, false, include_ctor);
 
@@ -312,7 +312,8 @@ namespace octave
   }
 
   void
-  cdef_class::cdef_class_rep::find_methods (std::map<std::string, cdef_method>& meths,
+  cdef_class::cdef_class_rep::find_methods (std::map<std::string,
+                                            cdef_method>& meths,
                                             bool only_inherited,
                                             bool include_ctor)
   {
@@ -395,7 +396,7 @@ namespace octave
   Cell
   cdef_class::cdef_class_rep::get_properties (int mode)
   {
-    std::map<std::string,cdef_property> props;
+    std::map<std::string, cdef_property> props;
 
     props = get_property_map (mode);
 
@@ -412,7 +413,7 @@ namespace octave
   std::map<std::string, cdef_property>
   cdef_class::cdef_class_rep::get_property_map (int mode)
   {
-    std::map<std::string,cdef_property> props;
+    std::map<std::string, cdef_property> props;
 
     find_properties (props, mode);
 
@@ -1020,9 +1021,9 @@ namespace octave
             // Look for all external methods visible on octave path at the
             // time of loading of the class.
             //
-            // FIXME: This is an "extension" to Matlab behavior, which only looks
-            // in the @-folder containing the original classdef file.  However,
-            // this is easier to implement it that way at the moment.
+            // FIXME: This is an "extension" to Matlab behavior, which only
+            // looks in the @-folder containing the original classdef file.
+            // However, this is easier to implement it that way at the moment.
 
             std::list<std::string> external_methods
               = lp.methods (full_class_name);
@@ -1052,9 +1053,9 @@ namespace octave
         // Property blocks
 
         // FIXME: default property expression should be able to call static
-        //        methods of the class being constructed.  A restricted CLASSNAME
-        //        symbol should be added to the scope before evaluating default
-        //        value expressions.
+        //        methods of the class being constructed.  A restricted
+        //        CLASSNAME symbol should be added to the scope before
+        //        evaluating default value expressions.
 
         std::list<tree_classdef_properties_block *> pb_list
           = b->properties_list ();
@@ -1127,17 +1128,17 @@ namespace octave
                     // list of all valid properties that can be used to
                     // validate the attribute list (see bug #60593).
 
-                    // Install property attributes.  This is done before assigning
-                    // the property accessors so we can do validation by using
-                    // cdef_property methods.
+                    // Install property attributes.  This is done before
+                    // assigning the property accessors so we can do validation
+                    // by using cdef_property methods.
 
                     for (auto& attrnm_val : amap)
                       prop.put (attrnm_val.first, attrnm_val.second);
 
                     // Install property access methods, if any.  Remove the
-                    // accessor methods from the temporary storage map, so we can
-                    // detect which ones are invalid and do not correspond to a
-                    // defined property.
+                    // accessor methods from the temporary storage map, so we
+                    // can detect which ones are invalid and do not correspond
+                    // to a defined property.
 
                     auto git = get_methods.find (prop_name);
 

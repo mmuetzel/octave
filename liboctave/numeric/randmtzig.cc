@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2006-2021 The Octave Project Developers
+// Copyright (C) 2006-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -599,7 +599,7 @@ namespace octave
 # if defined (HAVE_X86_32)
         /* 53-bit mantissa, 1-bit sign, x86 32-bit architecture */
         double x;
-        int si,idx;
+        int si, idx;
         uint32_t lo, hi;
         int64_t rabs;
         uint32_t *p = (uint32_t *)&rabs;

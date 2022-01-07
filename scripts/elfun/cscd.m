@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2006-2021 The Octave Project Developers
+## Copyright (C) 2006-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,7 +24,7 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} cscd (@var{x})
+## @deftypefn {} {@var{y} =} cscd (@var{x})
 ## Compute the cosecant for each element of @var{x} in degrees.
 ## @seealso{acscd, csc}
 ## @end deftypefn

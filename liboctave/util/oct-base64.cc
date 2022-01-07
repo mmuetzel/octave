@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2012-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -40,7 +40,7 @@ namespace octave
   {
     bool ret = false;
 
-    std::size_t outlen = octave_base64_encode_alloc_wrapper (inc, inlen, out);
+    std::ptrdiff_t outlen = octave_base64_encode_alloc_wrapper (inc, inlen, out);
 
     if (! out)
       {
@@ -63,7 +63,7 @@ namespace octave
     Array<double> retval;
 
     double *out;
-    std::size_t outlen;
+    std::ptrdiff_t outlen;
 
     bool ok
       = octave_base64_decode_alloc_wrapper (str.data (), str.length (),
@@ -101,7 +101,7 @@ namespace octave
     intNDArray<octave_uint8> retval;
 
     char *out;
-    std::size_t outlen;
+    std::ptrdiff_t outlen;
 
     bool ok
       = octave_base64_decode_alloc_wrapper (str.data (), str.length (),

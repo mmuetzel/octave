@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1993-2021 The Octave Project Developers
+## Copyright (C) 1993-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -165,6 +165,7 @@ function h = polar (varargin)
 endfunction
 
 function rtick = __calc_rtick__ (hax, maxr)
+
   ## FIXME: workaround: calculate r(ho)tick from xtick
   ##        It would be better to just calculate the values,
   ##        but that code is deep in the C++ for the plot engines.

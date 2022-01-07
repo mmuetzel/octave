@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -739,7 +739,7 @@ Programming Note: @code{nargin} does not work on compiled functions
   return retval;
 }
 
-DEFMETHOD (nargout, interp,args, ,
+DEFMETHOD (nargout, interp, args, ,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {} nargout ()
 @deftypefnx {} {} nargout (@var{fcn})
@@ -869,7 +869,7 @@ DEFUN (optimize_subsasgn_calls, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} optimize_subsasgn_calls ()
 @deftypefnx {} {@var{old_val} =} optimize_subsasgn_calls (@var{new_val})
-@deftypefnx {} {} optimize_subsasgn_calls (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} optimize_subsasgn_calls (@var{new_val}, "local")
 Query or set the internal flag for @code{subsasgn} method call
 optimizations.
 
@@ -905,7 +905,7 @@ static bool isargout1 (int nargout, const Matrix& ignored, double k)
 
 DEFMETHOD (isargout, interp, args, ,
            doc: /* -*- texinfo -*-
-@deftypefn {} {} isargout (@var{k})
+@deftypefn {} {@var{tf} =} isargout (@var{k})
 Within a function, return a logical value indicating whether the argument
 @var{k} will be assigned to a variable on output.
 

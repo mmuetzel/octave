@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2008-2021 The Octave Project Developers
+// Copyright (C) 2008-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -146,7 +146,8 @@ namespace octave
                               double p1, double p1N, double p2, double p2N,
                               int xyz, bool is_3D);
 
-    virtual void render_tickmarks (const Matrix& ticks, double lim1, double lim2,
+    virtual void render_tickmarks (const Matrix& ticks,
+                                   double lim1, double lim2,
                                    double p1, double p1N, double p2, double p2N,
                                    double dx, double dy, double dz,
                                    int xyz, bool doubleside);

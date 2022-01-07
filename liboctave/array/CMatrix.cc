@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1994-2021 The Octave Project Developers
+// Copyright (C) 1994-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -793,11 +793,11 @@ ComplexMatrix::tinverse (MatrixType& mattype, octave_idx_type& info,
 
   F77_INT tmp_info = 0;
 
-  F77_XFCN (ztrtri, ZTRTRI,(F77_CONST_CHAR_ARG2 (&uplo, 1),
-                            F77_CONST_CHAR_ARG2 (&udiag, 1),
-                            nr, F77_DBLE_CMPLX_ARG (tmp_data), nr, tmp_info
-                            F77_CHAR_ARG_LEN (1)
-                            F77_CHAR_ARG_LEN (1)));
+  F77_XFCN (ztrtri, ZTRTRI, (F77_CONST_CHAR_ARG2 (&uplo, 1),
+                             F77_CONST_CHAR_ARG2 (&udiag, 1),
+                             nr, F77_DBLE_CMPLX_ARG (tmp_data), nr, tmp_info
+                             F77_CHAR_ARG_LEN (1)
+                             F77_CHAR_ARG_LEN (1)));
 
   info = tmp_info;
 
@@ -935,7 +935,31 @@ ComplexMatrix::inverse (MatrixType& mattype, octave_idx_type& info,
   if (typ == MatrixType::Unknown)
     typ = mattype.type (*this);
 
-  if (typ == MatrixType::Upper || typ == MatrixType::Lower)
+  if (typ == MatrixType::Diagonal)  // a scalar is classified as Diagonal.
+    {
+      Complex scalar = this->elem (0);
+      double real = std::real (scalar);
+      double imag = std::imag (scalar);
+
+      if (real == 0 && imag == 0)
+        ret = ComplexMatrix (1, 1,
+                             Complex (octave::numeric_limits<double>::Inf (), 0.0));
+      else
+        ret = Complex (1, 0) / (*this);
+
+      if (calc_cond)
+        {
+          if (octave::math::isfinite (real) && octave::math::isfinite (imag)
+              && (real != 0 || imag != 0))
+            rcon = 1.0;
+          else if (octave::math::isinf (real) || octave::math::isinf (imag)
+                   || (real == 0 && imag == 0))
+            rcon = 0.0;
+          else
+            rcon = octave::numeric_limits<double>::NaN ();
+        }
+    }
+  else if (typ == MatrixType::Upper || typ == MatrixType::Lower)
     ret = tinverse (mattype, info, rcon, force, calc_cond);
   else
     {
@@ -959,11 +983,8 @@ ComplexMatrix::inverse (MatrixType& mattype, octave_idx_type& info,
 
       if ((calc_cond || mattype.ishermitian ()) && rcon == 0.0)
         {
-          if (numel () == 1)
-            ret = ComplexMatrix (1, 1, 0.0);
-          else
-            ret = ComplexMatrix (rows (), columns (),
-                                 Complex (octave::numeric_limits<double>::Inf (), 0.0));
+          ret = ComplexMatrix (rows (), columns (),
+                               Complex (octave::numeric_limits<double>::Inf (), 0.0));
         }
     }
 
@@ -1194,7 +1215,7 @@ ComplexMatrix::determinant (MatrixType& mattype,
   if (typ == MatrixType::Lower || typ == MatrixType::Upper)
     {
       for (F77_INT i = 0; i < nc; i++)
-        retval *= elem (i,i);
+        retval *= elem (i, i);
     }
   else if (typ == MatrixType::Hermitian)
     {
@@ -1241,7 +1262,7 @@ ComplexMatrix::determinant (MatrixType& mattype,
             }
 
           for (F77_INT i = 0; i < nc; i++)
-            retval *= atmp(i,i);
+            retval *= atmp(i, i);
 
           retval = retval.square ();
         }
@@ -1310,7 +1331,7 @@ ComplexMatrix::determinant (MatrixType& mattype,
             {
               for (F77_INT i = 0; i < nc; i++)
                 {
-                  Complex c = atmp(i,i);
+                  Complex c = atmp(i, i);
                   retval *= (ipvt(i) != (i+1)) ? -c : c;
                 }
             }
@@ -3361,7 +3382,7 @@ xgemm (const ComplexMatrix& a, const ComplexMatrix& b,
                                    F77_CHAR_ARG_LEN (1)));
           for (F77_INT j = 0; j < a_nr; j++)
             for (F77_INT i = 0; i < j; i++)
-              retval.xelem (j,i) = octave::math::conj (retval.xelem (i,j));
+              retval.xelem (j, i) = octave::math::conj (retval.xelem (i, j));
         }
       else
         {
@@ -3373,7 +3394,7 @@ xgemm (const ComplexMatrix& a, const ComplexMatrix& b,
                                    F77_CHAR_ARG_LEN (1)));
           for (F77_INT j = 0; j < a_nr; j++)
             for (F77_INT i = 0; i < j; i++)
-              retval.xelem (j,i) = retval.xelem (i,j);
+              retval.xelem (j, i) = retval.xelem (i, j);
 
         }
 

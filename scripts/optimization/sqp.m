@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2005-2021 The Octave Project Developers
+## Copyright (C) 2005-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -573,7 +573,7 @@ endfunction
 
 
 function [x_new, alpha, obj, globals] = ...
-   linesearch_L1 (x, p, obj_fun, obj_grd, ce_fun, ci_fun, lambda, obj, c, globals)
+  linesearch_L1 (x, p, obj_fun, obj_grd, ce_fun, ci_fun, lambda, obj, c, globals)
 
   ## Choose parameters
   ##

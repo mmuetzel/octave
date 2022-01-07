@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2000-2021 The Octave Project Developers
+## Copyright (C) 2000-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -130,7 +130,8 @@ endfunction
 %!assert (setdiff ([1, 1; 2, 2; 3, 3; 4, 4], [1, 1; 2, 2; 4, 4], "rows"), [3 3])
 %!assert (setdiff ([1; 2; 3; 4], [1; 2; 4], "rows"), 3)
 %!assert (setdiff ([1, 2; 3, 4], [1, 2; 3, 6], "rows"), [3, 4])
-%!assert (setdiff ({"one","two";"three","four"}, {"one","two";"three","six"}), {"four"})
+%!assert (setdiff ({"one","two";"three","four"}, {"one","two";"three","six"}),
+%!        {"four"})
 
 ## Test multi-dimensional input
 %!test

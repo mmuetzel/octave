@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2003-2021 The Octave Project Developers
+// Copyright (C) 2003-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -217,7 +217,8 @@ OCTAVE_NAMESPACE_BEGIN
 
     bool load_binary (std::istream& is, bool swap, mach_info::float_format fmt);
 
-    bool save_hdf5 (octave_hdf5_id loc_hid, const char *name, bool save_as_floats);
+    bool save_hdf5 (octave_hdf5_id loc_hid, const char *name,
+                    bool save_as_floats);
 
     bool load_hdf5 (octave_hdf5_id& group_hid, octave_hdf5_id& space_hid,
                     octave_hdf5_id& type_hid);
@@ -289,7 +290,8 @@ OCTAVE_NAMESPACE_BEGIN
 
     bool load_binary (std::istream& is, bool swap, mach_info::float_format fmt);
 
-    bool save_hdf5 (octave_hdf5_id loc_id, const char *name, bool save_as_floats);
+    bool save_hdf5 (octave_hdf5_id loc_id, const char *name,
+                    bool save_as_floats);
 
     bool load_hdf5 (octave_hdf5_id& group_hid, octave_hdf5_id& space_hid,
                     octave_hdf5_id& type_hid);
@@ -362,7 +364,8 @@ OCTAVE_NAMESPACE_BEGIN
 
     bool load_binary (std::istream& is, bool swap, mach_info::float_format fmt);
 
-    bool save_hdf5 (octave_hdf5_id loc_id, const char *name, bool save_as_floats);
+    bool save_hdf5 (octave_hdf5_id loc_id, const char *name,
+                    bool save_as_floats);
 
     bool load_hdf5 (octave_hdf5_id& group_hid, octave_hdf5_id& space_hid,
                     octave_hdf5_id& type_hid);
@@ -552,7 +555,8 @@ OCTAVE_NAMESPACE_BEGIN
 
     bool load_binary (std::istream& is, bool swap, mach_info::float_format fmt);
 
-    bool save_hdf5 (octave_hdf5_id loc_id, const char *name, bool save_as_floats);
+    bool save_hdf5 (octave_hdf5_id loc_id, const char *name,
+                    bool save_as_floats);
 
     bool load_hdf5 (octave_hdf5_id& group_hid, octave_hdf5_id& space_hid,
                     octave_hdf5_id& type_hid);
@@ -656,7 +660,8 @@ OCTAVE_NAMESPACE_BEGIN
 
     bool load_binary (std::istream& is, bool swap, mach_info::float_format fmt);
 
-    bool save_hdf5 (octave_hdf5_id loc_id, const char *name, bool save_as_floats);
+    bool save_hdf5 (octave_hdf5_id loc_id, const char *name,
+                    bool save_as_floats);
 
     bool load_hdf5 (octave_hdf5_id& group_hid, octave_hdf5_id& space_hid,
                     octave_hdf5_id& type_hid);
@@ -1359,7 +1364,8 @@ OCTAVE_NAMESPACE_BEGIN
     a_id = H5Acreate (group_hid, "FILE", type_hid, space_hid,
                       octave_H5P_DEFAULT, octave_H5P_DEFAULT);
 #else
-    a_id = H5Acreate (group_hid, "FILE", type_hid, space_hid, octave_H5P_DEFAULT);
+    a_id = H5Acreate (group_hid, "FILE", type_hid, space_hid,
+                      octave_H5P_DEFAULT);
 #endif
 
     if (a_id >= 0)
@@ -2389,7 +2395,8 @@ OCTAVE_NAMESPACE_BEGIN
           retval = false;
 #if defined (HAVE_HDF5_18)
         data_hid = H5Gcreate (group_hid, "symbol table",
-                              octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                              octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                              octave_H5P_DEFAULT);
 #else
         data_hid = H5Gcreate (group_hid, "symbol table", 0);
 #endif
@@ -2954,14 +2961,16 @@ octave_fcn_handle::load_ascii (std::istream& is)
           std::string name;
           is >> name;
 
-          new_rep.reset (new octave::simple_fcn_handle (name, fpath, octaveroot));
+          new_rep.reset (new octave::simple_fcn_handle (name, fpath,
+                                                        octaveroot));
         }
       else if (subtype == "scopedfunction")
         {
           std::string name;
           is >> name;
 
-          new_rep.reset (new octave::scoped_fcn_handle (name, fpath, octaveroot));
+          new_rep.reset (new octave::scoped_fcn_handle (name, fpath,
+                                                        octaveroot));
         }
       else if (subtype == "anonymous")
         new_rep.reset (new octave::anonymous_fcn_handle ());
@@ -2970,14 +2979,16 @@ octave_fcn_handle::load_ascii (std::istream& is)
           std::string name;
           is >> name;
 
-          new_rep.reset (new octave::nested_fcn_handle (name, fpath, octaveroot));
+          new_rep.reset (new octave::nested_fcn_handle (name, fpath,
+                                                        octaveroot));
         }
       else if (subtype == "classsimple")
         {
           std::string name;
           is >> name;
 
-          new_rep.reset (new octave::class_simple_fcn_handle (name, fpath, octaveroot));
+          new_rep.reset (new octave::class_simple_fcn_handle (name, fpath,
+                                                              octaveroot));
         }
     }
 
@@ -3077,7 +3088,8 @@ octave_fcn_handle::load_binary (std::istream& is, bool swap,
       else if (subtype == "nested")
         new_rep.reset (new octave::nested_fcn_handle (name, fpath, octaveroot));
       else if (subtype == "classsimple")
-        new_rep.reset (new octave::class_simple_fcn_handle (name, fpath, octaveroot));
+        new_rep.reset (new octave::class_simple_fcn_handle (name, fpath,
+                                                            octaveroot));
     }
 
   if (! new_rep)
@@ -3230,7 +3242,8 @@ octave_fcn_handle::load_hdf5 (octave_hdf5_id loc_id, const char *name_arg)
       else if (subtype == "nested")
         new_rep.reset (new octave::nested_fcn_handle (name, fpath, octaveroot));
       else if (subtype == "classsimple")
-        new_rep.reset (new octave::class_simple_fcn_handle (name, fpath, octaveroot));
+        new_rep.reset (new octave::class_simple_fcn_handle (name, fpath,
+                                                            octaveroot));
     }
 
   bool status = false;
@@ -3396,16 +3409,6 @@ is_equal_to (const octave_fcn_handle& fh1, const octave_fcn_handle& fh2)
 }
 
 OCTAVE_NAMESPACE_BEGIN
-
-  // DEPRECATED in Octave 6.
-
-  octave_value
-  make_fcn_handle (interpreter& interp, const std::string& nm)
-  {
-    tree_evaluator& tw = interp.get_evaluator ();
-
-    return tw.make_fcn_handle (nm);
-  }
 
 DEFUN (functions, args, ,
        doc: /* -*- texinfo -*-
@@ -3590,7 +3593,7 @@ functions.  This option is no longer supported.
 
 DEFUN (is_function_handle, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} is_function_handle (@var{x})
+@deftypefn {} {@var{tf} =} is_function_handle (@var{x})
 Return true if @var{x} is a function handle.
 @seealso{isa, typeinfo, class, functions}
 @end deftypefn */)

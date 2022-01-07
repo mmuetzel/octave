@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2009-2021 The Octave Project Developers
+## Copyright (C) 2009-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -141,7 +141,8 @@
 ## light ("Position", [1 1 5]);
 ## @end smallexample
 ##
-## @seealso{isonormals, isocolors, isocaps, smooth3, reducevolume, reducepatch, patch}
+## @seealso{isonormals, isocolors, isocaps, smooth3, reducevolume, reducepatch,
+## patch}
 ## @end deftypefn
 
 ## FIXME: Add support for string input argument "verbose"
@@ -225,6 +226,7 @@ function varargout = isosurface (varargin)
 endfunction
 
 function [x, y, z, v, isoval, colors, noshare, verbose] = __get_check_isosurface_args__ (nout, varargin)
+
   ## get arguments from input and check values
   x = y = z = [];
   v = [];

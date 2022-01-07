@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2000-2021 The Octave Project Developers
+## Copyright (C) 2000-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -94,7 +94,7 @@ function y = strjust (s, pos = "right")
   endif
 
   ## Adjust the column indices.
-  jdx += shift (idx);
+  jdx += shift(idx);
 
   ## Create a blank matrix and position the nonblank characters.
   y = repmat (" ", nr, nc);

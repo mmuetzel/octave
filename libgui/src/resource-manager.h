@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -29,7 +29,9 @@
 #include <QComboBox>
 #include <QIcon>
 #include <QPointer>
-#include <Qsci/qscilexer.h>
+#if defined (HAVE_QSCINTILLA)
+#  include <Qsci/qscilexer.h>
+#endif
 #include <QTranslator>
 #include <QTemporaryFile>
 

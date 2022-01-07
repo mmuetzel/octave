@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2005-2021 The Octave Project Developers
+## Copyright (C) 2005-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -136,6 +136,12 @@ function [__n, __nmax, __nxfail, __nbug, __nskip, __nrtskip, __nregression] = te
   persistent __signal_block = "***** ";
   persistent __signal_file  = ">>>>> ";
   persistent __signal_skip  = "----- ";
+
+  __nxfail = 0;
+  __nbug = 0;
+  __nskip = 0;
+  __nrtskip = 0;
+  __nregression = 0;
 
   if (nargin < 1)
     print_usage ();
@@ -913,11 +919,13 @@ endfunction
 
 ## Strip '.*prefix:' from '.*prefix: msg\n' and strip trailing blanks.
 function msg = trimerr (msg, prefix)
+
   idx = index (msg, [prefix ":"]);
   if (idx > 0)
     msg(1:idx+length (prefix)) = [];
   endif
   msg = strtrim (msg);
+
 endfunction
 
 ## Strip leading blanks from string.
@@ -927,10 +935,11 @@ function str = trimleft (str)
 endfunction
 
 function body = __extract_test_code (nm)
+
   filedir = fileparts (nm);
   if (is_same_file (filedir, pwd ()))
-    # The canonical current directory is not added as key to the load path.
-    # So it doesn't work as key for "dir_encoding". Use "." instead.
+    ## The canonical current directory is not added as key to the load path.
+    ## So it doesn't work as key for "dir_encoding". Use "." instead.
     filedir = ".";
   endif
   fid = fopen (nm, "rt", "n", dir_encoding (filedir));
@@ -943,6 +952,7 @@ function body = __extract_test_code (nm)
     endwhile
     fclose (fid);
   endif
+
 endfunction
 
 

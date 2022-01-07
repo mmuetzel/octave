@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2009-2021 The Octave Project Developers
+## Copyright (C) 2009-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -50,6 +50,8 @@
 ## @item rmdir @tab Remove remote directory
 ## @end multitable
 ##
+## @seealso{@ftp/ascii, @ftp/binary, @ftp/cd, @ftp/close, @ftp/delete,
+## @ftp/dir, @ftp/mget, @ftp/mkdir, @ftp/mput, @ftp/rename, @ftp/rmdir}
 ## @end deftypefn
 
 function obj = ftp (host = "", username = "anonymous", password = "")

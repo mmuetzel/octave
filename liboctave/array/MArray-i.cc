@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1995-2021 The Octave Project Developers
+// Copyright (C) 1995-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -27,16 +27,16 @@
 #  include "config.h"
 #endif
 
-#include "oct-inttypes.h"
+#include "oct-inttypes-fwd.h"
 
 // Instantiate MArrays of int values.
 
 #include "MArray.h"
 #include "MArray.cc"
 
-INSTANTIATE_MARRAY (int);
+INSTANTIATE_MARRAY (int, OCTAVE_API);
 #if defined (OCTAVE_ENABLE_64)
-INSTANTIATE_MARRAY (int64_t);
+INSTANTIATE_MARRAY (int64_t, OCTAVE_API);
 #endif
 
 INSTANTIATE_MARRAY_FRIENDS (int, OCTAVE_API)
@@ -44,20 +44,20 @@ INSTANTIATE_MARRAY_FRIENDS (int, OCTAVE_API)
 INSTANTIATE_MARRAY_FRIENDS (int64_t, OCTAVE_API)
 #endif
 
-INSTANTIATE_MARRAY (octave_int8);
-INSTANTIATE_MARRAY (octave_int16);
-INSTANTIATE_MARRAY (octave_int32);
-INSTANTIATE_MARRAY (octave_int64);
+INSTANTIATE_MARRAY (octave_int8, OCTAVE_API);
+INSTANTIATE_MARRAY (octave_int16, OCTAVE_API);
+INSTANTIATE_MARRAY (octave_int32, OCTAVE_API);
+INSTANTIATE_MARRAY (octave_int64, OCTAVE_API);
 
 INSTANTIATE_MARRAY_FRIENDS (octave_int8, OCTAVE_API)
 INSTANTIATE_MARRAY_FRIENDS (octave_int16, OCTAVE_API)
 INSTANTIATE_MARRAY_FRIENDS (octave_int32, OCTAVE_API)
 INSTANTIATE_MARRAY_FRIENDS (octave_int64, OCTAVE_API)
 
-INSTANTIATE_MARRAY (octave_uint8);
-INSTANTIATE_MARRAY (octave_uint16);
-INSTANTIATE_MARRAY (octave_uint32);
-INSTANTIATE_MARRAY (octave_uint64);
+INSTANTIATE_MARRAY (octave_uint8, OCTAVE_API);
+INSTANTIATE_MARRAY (octave_uint16, OCTAVE_API);
+INSTANTIATE_MARRAY (octave_uint32, OCTAVE_API);
+INSTANTIATE_MARRAY (octave_uint64, OCTAVE_API);
 
 INSTANTIATE_MARRAY_FRIENDS (octave_uint8, OCTAVE_API)
 INSTANTIATE_MARRAY_FRIENDS (octave_uint16, OCTAVE_API)

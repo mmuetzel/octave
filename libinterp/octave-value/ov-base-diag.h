@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2008-2021 The Octave Project Developers
+// Copyright (C) 2008-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -123,7 +123,7 @@ public:
 
   octave_value sort (octave_idx_type dim = 0, sortmode mode = ASCENDING) const
   { return to_dense ().sort (dim, mode); }
-  octave_value sort (Array<octave_idx_type> &sidx, octave_idx_type dim = 0,
+  octave_value sort (Array<octave_idx_type>& sidx, octave_idx_type dim = 0,
                      sortmode mode = ASCENDING) const
   { return to_dense ().sort (sidx, dim, mode); }
 

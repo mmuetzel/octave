@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2013-2021 The Octave Project Developers
+## Copyright (C) 2013-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -81,6 +81,7 @@
 ## @end deftypefn
 
 function plotstr = stemleaf (x, caption, stem_sz)
+
   ## Compute and display a stem and leaf plot of the vector x.  The x
   ## vector is converted to integer by x = fix(x).  If an output argument
   ## is provided, the plot is returned as an array of strings.  The

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1995-2021 The Octave Project Developers
+// Copyright (C) 1995-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -54,7 +54,6 @@
 #include "defaults.h"
 #include "defun.h"
 #include "error.h"
-#include "file-io.h"
 #include "help.h"
 #include "interpreter-private.h"
 #include "octave.h"

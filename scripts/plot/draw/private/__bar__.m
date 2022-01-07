@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1996-2021 The Octave Project Developers
+## Copyright (C) 1996-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -412,6 +412,7 @@ function update_xlim (h, ~)
 endfunction
 
 function update_basevalue_logscale (hax, ~, hg)
+
   if (strcmp (get (hax, "yscale"), "log"))
     warning ("off", "Octave:negative-data-log-axis", "local");
     if (get (hg, "basevalue") == 0)
@@ -422,6 +423,7 @@ function update_basevalue_logscale (hax, ~, hg)
       set (hg, "basevalue", 0);
     endif
   endif
+
 endfunction
 
 function update_baseline (h, ~)

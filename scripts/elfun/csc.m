@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1994-2021 The Octave Project Developers
+## Copyright (C) 1994-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,7 +24,7 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} csc (@var{x})
+## @deftypefn {} {@var{y} =} csc (@var{x})
 ## Compute the cosecant for each element of @var{x} in radians.
 ## @seealso{acsc, cscd, csch}
 ## @end deftypefn

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1998-2021 The Octave Project Developers
+// Copyright (C) 1998-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -35,17 +35,16 @@
 #include <iosfwd>
 #include <string>
 
-class PermMatrix;
-template <typename T> class Array;
+#include "Array-fwd.h"
+#include "Sparse-fwd.h"
+#include "mx-fwd.h"
 
 // Two dimensional sparse class.  Handles the reference counting for
 // all the derived classes.
 
-// forward declare template with visibility attribute
-template <typename T> class OCTAVE_API Sparse;
-
 template <typename T>
 class
+OCTAVE_API
 Sparse
 {
 public:
@@ -197,12 +196,12 @@ protected:
 
 private:
 
-  static OCTAVE_API typename Sparse<T>::SparseRep *nil_rep (void);
+  static OCTAVE_API typename Sparse<T>::SparseRep * nil_rep (void);
 
 public:
 
   Sparse (void)
-    : m_rep (nil_rep ()), m_dimensions (dim_vector (0,0))
+    : m_rep (nil_rep ()), m_dimensions (dim_vector (0, 0))
   {
     m_rep->m_count++;
   }
@@ -581,7 +580,7 @@ public:
   OCTAVE_API Sparse<T>
   sort (octave_idx_type dim = 0, sortmode mode = ASCENDING) const;
   OCTAVE_API Sparse<T>
-  sort (Array<octave_idx_type> &sidx, octave_idx_type dim = 0,
+  sort (Array<octave_idx_type>& sidx, octave_idx_type dim = 0,
         sortmode mode = ASCENDING) const;
 
   OCTAVE_API Sparse<T> diag (octave_idx_type k = 0) const;

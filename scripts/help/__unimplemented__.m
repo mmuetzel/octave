@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2010-2021 The Octave Project Developers
+## Copyright (C) 2010-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -1314,12 +1314,14 @@ function rlist = missing_functions ()
   "writeKeyUnit",
   "writetable",
   "writeVideo",
+  "xline",
   "xmlread",
   "xmlwrite",
   "xslt",
   "xtickformat",
   "year",
   "years",
+  "yline",
   "ymd",
   "ytickformat",
   "yyaxis",

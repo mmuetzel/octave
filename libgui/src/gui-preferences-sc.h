@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2017-2021 The Octave Project Developers
+// Copyright (C) 2017-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -264,7 +264,7 @@ const gui_pref
 sc_main_ctrld ("shortcuts/main_ctrld", QVariant (false));
 
 const gui_pref
-sc_prevent_rl_conflicts ("shortcuts/prevent_readline_conflicts", QVariant (true));
+sc_prevent_rl_conflicts ("shortcuts/prevent_readline_conflicts", QVariant (false));
 const gui_pref
 sc_prevent_rl_conflicts_menu ("shortcuts/prevent_readline_conflicts_menu", QVariant (false));
 

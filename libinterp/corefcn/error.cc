@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -1386,7 +1386,7 @@ If the warning message does not end with a newline character, Octave will
 print a traceback of all the function calls leading to the warning.  If the
 warning message does end in a newline character, Octave will suppress the
 traceback messages as it returns control to the top level.  For more details
-and examples, see @ref{XREFerror,,error}.
+and examples, @pxref{XREFerror,,@code{error}}.
 
 The optional warning identifier @var{id} allows users to enable or disable
 warnings tagged by this identifier.  A message identifier is a string of the
@@ -2123,7 +2123,7 @@ DEFMETHOD (beep_on_error, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} beep_on_error ()
 @deftypefnx {} {@var{old_val} =} beep_on_error (@var{new_val})
-@deftypefnx {} {} beep_on_error (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} beep_on_error (@var{new_val}, "local")
 Query or set the internal variable that controls whether Octave will try
 to ring the terminal bell before printing an error message.
 
@@ -2141,7 +2141,7 @@ DEFMETHOD (debug_on_error, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} debug_on_error ()
 @deftypefnx {} {@var{old_val} =} debug_on_error (@var{new_val})
-@deftypefnx {} {} debug_on_error (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} debug_on_error (@var{new_val}, "local")
 Query or set the internal variable that controls whether Octave will try
 to enter the debugger when an error is encountered.
 
@@ -2163,7 +2163,7 @@ DEFMETHOD (debug_on_warning, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} debug_on_warning ()
 @deftypefnx {} {@var{old_val} =} debug_on_warning (@var{new_val})
-@deftypefnx {} {} debug_on_warning (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} debug_on_warning (@var{new_val}, "local")
 Query or set the internal variable that controls whether Octave will try
 to enter the debugger when a warning is encountered.
 
@@ -2187,8 +2187,3 @@ interpreter_try (unwind_protect& frame)
 }
 
 OCTAVE_NAMESPACE_END
-
-// Deprecated variables and functions.
-
-// This variable is obsolete and always has the value 0.
-int error_state = 0;

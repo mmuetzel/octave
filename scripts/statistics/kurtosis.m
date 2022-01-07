@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1996-2021 The Octave Project Developers
+## Copyright (C) 1996-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -147,9 +147,12 @@ endfunction
 %!assert (kurtosis (ones (3, 5)), NaN (1, 5))
 %!assert (kurtosis (1, [], 3), NaN)
 
-%!assert (kurtosis ([1:5 10; 1:5 10],  0, 2), 5.4377317925288901 * [1; 1], 8 * eps)
-%!assert (kurtosis ([1:5 10; 1:5 10],  1, 2), 2.9786509002956195 * [1; 1], 8 * eps)
-%!assert (kurtosis ([1:5 10; 1:5 10], [], 2), 2.9786509002956195 * [1; 1], 8 * eps)
+%!assert (kurtosis ([1:5 10; 1:5 10],  0, 2),
+%!        5.4377317925288901 * [1; 1], 8 * eps)
+%!assert (kurtosis ([1:5 10; 1:5 10],  1, 2),
+%!        2.9786509002956195 * [1; 1], 8 * eps)
+%!assert (kurtosis ([1:5 10; 1:5 10], [], 2),
+%!        2.9786509002956195 * [1; 1], 8 * eps)
 
 ## Test behavior on single input
 %!assert (kurtosis (single ([1:5 10])), single (2.9786513), eps ("single"))

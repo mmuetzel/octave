@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -33,6 +33,7 @@
 #include <iosfwd>
 #include <string>
 
+#include "Array-fwd.h"
 #include "Range.h"
 
 #include "lo-mappers.h"

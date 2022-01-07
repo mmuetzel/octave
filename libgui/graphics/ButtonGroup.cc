@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2016-2021 The Octave Project Developers
+// Copyright (C) 2016-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -99,7 +99,7 @@ namespace octave
     return bw;
   }
 
-  ButtonGroup*
+  ButtonGroup *
   ButtonGroup::create (octave::base_qobject& oct_qobj,
                        octave::interpreter& interp, const graphics_object& go)
   {
@@ -155,9 +155,9 @@ namespace octave
 
     if (frame->hasMouseTracking ())
       {
-        for (auto *w : frame->findChildren<QWidget*> ())
+        for (auto *w : frame->findChildren<QWidget *> ())
           w->setMouseTracking (true);
-        for (auto *w : buttongroup->findChildren<QWidget*> ())
+        for (auto *w : buttongroup->findChildren<QWidget *> ())
           w->setMouseTracking (true);
       }
 

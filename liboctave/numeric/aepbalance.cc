@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1994-2021 The Octave Project Developers
+// Copyright (C) 1994-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -80,7 +80,7 @@ namespace octave
 
       Matrix balancing_mat (n, n, 0.0);
       for (F77_INT i = 0; i < n; i++)
-        balancing_mat.elem (i ,i) = 1.0;
+        balancing_mat.elem (i, i) = 1.0;
 
       F77_INT info;
       F77_INT t_ilo = to_f77_int (m_ilo);
@@ -132,7 +132,7 @@ namespace octave
 
       FloatMatrix balancing_mat (n, n, 0.0);
       for (F77_INT i = 0; i < n; i++)
-        balancing_mat.elem (i,i) = 1.0;
+        balancing_mat.elem (i, i) = 1.0;
 
       F77_INT info;
       F77_INT t_ilo = to_f77_int (m_ilo);

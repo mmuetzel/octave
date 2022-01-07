@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2012-2021 The Octave Project Developers
+## Copyright (C) 2012-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,7 +24,7 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} isdeployed ()
+## @deftypefn {} {@var{tf} =} isdeployed ()
 ## Return true if the current program has been compiled and is running
 ## separately from the Octave interpreter and false if it is running in
 ## the Octave interpreter.
@@ -32,8 +32,8 @@
 ## Currently, this function always returns false in Octave.
 ## @end deftypefn
 
-function retval = isdeployed ()
-  retval = false;
+function tf = isdeployed ()
+  tf = false;
 endfunction
 
 

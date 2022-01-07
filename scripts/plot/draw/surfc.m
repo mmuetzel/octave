@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1996-2021 The Octave Project Developers
+## Copyright (C) 1996-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -61,7 +61,8 @@
 ## Note: The exact appearance of the surface can be controlled with the
 ## @code{shading} command or by using @code{set} to control surface object
 ## properties.
-## @seealso{ezsurfc, surf, surfl, surfnorm, trisurf, contour, mesh, surface, meshgrid, hidden, shading, colormap, caxis}
+## @seealso{ezsurfc, surf, surfl, surfnorm, trisurf, contour, mesh, surface,
+## meshgrid, hidden, shading, colormap, caxis}
 ## @end deftypefn
 
 function h = surfc (varargin)

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -324,7 +324,7 @@ namespace octave
     return ext;
   }
 
-  Object*
+  Object *
   qt_graphics_toolkit::toolkitObject (const graphics_object& go)
   {
     ObjectProxy *proxy = toolkitObjectProxy (go);
@@ -335,7 +335,7 @@ namespace octave
     return nullptr;
   }
 
-  ObjectProxy*
+  ObjectProxy *
   qt_graphics_toolkit::toolkitObjectProxy (const graphics_object& go)
   {
     if (go)

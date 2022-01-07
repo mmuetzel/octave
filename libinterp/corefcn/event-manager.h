@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -623,7 +623,8 @@ OCTAVE_NAMESPACE_BEGIN
         return false;
     }
 
-    bool gui_status_update (const std::string& feature, const std::string& status)
+    bool gui_status_update (const std::string& feature,
+                            const std::string& status)
     {
       if (enabled ())
         {

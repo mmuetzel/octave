@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2010-2021 The Octave Project Developers
+## Copyright (C) 2010-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -33,7 +33,8 @@
 ## @var{name} is given then @code{getappdata} returns a structure,
 ## @var{appdata}, whose fields correspond to the appdata properties.
 ##
-## @seealso{setappdata, isappdata, rmappdata, guidata, get, set, getpref, setpref}
+## @seealso{setappdata, isappdata, rmappdata, guidata, get, set, getpref,
+## setpref}
 ## @end deftypefn
 
 function value = getappdata (h, name)

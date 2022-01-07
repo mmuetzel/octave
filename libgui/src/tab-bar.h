@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2018-2021 The Octave Project Developers
+// Copyright (C) 2018-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -52,7 +52,7 @@ namespace octave
     ~tab_bar (void) = default;
 
     void set_rotated (int rotated);
-    QMenu *get_context_menu (void) { return m_context_menu; };
+    QMenu * get_context_menu (void) { return m_context_menu; };
     QSize tabSizeHint (int idx) const;
 
   signals:

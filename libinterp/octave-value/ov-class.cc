@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2007-2021 The Octave Project Developers
+// Copyright (C) 2007-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -850,7 +850,7 @@ octave_class::index_vector (bool require_integers) const
   // add one to the value returned as the index_vector method
   // expects it to be one based.
   return octave::binary_op (octave_value::op_add, tmp (0),
-                               octave_value (1.0)).index_vector (require_integers);
+                            octave_value (1.0)).index_vector (require_integers);
 }
 
 std::size_t
@@ -1802,7 +1802,7 @@ is derived.
 
 DEFUN (isa, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isa (@var{obj}, @var{classname})
+@deftypefn {} {@var{tf} =} isa (@var{obj}, @var{classname})
 Return true if @var{obj} is an object from the class @var{classname}.
 
 @var{classname} may also be one of the following class categories:
@@ -1928,7 +1928,7 @@ Undocumented internal function.
 
 DEFUN (isobject, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isobject (@var{x})
+@deftypefn {} {@var{tf} =} isobject (@var{x})
 Return true if @var{x} is a class object.
 @seealso{class, typeinfo, isa, ismethod, isprop}
 @end deftypefn */)

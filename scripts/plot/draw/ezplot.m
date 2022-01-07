@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2008-2021 The Octave Project Developers
+## Copyright (C) 2008-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -75,7 +75,8 @@
 ## The optional return value @var{h} is a vector of graphics handles to
 ## the created line objects.
 ##
-## @seealso{plot, ezplot3, ezpolar, ezcontour, ezcontourf, ezmesh, ezmeshc, ezsurf, ezsurfc}
+## @seealso{plot, ezplot3, ezpolar, ezcontour, ezcontourf, ezmesh, ezmeshc,
+## ezsurf, ezsurfc}
 ## @end deftypefn
 
 function h = ezplot (varargin)

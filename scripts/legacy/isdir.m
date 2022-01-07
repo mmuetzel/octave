@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2004-2021 The Octave Project Developers
+## Copyright (C) 2004-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,7 +24,7 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} isdir (@var{f})
+## @deftypefn {} {@var{tf} =} isdir (@var{f})
 ##
 ## This function is not recommended.  Use @code{isfolder} or
 ## @code{file_in_loadpath} instead.
@@ -39,10 +39,11 @@
 ## @var{tf} = ! isempty (file_in_loadpath (@var{f}))
 ## @end example
 ##
-## @seealso{isfolder, file_in_loadpath, exist, stat, is_absolute_filename, is_rooted_relative_filename}
+## @seealso{isfolder, file_in_loadpath, exist, stat, is_absolute_filename,
+## is_rooted_relative_filename}
 ## @end deftypefn
 
-function retval = isdir (f)
+function tf = isdir (f)
 
   persistent warned = false;
   if (! warned)
@@ -56,7 +57,7 @@ function retval = isdir (f)
   endif
 
   ## Exist returns an integer but isdir should return a logical.
-  retval = (exist (f, "dir") == 7);
+  tf = (exist (f, "dir") == 7);
 
 endfunction
 

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -666,7 +666,7 @@ DEFMETHOD (page_output_immediately, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} page_output_immediately ()
 @deftypefnx {} {@var{old_val} =} page_output_immediately (@var{new_val})
-@deftypefnx {} {} page_output_immediately (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} page_output_immediately (@var{new_val}, "local")
 Query or set the internal variable that controls whether Octave sends
 output to the pager as soon as it is available.
 
@@ -690,13 +690,13 @@ DEFMETHOD (page_screen_output, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} page_screen_output ()
 @deftypefnx {} {@var{old_val} =} page_screen_output (@var{new_val})
-@deftypefnx {} {} page_screen_output (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} page_screen_output (@var{new_val}, "local")
 Query or set the internal variable that controls whether output intended
 for the terminal window that is longer than one page is sent through a
 pager.
 
 This allows you to view one screenful at a time.  Some pagers
-(such as @code{less}---see @ref{Installation}) are also capable of moving
+(such as @code{less}---@pxref{Installation}) are also capable of moving
 backward on the output.
 
 When called from inside a function with the @qcode{"local"} option, the
@@ -714,7 +714,7 @@ DEFMETHOD (PAGER, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} PAGER ()
 @deftypefnx {} {@var{old_val} =} PAGER (@var{new_val})
-@deftypefnx {} {} PAGER (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} PAGER (@var{new_val}, "local")
 Query or set the internal variable that specifies the program to use
 to display terminal output on your system.
 
@@ -737,7 +737,7 @@ DEFMETHOD (PAGER_FLAGS, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} PAGER_FLAGS ()
 @deftypefnx {} {@var{old_val} =} PAGER_FLAGS (@var{new_val})
-@deftypefnx {} {} PAGER_FLAGS (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} PAGER_FLAGS (@var{new_val}, "local")
 Query or set the internal variable that specifies the options to pass
 to the pager.
 

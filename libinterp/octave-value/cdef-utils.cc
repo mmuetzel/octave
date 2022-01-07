@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2012-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -318,16 +318,17 @@ namespace octave
                   return true;
                 else if (is_strict_superclass (ctx, cls))
                   {
-                    // Calling a protected method or property in a derived class.
-                    // This is only allowed if the context class knows about it
-                    // and has access to it.
+                    // Calling a protected method or property in a derived
+                    // class.  This is only allowed if the context class knows
+                    // about it and has access to it.
 
                     if (! meth_name.empty ())
                       {
                         cdef_method m = ctx.find_method (meth_name);
 
                         if (m.ok ())
-                          return check_access (ctx, m.get ("Access"), meth_name);
+                          return check_access (ctx,
+                                               m.get ("Access"), meth_name);
 
                         return false;
                       }

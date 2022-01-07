@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2017-2021 The Octave Project Developers
+## Copyright (C) 2017-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -31,15 +31,15 @@ classdef Map < handle
   ## @deftypefnx {} {@var{m} =} containers.Map (@var{keys}, @var{vals}, @qcode{"UniformValues"}, @var{is_uniform})
   ## @deftypefnx {} {@var{m} =} containers.Map (@qcode{"KeyType"}, @var{kt}, @qcode{"ValueType"}, @var{vt})
   ##
-  ## Create an object of the containers.Map class that stores a list of key/value
-  ## pairs.
+  ## Create an object of the containers.Map class that stores a list of
+  ## key/value pairs.
   ##
   ## @var{keys} is an array of @emph{unique} keys for the map.  The keys can be
   ## numeric scalars or strings.  The type for numeric keys may be one of
   ## @qcode{"double"}, @qcode{"single"}, @qcode{"int32"}, @qcode{"uint32"},
   ## @qcode{"int64"}, or @qcode{"uint64"}.  Other numeric or logical keys will
-  ## be converted to @qcode{"double"}.  A single string key may be entered as is.
-  ## Multiple string keys are entered as a cell array of strings.
+  ## be converted to @qcode{"double"}.  A single string key may be entered as
+  ## is.  Multiple string keys are entered as a cell array of strings.
   ##
   ## @var{vals} is an array of values for the map with the @emph{same} number
   ## of elements as @var{keys}.
@@ -48,18 +48,18 @@ classdef Map < handle
   ## as the key type and @qcode{"any"} as the value type.
   ##
   ## The @qcode{"UniformValues"} option specifies whether the values of
-  ## the map must be strictly of the same type.  If @var{is_uniform} is true, any
-  ## values which would be added to the map are first validated to ensure they
-  ## are of the correct type.
+  ## the map must be strictly of the same type.  If @var{is_uniform} is true,
+  ## any values which would be added to the map are first validated to ensure
+  ## they are of the correct type.
   ##
-  ## When called with @qcode{"KeyType"} and @qcode{"ValueType"} arguments, create
-  ## an empty map with the specified types.  The inputs @var{kt} and @var{vt} are
-  ## the types for the keys and values of the map respectively.  Allowed values
-  ## for @var{kt} are @qcode{"char"}, @qcode{"double"}, @qcode{"single"},
-  ## @qcode{"int32"}, @qcode{"uint32"}, @qcode{"int64"}, @qcode{"uint64"}.
-  ## Allowed values for @var{vt} are @qcode{"any"}, @qcode{"char"},
-  ## @qcode{"double"}, @qcode{"single"}, @qcode{"int32"}, @qcode{"uint32"},
-  ## @qcode{"int64"}, @qcode{"uint64"}, @qcode{"logical"}.
+  ## When called with @qcode{"KeyType"} and @qcode{"ValueType"} arguments,
+  ## create an empty map with the specified types.  The inputs @var{kt} and
+  ## @var{vt} are the types for the keys and values of the map respectively.
+  ## Allowed values for @var{kt} are @qcode{"char"}, @qcode{"double"},
+  ## @qcode{"single"}, @qcode{"int32"}, @qcode{"uint32"}, @qcode{"int64"},
+  ## @qcode{"uint64"}.  Allowed values for @var{vt} are @qcode{"any"},
+  ## @qcode{"char"}, @qcode{"double"}, @qcode{"single"}, @qcode{"int32"},
+  ## @qcode{"uint32"}, @qcode{"int64"}, @qcode{"uint64"}, @qcode{"logical"}.
   ##
   ## The return value @var{m} is an object of the containers.Map class.
   ## @seealso{struct}
@@ -71,7 +71,8 @@ classdef Map < handle
     ## @deftypefn {} {@var{type} =} Map.KeyType ()
     ## Return the key type.
     ##
-    ## Possible values are listed above when describing input variable @var{kt}.
+    ## Possible values are listed above when describing input variable
+    ## @var{kt}.
     ## @end deftypefn
 
     KeyType   = "char";
@@ -80,7 +81,8 @@ classdef Map < handle
     ## @deftypefn {} {@var{type} =} Map.ValueType ()
     ## Return the value type.
     ##
-    ## Possible values are listed above when describing input variable @var{vt}.
+    ## Possible values are listed above when describing input variable
+    ## @var{vt}.
     ## @end deftypefn
 
     ValueType = "any";
@@ -107,6 +109,7 @@ classdef Map < handle
   methods (Access = public)
 
     function this = Map (varargin)
+
       if (nargin == 0)
         ## Empty object with "char" key type and "any" value type.
       elseif (nargin == 2 || (nargin == 4
@@ -274,11 +277,12 @@ classdef Map < handle
 
       ## -*- texinfo -*-
       ## @deftypefn {} {@var{mask} =} Map.isKey (@var{keySet})
-      ## Return a logical array which is true where the elements of @var{keySet} are
-      ## keys of the map and false otherwise.
+      ## Return a logical array which is true where the elements of
+      ## @var{keySet} are keys of the map and false otherwise.
       ##
-      ## @var{keySet} is a cell array of keys.  If a single key is being checked, it
-      ## can be entered directly as a scalar value or a char vector.
+      ## @var{keySet} is a cell array of keys.  If a single key is being
+      ## checked, it can be entered directly as a scalar value or a char
+      ## vector.
       ## @end deftypefn
 
       if (! iscell (keySet))
@@ -291,7 +295,7 @@ classdef Map < handle
       tf = false (size (keySet));
       in = cellfun ("isnumeric", keySet) | cellfun ("islogical", keySet);
       if (! this.numeric_keys)
-        in = !in;
+        in = ! in;
       endif
       keySet = encode_keys (this, keySet(in));
       tf(in) = isfield (this.map, keySet);
@@ -301,6 +305,7 @@ classdef Map < handle
 
       ## -*- texinfo -*-
       ## @deftypefn {} {} Map.remove (@var{keySet})
+      ## @deftypefn {} {@var{newMap) =} Map.remove (@var{keySet})
       ## Remove the list of key/value pairs specified by a cell array of keys
       ## @var{keySet} from the map.
       ##
@@ -317,7 +322,7 @@ classdef Map < handle
       endif
       in = cellfun ("isnumeric", keySet) | cellfun ("islogical", keySet);
       if (! this.numeric_keys)
-        in = !in;
+        in = ! in;
       endif
       keySet = encode_keys (this, keySet(in));
       in = isfield (this.map, keySet);
@@ -330,10 +335,12 @@ classdef Map < handle
       ## @deftypefn  {} {@var{l} =} Map.size (@var{n})
       ## @deftypefnx {} {@var{sz} =} Map.size ()
       ## @deftypefnx {} {@var{dim_1}, @dots{}, @var{dim_n} =} Map.size ()
-      ## If @var{n} is 1, return the number of key/value pairs in the map, otherwise
-      ## return 1.
-      ## Without input arguments, return vector @code{[@var{l}, 1]} where @var{l} is
-      ## the number of key/value pairs in the map.
+      ## If @var{n} is 1, return the number of key/value pairs in the map,
+      ## otherwise return 1.
+      ##
+      ## Without input arguments, return vector @code{[@var{l}, 1]} where
+      ## @var{l} is the number of key/value pairs in the map.
+      ##
       ## With multiple outputs, return @code{[@var{l}, @dots{}, 1]}.
       ## @end deftypefn
 
@@ -373,6 +380,7 @@ classdef Map < handle
     endfunction
 
     function sref = subsref (this, s)
+
       switch (s(1).type)
         case "."
           switch (s(1).subs)
@@ -385,7 +393,7 @@ classdef Map < handle
                 s(1) = [];
               else
                 sref = values (this);
-              end
+              endif
             case "size"
               sref = size (this);
             case "length"
@@ -432,9 +440,11 @@ classdef Map < handle
       if (numel (s) > 1)
         sref = subsref (sref, s(2:end));
       endif
+
     endfunction
 
     function this = subsasgn (this, s, val)
+
       if (numel (s) > 1)
         error ("containers.Map: only one level of indexing is supported");
       endif
@@ -467,6 +477,7 @@ classdef Map < handle
         case "{}"
           error ("containers.Map: only '()' indexing is supported for assigning values");
       endswitch
+
     endfunction
 
     function newobj = horzcat (varargin)
@@ -476,6 +487,7 @@ classdef Map < handle
     endfunction
 
     function newobj = vertcat (varargin)
+
       ## When concatenating maps, the data type of all values must be
       ## consistent with the ValueType of the leftmost map.
       keySet = cell (1, 0);
@@ -495,6 +507,7 @@ classdef Map < handle
         valueSet = [valueSet, values(varargin{i})];
       endfor
       newobj = containers.Map (keySet, valueSet);
+
     endfunction
 
     function disp (this)
@@ -512,6 +525,7 @@ classdef Map < handle
     ## All keys are encoded as strings.
     ## For numeric keys, this requires conversion.
     function keys = encode_keys (this, keys)
+
       if (iscellstr (keys) || ischar (keys))
         return;
       endif
@@ -531,6 +545,7 @@ classdef Map < handle
       if (cell_input)
         keys = reshape (cellstr (keys), orig_sz);
       endif
+
     endfunction
 
     function keys = decode_keys (this, keys)
@@ -542,6 +557,7 @@ classdef Map < handle
     endfunction
 
     function this = sort_keys (this)
+
       keySet = keys (this);
       if (this.numeric_keys)
         [~, p] = sort (cell2mat (keySet));
@@ -549,9 +565,11 @@ classdef Map < handle
         [~, p] = sort (keySet);
       endif
       this.map = orderfields (this.map, p);
+
     endfunction
 
     function check_types (this)
+
       switch (this.KeyType)
         case {"char"}
           this.numeric_keys = false;
@@ -568,6 +586,7 @@ classdef Map < handle
                                           "int64"; "uint64"})))
         error ("containers.Map: unsupported ValueType");
       endif
+
     endfunction
 
   endmethods
@@ -787,9 +806,9 @@ endclassdef
 %!test <*56594>
 %! key = [1, 2, 3];
 %! val = {"One", "Two", "Three"};
-%! m = containers.Map(key, val);
+%! m = containers.Map (key, val);
 %! m (uint32 (1)) = "Four";
-%! assert (m.Count, uint64(3));
+%! assert (m.Count, uint64 (3));
 %! assert (keys (m), {1, 2, 3});
 %! assert (m(1), "Four");
 %! assert (m(uint16 (1)), "Four");

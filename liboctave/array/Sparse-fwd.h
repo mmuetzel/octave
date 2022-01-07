@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 2021-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -23,19 +23,11 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#if defined (HAVE_CONFIG_H)
-#  include "config.h"
-#endif
+#if ! defined (octave_Sparse_fwd_h)
+#define octave_Sparse_fwd_h 1
 
-#include <assert.h>
+#include "octave-config.h"
 
-/* Dummy Fortran main declaration, needed in order to link to some
-   Fortran libraries.  See the AC_F77_DUMMY_MAIN macro documentation.
-   This function should never be called. */
+template <typename T> class OCTAVE_API Sparse;
 
-#if defined (F77_DUMMY_MAIN)
-#  if defined (__cplusplus)
-extern "C"
-#  endif
-int F77_DUMMY_MAIN () { assert (0); return 1; }
 #endif

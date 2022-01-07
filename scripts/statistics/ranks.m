@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1995-2021 The Octave Project Developers
+## Copyright (C) 1995-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -132,21 +132,25 @@ function linnew = _dense (lin, sx, sz)
 endfunction
 
 function linnew = _competition (lin, sx, sz)
+
   ## Stop increasing lin when sx does not increase.  Otherwise, same as before.
   infvec = -Inf ([1, sz(2:end)]);
   fnewp = find (diff ([infvec; sx]));
   linnew = zeros (size (lin));
   linnew(fnewp) = lin(fnewp);
   linnew = cummax (linnew, 1);
+
 endfunction
 
 function linnew = _modified (lin, sx, sz)
+
   ## Traverse lin backwards.  Stop decreasing it when sx doesn't decrease.
   infvec = Inf ([1, sz(2:end)]);
   fnewp = find (diff ([sx; infvec]));
   linnew = Inf (size (lin));
   linnew(fnewp) = lin(fnewp);
   linnew = flip (cummin (flip (linnew, 1)), 1);
+
 endfunction
 
 

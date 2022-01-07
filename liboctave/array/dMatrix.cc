@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1994-2021 The Octave Project Developers
+// Copyright (C) 1994-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -640,7 +640,21 @@ Matrix::inverse (MatrixType& mattype, octave_idx_type& info, double& rcon,
   if (typ == MatrixType::Unknown)
     typ = mattype.type (*this);
 
-  if (typ == MatrixType::Upper || typ == MatrixType::Lower)
+  if (typ == MatrixType::Diagonal)  // a scalar is classified as Diagonal.
+    {
+      ret = 1 / (*this);
+      if (calc_cond)
+        {
+          double scalar = this->elem (0);
+          if (octave::math::isfinite (scalar) && scalar != 0)
+            rcon = 1.0;
+          else if (octave::math::isinf (scalar) || scalar == 0)
+            rcon = 0.0;
+          else
+            rcon = octave::numeric_limits<double>::NaN ();
+        }
+    }
+  else if (typ == MatrixType::Upper || typ == MatrixType::Lower)
     ret = tinverse (mattype, info, rcon, force, calc_cond);
   else
     {
@@ -662,8 +676,7 @@ Matrix::inverse (MatrixType& mattype, octave_idx_type& info, double& rcon,
       if (! mattype.ishermitian ())
         ret = finverse (mattype, info, rcon, force, calc_cond);
 
-      if ((calc_cond || mattype.ishermitian ()) && rcon == 0.0
-          && (numel () != 1))
+      if ((calc_cond || mattype.ishermitian ()) && rcon == 0.0)
         ret = Matrix (rows (), columns (),
                       octave::numeric_limits<double>::Inf ());
     }
@@ -886,7 +899,7 @@ Matrix::determinant (MatrixType& mattype,
   if (typ == MatrixType::Lower || typ == MatrixType::Upper)
     {
       for (F77_INT i = 0; i < nc; i++)
-        retval *= elem (i,i);
+        retval *= elem (i, i);
     }
   else if (typ == MatrixType::Hermitian)
     {
@@ -934,7 +947,7 @@ Matrix::determinant (MatrixType& mattype,
             }
 
           for (F77_INT i = 0; i < nc; i++)
-            retval *= atmp(i,i);
+            retval *= atmp(i, i);
 
           retval = retval.square ();
         }
@@ -997,7 +1010,7 @@ Matrix::determinant (MatrixType& mattype,
             {
               for (F77_INT i = 0; i < nc; i++)
                 {
-                  double c = atmp(i,i);
+                  double c = atmp(i, i);
                   retval *= (ipvt(i) != (i+1)) ? -c : c;
                 }
             }
@@ -2800,7 +2813,7 @@ xgemm (const Matrix& a, const Matrix& b,
                                F77_CHAR_ARG_LEN (1)));
       for (int j = 0; j < a_nr; j++)
         for (int i = 0; i < j; i++)
-          retval.xelem (j,i) = retval.xelem (i,j);
+          retval.xelem (j, i) = retval.xelem (i, j);
 
     }
   else

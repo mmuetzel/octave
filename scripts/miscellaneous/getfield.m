@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2000-2021 The Octave Project Developers
+## Copyright (C) 2000-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -35,7 +35,8 @@
 ## an array or cell array).  For a more complete description of the syntax,
 ## @pxref{XREFsetfield,,@code{setfield}}.
 ##
-## @seealso{setfield, rmfield, orderfields, isfield, fieldnames, isstruct, struct}
+## @seealso{setfield, rmfield, orderfields, isfield, fieldnames, isstruct,
+## struct}
 ## @end deftypefn
 
 function val = getfield (s, varargin)

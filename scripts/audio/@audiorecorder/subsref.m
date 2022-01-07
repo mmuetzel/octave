@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2013-2021 The Octave Project Developers
+## Copyright (C) 2013-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -28,6 +28,7 @@
 ## Perform subscripted selection on the audio recorder object @var{recorder}.
 ##
 ## Return the recorder property value named by @var{idx}.
+## @seealso{@audiorecorder/audiorecorder}
 ## @end deftypefn
 
 function value = subsref (recorder, idx)
@@ -48,3 +49,15 @@ function value = subsref (recorder, idx)
   endif
 
 endfunction
+
+
+%!testif HAVE_PORTAUDIO; audiodevinfo (1) > 0
+%! recorder = audiorecorder (44100, 16, 2);
+%! set (recorder, "Tag", "mytag");
+%! assert (recorder.Tag, "mytag");
+
+## Test input validation
+%!testif HAVE_PORTAUDIO; audiodevinfo (1) > 0
+%! recorder = audiorecorder (44100, 16, 2);
+%! fail ("recorder(1).Tag", "invalid subscript type");
+%! fail ("recorder{1}.Tag", "invalid subscript type");

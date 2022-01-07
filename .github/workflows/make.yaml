@@ -32,6 +32,10 @@ jobs:
             compiler: gcc
             ccache-max: 6G
 
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+
     steps:
       - name: checkout repository
         uses: actions/checkout@v2
@@ -60,7 +64,7 @@ jobs:
         run: |
           echo "::set-output name=TIMESTAMP::$(date +"%Y-%m-%d_%H-%M-%S")"
 
-      - name: setup ccache
+      - name: restore ccache
         # setup the github cache used to maintain the ccache from one job to the next
         # uses: actions/cache@v2
         # The original action doesn't upload on error. Use this fork instead.
@@ -81,25 +85,28 @@ jobs:
           test -d ~/.ccache || mkdir ~/.ccache
           echo "max_size = $CCACHE_MAX" >> ~/.ccache/ccache.conf
           ccache -s
+          echo "/usr/lib/ccache" >> $GITHUB_PATH
 
       - name: bootstrap
-        run: ./bootstrap
+        run: GNULIB_URL=https://github.com/coreutils/gnulib.git ./bootstrap
 
       - name: configure
         timeout-minutes: 30
-        env:
-          MY_CC: ${{ matrix.cc }}
-          MY_CXX: ${{ matrix.cxx }}
         run: |
-          echo $MY_CC --version
-          $MY_CC --version
-          echo $MY_CXX --version
-          $MY_CXX --version
+          echo $PATH
+          echo which ccache
+          which ccache
+          which $CC
+          echo $CC --version
+          $CC --version
+          which $CXX
+          echo $CXX --version
+          $CXX --version
+          which gfortran
+          echo gfortran --version
+          gfortran --version
           mkdir .build
           cd .build && ../configure \
-            CC="ccache $MY_CC" \
-            CXX="ccache $MY_CXX" \
-            F77="ccache gfortran" \
             CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" \
             LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial"
 
@@ -157,7 +164,8 @@ jobs:
             cxx: "clang++"
 
     env:
-      MY_PATH: "/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/bison/bin:/usr/local/opt/texinfo/bin:/usr/local/opt/qt@5/bin:/Library/TeX/texbin"
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
 
     steps:
       - name: checkout repository
@@ -187,6 +195,11 @@ jobs:
             ccache gnu-sed openjdk pkg-config \
             automake autoconf bison gettext icoutils librsvg mactex-no-gui
           eval "$(/usr/libexec/path_helper)"
+          echo "/Library/TeX/texbin" >> $GITHUB_PATH
+          echo "/usr/local/opt/qt@5/bin" >> $GITHUB_PATH
+          echo "/usr/local/opt/texinfo/bin" >> $GITHUB_PATH
+          echo "/usr/local/opt/bison/bin" >> $GITHUB_PATH
+          echo "/usr/local/opt/gnu-sed/libexec/gnubin" >> $GITHUB_PATH
 
       - name: prepare ccache
         # create human readable timestamp
@@ -194,7 +207,7 @@ jobs:
         run: |
           echo "::set-output name=TIMESTAMP::$(date +"%Y-%m-%d_%H-%M-%S")"
 
-      - name: setup ccache
+      - name: restore ccache
         # setup the github cache used to maintain the ccache from one job to the next
         uses: actions/cache@v2
         with:
@@ -209,19 +222,16 @@ jobs:
         # Limit the maximum size to avoid exceeding the total cache limits.
         run: |
           test -d /Users/runner/Library/Preferences/ccache || mkdir /Users/runner/Library/Preferences/ccache
-          echo "max_size = 1.5G" >> /Users/runner/Library/Preferences/ccache/ccache.conf
+          echo "max_size = 0.9G" >> /Users/runner/Library/Preferences/ccache/ccache.conf
           ccache -s
+          echo "$(brew --prefix)/opt/ccache/libexec" >> $GITHUB_PATH
 
       - name: bootstrap
-        run: |
-          export PATH="$MY_PATH:$PATH"
-          ./bootstrap
+        run: GNULIB_URL=https://github.com/coreutils/gnulib.git ./bootstrap
 
       - name: configure
         timeout-minutes: 30
         env:
-          MY_CC: ${{ matrix.cc }}
-          MY_CXX: ${{ matrix.cxx }}
           MY_CPPFLAGS: ${{ matrix.cppflags }}
           MY_LDFLAGS: ${{ matrix.ldflags }}
         # This is a hodgepodge of configure flags put together from the
@@ -232,19 +242,23 @@ jobs:
         # Amended with additional flags that seem to be needed.
         # Not all of those might be needed or be correct.
         run: |
-          export PATH="$MY_PATH:$PATH"
           echo $PATH
-          echo $MY_CC --version
-          $MY_CC --version
-          echo $MY_CXX --version
-          $MY_CXX --version
+          echo which ccache
+          which ccache
+          which $CC
+          echo $CC --version
+          $CC --version
+          which $CXX
+          echo $CXX --version
+          $CXX --version
+          which gfortran
+          echo gfortran --version
+          gfortran --version
           mkdir .build
           cd .build && ../configure \
-            CC="ccache $MY_CC" \
-            CXX="ccache $MY_CXX" \
             F77="ccache gfortran" \
             CPPFLAGS="-I/usr/local/opt/gettext/include -I/usr/local/opt/icu4c/include -I/usr/local/opt/qt@5/include -I/usr/local/opt/readline/include -I/usr/local/opt/sqlite/include $MY_CPPFLAGS" \
-            CXXFLAGS="-O2 -g -std=c++11" \
+            CXXFLAGS="-O2 -g" \
             LDFLAGS="-L/usr/local/lib -L/usr/local/opt/bison/lib -L/usr/local/opt/gettext/lib -L/usr/local/opt/icu4c/lib -L/usr/local/opt/readline/lib -L/usr/local/opt/sqlite/lib $MY_LDFLAGS" \
             PKG_CONFIG_PATH="/usr/local/opt/openblas/lib/pkgconfig:/usr/local/opt/icu4c/lib/pkgconfig:/usr/local/opt/qt@5/lib/pkgconfig" \
             QCOLLECTIONGENERATOR="qhelpgenerator" \
@@ -254,9 +268,7 @@ jobs:
             --prefix="${HOME}/usr"
 
       - name: build
-        run: |
-          export PATH="$MY_PATH:$PATH"
-          make -C ./.build all -j3 V=1
+        run: make -C ./.build all -j3 V=1
 
       - name: ccache status
         run: ccache -s
@@ -329,6 +341,14 @@ jobs:
       PERL5SHELL: bash -l -c
 
     steps:
+      - name: get CPU name
+        # The runners for the 32-bit target sometimes get stuck in configure
+        # when using the Fortran compiler.
+        # Does that error depend on the processor of the selected runner?
+        shell: pwsh
+        run : |
+          Get-CIMInstance -Class Win32_Processor | Select-Object -Property Name
+
       - uses: msys2/setup-msys2@v2
         with:
           update: true
@@ -392,7 +412,7 @@ jobs:
         run: |
           echo "::set-output name=TIMESTAMP::$(date +"%Y-%m-%d_%H-%M-%S")"
 
-      - name: setup ccache
+      - name: restore ccache
         # Setup the github cache used to maintain the ccache from one job to the next
         uses: actions/cache@v2
         with:
@@ -407,7 +427,7 @@ jobs:
         run: |
           which ccache
           test -d ~/.ccache || mkdir -p ~/.ccache
-          echo "max_size = 1.2G" > ~/.ccache/ccache.conf
+          echo "max_size = 0.9G" > ~/.ccache/ccache.conf
           echo "compression = true" >> ~/.ccache/ccache.conf
           ccache -s
           # create ccache helper script for Fortran compiler
@@ -416,8 +436,7 @@ jobs:
           echo 'export PATH="$MINGW_PREFIX/lib/ccache/bin:$PATH"' >> ~/.bash_profile
 
       - name: bootstrap
-        run: |
-          ./bootstrap
+        run: GNULIB_URL=https://github.com/coreutils/gnulib.git ./bootstrap
 
       - name: configure
         # configure sometimes hangs while compiling 32bit Fortran.
@@ -453,11 +472,9 @@ jobs:
 
       - name: install
         # Install Octave
-        # Create symlinks to the libexec binaries in bin (or they won't find their libraries?)
-        run: |
-          make -C ./.build install V=1
-          ln -sf ${MINGW_PREFIX}/libexec/octave/7.0.0/exec/${TARGET_TRIPLET}/octave-gui.exe ${MINGW_PREFIX}/bin/octave-gui.exe
-          ln -sf ${MINGW_PREFIX}/libexec/octave/7.0.0/exec/${TARGET_TRIPLET}/octave-svgconvert.exe ${MINGW_PREFIX}/bin/octave-svgconvert.exe
+        # Relocation issues with the graphicsmagick++ libraries on mingw require
+        # installing Octave before running the test suite.
+        run: make -C ./.build install V=1
 
       - name: check
         # Continuing on error in this step means that jobs will be "green" even

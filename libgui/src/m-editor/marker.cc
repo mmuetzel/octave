@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2016-2021 The Octave Project Developers
+// Copyright (C) 2016-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -88,7 +88,7 @@ namespace octave
   }
 
   void marker::handle_find_translation (int linenr, int& translation_linenr,
-                                        marker *& bp)
+                                        marker *&bp)
   {
     if (m_original_linenr == linenr)
       {

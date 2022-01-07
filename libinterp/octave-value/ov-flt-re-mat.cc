@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -619,7 +619,8 @@ octave_float_matrix::save_hdf5 (octave_hdf5_id loc_id, const char *name, bool)
 #endif
 #if defined (HAVE_HDF5_18)
   data_hid = H5Dcreate (loc_id, name, save_type_hid, space_hid,
-                        octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                        octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                        octave_H5P_DEFAULT);
 #else
   data_hid = H5Dcreate (loc_id, name, save_type_hid, space_hid,
                         octave_H5P_DEFAULT);

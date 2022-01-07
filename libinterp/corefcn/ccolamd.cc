@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2005-2021 The Octave Project Developers
+// Copyright (C) 2005-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -283,7 +283,7 @@ csymamd, amd, colamd, symamd, and other related orderings.
         error ("ccolamd: CMEMBER must be of length equal to #cols of A");
 
       // Order the columns (destroys A)
-      if (! CCOLAMD_NAME () (n_row, n_col, Alen, A, p, knobs, stats,cmember))
+      if (! CCOLAMD_NAME () (n_row, n_col, Alen, A, p, knobs, stats, cmember))
         {
           CCOLAMD_NAME (_report) (stats);
 

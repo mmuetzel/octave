@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1996-2021 The Octave Project Developers
+## Copyright (C) 1996-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -81,9 +81,12 @@ endfunction
 %!assert (discrete_inv ([x, NaN], v, p), [y, NaN], eps)
 
 ## Test class of input preserved
-%!assert (discrete_inv (single ([x, NaN]), v, p), single ([y, NaN]), eps ("single"))
-%!assert (discrete_inv ([x, NaN], single (v), p), single ([y, NaN]), eps ("single"))
-%!assert (discrete_inv ([x, NaN], v, single (p)), single ([y, NaN]), eps ("single"))
+%!assert (discrete_inv (single ([x, NaN]), v, p),
+%!        single ([y, NaN]), eps ("single"))
+%!assert (discrete_inv ([x, NaN], single (v), p),
+%!        single ([y, NaN]), eps ("single"))
+%!assert (discrete_inv ([x, NaN], v, single (p)),
+%!        single ([y, NaN]), eps ("single"))
 
 ## Test input validation
 %!error <Invalid call> discrete_inv ()

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2009-2021 The Octave Project Developers
+## Copyright (C) 2009-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -261,20 +261,29 @@ endfunction
 %!assert (strsplit ("road to hell", " "), {"road", "to", "hell"})
 %!assert (strsplit ("road to^hell", {" ","^"}), {"road", "to", "hell"})
 %!assert (strsplit ("road   to--hell", {" ","-"}, true), {"road", "to", "hell"})
-%!assert (strsplit (["a,bc,,de"], ",", false, "delimitertype", "s"), {"a", "bc", "", "de"})
+%!assert (strsplit (["a,bc,,de"], ",", false, "delimitertype", "s"),
+%!        {"a", "bc", "", "de"})
 %!assert (strsplit (["a,bc,,de"], ",", false), {"a", "bc", "", "de"})
 %!assert (strsplit (["a,bc,de"], ",", true), {"a", "bc", "de"})
 %!assert (strsplit (["a,bc,de"], {","," "}, true), {"a", "bc", "de"})
 
-%!assert (strsplit ("road to hell", " ", "delimitertype", "r"), {"road", "to", "hell"})
-%!assert (strsplit ("road to^hell", '\^| ', "delimitertype", "r"), {"road", "to", "hell"})
-%!assert (strsplit ("road to^hell", "[ ^]", "delimitertype", "r"), {"road", "to", "hell"})
-%!assert (strsplit ("road   to--hell", "[ -]", false, "delimitertype", "r"), {"road", "", "", "to", "", "hell"})
+%!assert (strsplit ("road to hell", " ", "delimitertype", "r"),
+%!        {"road", "to", "hell"})
+%!assert (strsplit ("road to^hell", '\^| ', "delimitertype", "r"),
+%!        {"road", "to", "hell"})
+%!assert (strsplit ("road to^hell", "[ ^]", "delimitertype", "r"),
+%!        {"road", "to", "hell"})
+%!assert (strsplit ("road   to--hell", "[ -]", false, "delimitertype", "r"),
+%!        {"road", "", "", "to", "", "hell"})
 %!assert (strsplit (["a,bc,de"], ",", "delimitertype", "r"), {"a", "bc", "de"})
-%!assert (strsplit (["a,bc,,de"], ",", false, "delimitertype", "r"), {"a", "bc", "", "de"})
-%!assert (strsplit (["a,bc,de"], ",", true, "delimitertype", "r"), {"a", "bc", "de"})
-%!assert (strsplit (["a,bc,de"], "[, ]", true, "delimitertype", "r"), {"a", "bc", "de"})
-%!assert (strsplit ("hello \t world", true, "delimitertype", "r"), {"hello", "world"})
+%!assert (strsplit (["a,bc,,de"], ",", false, "delimitertype", "r"),
+%!        {"a", "bc", "", "de"})
+%!assert (strsplit (["a,bc,de"], ",", true, "delimitertype", "r"),
+%!        {"a", "bc", "de"})
+%!assert (strsplit (["a,bc,de"], "[, ]", true, "delimitertype", "r"),
+%!        {"a", "bc", "de"})
+%!assert (strsplit ("hello \t world", true, "delimitertype", "r"),
+%!        {"hello", "world"})
 
 %!assert (strsplit ("foo\tbar", '\t', "delimitertype", "r"), {"foo", "bar"})
 %!assert (strsplit ("foo\tbar", '\t', "delimitertype", "s"), {"foo", "bar"})

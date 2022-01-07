@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2007-2021 The Octave Project Developers
+## Copyright (C) 2007-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -66,7 +66,8 @@
 ## @end group
 ## @end example
 ##
-## @seealso{contour, contourc, contourf, clabel, meshc, surfc, caxis, colormap, plot}
+## @seealso{contour, contourc, contourf, clabel, meshc, surfc, caxis, colormap,
+## plot}
 ## @end deftypefn
 
 function [c, h] = contour3 (varargin)

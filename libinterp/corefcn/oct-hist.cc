@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -763,7 +763,8 @@ matching the current line to be removed from the history list before that
 line is saved.  Any value not in the above list is ignored.  If
 @code{history_control} is the empty string, all commands are saved on
 the history list, subject to the value of @code{history_save}.
-@seealso{history_file, history_size, history_timestamp_format_string, history_save}
+@seealso{history_file, history_size, history_timestamp_format_string,
+history_save}
 @end deftypefn */)
 {
   octave_value retval;
@@ -820,7 +821,7 @@ this new file (if the current setting of @code{history_save} allows for this).
 
 The default value is @file{@w{@env{$DATA}}/octave/history}, where
 @w{@env{$DATA}} is the platform-specific location for (roaming) user data files
-(e.g. @w{@env{$XDG_DATA_HOME}} or, if that is not set, @file{~/.local/share} on
+(e.g., @w{@env{$XDG_DATA_HOME}} or, if that is not set, @file{~/.local/share} on
 Unix-like operating systems or @w{@env{%APPDATA%}} on Windows).  The default
 value may be overridden by the environment variable @w{@env{OCTAVE_HISTFILE}}.
 
@@ -844,7 +845,8 @@ endif
 @end group
 @end example
 
-@seealso{history, history_control, history_save, history_size, history_timestamp_format_string}
+@seealso{history, history_control, history_save, history_size,
+history_timestamp_format_string}
 @end deftypefn */)
 {
   octave_value retval;
@@ -865,7 +867,7 @@ DEFMETHOD (history_timestamp_format_string, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} history_timestamp_format_string ()
 @deftypefnx {} {@var{old_val} =} history_timestamp_format_string (@var{new_val})
-@deftypefnx {} {} history_timestamp_format_string (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} history_timestamp_format_string (@var{new_val}, "local")
 Query or set the internal variable that specifies the format string
 for the comment line that is written to the history file when Octave
 exits.
@@ -900,14 +902,15 @@ DEFUN (history_save, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} history_save ()
 @deftypefnx {} {@var{old_val} =} history_save (@var{new_val})
-@deftypefnx {} {} history_save (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} history_save (@var{new_val}, "local")
 Query or set the internal variable that controls whether commands entered
 on the command line are saved in the history file.
 
 When called from inside a function with the @qcode{"local"} option, the
 variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
-@seealso{history_control, history_file, history_size, history_timestamp_format_string}
+@seealso{history_control, history_file, history_size,
+history_timestamp_format_string}
 @end deftypefn */)
 {
   octave_value retval;

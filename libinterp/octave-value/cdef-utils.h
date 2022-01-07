@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2012-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -31,14 +31,13 @@
 #include <list>
 #include <string>
 
+#include "cdef-fwd.h"
+
 class octave_value;
 class Cell;
 
 namespace octave
 {
-  class cdef_class;
-  class cdef_package;
-
   extern OCTINTERP_API std::string
   get_base_name (const std::string& nm);
 

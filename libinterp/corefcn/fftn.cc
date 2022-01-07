@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2004-2021 The Octave Project Developers
+// Copyright (C) 2004-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -67,12 +67,12 @@ do_fftn (const octave_value_list& args, const char *fcn, int type)
 
       for (int i = 0; i < dims.ndims (); i++)
         {
-          if (math::isnan (val(i,0)))
+          if (math::isnan (val(i, 0)))
             error ("%s: SIZE has invalid NaN entries", fcn);
-          else if (math::nint_big (val(i,0)) < 0)
+          else if (math::nint_big (val(i, 0)) < 0)
             error ("%s: all dimensions in SIZE must be greater than zero", fcn);
           else
-            dims(i) = math::nint_big(val(i,0));
+            dims(i) = math::nint_big(val(i, 0));
         }
     }
 

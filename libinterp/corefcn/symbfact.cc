@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1998-2021 The Octave Project Developers
+// Copyright (C) 1998-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -427,7 +427,8 @@ cleanup:
 %! fail ("symbfact (sparse (1), {1})", "TYP must be a string");
 %! fail ("symbfact (sparse (1), 'foobar')", 'unrecognized TYP "foobar"');
 %! fail ("symbfact (sparse (1), 'sym', {'L'})", "MODE must be a string");
-%! fail ('symbfact (sparse (1), "sym", "foobar")', 'unrecognized MODE "foobar"');
+%! fail ('symbfact (sparse (1), "sym", "foobar")',
+%!       'unrecognized MODE "foobar"');
 %! fail ("symbfact (sparse ([1, 2; 3, 4; 5, 6]))", "S must be a square matrix");
 
 */

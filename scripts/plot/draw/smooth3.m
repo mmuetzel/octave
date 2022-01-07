@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2016-2021 The Octave Project Developers
+## Copyright (C) 2016-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -142,8 +142,8 @@ function [data, conv_kernel, sz, std_dev] = __parse_smooth3_args__ (data, method
 endfunction
 
 function gaussian3 = __smooth3_gaussian3__ (sz, std_dev)
-  ## trivariate non-correlated Gaussian distribution function
 
+  ## trivariate non-correlated Gaussian distribution function
   x = (-(sz(2)-1)/2:(sz(2)-1)/2) / std_dev(2);
   y = (-(sz(1)-1)/2:(sz(1)-1)/2) / std_dev(1);
   z = (-(sz(3)-1)/2:(sz(3)-1)/2) / std_dev(3);

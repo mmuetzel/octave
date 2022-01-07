@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2016-2021 The Octave Project Developers
+// Copyright (C) 2016-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -300,21 +300,6 @@ namespace octave
           (warning_id_nearly_singular_matrix,
            "matrix singular to machine precision, rcond = %g", rcond);
       }
-  }
-
-  // DEPRECATED in Octave 6.
-
-  // Complain of an index that is out of range, but we don't know matrix size
-  void
-  err_index_out_of_range (int nd, int dim, octave_idx_type idx,
-                          octave_idx_type ext)
-  {
-    // The dim_vector setting here doesn't really make sense.  However,
-    // this function has been deprecated and will be removed in version
-    // 8, so there's no need to attempt to fix it.
-
-    throw out_of_range (std::to_string (idx), nd, dim, ext,
-                        dim_vector (1, 1, 1, 1, 1, 1, 1));
   }
 }
 

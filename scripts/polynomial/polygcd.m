@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2000-2021 The Octave Project Developers
+## Copyright (C) 2000-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -101,7 +101,8 @@ endfunction
 %! assert (poly3, poly2, sqrt (eps));
 
 %!assert (polygcd (poly (1:8), poly (3:12)), poly (3:8), sqrt (eps))
-%!assert (deconv (poly (1:8), polygcd (poly (1:8), poly (3:12))), poly (1:2), sqrt (eps))
+%!assert (deconv (poly (1:8), polygcd (poly (1:8), poly (3:12))),
+%!        poly (1:2), sqrt (eps))
 
 %!test
 %! for ii=1:100

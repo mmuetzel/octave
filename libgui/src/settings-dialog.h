@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -63,7 +63,7 @@ namespace octave
 
     void get_octave_dir (void);
     void get_file_browser_dir (void);
-    void get_dir (QLineEdit*, const QString&);
+    void get_dir (QLineEdit *, const QString&);
     void set_disabled_pref_file_browser_dir (bool disable);
     void proxy_items_update (void);
 

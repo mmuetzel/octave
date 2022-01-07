@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2013-2021 The Octave Project Developers
+## Copyright (C) 2013-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -61,7 +61,8 @@
 ## The optional return value @var{h} is a graphics handle to the created
 ## surface object.
 ##
-## @seealso{meshz, mesh, meshc, contour, surf, surface, ribbon, meshgrid, hidden, shading, colormap, caxis}
+## @seealso{meshz, mesh, meshc, contour, surf, surface, ribbon, meshgrid,
+## hidden, shading, colormap, caxis}
 ## @end deftypefn
 
 function h = waterfall (varargin)

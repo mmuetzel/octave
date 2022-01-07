@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -422,10 +422,10 @@ namespace octave
       {
         for (int j = 0; j < img.width (); j++)
           {
-            retval(i,j,2) = bits[0];
-            retval(i,j,1) = bits[1];
-            retval(i,j,0) = bits[2];
-            retval(i,j,3) = bits[3];
+            retval(i, j, 2) = bits[0];
+            retval(i, j, 1) = bits[1];
+            retval(i, j, 0) = bits[2];
+            retval(i, j, 3) = bits[3];
 
             bits += 4;
           }

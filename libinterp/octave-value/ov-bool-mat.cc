@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -329,7 +329,7 @@ octave_bool_matrix::load_ascii (std::istream& is)
           boolMatrix btmp (nr, nc);
           for (octave_idx_type j = 0; j < nc; j++)
             for (octave_idx_type i = 0; i < nr; i++)
-              btmp.elem (i,j) = (tmp.elem (i, j) != 0.);
+              btmp.elem (i, j) = (tmp.elem (i, j) != 0.);
 
           matrix = btmp;
         }
@@ -456,7 +456,8 @@ octave_bool_matrix::save_hdf5 (octave_hdf5_id loc_id, const char *name,
   if (space_hid < 0) return false;
 #if defined (HAVE_HDF5_18)
   data_hid = H5Dcreate (loc_id, name, H5T_NATIVE_HBOOL, space_hid,
-                        octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                        octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                        octave_H5P_DEFAULT);
 #else
   data_hid = H5Dcreate (loc_id, name, H5T_NATIVE_HBOOL, space_hid,
                         octave_H5P_DEFAULT);

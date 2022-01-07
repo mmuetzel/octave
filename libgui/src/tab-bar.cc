@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2018-2021 The Octave Project Developers
+// Copyright (C) 2018-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -229,7 +229,7 @@ namespace octave
             for (int i = count () - 1; i >= 0; i--)
               {
                 // Prepend an action for each tab
-                QAction* a = new QAction (tabIcon (i), tabText (i), &ctx_menu);
+                QAction *a = new QAction (tabIcon (i), tabText (i), &ctx_menu);
                 m_ctx_actions.prepend (a);
               }
             // Add all actions to our menu

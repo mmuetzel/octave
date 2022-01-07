@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2009-2021 The Octave Project Developers
+// Copyright (C) 2009-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -104,9 +104,10 @@ RT do_mul_sm_dm (const SM& a, const DM& d)
 // FIXME: functors such as this should be gathered somewhere
 template <typename T>
 struct identity_val
-  : public std::unary_function <T, T>
 {
 public:
+  typedef T argument_type;
+  typedef T result_type;
   T operator () (const T x) { return x; }
 };
 

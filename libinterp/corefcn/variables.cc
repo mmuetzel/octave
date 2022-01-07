@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -124,7 +124,7 @@ OCTAVE_NAMESPACE_BEGIN
 
 DEFMETHOD (isglobal, interp, args, ,
            doc: /* -*- texinfo -*-
-@deftypefn {} {} isglobal (@var{name})
+@deftypefn {} {@var{tf} =} isglobal (@var{name})
 Return true if @var{name} is a globally visible variable.
 
 For example:
@@ -176,8 +176,6 @@ symbol_exist (interpreter& interp, const std::string& name,
          || search_builtin || search_class))
     error (R"(exist: unrecognized type argument "%s")", type.c_str ());
 
-  symbol_table& symtab = interp.get_symbol_table ();
-
   if (search_any || search_var)
     {
       octave_value val = interp.varval (name);
@@ -192,10 +190,12 @@ symbol_exist (interpreter& interp, const std::string& name,
         return 0;
     }
 
+  symbol_table& symtab = interp.get_symbol_table ();
+
   // We shouldn't need to look in the global symbol table, since any name
   // that is visible in the current scope will be in the local symbol table.
 
-  if (search_any || search_file || search_dir)
+  if (search_any || search_file || search_dir || search_class)
     {
       bool have_fcn_ext = false;
 
@@ -217,15 +217,16 @@ symbol_exist (interpreter& interp, const std::string& name,
 
       std::string file_name;
 
-      if (search_any || search_file)
+      if (search_any || search_file || search_class)
         {
           load_path& lp = interp.get_load_path ();
 
-          // Class constructor.
+          // Look for class constructor first
           file_name = lp.find_method (xname, xname);
 
           if (have_fcn_ext && ! file_name.empty ())
             {
+              // Verify extension of file_name found matches ext of name.
               pos = file_name.rfind ('.');
 
               if (pos != std::string::npos)
@@ -247,7 +248,6 @@ symbol_exist (interpreter& interp, const std::string& name,
             }
 
           // Autoloads can only have simple names without extensions.
-
           if (! have_fcn_ext && file_name.empty ())
             {
               tree_evaluator& tw = interp.get_evaluator ();
@@ -255,26 +255,35 @@ symbol_exist (interpreter& interp, const std::string& name,
               file_name = tw.lookup_autoload (name);
             }
 
-          // Use original name here.
-
+          // If nothing found, look for function using original name.
           if (file_name.empty ())
             file_name = lp.find_fcn (name);
         }
 
       std::size_t len = file_name.length ();
 
-      if (len > 0)
+      if (len > 0 && (search_any || search_file || search_class))
         {
           if (search_any || search_file)
             {
               if (len > 4 && (file_name.substr (len-4) == ".oct"
                               || file_name.substr (len-4) == ".mex"))
                 return 3;
-              else
-                return 2;
             }
+
+          if (search_class)
+            {
+              octave_value oval = symtab.find_function (name);
+              if (oval.is_defined () && oval.is_classdef_meta ())
+                return 8;
+              else
+                return 0;
+            }
+
+          return 2;
         }
 
+      // Nothing found in symbol table, try searching in path
       file_name = file_in_path (name, "");
 
       if (file_name.empty ())
@@ -379,7 +388,7 @@ or (after appending @samp{.m}) a function file in Octave's @code{path}.
 @var{name} is a directory.
 
 @item 8
-@var{name} is a class.  (Note: not currently implemented)
+@var{name} is a classdef class.
 
 @item 103
 @var{name} is a function not associated with a file (entered on the command
@@ -406,8 +415,7 @@ Check only for directories.
 Check only for files and directories.
 
 @item @qcode{"class"}
-Check only for classes.  (Note: This option is accepted, but not currently
-implemented)
+Check only for classdef classes.
 @end table
 
 If no type is given, and there are multiple possible matches for name,
@@ -433,13 +441,11 @@ Octave trusts .oct/.mex files instead of @nospell{sandboxing} them.
 
   // For compatibility with undocumented Matlab behavior, return 0 if
   // there is an empty built-in object as the only argument.
-
   if (args(0).builtin_type () != btyp_unknown && args(0).isempty ())
     return ovl (0);
 
   // Also for compatibility, return 0 if the second argument is an empty
   // built-in object.
-
   if (nargin == 2 && args(1).builtin_type () != btyp_unknown
       && args(1).isempty ())
     return ovl (0);
@@ -450,9 +456,6 @@ Octave trusts .oct/.mex files instead of @nospell{sandboxing} them.
     {
       std::string type
         = args(1).xstring_value ("exist: TYPE must be a string");
-
-      if (type == "class")
-        warning (R"(exist: "class" type argument is not implemented)");
 
       return ovl (symbol_exist (interp, name, type));
     }
@@ -471,16 +474,15 @@ Octave trusts .oct/.mex files instead of @nospell{sandboxing} them.
 %!assert (exist ("__var1", "builtin"), 0)
 %!assert (exist ("__var1", "dir"), 0)
 %!assert (exist ("__var1", "file"), 0)
+%!assert (exist ("__var1", "class"), 0)
 
-%!test
-%! if (isunix ())
-%!   assert (exist ("/bin/sh"), 2);
-%!   assert (exist ("/bin/sh", "file"), 2);
-%!   assert (exist ("/bin/sh", "dir"), 0);
-%!   assert (exist ("/dev/null"), 2);
-%!   assert (exist ("/dev/null", "file"), 2);
-%!   assert (exist ("/dev/null", "dir"), 0);
-%! endif
+%!testif ; isunix ()
+%! assert (exist ("/bin/sh"), 2);
+%! assert (exist ("/bin/sh", "file"), 2);
+%! assert (exist ("/bin/sh", "dir"), 0);
+%! assert (exist ("/dev/null"), 2);
+%! assert (exist ("/dev/null", "file"), 2);
+%! assert (exist ("/dev/null", "dir"), 0);
 
 %!assert (exist ("print_usage"), 2)
 %!assert (exist ("print_usage.m"), 2)
@@ -512,13 +514,15 @@ Octave trusts .oct/.mex files instead of @nospell{sandboxing} them.
 %!assert (exist ("fftw", "file"), 3)
 %!assert (exist ("fftw", "builtin"), 0)
 
-%!assert (exist ("ftp"), 2);
-%!assert (exist ("ftp.m"), 2);
-%!assert (exist ("@ftp/ftp"), 2);
-%!assert (exist ("@ftp/ftp.m"), 2);
+%!assert (exist ("ftp"), 2)
+%!assert (exist ("ftp.m"), 2)
+%!assert (exist ("@ftp/ftp"), 2)
+%!assert (exist ("@ftp/ftp.m"), 2)
+%!assert (exist ("ftp", "class"), 0)
 
-%!assert (exist ("inputParser"), 2);
-%!assert (exist ("inputParser.m"), 2);
+%!assert (exist ("inputParser"), 2)
+%!assert (exist ("inputParser.m"), 2)
+%!assert (exist ("inputParser", "class"), 8)
 
 %!assert (exist ("sin"), 5)
 %!assert (exist ("sin", "builtin"), 5)
@@ -530,7 +534,6 @@ Octave trusts .oct/.mex files instead of @nospell{sandboxing} them.
 
 %!error exist ()
 %!error exist (1,2,3)
-%!warning <"class" type argument is not implemented> exist ("a", "class");
 %!error <TYPE must be a string> exist ("a", 1)
 %!error <NAME must be a string> exist (1)
 %!error <unrecognized type argument "foobar"> exist ("a", "foobar")
@@ -1392,7 +1395,7 @@ DEFUN (missing_function_hook, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} missing_function_hook ()
 @deftypefnx {} {@var{old_val} =} missing_function_hook (@var{new_val})
-@deftypefnx {} {} missing_function_hook (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} missing_function_hook (@var{new_val}, "local")
 Query or set the internal variable that specifies the function to call
 to provide extra information when an unknown identifier is referenced.
 
@@ -1493,7 +1496,7 @@ DEFUN (missing_component_hook, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} missing_component_hook ()
 @deftypefnx {} {@var{old_val} =} missing_component_hook (@var{new_val})
-@deftypefnx {} {} missing_component_hook (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} missing_component_hook (@var{new_val}, "local")
 Query or set the internal variable that specifies the function to call when
 a component of Octave is missing.
 
@@ -1522,45 +1525,3 @@ should return an error message to be displayed.
 }
 
 OCTAVE_NAMESPACE_END
-
-// DEPRECATED in Octave 6
-
-octave_function *
-extract_function (const octave_value& arg, const std::string& warn_for,
-                  const std::string& fname, const std::string& header,
-                  const std::string& trailer)
-{
-  octave_function *retval = is_valid_function (arg, warn_for, 0);
-
-  if (! retval)
-    {
-      std::string s = arg.xstring_value ("%s: argument must be a string",
-                                         warn_for.c_str ());
-
-      std::string cmd = header;
-      cmd.append (s);
-      cmd.append (trailer);
-
-      int parse_status;
-
-      octave::interpreter& interp
-        = octave::__get_interpreter__ ("extract_function");
-
-      interp.eval_string (cmd, true, parse_status, 0);
-
-      if (parse_status != 0)
-        error ("%s: '%s' is not valid as a function",
-               warn_for.c_str (), fname.c_str ());
-
-      retval = is_valid_function (fname, warn_for, 0);
-
-      if (! retval)
-        error ("%s: '%s' is not valid as a function",
-               warn_for.c_str (), fname.c_str ());
-
-      warning ("%s: passing function body as a string is obsolete; please use anonymous functions",
-               warn_for.c_str ());
-    }
-
-  return retval;
-}

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -45,6 +45,7 @@
 #include <QPrintDialog>
 #include <QPushButton>
 #include <QScrollBar>
+#include <QSaveFile>
 #include <QStyle>
 #include <QTextBlock>
 #include <QTextCodec>
@@ -155,10 +156,10 @@ namespace octave
     // row- and col-indicator
     m_row_indicator = new QLabel ("", this);
     QFontMetrics fm = m_row_indicator->fontMetrics ();
-    m_row_indicator->setMinimumSize (4.5*fm.averageCharWidth (),0);
+    m_row_indicator->setMinimumSize (4.5*fm.averageCharWidth (), 0);
     QLabel *row_label = new QLabel (tr ("line:"), this);
     m_col_indicator = new QLabel ("", this);
-    m_col_indicator->setMinimumSize (4*fm.averageCharWidth (),0);
+    m_col_indicator->setMinimumSize (4*fm.averageCharWidth (), 0);
     QLabel *col_label = new QLabel (tr ("col:"), this);
     m_status_bar->addWidget (row_label, 0);
     m_status_bar->addWidget (m_row_indicator, 0);
@@ -167,14 +168,14 @@ namespace octave
 
     // status bar: encoding
     QLabel *enc_label = new QLabel (tr ("encoding:"), this);
-    m_enc_indicator = new QLabel ("",this);
+    m_enc_indicator = new QLabel ("", this);
     m_status_bar->addWidget (enc_label, 0);
     m_status_bar->addWidget (m_enc_indicator, 0);
     m_status_bar->addWidget (new QLabel (" ", this), 0);
 
     // status bar: eol mode
     QLabel *eol_label = new QLabel (tr ("eol:"), this);
-    m_eol_indicator = new QLabel ("",this);
+    m_eol_indicator = new QLabel ("", this);
     m_status_bar->addWidget (eol_label, 0);
     m_status_bar->addWidget (m_eol_indicator, 0);
     m_status_bar->addWidget (new QLabel (" ", this), 0);
@@ -183,18 +184,18 @@ namespace octave
     m_edit_area->setMarginType (1, QsciScintilla::SymbolMargin);
     m_edit_area->setMarginSensitivity (1, true);
     m_edit_area->markerDefine (QsciScintilla::RightTriangle, marker::bookmark);
-    m_edit_area->setMarkerBackgroundColor (QColor (0,0,232), marker::bookmark);
+    m_edit_area->setMarkerBackgroundColor (QColor (0, 0, 232), marker::bookmark);
     m_edit_area->markerDefine (QsciScintilla::Circle, marker::breakpoint);
-    m_edit_area->setMarkerBackgroundColor (QColor (192,0,0), marker::breakpoint);
+    m_edit_area->setMarkerBackgroundColor (QColor (192, 0, 0), marker::breakpoint);
     m_edit_area->markerDefine (QsciScintilla::Circle, marker::cond_break);
-    m_edit_area->setMarkerBackgroundColor (QColor (255,127,0), marker::cond_break);
+    m_edit_area->setMarkerBackgroundColor (QColor (255, 127, 0), marker::cond_break);
     m_edit_area->markerDefine (QsciScintilla::RightArrow,
                                marker::debugger_position);
-    m_edit_area->setMarkerBackgroundColor (QColor (255,255,0),
+    m_edit_area->setMarkerBackgroundColor (QColor (255, 255, 0),
                                            marker::debugger_position);
     m_edit_area->markerDefine (QsciScintilla::RightArrow,
                                marker::unsure_debugger_position);
-    m_edit_area->setMarkerBackgroundColor (QColor (192,192,192),
+    m_edit_area->setMarkerBackgroundColor (QColor (192, 192, 192),
                                            marker::unsure_debugger_position);
 
     connect (m_edit_area, SIGNAL (marginClicked (int, int,
@@ -496,10 +497,10 @@ namespace octave
     if (! trackedFiles.isEmpty ())
       m_file_system_watcher.removePath (m_file_name);
     if (! fileName.isEmpty () && QFile::exists (fileName))
-    {
-      m_file_system_watcher.addPath (fileName);
-      m_last_modified =  QFileInfo (fileName).lastModified ().toUTC ();
-    }
+      {
+        m_file_system_watcher.addPath (fileName);
+        m_last_modified =  QFileInfo (fileName).lastModified ().toUTC ();
+      }
 
     // update lexer and file name variable if file name changes
     if (m_file_name != fileName)
@@ -922,7 +923,7 @@ namespace octave
         m_edit_area->setMarginsFont (line_numbers_font);
       }
     else
-      m_edit_area->setMarginWidth (2,0);
+      m_edit_area->setMarginWidth (2, 0);
   }
 
   // function for adding entries to the octave lexer's APIs
@@ -1043,7 +1044,7 @@ namespace octave
         // the returned line number.  Store whether to remove this breakpoint
         // afterwards.
         int first_bp_line
-              = m_edit_area->markerFindNext (0, (1 << marker::breakpoint)) + 1;
+          = m_edit_area->markerFindNext (0, (1 << marker::breakpoint)) + 1;
 
         // Set flag for storing the line number of the breakpoint
         m_breakpoint_info.remove_next = true;
@@ -1790,8 +1791,8 @@ namespace octave
 
     if (settings->value (ed_force_newline).toBool ())
       {
-        const QByteArray eol_lf = QByteArray (1,0x0a);
-        const QByteArray eol_cr = QByteArray (1,0x0d);
+        const QByteArray eol_lf = QByteArray (1, 0x0a);
+        const QByteArray eol_cr = QByteArray (1, 0x0d);
 
         if (text_data.endsWith (eol_lf))
           text_data.chop (1);   // remove LF
@@ -1921,8 +1922,8 @@ namespace octave
   {
     QByteArray text = m_edit_area->text ().toLatin1 ();
 
-    QByteArray eol_lf = QByteArray (1,0x0a);
-    QByteArray eol_cr = QByteArray (1,0x0d);
+    QByteArray eol_lf = QByteArray (1, 0x0a);
+    QByteArray eol_cr = QByteArray (1, 0x0d);
     QByteArray eol_crlf = eol_cr;
     eol_crlf.append (eol_lf);
 
@@ -2183,7 +2184,7 @@ namespace octave
                                       bool remove_on_success,
                                       bool restore_breakpoints)
   {
-    QFile file (file_to_save);
+    QSaveFile file (file_to_save);
 
     // stop watching file
     QStringList trackedFiles = m_file_system_watcher.files ();
@@ -2239,36 +2240,50 @@ namespace octave
 
     out.flush ();
     QApplication::restoreOverrideCursor ();
-    file.flush ();
-    file.close ();
 
-    // file exists now
-    QFileInfo file_info = QFileInfo (file);
-    QString full_file_to_save = file_info.canonicalFilePath ();
+    // Finish writing by committing the changes to disk,
+    // where nothing is done when an error occurred while writing above
+    bool writing_ok = file.commit ();
 
-    // save filename after closing file as set_file_name starts watching again
-    set_file_name (full_file_to_save);   // make absolute
-
-    // set the window title to actual filename (not modified)
-    update_window_title (false);
-
-    // file is save -> not modified, update encoding in statusbar
-    m_edit_area->setModified (false);
-    m_enc_indicator->setText (m_encoding);
-
-    emit tab_ready_to_close ();
-
-    if (remove_on_success)
+    if (writing_ok)
       {
-        emit tab_remove_request ();
-        return;  // Don't touch member variables after removal
-      }
+        // Writing was successful: file exists now
+        QFileInfo file_info = QFileInfo (file.fileName ());
+        QString full_file_to_save = file_info.canonicalFilePath ();
 
-    // Attempt to restore the breakpoints if that is desired.
-    // This is only allowed if the tab is not closing since changing
-    // breakpoints would reopen the tab in this case.
-    if (restore_breakpoints)
-      check_restore_breakpoints ();
+        // save filename after closing file as set_file_name starts watching again
+        set_file_name (full_file_to_save);   // make absolute
+
+        // set the window title to actual filename (not modified)
+        update_window_title (false);
+
+        // file is save -> not modified, update encoding in statusbar
+        m_edit_area->setModified (false);
+        m_enc_indicator->setText (m_encoding);
+
+        emit tab_ready_to_close ();
+
+        if (remove_on_success)
+          {
+            emit tab_remove_request ();
+            return;  // Don't touch member variables after removal
+          }
+
+        // Attempt to restore the breakpoints if that is desired.
+        // This is only allowed if the tab is not closing since changing
+        // breakpoints would reopen the tab in this case.
+        if (restore_breakpoints)
+          check_restore_breakpoints ();
+      }
+    else
+      {
+        QMessageBox::critical (nullptr,
+                               tr ("Octave Editor"),
+                               tr ("The changes could not be saved to the file\n"
+                                   "%1")
+                                   .arg (file.fileName ())
+                              );
+      }
   }
 
   void file_editor_tab::save_file_as (bool remove_on_success)
@@ -2373,7 +2388,7 @@ namespace octave
     QFileDialog *file_dialog = qobject_cast<QFileDialog *> (sender ());
 
     QRegExp rx ("\\*\\.([^ ^\\)]*)[ \\)]");   // regexp for suffix in filter
-    int index = rx.indexIn (filter,0);        // get first suffix in filter
+    int index = rx.indexIn (filter, 0);       // get first suffix in filter
 
     if (index > -1)
       file_dialog->setDefaultSuffix (rx.cap (1)); // found a suffix, set default
@@ -2488,7 +2503,7 @@ namespace octave
 
     // If overwrite confirmation was not done by the file dialog (in case
     // of native file dialogs, see above), do it here
-    if(file_dialog->testOption (QFileDialog::DontConfirmOverwrite) && file.exists ())
+    if (file_dialog->testOption (QFileDialog::DontConfirmOverwrite) && file.exists ())
       {
         int ans = QMessageBox::question (file_dialog,
                               tr ("Octave Editor"),
@@ -2797,9 +2812,9 @@ namespace octave
       cursor_blinking = settings->value (cs_cursor_blinking).toBool ();
 
     if (cursor_blinking)
-      m_edit_area->SendScintilla (QsciScintillaBase::SCI_SETCARETPERIOD,500);
+      m_edit_area->SendScintilla (QsciScintillaBase::SCI_SETCARETPERIOD, 500);
     else
-      m_edit_area->SendScintilla (QsciScintillaBase::SCI_SETCARETPERIOD,0);
+      m_edit_area->SendScintilla (QsciScintillaBase::SCI_SETCARETPERIOD, 0);
 
   }
 
@@ -3180,7 +3195,7 @@ namespace octave
                                             true,    // whole words only
                                             false,   // do not wrap
                                             true,    // forward
-                                            0,0,     // from the beginning
+                                            0, 0,    // from the beginning
                                             false
 #if defined (HAVE_QSCI_VERSION_2_6_0)
                                             , true

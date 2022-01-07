@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -502,15 +502,15 @@ namespace octave
     }
 
     bool int_multiply_overflow (unsigned long int a, unsigned long int b,
-                          unsigned long int *r)
+                                unsigned long int *r)
     {
       return octave_uli_multiply_overflow_wrapper (a, b, r);
     }
 
 #if defined (OCTAVE_HAVE_UNSIGNED_LONG_LONG_INT)
     bool int_multiply_overflow (unsigned long long int a,
-                          unsigned long long int b,
-                          unsigned long long int *r)
+                                unsigned long long int b,
+                                unsigned long long int *r)
     {
       return octave_ulli_multiply_overflow_wrapper (a, b, r);
     }

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2016-2021 The Octave Project Developers
+// Copyright (C) 2016-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -565,7 +565,7 @@ octave::string::u8_validate (const std::string& who,
   unsigned int num_replacements = 0;
   const char *in_chr = in_str.c_str ();
   const char *inv_utf8 = in_chr;
-  const char * const in_end = in_chr + in_str.length ();
+  const char *const in_end = in_chr + in_str.length ();
   while (inv_utf8 && in_chr < in_end)
     {
       inv_utf8 = reinterpret_cast<const char *>

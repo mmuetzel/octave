@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2007-2021 The Octave Project Developers
+## Copyright (C) 2007-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,14 +24,14 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} ismac ()
+## @deftypefn {} {@var{tf} =} ismac ()
 ## Return true if Octave is running on a Mac OS X system and false otherwise.
 ## @seealso{isunix, ispc}
 ## @end deftypefn
 
-function retval = ismac ()
+function tf = ismac ()
 
-  retval = __octave_config_info__ ("mac");
+  tf = __octave_config_info__ ("mac");
 
 endfunction
 

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -89,7 +89,8 @@ namespace octave
 
     int paren_count (void) const { return m_num_parens; }
 
-    bool is_postfix_indexed (void) const { return (m_postfix_index_type != '\0'); }
+    bool is_postfix_indexed (void) const
+    { return (m_postfix_index_type != '\0'); }
 
     char postfix_index (void) const { return m_postfix_index_type; }
 

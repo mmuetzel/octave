@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -38,7 +38,7 @@
 namespace octave
 {
 
-  TextControl*
+  TextControl *
   TextControl::create (octave::base_qobject& oct_qobj,
                        octave::interpreter& interp, const graphics_object& go)
   {

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -171,7 +171,7 @@ permutation information.
           Matrix tmp = args(n++).matrix_value ();
           if (tmp.numel () == 1)
             {
-              thresh.resize (1,2);
+              thresh.resize (1, 2);
               thresh(0) = tmp(0);
               thresh(1) = tmp(0);
             }
@@ -781,14 +781,16 @@ factorization from scratch.
 %! [L,U] = luupdate (L,U,P*single (u), single (v));
 %! assert (norm (vec (tril (L)-L), Inf) == 0);
 %! assert (norm (vec (triu (U)-U), Inf) == 0);
-%! assert (norm (vec (P'*L*U - single (A) - single (u)*single (v).'), Inf) < norm (single (A))*1e1*eps ("single"));
+%! assert (norm (vec (P'*L*U - single (A) - single (u)*single (v).'), Inf)
+%!         < norm (single (A))*1e1*eps ("single"));
 %!
 %!testif HAVE_QRUPDATE_LUU
 %! [L,U,P] = lu (single (Ac));
 %! [L,U] = luupdate (L,U,P*single (uc),single (vc));
 %! assert (norm (vec (tril (L)-L), Inf) == 0);
 %! assert (norm (vec (triu (U)-U), Inf) == 0);
-%! assert (norm (vec (P'*L*U - single (Ac) - single (uc)*single (vc).'), Inf) < norm (single (Ac))*1e1*eps ("single"));
+%! assert (norm (vec (P'*L*U - single (Ac) - single (uc)*single (vc).'), Inf)
+%!         < norm (single (Ac))*1e1*eps ("single"));
 
 %!testif HAVE_QRUPDATE_LUU
 %! [L,U,P] = lu (A);
@@ -823,14 +825,16 @@ factorization from scratch.
 %! [L,U,P] = luupdate (L,U,P,single (u),single (v));
 %! assert (norm (vec (tril (L)-L), Inf) == 0);
 %! assert (norm (vec (triu (U)-U), Inf) == 0);
-%! assert (norm (vec (P'*L*U - single (A) - single (u)*single (v).'), Inf) < norm (single (A))*1e1*eps ("single"));
+%! assert (norm (vec (P'*L*U - single (A) - single (u)*single (v).'), Inf)
+%!         < norm (single (A))*1e1*eps ("single"));
 %!
 %!testif HAVE_QRUPDATE_LUU
 %! [L,U,P] = lu (single (Ac));
 %! [L,U,P] = luupdate (L,U,P,single (uc),single (vc));
 %! assert (norm (vec (tril (L)-L), Inf) == 0);
 %! assert (norm (vec (triu (U)-U), Inf) == 0);
-%! assert (norm (vec (P'*L*U - single (Ac) - single (uc)*single (vc).'), Inf) < norm (single (Ac))*1e1*eps ("single"));
+%! assert (norm (vec (P'*L*U - single (Ac) - single (uc)*single (vc).'), Inf)
+%!         < norm (single (Ac))*1e1*eps ("single"));
 */
 
 OCTAVE_NAMESPACE_END

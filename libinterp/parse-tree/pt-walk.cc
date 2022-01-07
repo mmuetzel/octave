@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2017-2021 The Octave Project Developers
+// Copyright (C) 2017-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -72,7 +72,7 @@ namespace octave
 
   void tree_walker::visit_args_block_attribute_list (tree_args_block_attribute_list& lst)
   {
-    tree_identifier * attribute = lst.attribute ();
+    tree_identifier *attribute = lst.attribute ();
 
     if (attribute)
       attribute->accept (*this);

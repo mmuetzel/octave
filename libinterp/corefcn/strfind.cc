@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2009-2021 The Octave Project Developers
+// Copyright (C) 2009-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -299,8 +299,10 @@ strfind ("abababa", "aba", "forcecelloutput", true)
 %!assert (strfind ("abababa", "aba", "forcecelloutput", false), [1, 3, 5])
 %!assert (strfind ("abababa", "aba", "forcecelloutput", true), {[1, 3, 5]})
 %!assert (strfind ({"abababa", "bla", "bla"}, "a"), {[1, 3, 5, 7], 3, 3})
-%!assert (strfind ({"abababa", "bla", "bla"}, "a", "forcecelloutput", false), {[1, 3, 5, 7], 3, 3})
-%!assert (strfind ({"abababa", "bla", "bla"}, "a", "forcecelloutput", true), {[1, 3, 5, 7], 3, 3})
+%!assert (strfind ({"abababa", "bla", "bla"}, "a", "forcecelloutput", false),
+%!        {[1, 3, 5, 7], 3, 3})
+%!assert (strfind ({"abababa", "bla", "bla"}, "a", "forcecelloutput", true),
+%!        {[1, 3, 5, 7], 3, 3})
 %!assert (strfind ("Linux _is_ user-friendly. It just isn't ignorant-friendly or idiot-friendly.", "friendly"), [17, 50, 68])
 %!assert (strfind ("abc", ""), [])
 %!assert (strfind ("abc", {"", "b", ""}), {[], 2, []})

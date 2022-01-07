@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1993-2021 The Octave Project Developers
+## Copyright (C) 1993-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -157,6 +157,7 @@ endfunction
 
 function [hlgnd, tlgnd, setlgnd] = __plt_key__ (hp, options,
                                                 hlgnd, tlgnd, setlgnd)
+
   n = numel (hp);
   if (numel (options) == 1)
     options = repmat (options(:), n, 1);

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2012-2021 The Octave Project Developers
+## Copyright (C) 2012-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -44,7 +44,7 @@
 ## @seealso{ismethod, properties, fieldnames}
 ## @end deftypefn
 
-function mtds = methods (obj, opt)
+function mtds = methods (obj, fullopt)
 
   if (nargin < 1)
     print_usage ();
@@ -53,7 +53,7 @@ function mtds = methods (obj, opt)
   havesigs = false;
   showsigs = false;
   if (nargin == 2)
-    if (! strcmp (opt, "-full"))
+    if (! strcmp (fullopt, "-full"))
       error ("methods: invalid option");
     endif
     showsigs = true;

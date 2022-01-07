@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2007-2021 The Octave Project Developers
+## Copyright (C) 2007-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -50,8 +50,8 @@
 ##
 ## The optional return value @var{h} is a handle to the @nospell{"stem series"}
 ## hggroup containing the line and marker objects used for the plot.
-## @xref{XREFstem}, for a description of the @nospell{"stem series"}
-## object.
+## @xref{XREFstem,,@code{stem}}, for a description of the
+## @nospell{"stem series"} object.
 ##
 ## Example:
 ##

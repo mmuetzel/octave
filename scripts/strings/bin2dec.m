@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1996-2021 The Octave Project Developers
+## Copyright (C) 1996-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -68,7 +68,8 @@ endfunction
 
 %!assert (bin2dec ("0000"), 0)
 %!assert (bin2dec ("1110"), 14)
-%!assert (bin2dec ("11111111111111111111111111111111111111111111111111111"), 2^53-1)
+%!assert (bin2dec ("11111111111111111111111111111111111111111111111111111"),
+%!        2^53-1)
 %!assert (bin2dec ({"1110", "1111"}), [14; 15])
 %!assert (bin2dec ("1 0 1"), 5)
 %!assert (bin2dec (char ("1 0 1", "   1111")), [5; 15])

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -131,7 +131,7 @@ namespace octave
       return ! m_terminal_widget.isNull ();
     }
 
-    main_window* get_main_window (void)
+    main_window * get_main_window (void)
     {
       return m_main_window;
     }
@@ -194,7 +194,7 @@ namespace octave
 
     QPointer<release_notes> release_notes_widget (void);
 
-    QThread *main_thread (void) { return m_main_thread; }
+    QThread * main_thread (void) { return m_main_thread; }
 
     // Declared virtual so that a derived class may redefine this
     // method.

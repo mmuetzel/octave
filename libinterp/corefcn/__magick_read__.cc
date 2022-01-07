@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2002-2021 The Octave Project Developers
+// Copyright (C) 2002-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -273,9 +273,9 @@ read_maps (Magick::Image& img)
   for (octave_idx_type i = 0; i < mapsize; i++)
     {
       const Magick::ColorRGB c = img.colorMap (i);
-      cmap(i,0) = c.red   ();
-      cmap(i,1) = c.green ();
-      cmap(i,2) = c.blue  ();
+      cmap(i, 0) = c.red   ();
+      cmap(i, 1) = c.green ();
+      cmap(i, 2) = c.blue  ();
       amap(i)   = c.alpha ();
     }
   octave_value_list maps;

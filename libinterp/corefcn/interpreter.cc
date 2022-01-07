@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -28,6 +28,7 @@
 #endif
 
 #include <cstdio>
+#include <clocale>
 
 #include <iostream>
 #include <set>
@@ -55,7 +56,6 @@
 #include "display.h"
 #include "error.h"
 #include "event-manager.h"
-#include "file-io.h"
 #include "graphics.h"
 #include "help.h"
 #include "input.h"
@@ -495,10 +495,15 @@ Undocumented internal function.
 
     m_instance = this;
 
+#if defined (OCTAVE_HAVE_WINDOWS_UTF8_LOCALE)
+    // Force a UTF-8 locale on Windows if possible
+    std::setlocale (LC_ALL, ".UTF8");
+#else
+    std::setlocale (LC_ALL, "");
+#endif
     // Matlab uses "C" locale for LC_NUMERIC class regardless of local setting
-    setlocale (LC_ALL, "");
-    setlocale (LC_NUMERIC, "C");
-    setlocale (LC_TIME, "C");
+    std::setlocale (LC_NUMERIC, "C");
+    std::setlocale (LC_TIME, "C");
     sys::env::putenv ("LC_NUMERIC", "C");
     sys::env::putenv ("LC_TIME", "C");
 
@@ -1990,24 +1995,6 @@ Undocumented internal function.
       }
 
     return found;
-  }
-
-  // Remove when corresponding public deprecated function is removed.
-  void interpreter::add_atexit_function_deprecated (const std::string& fname)
-  {
-    interpreter& interp
-      = __get_interpreter__ ("interpreter::add_atexit_function");
-
-    interp.add_atexit_fcn (fname);
-  }
-
-  // Remove when corresponding public deprecated function is removed.
-  bool interpreter::remove_atexit_function_deprecated (const std::string& fname)
-  {
-    interpreter& interp
-      = __get_interpreter__ ("interpreter::remove_atexit_function");
-
-    return interp.remove_atexit_fcn (fname);
   }
 
   // What internal options get configured by --traditional.

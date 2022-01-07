@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -106,7 +106,10 @@ public:
   octave_base_value * try_narrowing_conversion (void);
 
   octave::idx_vector index_vector (bool /* require_integers */ = false) const
-  { return idx_cache ? *idx_cache : set_idx_cache (octave::idx_vector (matrix)); }
+  {
+    return idx_cache ? *idx_cache
+                     : set_idx_cache (octave::idx_vector (matrix));
+  }
 
   builtin_type_t builtin_type (void) const { return btyp_double; }
 
@@ -199,7 +202,7 @@ public:
   octave_value squeeze (void) const;
 
   octave_value sort (octave_idx_type dim = 0, sortmode mode = ASCENDING) const;
-  octave_value sort (Array<octave_idx_type> &sidx, octave_idx_type dim = 0,
+  octave_value sort (Array<octave_idx_type>& sidx, octave_idx_type dim = 0,
                      sortmode mode = ASCENDING) const;
 
   sortmode issorted (sortmode mode = UNSORTED) const;

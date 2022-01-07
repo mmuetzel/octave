@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1994-2021 The Octave Project Developers
+## Copyright (C) 1994-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,7 +24,7 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} cot (@var{x})
+## @deftypefn {} {@var{y} =} cot (@var{x})
 ## Compute the cotangent for each element of @var{x} in radians.
 ## @seealso{acot, cotd, coth}
 ## @end deftypefn

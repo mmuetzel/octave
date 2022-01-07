@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -48,6 +48,7 @@
 #include "pathsearch.h"
 #include "quit.h"
 #include "str-vec.h"
+#include "strcase-wrappers.h"
 #include "vasprintf-wrapper.h"
 
 #include "Cell.h"
@@ -93,7 +94,7 @@ OCTAVE_NAMESPACE_BEGIN
 
 DEFUN (isvarname, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isvarname (@var{name})
+@deftypefn {} {@var{tf} =} isvarname (@var{name})
 Return true if @var{name} is a valid variable name.
 
 A valid variable name is composed of letters, digits, and underscores ("_"),
@@ -1099,7 +1100,7 @@ replaces the unprintable alert character with its printable representation.
 
 DEFUN (is_absolute_filename, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} is_absolute_filename (@var{file})
+@deftypefn {} {@var{tf} =} is_absolute_filename (@var{file})
 Return true if @var{file} is an absolute filename.
 @seealso{is_rooted_relative_filename, make_absolute_filename, isfolder}
 @end deftypefn */)
@@ -1120,7 +1121,7 @@ Return true if @var{file} is an absolute filename.
 
 DEFUN (is_rooted_relative_filename, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} is_rooted_relative_filename (@var{file})
+@deftypefn {} {@var{tf} =} is_rooted_relative_filename (@var{file})
 Return true if @var{file} is a rooted-relative filename.
 @seealso{is_absolute_filename, make_absolute_filename, isfolder}
 @end deftypefn */)
@@ -1147,7 +1148,8 @@ system.
 
 No check is done for the existence of @var{file}.  No tilde expansion of
 @var{file} is performed.
-@seealso{canonicalize_file_name, is_absolute_filename, is_rooted_relative_filename, isfolder, tilde_expand}
+@seealso{canonicalize_file_name, is_absolute_filename,
+is_rooted_relative_filename, isfolder, tilde_expand}
 @end deftypefn */)
 {
   if (args.length () != 1)
@@ -1490,7 +1492,8 @@ Return a structure containing the system-dependent errno values.
     return s.length ();
   }
 
-  std::size_t format (std::ostream& os, const std::string& enc, const char *fmt, ...)
+  std::size_t format (std::ostream& os, const std::string& enc,
+                      const char *fmt, ...)
   {
     std::size_t retval;
 
@@ -1504,8 +1507,8 @@ Return a structure containing the system-dependent errno values.
     return retval;
   }
 
-  std::size_t vformat (std::ostream& os, const std::string& enc, const char *fmt,
-                  va_list args)
+  std::size_t vformat (std::ostream& os, const std::string& enc,
+                       const char *fmt, va_list args)
   {
     std::string s = vasprintf (fmt, args);
 
@@ -1627,8 +1630,8 @@ Return a structure containing the system-dependent errno values.
 
 DEFMETHOD (isindex, interp, args, ,
            doc: /* -*- texinfo -*-
-@deftypefn  {} {} isindex (@var{ind})
-@deftypefnx {} {} isindex (@var{ind}, @var{n})
+@deftypefn  {} {@var{tf} =} isindex (@var{ind})
+@deftypefnx {} {@var{tf} =} isindex (@var{ind}, @var{n})
 Return true if @var{ind} is a valid index.
 
 Valid indices are either positive integers (although possibly of real data
@@ -1767,7 +1770,7 @@ character @nospell{"@backslashchar{}0"}, it will always be a valid index.
 
 DEFUN (isstudent, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isstudent ()
+@deftypefn {} {@var{tf} =} isstudent ()
 Return true if running in the student edition of @sc{matlab}.
 
 @code{isstudent} always returns false in Octave.

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2004-2021 The Octave Project Developers
+// Copyright (C) 2004-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -280,7 +280,7 @@ octave_base_int_matrix<T>::edit_display (const float_display_format& fmt,
                                          octave_idx_type j) const
 {
   std::ostringstream buf;
-  octave_print_internal (buf, fmt, this->matrix(i,j));
+  octave_print_internal (buf, fmt, this->matrix(i, j));
   return buf.str ();
 }
 
@@ -453,7 +453,8 @@ octave_base_int_matrix<T>::save_hdf5_internal (octave_hdf5_id loc_id,
   if (space_hid < 0) return false;
 #if defined (HAVE_HDF5_18)
   data_hid = H5Dcreate (loc_id, name, save_type_hid, space_hid,
-                        octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                        octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                        octave_H5P_DEFAULT);
 #else
   data_hid = H5Dcreate (loc_id, name, save_type_hid, space_hid,
                         octave_H5P_DEFAULT);
@@ -742,7 +743,8 @@ octave_base_int_scalar<T>::save_hdf5_internal (octave_hdf5_id loc_id,
 
 #if defined (HAVE_HDF5_18)
   data_hid = H5Dcreate (loc_id, name, save_type_hid, space_hid,
-                        octave_H5P_DEFAULT, octave_H5P_DEFAULT, octave_H5P_DEFAULT);
+                        octave_H5P_DEFAULT, octave_H5P_DEFAULT,
+                        octave_H5P_DEFAULT);
 #else
   data_hid = H5Dcreate (loc_id, name, save_type_hid, space_hid,
                         octave_H5P_DEFAULT);

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2013-2021 The Octave Project Developers
+## Copyright (C) 2013-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -295,6 +295,7 @@ function bool = isa_magick (coder, filename)
 endfunction
 
 function pretty_print_formats (formats)
+
   ## define header names (none should be shorter than 3 characters)
   headers = {"Extension", "isa", "Info", "Read", "Write", "Alpha", "Description"};
   cols_length = cellfun (@numel, headers);

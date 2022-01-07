@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2012-2021 The Octave Project Developers
+## Copyright (C) 2012-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -439,6 +439,7 @@ function [h, s] = createui (s, par)
 endfunction
 
 function [h, sout, pout] = createhg (s, p, par, hilev)
+
   ## Here we infer from properties the type of hggroup we should build
   ## an call corresponding high level functions
   ## We manually set "hold on" to avoid next hggroup be deleted

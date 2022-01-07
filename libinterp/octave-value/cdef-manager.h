@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2012-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -29,6 +29,7 @@
 #include "octave-config.h"
 
 #include "cdef-class.h"
+#include "cdef-fwd.h"
 #include "cdef-method.h"
 #include "cdef-package.h"
 #include "cdef-property.h"
@@ -38,7 +39,9 @@ namespace octave
 {
   class interpreter;
 
-  class cdef_manager
+  class
+  OCTINTERP_API
+  cdef_manager
   {
   public:
 
@@ -102,7 +105,7 @@ namespace octave
     make_class (const std::string& name, const cdef_class& super);
 
     OCTINTERP_API cdef_class
-     make_meta_class (const std::string& name, const cdef_class& super);
+    make_meta_class (const std::string& name, const cdef_class& super);
 
     OCTINTERP_API cdef_property
     make_property (const cdef_class& cls, const std::string& name,

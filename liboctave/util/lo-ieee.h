@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -56,13 +56,13 @@ extern "C" {
           number of bits as an int */
 
 typedef union
-{
+  {
   double value;
   unsigned int word[2];
 } lo_ieee_double;
 
 typedef union
-{
+  {
   float value;
   unsigned int word;
 } lo_ieee_float;

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -39,7 +39,7 @@ class octave_value_list;
 OCTAVE_NAMESPACE_BEGIN
 
   class interpreter;
-class oprocstream;
+  class oprocstream;
 
   class
   OCTINTERP_API

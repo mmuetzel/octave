@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1994-2021 The Octave Project Developers
+// Copyright (C) 1994-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -617,7 +617,7 @@ EIG::init (const ComplexMatrix& a, const ComplexMatrix& b, bool calc_rev,
   F77_INT info = 0;
 
   ComplexMatrix tmp = b;
-  Complex*tmp_data = tmp.fortran_vec ();
+  Complex *tmp_data = tmp.fortran_vec ();
 
   if (! force_qz)
     {

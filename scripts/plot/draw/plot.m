@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1993-2021 The Octave Project Developers
+## Copyright (C) 1993-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -213,7 +213,9 @@
 ## To save a plot, in one of several image formats such as PostScript
 ## or PNG, use the @code{print} command.
 ##
-## @seealso{axis, box, grid, hold, legend, title, xlabel, ylabel, xlim, ylim, ezplot, errorbar, fplot, line, plot3, polar, loglog, semilogx, semilogy, subplot}
+## @seealso{axis, box, grid, hold, legend, title, xlabel, ylabel, xlim, ylim,
+## ezplot, errorbar, fplot, line, plot3, polar, loglog, semilogx, semilogy,
+## subplot}
 ## @end deftypefn
 
 function h = plot (varargin)

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2016-2021 The Octave Project Developers
+// Copyright (C) 2016-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -36,15 +36,15 @@
 
 #include "base64-wrappers.h"
 
-size_t
-octave_base64_encode_alloc_wrapper (const char *in, size_t inlen, char **out)
+ptrdiff_t
+octave_base64_encode_alloc_wrapper (const char *in, ptrdiff_t inlen, char **out)
 {
   return base64_encode_alloc (in, inlen, out);
 }
 
 bool
-octave_base64_decode_alloc_wrapper (const char *in, size_t inlen,
-                                    char **out, size_t *outlen)
+octave_base64_decode_alloc_wrapper (const char *in, ptrdiff_t inlen,
+                                    char **out, ptrdiff_t *outlen)
 {
   return base64_decode_alloc (in, inlen, out, outlen);
 }

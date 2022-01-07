@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2007-2021 The Octave Project Developers
+## Copyright (C) 2007-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -389,7 +389,7 @@ function add_patch_children (hg)
           h = [h; __go_patch__(ca, "xdata", p(:,1), "ydata", p(:,2),
                                "zdata", clev * ones (rows (p),1),
                                "vertices", [p, clev * ones(rows(p),1)],
-                               "faces", 1:rows(p),
+                               "faces", 1:rows (p),
                                "facevertexcdata", clev, "facecolor", "none",
                                "cdata", clev, "edgecolor", lc,
                                "linestyle", ls, "linewidth", lw,

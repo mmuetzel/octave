@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2008-2021 The Octave Project Developers
+## Copyright (C) 2008-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -87,6 +87,9 @@ endfunction
 ## Nasty integrand to show quadcc off
 %!assert (dblquad (@(x,y) 1 ./ (x+y), 0, 1, 0, 1), 2*log (2), 1e-6)
 
-%!assert (dblquad (@(x,y) exp (-x.^2 - y.^2) , -1, 1, -1, 1, 1e-6, @quadgk), pi * erf (1).^2, 1e-6)
-%!assert (dblquad (@(x,y) exp (-x.^2 - y.^2) , -1, 1, -1, 1, 1e-6, @quadl), pi * erf (1).^2, 1e-6)
-%!assert (dblquad (@(x,y) exp (-x.^2 - y.^2) , -1, 1, -1, 1, 1e-6, @quadv), pi * erf (1).^2, 1e-6)
+%!assert (dblquad (@(x,y) exp (-x.^2 - y.^2) , -1, 1, -1, 1, 1e-6, @quadgk),
+%!        pi * erf (1).^2, 1e-6)
+%!assert (dblquad (@(x,y) exp (-x.^2 - y.^2) , -1, 1, -1, 1, 1e-6, @quadl),
+%!        pi * erf (1).^2, 1e-6)
+%!assert (dblquad (@(x,y) exp (-x.^2 - y.^2) , -1, 1, -1, 1, 1e-6, @quadv),
+%!        pi * erf (1).^2, 1e-6)

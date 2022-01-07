@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1998-2021 The Octave Project Developers
+// Copyright (C) 1998-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -267,7 +267,7 @@ elem_xpow (double a, const SparseMatrix& b)
           for (octave_idx_type i = 0; i < nr; i++)
             {
               octave_quit ();
-              result(i, j) = std::pow (atmp, b(i,j));
+              result(i, j) = std::pow (atmp, b(i, j));
             }
         }
 
@@ -282,7 +282,7 @@ elem_xpow (double a, const SparseMatrix& b)
           for (octave_idx_type i = 0; i < nr; i++)
             {
               octave_quit ();
-              result(i, j) = std::pow (a, b(i,j));
+              result(i, j) = std::pow (a, b(i, j));
             }
         }
 
@@ -307,7 +307,7 @@ elem_xpow (double a, const SparseComplexMatrix& b)
       for (octave_idx_type i = 0; i < nr; i++)
         {
           octave_quit ();
-          result(i, j) = std::pow (atmp, b(i,j));
+          result(i, j) = std::pow (atmp, b(i, j));
         }
     }
 

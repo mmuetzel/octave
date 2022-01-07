@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -268,7 +268,7 @@ namespace octave
                     bool restore_breakpoints = true);
     void save_file_as (bool remove_on_success = false);
     bool check_valid_identifier (QString file_name);
-    QTextCodec* check_valid_codec (void);
+    QTextCodec * check_valid_codec (void);
 
     bool unchanged_or_saved (void);
 

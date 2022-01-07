@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2012-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -132,7 +132,7 @@ namespace octave
 
     void handle_settings (const gui_settings *);
 
-    void handle_active_dock_changed (octave_dock_widget*, octave_dock_widget*);
+    void handle_active_dock_changed (octave_dock_widget *, octave_dock_widget *);
 
     void save_settings (void);
 

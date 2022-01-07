@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2009-2021 The Octave Project Developers
+// Copyright (C) 2009-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -43,7 +43,8 @@ do_mgorth (ColumnVector& x, const Matrix& V, RowVector& h)
   for (octave_idx_type j = 0; j < Vc; j++)
     {
       ColumnVector Vcj = V.column (j);
-      h(j) = RowVector (Vcj.hermitian ()) * x;
+      RowVector Vcjh = Vcj.hermitian ();
+      h(j) = Vcjh * x;
       x -= h(j) * Vcj;
     }
 

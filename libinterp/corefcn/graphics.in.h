@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2007-2021 The Octave Project Developers
+// Copyright (C) 2007-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -38,6 +38,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "caseless-str.h"
@@ -949,7 +950,8 @@ public:
 
   const std::string& current_value (void) const { return m_current_val; }
 
-  std::string values_as_string (void) const { return m_vals.values_as_string (); }
+  std::string values_as_string (void) const
+  { return m_vals.values_as_string (); }
 
   Cell values_as_cell (void) const { return m_vals.values_as_cell (); }
 
@@ -1377,7 +1379,8 @@ public:
   array_property (void)
     : base_property ("", graphics_handle ()), m_data (Matrix ()),
       m_min_val (), m_max_val (), m_min_pos (), m_max_neg (),
-      m_type_constraints (), m_size_constraints (), m_finite_constraint (NO_CHECK),
+      m_type_constraints (), m_size_constraints (),
+      m_finite_constraint (NO_CHECK),
       m_minval (std::pair<double, bool> (octave_NaN, true)),
       m_maxval (std::pair<double, bool> (octave_NaN, true))
   {
@@ -1388,7 +1391,8 @@ public:
                   const octave_value& m)
     : base_property (nm, h), m_data (m.issparse () ? m.full_value () : m),
       m_min_val (), m_max_val (), m_min_pos (), m_max_neg (),
-      m_type_constraints (), m_size_constraints (), m_finite_constraint (NO_CHECK),
+      m_type_constraints (), m_size_constraints (),
+      m_finite_constraint (NO_CHECK),
       m_minval (std::pair<double, bool> (octave_NaN, true)),
       m_maxval (std::pair<double, bool> (octave_NaN, true))
   {
@@ -1400,8 +1404,10 @@ public:
   // copy constraints.
   array_property (const array_property& p)
     : base_property (p), m_data (p.m_data),
-      m_min_val (p.m_min_val), m_max_val (p.m_max_val), m_min_pos (p.m_min_pos), m_max_neg (p.m_max_neg),
-      m_type_constraints (), m_size_constraints (), m_finite_constraint (NO_CHECK),
+      m_min_val (p.m_min_val), m_max_val (p.m_max_val),
+      m_min_pos (p.m_min_pos), m_max_neg (p.m_max_neg),
+      m_type_constraints (), m_size_constraints (),
+      m_finite_constraint (NO_CHECK),
       m_minval (std::pair<double, bool> (octave_NaN, true)),
       m_maxval (std::pair<double, bool> (octave_NaN, true))
   { }
@@ -3382,7 +3388,9 @@ public:
   graphics_xform (const Matrix& xm, const Matrix& xim,
                   const scaler& x, const scaler& y, const scaler& z,
                   const Matrix& zl)
-    : m_xform (xm), m_xform_inv (xim), m_sx (x), m_sy (y), m_sz (z), m_zlim (zl) { }
+    : m_xform (xm), m_xform_inv (xim), m_sx (x), m_sy (y),
+      m_sz (z), m_zlim (zl)
+  { }
 
   graphics_xform (const graphics_xform& g)
     : m_xform (g.m_xform), m_xform_inv (g.m_xform_inv), m_sx (g.m_sx),
@@ -3552,7 +3560,10 @@ public:
     OCTINTERP_API void update_title_position (void);
 
     graphics_xform get_transform (void) const
-    { return graphics_xform (m_x_render, m_x_render_inv, m_sx, m_sy, m_sz, m_x_zlim); }
+    {
+      return graphics_xform (m_x_render, m_x_render_inv,
+                             m_sx, m_sy, m_sz, m_x_zlim);
+    }
 
     Matrix get_transform_matrix (void) const { return m_x_render; }
     Matrix get_inverse_transform_matrix (void) const { return m_x_render_inv; }
@@ -3602,7 +3613,10 @@ public:
     bool get_nearhoriz (void) const { return m_nearhoriz; }
 
     ColumnVector pixel2coord (double px, double py) const
-    { return get_transform ().untransform (px, py, (m_x_zlim(0)+m_x_zlim(1))/2); }
+    {
+      return get_transform ().untransform (px, py,
+                                           (m_x_zlim(0)+m_x_zlim(1))/2);
+    }
 
     ColumnVector coord2pixel (double x, double y, double z) const
     { return get_transform ().transform (x, y, z); }
@@ -3765,7 +3779,8 @@ public:
       radio_property gridcolormode , "{auto}|manual"
       radio_property gridlinestyle , "{-}|--|:|-.|none"
       array_property innerposition sg , default_axes_position ()
-      // FIXME: Should be an array of "interaction objects". Make it read-only for now.
+      // FIXME: Should be an array of "interaction objects".
+      // Make it read-only for now.
       any_property interactions r , Matrix ()
       double_property labelfontsizemultiplier u , 1.1
       radio_property layer u , "{bottom}|top"
@@ -4108,7 +4123,8 @@ public:
     void update_zticklabelmode (void)
     {
       if (m_zticklabelmode.is ("auto"))
-        calc_ticklabels (m_ztick, m_zticklabel, m_zscale.is ("log"), false, 2, m_zlim);
+        calc_ticklabels (m_ztick, m_zticklabel, m_zscale.is ("log"),
+                         false, 2, m_zlim);
     }
 
     void update_fontname (void)
@@ -4216,8 +4232,8 @@ public:
                      const bool logscale);
 
     OCTINTERP_API void
-    check_axis_limits (Matrix &limits, const Matrix kids,
-                       const bool logscale, char &update_type);
+    check_axis_limits (Matrix& limits, const Matrix kids,
+                       const bool logscale, char& update_type);
 
     void update_xlim ()
     {
@@ -6557,7 +6573,7 @@ public:
 
   virtual void execute (void) = 0;
 
- private:
+private:
   int m_busyaction;
 };
 
@@ -6567,7 +6583,7 @@ graphics_event
 {
 public:
 
-  typedef void (*event_fcn) (void*);
+  typedef void (*event_fcn) (void *);
 
   graphics_event (void) = default;
 
@@ -6626,6 +6642,8 @@ private:
 class OCTINTERP_API gh_manager
 {
 public:
+
+  typedef std::pair<uint8NDArray /*pixels*/, std::string /*svg*/> latex_data;
 
   OCTINTERP_API gh_manager (octave::interpreter& interp);
 
@@ -6797,6 +6815,35 @@ public:
     return m_graphics_lock;
   }
 
+  latex_data get_latex_data (const std::string& key) const
+  {
+    latex_data retval;
+
+    const auto it = m_latex_cache.find (key);
+
+    if (it != m_latex_cache.end ())
+      retval = it->second;
+
+    return retval;
+  }
+
+  void set_latex_data (const std::string& key, latex_data val)
+  {
+    // Limit the number of cache entries to 500
+    if (m_latex_keys.size () >= 500)
+      {
+        auto it = m_latex_cache.find (m_latex_keys.front ());
+
+        if (it != m_latex_cache.end ())
+          m_latex_cache.erase (it);
+
+        m_latex_keys.pop_front ();
+      }
+
+    m_latex_cache[key] = val;
+    m_latex_keys.push_back (key);
+  }
+
 private:
 
   typedef std::map<graphics_handle, graphics_object>::iterator iterator;
@@ -6835,6 +6882,11 @@ private:
 
   // A flag telling whether event processing must be constantly on.
   int m_event_processing;
+
+  // Cache of already parsed latex strings. Store a separate list of keys
+  // to allow for erasing oldest entries if cache size becomes too large.
+  std::unordered_map<std::string, latex_data> m_latex_cache;
+  std::list<std::string> m_latex_keys;
 };
 
 OCTINTERP_API void

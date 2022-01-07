@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -76,7 +76,8 @@ namespace octave
 
     void mark_braindead_shortcircuit (void)
     {
-      if (m_etype == octave_value::op_el_and || m_etype == octave_value::op_el_or)
+      if (m_etype == octave_value::op_el_and
+          || m_etype == octave_value::op_el_or)
         {
           m_eligible_for_braindead_shortcircuit = true;
 

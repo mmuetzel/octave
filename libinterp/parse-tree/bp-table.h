@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2001-2021 The Octave Project Developers
+// Copyright (C) 2001-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -208,9 +208,12 @@ namespace octave
 
     bool condition_valid (const std::string& cond);
 
-    void parse_dbfunction_params (const char *who, const octave_value_list& args,
-                                  std::string& func_name, std::string& class_name,
-                                  bp_table::bp_lines& lines, std::string& cond);
+    void parse_dbfunction_params (const char *who,
+                                  const octave_value_list& args,
+                                  std::string& func_name,
+                                  std::string& class_name,
+                                  bp_table::bp_lines& lines,
+                                  std::string& cond);
 
   private:
 

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1993-2021 The Octave Project Developers
+## Copyright (C) 1993-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -130,7 +130,8 @@ endfunction
 
 %!assert (toeplitz (1), [1])
 %!assert (toeplitz ([1, 2, 3], [1; -3; -5]), [1, -3, -5; 2, 1, -3; 3, 2, 1])
-%!assert (toeplitz ([1, 2, 3], [1; -3i; -5i]), [1, -3i, -5i; 2, 1, -3i; 3, 2, 1])
+%!assert (toeplitz ([1, 2, 3], [1; -3i; -5i]),
+%!        [1, -3i, -5i; 2, 1, -3i; 3, 2, 1])
 
 ## Test input validation
 %!error <Invalid call> toeplitz ()

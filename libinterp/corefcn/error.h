@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -174,7 +174,8 @@ class execution_exception;
 
     octave_map warning_options (void) const { return m_warning_options; }
 
-    void set_warning_options (const octave_map& val) { m_warning_options = val; }
+    void set_warning_options (const octave_map& val)
+    { m_warning_options = val; }
 
     octave_map warning_options (const octave_map& new_val)
     {
@@ -187,9 +188,7 @@ class execution_exception;
     last_error_message (const octave_value_list& args, int nargout);
 
     void set_last_error_message (const std::string& val)
-    {
-      m_last_error_message = val;
-    }
+    { m_last_error_message = val; }
 
     std::string last_error_message (void) const { return m_last_error_message; }
 
@@ -203,9 +202,11 @@ class execution_exception;
     OCTINTERP_API octave_value
     last_warning_message (const octave_value_list& args, int nargout);
 
-    void set_last_warning_message (const std::string& val) { m_last_warning_message = val; }
+    void set_last_warning_message (const std::string& val)
+    { m_last_warning_message = val; }
 
-    std::string last_warning_message (void) const { return m_last_warning_message; }
+    std::string last_warning_message (void) const
+    { return m_last_warning_message; }
 
     std::string last_warning_message (const std::string& s)
     {
@@ -217,7 +218,8 @@ class execution_exception;
     OCTINTERP_API octave_value
     last_warning_id (const octave_value_list& args, int nargout);
 
-    void set_last_warning_id (const std::string& val) { m_last_warning_id = val; }
+    void set_last_warning_id (const std::string& val)
+    { m_last_warning_id = val; }
 
     std::string last_warning_id (void) const { return m_last_warning_id; }
 
@@ -566,14 +568,6 @@ inline void interpreter_try (octave::unwind_protect& uwp)
   octave::interpreter_try (uwp);
 }
 
-OCTAVE_DEPRECATED (6, "this function is obsolete and should not be needed")
-inline void reset_error_handler (void) { }
 #endif
-
-// This symbol must have be declared with the correct visibility
-// attributes when Octave is built, so it must appear unconditionally in
-// this header file.
-OCTAVE_DEPRECATED (6, "this variable is obsolete and always has the value 0")
-extern OCTINTERP_API int error_state;
 
 #endif

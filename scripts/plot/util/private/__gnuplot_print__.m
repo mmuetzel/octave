@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1999-2021 The Octave Project Developers
+## Copyright (C) 1999-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -244,6 +244,7 @@ endfunction
 
 
 function f = font_spec (opts, varargin)
+
   for n = 1:2:numel (varargin)
     opts.(varargin{n}) = varargin{n+1};
   endfor

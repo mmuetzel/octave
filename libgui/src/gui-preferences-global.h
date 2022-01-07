@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2017-2021 The Octave Project Developers
+// Copyright (C) 2017-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -144,10 +144,10 @@ global_proxy_pass ("proxyPassword", QVariant (QString ()));
 
 const QStringList
 global_proxy_all_types (QStringList ()
-             << "HttpProxy"
-             << "Socks5Proxy"
-             << QT_TRANSLATE_NOOP ("octave::settings_dialog", "Environment Variables")
-);
+                        << "HttpProxy"
+                        << "Socks5Proxy"
+                        << QT_TRANSLATE_NOOP ("octave::settings_dialog", "Environment Variables")
+                       );
 const QList<int>
 global_proxy_manual_types (QList<int> () << 0 << 1);
 

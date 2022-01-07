@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2007-2021 The Octave Project Developers
+## Copyright (C) 2007-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -56,7 +56,7 @@ function spinmap (t = 5, inc = 2)
 
   t0 = clock ();
   while (etime (clock (), t0) < t)
-    cmap = shift (cmap, inc, 1);
+    cmap = circshift (cmap, inc, 1);
     set (gcf (), "colormap", cmap);
     drawnow ();
   endwhile

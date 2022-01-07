@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2006-2021 The Octave Project Developers
+## Copyright (C) 2006-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -130,7 +130,7 @@ endfunction
 %! assert (isempty (reg));
 %! assert (prop1, 5);
 %!test <*58533>
-%! [foo, bar1, bar2] = parseparams({ 0, "model", 1, "N", 2},"model", 4, "N", 5, "d", 6);
+%! [foo, bar1, bar2] = parseparams ({ 0, "model", 1, "N", 2},"model", 4, "N", 5, "d", 6);
 %! assert (foo, {0});
 %! assert (bar1, 1);
 %! assert (bar2, 2);

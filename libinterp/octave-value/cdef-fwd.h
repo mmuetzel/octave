@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2000-2021 The Octave Project Developers
+// Copyright (C) 2021-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -23,30 +23,16 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#if defined (HAVE_CONFIG_H)
-#  include "config.h"
+#if ! defined (octave_cdef_fwd_h)
+#define octave_cdef_fwd_h 1
+
+#include "octave-config.h"
+
+namespace octave
+{
+  class OCTINTERP_API cdef_class;
+  class OCTINTERP_API cdef_object;
+  class OCTINTERP_API cdef_package;
+}
+
 #endif
-
-#include <stdlib.h>
-#include <string.h>
-
-#include "lo-cutils.h"
-
-OCTAVE_API void
-octave_qsort (void *base, size_t n, size_t size,
-              int (*cmp) (const void *, const void *))
-{
-  qsort (base, n, size, cmp);
-}
-
-OCTAVE_API int
-octave_strcasecmp (const char *s1, const char *s2)
-{
-  return strcasecmp (s1, s2);
-}
-
-OCTAVE_API int
-octave_strncasecmp (const char *s1, const char *s2, size_t n)
-{
-  return strncasecmp (s1, s2, n);
-}

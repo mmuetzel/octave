@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2004-2021 The Octave Project Developers
+## Copyright (C) 2004-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -91,6 +91,7 @@ function S = sprandsym (n, d)
 endfunction
 
 function r = pick_rand_diag (n, k)
+
   ## Pick a random number R of entries for the diagonal of a sparse NxN
   ## symmetric square matrix with exactly K nonzero entries, ensuring
   ## that this R is chosen uniformly over all such matrices.

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2008-2021 The Octave Project Developers
+// Copyright (C) 2008-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -166,8 +166,7 @@ octave_float_diag_matrix::map (unary_mapper_t umap) const
       return DiagMatrix (m_matrix.rows (), m_matrix.cols (), 0.0);
     case umap_sqrt:
       {
-        FloatComplexColumnVector tmp = m_matrix.extract_diag ().map<FloatComplex>
-                                       (octave::math::rc_sqrt);
+        FloatComplexColumnVector tmp = m_matrix.extract_diag ().map<FloatComplex> (octave::math::rc_sqrt);
         FloatComplexDiagMatrix retval (tmp);
         retval.resize (m_matrix.rows (), m_matrix.columns ());
         return retval;

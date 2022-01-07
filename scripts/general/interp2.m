@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2000-2021 The Octave Project Developers
+## Copyright (C) 2000-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -541,10 +541,14 @@ endfunction
 %!assert (interp2 (z, "pchip"), zout, tol)
 %!assert (interp2 (z, "cubic"), zout, 10 * tol)
 %!assert (interp2 (z, "spline"), zout, tol)
-%!assert (interp2 (z, [2 3 1], [2 2 2]', "linear"), repmat ([5, 7, 3], [3, 1]), tol)
-%!assert (interp2 (z, [2 3 1], [2 2 2]', "pchip"), repmat ([5, 7, 3], [3, 1]), tol)
-%!assert (interp2 (z, [2 3 1], [2 2 2]', "cubic"), repmat ([5, 7, 3], [3, 1]), 10 * tol)
-%!assert (interp2 (z, [2 3 1], [2 2 2]', "spline"), repmat ([5, 7, 3], [3, 1]), tol)
+%!assert (interp2 (z, [2 3 1], [2 2 2]', "linear"),
+%!        repmat ([5, 7, 3], [3, 1]), tol)
+%!assert (interp2 (z, [2 3 1], [2 2 2]', "pchip"),
+%!        repmat ([5, 7, 3], [3, 1]), tol)
+%!assert (interp2 (z, [2 3 1], [2 2 2]', "cubic"),
+%!        repmat ([5, 7, 3], [3, 1]), 10 * tol)
+%!assert (interp2 (z, [2 3 1], [2 2 2]', "spline"),
+%!        repmat ([5, 7, 3], [3, 1]), tol)
 %!assert (interp2 (z, [2 3 1], [2 2 2], "linear"), [5 7 3], tol)
 %!assert (interp2 (z, [2 3 1], [2 2 2], "pchip"), [5 7 3], tol)
 %!assert (interp2 (z, [2 3 1], [2 2 2], "cubic"), [5 7 3], 10 * tol)

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2009-2021 The Octave Project Developers
+## Copyright (C) 2009-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -28,7 +28,8 @@
 ## Rename or move the remote file or directory @var{oldname} to @var{newname},
 ## over the FTP connection @var{f}.
 ##
-## @var{f} is an FTP object returned by the ftp function.
+## @var{f} is an FTP object returned by the @code{ftp} function.
+## @seealso{@ftp/delete, @ftp/rmdir, @ftp/ftp}
 ## @end deftypefn
 
 function rename (f, oldname, newname)

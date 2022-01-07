@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2012-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -185,7 +185,8 @@ OCTAVE_NAMESPACE_BEGIN
 
     // Each function we see in the profiler is given a unique index (which
     // simply counts starting from 1).  We thus have to map profiler-names to
-    // those indices.  For all other stuff, we identify functions by their index.
+    // those indices.  For all other stuff, we identify functions by their
+    // index.
 
     typedef std::vector<std::string> function_set;
     typedef std::map<std::string, octave_idx_type> fcn_index_map;
@@ -198,7 +199,8 @@ OCTAVE_NAMESPACE_BEGIN
     tree_node *m_call_tree;
     tree_node *m_active_fcn;
 
-    // Store last timestamp we had, when the currently active function was called.
+    // Store last timestamp we had, when the currently active function was
+    // called.
     double m_last_time;
 
     // These are private as only the unwind-protecting inner class enter

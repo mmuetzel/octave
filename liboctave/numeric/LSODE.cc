@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -35,20 +35,20 @@
 #include "lo-error.h"
 #include "quit.h"
 
-typedef F77_INT (*lsode_fcn_ptr) (const F77_INT&, const double&, double*,
-                                  double*, F77_INT&);
+typedef F77_INT (*lsode_fcn_ptr) (const F77_INT&, const double&, double *,
+                                  double *, F77_INT&);
 
-typedef F77_INT (*lsode_jac_ptr) (const F77_INT&, const double&, double*,
-                                  const F77_INT&, const F77_INT&, double*,
+typedef F77_INT (*lsode_jac_ptr) (const F77_INT&, const double&, double *,
+                                  const F77_INT&, const F77_INT&, double *,
                                   const F77_INT&);
 
 extern "C"
 {
   F77_RET_T
-  F77_FUNC (dlsode, DLSODE) (lsode_fcn_ptr, F77_INT&, F77_DBLE*, F77_DBLE&,
-                             F77_DBLE&, F77_INT&, F77_DBLE&, const F77_DBLE*,
-                             F77_INT&, F77_INT&, F77_INT&, F77_DBLE*,
-                             F77_INT&, F77_INT*, F77_INT&, lsode_jac_ptr,
+  F77_FUNC (dlsode, DLSODE) (lsode_fcn_ptr, F77_INT&, F77_DBLE *, F77_DBLE&,
+                             F77_DBLE&, F77_INT&, F77_DBLE&, const F77_DBLE *,
+                             F77_INT&, F77_INT&, F77_INT&, F77_DBLE *,
+                             F77_INT&, F77_INT *, F77_INT&, lsode_jac_ptr,
                              F77_INT&);
 }
 

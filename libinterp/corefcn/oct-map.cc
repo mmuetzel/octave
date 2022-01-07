@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1995-2021 The Octave Project Developers
+// Copyright (C) 1995-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -984,7 +984,8 @@ octave_map::column (octave_idx_type k) const
 octave_map
 octave_map::page (octave_idx_type k) const
 {
-  static Array<octave::idx_vector> ia (dim_vector (3, 1), octave::idx_vector::colon);
+  static Array<octave::idx_vector> ia (dim_vector (3, 1),
+                                       octave::idx_vector::colon);
 
   ia(2) = k;
   return index (ia);

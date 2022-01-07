@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2000-2021 The Octave Project Developers
+## Copyright (C) 2000-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -51,8 +51,9 @@ function [pf, n] = factor (q)
     error ("factor: Q must be a real non-negative integer");
   endif
 
-  ## Special case if q is prime, because isprime() is now much faster than factor().
-  ## This also absorbs the case of q < 4, where there are no primes less than sqrt(q).
+  ## Special case if q is prime, because isprime() is now much faster than
+  ## factor().  This also absorbs the case of q < 4, where there are no primes
+  ## less than sqrt(q).
   if (q < 4 || isprime (q))
     pf = q;
     n = 1;
@@ -135,7 +136,7 @@ function [pf, n] = factor (q)
     ##
     ## are relevant and slow down significantly for large values of q.
   else
-    # For sufficiently large q, go up to the 5th root of q for now.
+    ## For sufficiently large q, go up to the 5th root of q for now.
     smallprimes = primes (feval (cls, q^0.2));
   endif
 
@@ -180,6 +181,7 @@ function [pf, n] = factor (q)
 endfunction
 
 function [pf, q] = reducefactors (qin, pfin, divisors)
+
   pf = pfin;
   q = qin;
   ## The following line is a few milliseconds faster than
@@ -197,6 +199,7 @@ function [pf, q] = reducefactors (qin, pfin, divisors)
       q /= pp;
     endwhile
   endfor
+
 endfunction
 
 

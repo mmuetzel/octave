@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2018-2021 The Octave Project Developers
+// Copyright (C) 2018-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -56,7 +56,7 @@ namespace octave
     documentation_browser (QHelpEngine *help_engine, QWidget *parent = nullptr);
     ~documentation_browser (void) = default;
 
-    virtual QVariant loadResource (int type, const QUrl &url);
+    virtual QVariant loadResource (int type, const QUrl& url);
 
   public slots:
 
@@ -130,9 +130,9 @@ namespace octave
     void selectAll (void);
 
     void load_index (void);
-    void load_ref (const QString & name = QString ());
-    void registerDoc (const QString & name);
-    void unregisterDoc (const QString & name);
+    void load_ref (const QString& name = QString ());
+    void registerDoc (const QString& name);
+    void unregisterDoc (const QString& name);
 
   private slots:
 
@@ -155,9 +155,9 @@ namespace octave
   private:
 
     void construct_tool_bar (void);
-    QAction *add_action (const QIcon& icon, const QString& text,
-                         const char *member, QWidget *receiver = nullptr,
-                         QToolBar *tool_bar = nullptr);
+    QAction * add_action (const QIcon& icon, const QString& text,
+                          const char *member, QWidget *receiver = nullptr,
+                          QToolBar *tool_bar = nullptr);
     void update_history (int new_count, QAction **actions);
 
     //! Select all occurrences of a string in the doc browser

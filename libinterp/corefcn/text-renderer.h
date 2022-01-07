@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2009-2021 The Octave Project Developers
+// Copyright (C) 2009-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -136,7 +136,7 @@ namespace octave
 
       string (const std::string& s, font& f, const double x, const double y)
         : m_str (s), m_family (f.get_name ()), m_fnt (f), m_x (x), m_y (y),
-          m_z (0.0), m_xdata (), m_code (0), m_color (Matrix (1,3,0.0)),
+          m_z (0.0), m_xdata (), m_code (0), m_color (Matrix (1, 3, 0.0)),
           m_svg_element ()
       { }
 

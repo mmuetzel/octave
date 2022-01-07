@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2017-2021 The Octave Project Developers
+## Copyright (C) 2017-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,7 +24,7 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} ishandle (@var{h})
+## @deftypefn {} {@var{tf} =} ishandle (@var{h})
 ## Return true if @var{h} is a handle to a graphics or Java object and false
 ## otherwise.
 ##
@@ -39,13 +39,13 @@
 ## @seealso{ishghandle, isgraphics, isjava}
 ## @end deftypefn
 
-function retval = ishandle (h)
+function tf = ishandle (h)
 
   if (nargin < 1)
     print_usage ();
   endif
 
-  retval = ishghandle (h) | isjava (h);
+  tf = ishghandle (h) | isjava (h);
 
 endfunction
 

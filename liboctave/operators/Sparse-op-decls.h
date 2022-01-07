@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1998-2021 The Octave Project Developers
+// Copyright (C) 1998-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -28,7 +28,7 @@
 
 #include "octave-config.h"
 
-class SparseBoolMatrix;
+#include "mx-fwd.h"
 
 #define SPARSE_BIN_OP_DECL(R, OP, X, Y, API)    \
   extern API R OP (const X&, const Y&)

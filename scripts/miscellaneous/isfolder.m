@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2018-2021 The Octave Project Developers
+## Copyright (C) 2018-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,16 +24,16 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn  {} {} isfolder (@var{f})
-## @deftypefnx {} {@var{tf} =} isfolder (@var{f})
+## @deftypefn {} {@var{tf} =} isfolder (@var{f})
 ## Return true if @var{f} is a directory and false otherwise.
 ##
 ## If @var{f} is a cell array of strings, @var{tf} is a logical array of the
 ## same size.
-## @seealso{isfile, exist, stat, is_absolute_filename, is_rooted_relative_filename}
+## @seealso{isfile, exist, stat, is_absolute_filename,
+## is_rooted_relative_filename}
 ## @end deftypefn
 
-function retval = isfolder (f)
+function tf = isfolder (f)
 
   if (nargin < 1)
     print_usage ();
@@ -44,10 +44,10 @@ function retval = isfolder (f)
   endif
 
   f = cellstr (f);
-  retval = false (size (f));
+  tf = false (size (f));
   for i = 1:numel (f)
     [info, err] = stat (f{i});
-    retval(i) = (! err && S_ISDIR (info.mode));
+    tf(i) = (! err && S_ISDIR (info.mode));
   endfor
 
 endfunction

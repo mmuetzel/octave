@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -52,9 +52,9 @@ namespace octave
     void pasteClipboard (void);
     void selectAll (void);
 
-    void showDoc (const QString & name);
-    void registerDoc (const QString & name);
-    void unregisterDoc (const QString & name);
+    void showDoc (const QString& name);
+    void registerDoc (const QString& name);
+    void unregisterDoc (const QString& name);
 
   private:
 

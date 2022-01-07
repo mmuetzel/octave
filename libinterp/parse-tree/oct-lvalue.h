@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -68,7 +68,8 @@ namespace octave
 
     octave_idx_type numel (void) const;
 
-    void set_index (const std::string& t, const std::list<octave_value_list>& i);
+    void set_index (const std::string& t,
+                    const std::list<octave_value_list>& i);
 
     void clear_index (void) { m_type = ""; m_idx.clear (); }
 

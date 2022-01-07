@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -1141,7 +1141,7 @@ On non-Windows platforms this function fails with an error.
     {
       octave_value key_val;
       LONG retval = get_regkey_value (h_rootkey, subkey_name,
-                                              value_name, key_val);
+                                      value_name, key_val);
       if (retval == ERROR_FILE_NOT_FOUND)
         error ("winqueryreg: no value found for '%s' at %s\\%s",
                value_name.c_str (), rootkey_name.c_str (),
@@ -1361,7 +1361,7 @@ graphics callbacks execution.
 
 DEFUN (isieee, , ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isieee ()
+@deftypefn {} {@var{tf} =} isieee ()
 Return true if your computer @emph{claims} to conform to the IEEE standard
 for floating point calculations.
 

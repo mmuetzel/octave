@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2018-2021 The Octave Project Developers
+## Copyright (C) 2018-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -125,7 +125,8 @@
 ## Programming Note: This function is a wrapper which calls @code{movfun}.
 ## For additional options and documentation, @pxref{XREFmovfun,,@code{movfun}}.
 ##
-## @seealso{movfun, movslice, movmad, movmax, movmedian, movmin, movprod, movstd, movsum, movvar}
+## @seealso{movfun, movslice, movmad, movmax, movmedian, movmin, movprod,
+## movstd, movsum, movvar}
 ## @end deftypefn
 
 function y = movmean (x, wlen, varargin)

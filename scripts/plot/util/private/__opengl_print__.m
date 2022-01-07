@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2010-2021 The Octave Project Developers
+## Copyright (C) 2010-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -71,9 +71,8 @@ function opts = __opengl_print__ (opts)
       gl2ps_device = {sprintf("%snotxt", lower (suffix))};
       gl2ps_device{2} = "tex";
       if (dos_shell)
-        ## FIXME: this will only work on MinGW with the MSYS shell
-        pipeline = {sprintf('cat > "%s-inc.%s"', name, suffix)};
-        pipeline{2} = sprintf ('cat > "%s.tex"', name);
+        pipeline = {sprintf('findstr . > "%s-inc.%s"', name, suffix)};
+        pipeline{2} = sprintf ('findstr . > "%s.tex"', name);
       else
         pipeline = {sprintf('cat > "%s-inc.%s"', name, suffix)};
         pipeline{2} = sprintf ('cat > "%s.tex"', name);
@@ -116,7 +115,13 @@ function opts = __opengl_print__ (opts)
         opts.unlink = [opts.unlink tmp];
         cmd_pstoedit = sprintf (opts.pstoedit_cmd (opts, "fig"), ...
                                 "pdf", tmp, tmp);
-        cmd = sprintf ('%s | %s > "%s"', cmd_pstoedit, cmd_fig2dev, opts.name);
+        tmp = [tempname(), ".fig"];
+        opts.unlink = [opts.unlink tmp];
+        if (ispc () && ! isunix ())
+          cmd = sprintf ('%s "%s" & %s "%s" "%s"', cmd_pstoedit, tmp, cmd_fig2dev, tmp, opts.name);
+        else
+          cmd = sprintf ('%s "%s" ; %s "%s" "%s"', cmd_pstoedit, tmp, cmd_fig2dev, tmp, opts.name);
+        endif
         gl2ps_device = {"svg"};
         pipeline = {cmd};
       endif
@@ -131,7 +136,7 @@ function opts = __opengl_print__ (opts)
       opts.unlink = [opts.unlink tmp];
       cmd = sprintf (opts.pstoedit_cmd (opts), "pdf", tmp, tmp);
       gl2ps_device = {"svg"};
-      pipeline = {sprintf('%s > "%s"', cmd, opts.name)};
+      pipeline = {sprintf('%s "%s"', cmd, opts.name)};
     case opts.ghostscript.device
       svgcmd = "";
       if (opts.svgconvert)

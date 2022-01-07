@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2007-2021 The Octave Project Developers
+## Copyright (C) 2007-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -217,7 +217,7 @@ function h = findobj (varargin)
 
   numpairs = np - 1;
   if (! isempty (logicaloperator))
-    logicaloperator = shift (logicaloperator, 1);
+    logicaloperator = circshift (logicaloperator, 1);
   endif
 
   ## Load all objects which qualify for being searched.

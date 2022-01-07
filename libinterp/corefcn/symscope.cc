@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -335,7 +335,8 @@ namespace octave
   }
 
   bool symbol_scope_rep::look_nonlocal (const std::string& name,
-                                        std::size_t offset, symbol_record& result)
+                                        std::size_t offset,
+                                        symbol_record& result)
   {
     offset++;
 

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2010-2021 The Octave Project Developers
+## Copyright (C) 2010-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -162,9 +162,12 @@ endfunction
 %! a = rand (5, 5, 5);
 
 %!assert (accumdim ([1;3;1;3;3], a)(:,2,3), accumarray ([1;3;1;3;3], a(:,2,3)))
-%!assert (accumdim ([2;3;2;2;2], a, 2, 4)(4,:,2), accumarray ([2;3;2;2;2], a(4,:,2), [1,4]))
-%!assert (accumdim ([2;3;2;1;2], a, 3, 3, @min)(1,5,:), accumarray ([2;3;2;1;2], a(1,5,:), [1,1,3], @min))
-%!assert (accumdim ([1;3;2;2;1], a, 2, 3, @median)(4,:,5), accumarray ([1;3;2;2;1], a(4,:,5), [1,3], @median))
+%!assert (accumdim ([2;3;2;2;2], a, 2, 4)(4,:,2),
+%!        accumarray ([2;3;2;2;2], a(4,:,2), [1,4]))
+%!assert (accumdim ([2;3;2;1;2], a, 3, 3, @min)(1,5,:),
+%!        accumarray ([2;3;2;1;2], a(1,5,:), [1,1,3], @min))
+%!assert (accumdim ([1;3;2;2;1], a, 2, 3, @median)(4,:,5),
+%!        accumarray ([1;3;2;2;1], a(4,:,5), [1,3], @median))
 
 ## Test fillval
 %!assert (accumdim ([1;3;1;3;3], a)(2,:,:), zeros (1,5,5))

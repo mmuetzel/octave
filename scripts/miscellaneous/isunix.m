@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2004-2021 The Octave Project Developers
+## Copyright (C) 2004-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,14 +24,14 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} isunix ()
+## @deftypefn {} {@var{tf} =} isunix ()
 ## Return true if Octave is running on a Unix-like system and false otherwise.
 ## @seealso{ismac, ispc}
 ## @end deftypefn
 
-function retval = isunix ()
+function tf = isunix ()
 
-  retval = __octave_config_info__ ("unix");
+  tf = __octave_config_info__ ("unix");
 
 endfunction
 

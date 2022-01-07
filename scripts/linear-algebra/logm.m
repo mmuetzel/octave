@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2008-2021 The Octave Project Developers
+## Copyright (C) 2008-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -75,7 +75,7 @@ function [s, iters] = logm (A, opt_iters = 100)
   endif
 
   eigv = diag (s);
-  n = rows(A);
+  n = rows (A);
   tol = n * eps (max (abs (eigv)));
   real_neg_eigv = (real (eigv) < -tol) & (imag (eigv) <= tol);
   if (any (real_neg_eigv))

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -111,7 +111,7 @@ public:
 
   octave_value sort (octave_idx_type, sortmode) const
   { return octave_value (scalar); }
-  octave_value sort (Array<octave_idx_type> &sidx, octave_idx_type,
+  octave_value sort (Array<octave_idx_type>& sidx, octave_idx_type,
                      sortmode) const
   {
     sidx.resize (dim_vector (1, 1));

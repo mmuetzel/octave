@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -69,7 +69,8 @@ public:
 
   ~octave_dld_function (void);
 
-  void mark_fcn_file_up_to_date (const octave::sys::time& t) { m_t_checked = t; }
+  void mark_fcn_file_up_to_date (const octave::sys::time& t)
+  { m_t_checked = t; }
 
   std::string fcn_file_name (void) const;
 

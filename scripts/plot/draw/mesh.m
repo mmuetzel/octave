@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1993-2021 The Octave Project Developers
+## Copyright (C) 1993-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -58,7 +58,8 @@
 ## The optional return value @var{h} is a graphics handle to the created
 ## surface object.
 ##
-## @seealso{ezmesh, meshc, meshz, trimesh, contour, surf, surface, meshgrid, hidden, shading, colormap, caxis}
+## @seealso{ezmesh, meshc, meshz, trimesh, contour, surf, surface, meshgrid,
+## hidden, shading, colormap, caxis}
 ## @end deftypefn
 
 function h = mesh (varargin)

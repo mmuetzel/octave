@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2005-2021 The Octave Project Developers
+// Copyright (C) 2005-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -191,10 +191,10 @@ namespace octave
   extern const OCTAVE_API suitesparse_integer *
   to_suitesparse_intptr (const octave_idx_type *i);
 
-  extern OCTAVE_API octave_idx_type*
+  extern OCTAVE_API octave_idx_type *
   to_octave_idx_type_ptr (suitesparse_integer *i);
 
-  extern const OCTAVE_API octave_idx_type*
+  extern const OCTAVE_API octave_idx_type *
   to_octave_idx_type_ptr (const suitesparse_integer *i);
 
   inline octave_idx_type

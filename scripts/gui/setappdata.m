@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2010-2021 The Octave Project Developers
+## Copyright (C) 2010-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -35,10 +35,11 @@
 ##
 ## Multiple @var{name}/@var{value} pairs can be specified.  Alternatively, a
 ## cell array of @var{names} and a corresponding cell array of @var{values} can
-## be specified.  Details on obtaining a list of valid application data
-## properties can be found in @ref{XREFgetappdata, ,getappdata}.
+## be specified.  For details on obtaining a list of valid application data
+## properties, @pxref{XREFgetappdata,,@code{getappdata}}.
 ##
-## @seealso{getappdata, isappdata, rmappdata, guidata, get, set, getpref, setpref}
+## @seealso{getappdata, isappdata, rmappdata, guidata, get, set, getpref,
+## setpref}
 ## @end deftypefn
 
 function setappdata (h, varargin)

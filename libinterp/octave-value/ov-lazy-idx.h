@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2010-2021 The Octave Project Developers
+// Copyright (C) 2010-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -60,7 +60,8 @@ public:
 
   octave_value fast_elem_extract (octave_idx_type n) const;
 
-  std::size_t byte_size (void) const { return numel () * sizeof (octave_idx_type); }
+  std::size_t byte_size (void) const
+  { return numel () * sizeof (octave_idx_type); }
 
   octave_value squeeze (void) const;
 
@@ -118,7 +119,7 @@ public:
 
   octave_value sort (octave_idx_type dim = 0, sortmode mode = ASCENDING) const;
 
-  octave_value sort (Array<octave_idx_type> &sidx, octave_idx_type dim = 0,
+  octave_value sort (Array<octave_idx_type>& sidx, octave_idx_type dim = 0,
                      sortmode mode = ASCENDING) const;
 
   sortmode issorted (sortmode mode = UNSORTED) const;

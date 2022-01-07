@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2009-2021 The Octave Project Developers
+## Copyright (C) 2009-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -148,11 +148,13 @@ function [retval, status] = get_usage_texinfo (help_text, max_len)
 endfunction
 
 function [retval, status] = get_usage_html (help_text, max_len)
+
   ## Strip tags
   [help_text, status] = strip_html_tags (help_text);
 
   ## Extract first line with plain text method.
   retval = get_usage_plain_text (help_text, max_len);
+
 endfunction
 
 

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2009-2021 The Octave Project Developers
+## Copyright (C) 2009-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -31,6 +31,7 @@
 ## representation to the local representation.
 ##
 ## @var{f} is an FTP object returned by the @code{ftp} function.
+## @seealso{@ftp/ascii, @ftp/ftp}
 ## @end deftypefn
 
 function binary (f)

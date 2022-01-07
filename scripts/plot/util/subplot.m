@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1995-2021 The Octave Project Developers
+## Copyright (C) 1995-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -374,7 +374,7 @@ function [pos, opos, li] = subplot_position (hf, nrows, ncols, idx)
 
   ## Row/Column inside the axes array
   row = ceil (idx / ncols);
-  col = idx .- (row - 1) * ncols;
+  col = idx - (row - 1) * ncols;
   row = [min(row) max(row)];
   col = [min(col) max(col)];
 

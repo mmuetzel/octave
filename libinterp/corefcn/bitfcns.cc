@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2004-2021 The Octave Project Developers
+// Copyright (C) 2004-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -57,21 +57,21 @@ namespace std
   struct bit_and
   {
   public:
-    T operator() (const T & op1, const T & op2) const { return (op1 & op2); }
+    T operator() (const T& op1, const T& op2) const { return (op1 & op2); }
   };
 
   template <typename T>
   struct bit_or
   {
   public:
-    T operator() (const T & op1, const T & op2) const { return (op1 | op2); }
+    T operator() (const T& op1, const T& op2) const { return (op1 | op2); }
   };
 
   template <typename T>
   struct bit_xor
   {
   public:
-    T operator() (const T & op1, const T & op2) const { return (op1 ^ op2); }
+    T operator() (const T& op1, const T& op2) const { return (op1 ^ op2); }
   };
 }
 #endif

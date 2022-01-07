@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1993-2021 The Octave Project Developers
+## Copyright (C) 1993-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -134,6 +134,7 @@ function h = h20 ()
 endfunction
 
 function h = h28 ()
+
   ## Williamson matrix construction from
   ## http://www.research.att.com/~njas/hadamard/had.28.will.txt
   ## Normalized so that each row and column starts with +1

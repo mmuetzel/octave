@@ -2,7 +2,7 @@
 
 ########################################################################
 ##
-## Copyright (C) 1993-2021 The Octave Project Developers
+## Copyright (C) 1993-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -145,13 +145,13 @@ BUILT_DISTFILES += \
   BUGS \
   ChangeLog \
   HG-ID \
-  INSTALL.OCTAVE
+  INSTALL.OCTAVE \
+  NEWS
 
 EXTRA_DIST += \
   CITATION \
   COPYING \
   INSTALL \
-  NEWS \
   README \
   octave.doap \
   run-octave.in \
@@ -233,7 +233,7 @@ SUBDIRS = libgnu
 # See bug #45578.
 BUILT_SOURCES += libgnu/libgnu.la
 
-libgnu/libgnu.la: oct-conf-post.h
+libgnu/libgnu.la: oct-conf-post-private.h oct-conf-post-public.h
 	cd libgnu && $(MAKE) $(AM_MAKEFLAGS) all
 
 include liboctave/module.mk
@@ -299,7 +299,8 @@ icons-dist-hook:
 endif
 
 BUILT_SOURCES += \
-  oct-conf-post.h \
+  oct-conf-post-private.h \
+  oct-conf-post-public.h \
   octave-config.h \
   run-octave \
   $(DIRSTAMP_FILES)
@@ -326,13 +327,12 @@ DISTCLEANFILES += \
   .gdbinit
 
 MAINTAINERCLEANFILES += \
-  $(BUILT_DISTFILES) \
-  ChangeLog \
-  HG-ID
+  $(BUILT_DISTFILES)
 
 CONFIG_FILES = @ac_config_headers@ @ac_config_files@
 
 nodist_octinclude_HEADERS += \
+  oct-conf-post-public.h \
   octave-config.h
 
 OCTAVE_INTERPRETER_TARGETS += \
@@ -392,6 +392,10 @@ nonexistent-file:
 
 .gdbinit: etc/gdbinit
 	$(AM_V_GEN)$(gdbinit-install-rule)
+
+NEWS: etc/NEWS.$(OCTAVE_MAJOR_VERSION).md
+	$(AM_V_GEN)cp $< $@
+.PHONY: NEWS
 
 define changelog-from-hg-log
   rm -f $@-t && \

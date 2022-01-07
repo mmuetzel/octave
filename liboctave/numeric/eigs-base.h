@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2005-2021 The Octave Project Developers
+// Copyright (C) 2005-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -32,12 +32,8 @@
 #include <iosfwd>
 #include <string>
 
+#include "mx-fwd.h"
 #include "oct-cmplx.h"
-
-class ColumnVector;
-class ComplexColumnVector;
-class Matrix;
-class ComplexMatrix;
 
 typedef
 std::function<ColumnVector (const ColumnVector& x, int& eigs_error)> EigsFunc;

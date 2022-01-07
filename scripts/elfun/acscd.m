@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2006-2021 The Octave Project Developers
+## Copyright (C) 2006-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,7 +24,7 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} acscd (@var{x})
+## @deftypefn {} {@var{y} =} acscd (@var{x})
 ## Compute the inverse cosecant in degrees for each element of @var{x}.
 ## @seealso{cscd, acsc}
 ## @end deftypefn

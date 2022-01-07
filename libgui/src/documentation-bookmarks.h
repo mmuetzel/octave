@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2018-2021 The Octave Project Developers
+// Copyright (C) 2018-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -47,8 +47,8 @@ namespace octave
   public:
 
     documentation_bookmarks (
-                documentation *doc, documentation_browser *browser,
-                base_qobject& oct_qobj, QWidget *p = nullptr);
+      documentation *doc, documentation_browser *browser,
+      base_qobject& oct_qobj, QWidget *p = nullptr);
 
     ~documentation_bookmarks (void) = default;
 

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -54,7 +54,7 @@ namespace octave
     virtual QToolBar * toolbar (void) = 0;
     virtual QMenuBar * menubar (void) = 0;
 
-    virtual void insert_global_actions (QList<QAction*>) = 0;
+    virtual void insert_global_actions (QList<QAction *>) = 0;
     virtual void handle_enter_debug_mode (void) = 0;
     virtual void handle_exit_debug_mode (void) = 0;
 

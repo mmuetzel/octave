@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1994-2021 The Octave Project Developers
+## Copyright (C) 1994-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,7 +24,7 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} acoth (@var{x})
+## @deftypefn {} {@var{y} =} acoth (@var{x})
 ## Compute the inverse hyperbolic cotangent of each element of @var{x}.
 ## @seealso{coth}
 ## @end deftypefn

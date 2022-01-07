@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1994-2021 The Octave Project Developers
+// Copyright (C) 1994-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -30,36 +30,7 @@
 
 // Classes we declare.
 
-class Matrix;
-class ComplexMatrix;
-class FloatMatrix;
-class FloatComplexMatrix;
-class boolMatrix;
-class charMatrix;
-
-class NDArray;
-class ComplexNDArray;
-class FloatNDArray;
-class FloatComplexNDArray;
-class boolNDArray;
-class charNDArray;
-
-class ColumnVector;
-class ComplexColumnVector;
-class FloatColumnVector;
-class FloatComplexColumnVector;
-
-class RowVector;
-class ComplexRowVector;
-class FloatRowVector;
-class FloatComplexRowVector;
-
-class DiagMatrix;
-class ComplexDiagMatrix;
-class FloatDiagMatrix;
-class FloatComplexDiagMatrix;
-
-class PermMatrix;
+#include "mx-fwd.h"
 
 template <typename T> class aepbalance;
 

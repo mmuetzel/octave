@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2017-2021 The Octave Project Developers
+## Copyright (C) 2017-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -149,7 +149,7 @@ function x = betaincinv (y, a, b, tail = "lower")
   if (! isempty (idx))
     x_i(idx) = (a(idx) - 1) ./ (a(idx) + b(idx) - 2);
     y_i(idx) = betainc (x_i(idx), a(idx), b(idx));
-  end
+  endif
 
   ## Converge outwards
   tmpidx = find (a(idx) > 1);

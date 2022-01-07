@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2016-2021 The Octave Project Developers
+// Copyright (C) 2016-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -187,12 +187,5 @@ warn_logical_conversion (void);
 
 extern OCTINTERP_API void
 warn_wrong_type_arg (const char *name, const octave_value& tc);
-
-#if defined (OCTAVE_PROVIDE_DEPRECATED_SYMBOLS)
-OCTAVE_DEPRECATED (6, "this function will be removed in a future version of Octave")
-inline void
-warn_divide_by_zero (void)
-{ }
-#endif
 
 #endif

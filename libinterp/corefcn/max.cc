@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -290,7 +290,8 @@ do_minmax_body (const octave_value_list& args,
                     retval(0) = range.max ();
                     if (nargout > 1)
                       retval(1) = static_cast<double>
-                                  (range.increment () >= 0 ? range.numel () : 1);
+                                  (range.increment () >= 0 ? range.numel ()
+                                                           : 1);
                   }
               }
             else if (arg.issparse ())

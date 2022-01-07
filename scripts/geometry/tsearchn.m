@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2007-2021 The Octave Project Developers
+## Copyright (C) 2007-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -68,6 +68,7 @@ function [idx, p] = tsearchn (x, t, xi)
 endfunction
 
 function Beta = cart2bary (T, P)
+
   ## Conversion of Cartesian to Barycentric coordinates.
   ## Given a reference simplex in N dimensions represented by an
   ## N+1-by-N matrix, an arbitrary point P in Cartesian coordinates,

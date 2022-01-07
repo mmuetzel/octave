@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2018-2021 The Octave Project Developers
+## Copyright (C) 2018-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -362,17 +362,20 @@ endfunction
 ## 'y' values outside window are replaced by value of 'x' at the window
 ## boundary.
 function y = same_bc (fcn, x, idxp, win, ~, ~)
+
   idx          = idxp + win;
   idx(idx < 1) = 1;
   N            = length (x);
   idx(idx > N) = N;
   y            = fcn (x(idx));
+
 endfunction
 
 ## Apply "periodic" boundary conditions
 ## Window wraps around.  Window values outside data array are replaced with
 ## data from the other end of the array.
 function y = periodic_bc (fcn, x, idxp, win, ~, ~)
+
   N       = length (x);
   idx     = idxp + win;
   tf      = idx < 1;
@@ -380,6 +383,7 @@ function y = periodic_bc (fcn, x, idxp, win, ~, ~)
   tf      = idx > N;
   idx(tf) = idx(tf) - N;
   y       = fcn (x(idx));
+
 endfunction
 
 

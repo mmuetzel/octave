@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2013-2021 The Octave Project Developers
+## Copyright (C) 2013-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -25,15 +25,18 @@
 
 ## -*- texinfo -*-
 ## @deftypefn {} {} stop (@var{recorder})
-## Stop the audiorecorder object @var{recorder} and clean up any audio streams.
+## Stop recording with audiorecorder object @var{recorder} and clean up any
+## audio streams.
+## @seealso{@audiorecorder/pause, @audiorecorder/resume,
+## @audiorecorder/audiorecorder}
 ## @end deftypefn
 
 function stop (recorder)
 
-  if (nargin < 1)
-    print_usage ();
-  endif
-
   __recorder_stop__ (struct (recorder).recorder);
 
 endfunction
+
+
+## No tests possible for this function
+%!assert (1)

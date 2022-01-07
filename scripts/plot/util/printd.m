@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2013-2021 The Octave Project Developers
+## Copyright (C) 2013-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -39,6 +39,7 @@
 ## @end deftypefn
 
 function pr_out = printd (obj, filename)
+
   ## Convert any object acceptable to disp() into various display formats.
   ## obj is the input object.
   ## filename is the output file (with required suffix).

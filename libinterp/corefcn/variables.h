@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -124,49 +124,60 @@ unique_symbol_name (const std::string& basename)
 
 OCTAVE_DEPRECATED (7, "use 'octave::set_internal_variable' instead")
 inline octave_value
-set_internal_variable (bool& var, const octave_value_list& args, int nargout, const char *nm)
+set_internal_variable (bool& var, const octave_value_list& args, int nargout,
+                       const char *nm)
 {
   return octave::set_internal_variable (var, args, nargout, nm);
 }
 
 OCTAVE_DEPRECATED (7, "use 'octave::set_internal_variable' instead")
 inline octave_value
-set_internal_variable (char& var, const octave_value_list& args, int nargout, const char *nm)
+set_internal_variable (char& var, const octave_value_list& args, int nargout,
+                       const char *nm)
 {
   return octave::set_internal_variable (var, args, nargout, nm);
 }
 
 OCTAVE_DEPRECATED (7, "use 'octave::set_internal_variable' instead")
 inline octave_value
-set_internal_variable (int& var, const octave_value_list& args, int nargout, const char *nm, int minval = std::numeric_limits<int>::min (), int maxval = std::numeric_limits<int>::max ())
+set_internal_variable (int& var, const octave_value_list& args, int nargout,
+                       const char *nm,
+                       int minval = std::numeric_limits<int>::min (),
+                       int maxval = std::numeric_limits<int>::max ())
 {
   return octave::set_internal_variable (var, args, nargout, nm, minval, maxval);
 }
 
 OCTAVE_DEPRECATED (7, "use 'octave::set_internal_variable' instead")
 inline octave_value
-set_internal_variable (double& var, const octave_value_list& args, int nargout, const char *nm, double minval = -octave::numeric_limits<double>::Inf (), double maxval = octave::numeric_limits<double>::Inf ())
+set_internal_variable (double& var, const octave_value_list& args, int nargout,
+                       const char *nm,
+                       double minval = -octave::numeric_limits<double>::Inf (),
+                       double maxval = octave::numeric_limits<double>::Inf ())
 {
   return octave::set_internal_variable (var, args, nargout, nm, minval, maxval);
 }
 
 OCTAVE_DEPRECATED (7, "use 'octave::set_internal_variable' instead")
 inline octave_value
-set_internal_variable (std::string& var, const octave_value_list& args, int nargout, const char *nm, bool empty_ok = true)
+set_internal_variable (std::string& var, const octave_value_list& args,
+                       int nargout, const char *nm, bool empty_ok = true)
 {
   return octave::set_internal_variable (var, args, nargout, nm, empty_ok);
 }
 
 OCTAVE_DEPRECATED (7, "use 'octave::set_internal_variable' instead")
 inline octave_value
-set_internal_variable (std::string& var, const octave_value_list& args, int nargout, const char *nm, const char **choices)
+set_internal_variable (std::string& var, const octave_value_list& args,
+                       int nargout, const char *nm, const char **choices)
 {
   return octave::set_internal_variable (var, args, nargout, nm, choices);
 }
 
 OCTAVE_DEPRECATED (7, "use 'octave::set_internal_variable' instead")
 inline octave_value
-set_internal_variable (int& var, const octave_value_list& args, int nargout, const char *nm, const char **choices)
+set_internal_variable (int& var, const octave_value_list& args, int nargout,
+                       const char *nm, const char **choices)
 {
   return octave::set_internal_variable (var, args, nargout, nm, choices);
 }
@@ -177,12 +188,6 @@ maybe_missing_function_hook (const std::string& name)
 {
   return octave::maybe_missing_function_hook (name);
 }
-
-OCTAVE_DEPRECATED (6, "use 'octave::get_function_handle' instead")
-extern OCTINTERP_API octave_function *
-extract_function (const octave_value& arg, const std::string& warn_for,
-                  const std::string& fname, const std::string& header,
-                  const std::string& trailer);
 
 #endif
 

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -535,7 +535,7 @@ octave_base_matrix<MT>::edit_display (const float_display_format& fmt,
                                       octave_idx_type j) const
 {
   std::ostringstream buf;
-  octave_print_internal (buf, fmt, matrix(i,j));
+  octave_print_internal (buf, fmt, matrix(i, j));
   return buf.str ();
 }
 

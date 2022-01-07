@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2010-2021 The Octave Project Developers
+## Copyright (C) 2010-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -898,6 +898,7 @@ function [labels, next_idx] = displayname_or_default (hplots, hl = [])
 endfunction
 
 function update_layout_cb (hl, ~, update_item = false)
+
   updating = getappdata (hl, "__updating_layout__");
   if (! isempty (updating) && updating)
     return;
@@ -1092,6 +1093,8 @@ function [htxt, hicon] = create_item (hl, str, txtpval, hplt)
                    @(h, ~) set (hmarker, "ydata", get (h, "markerydata")));
       addlistener (hicon, "xdata", ...
                    @(h, ~) set (hmarker, "xdata", get (h, "markerxdata")));
+      addlistener (hicon, "visible", ...
+                   @(h, ~) set (hmarker, "visible", get (h, "visible")));
       addlistener (hmarker, "markersize", @update_marker_cb);
       add_safe_listener (hl, hplt(1), "beingdeleted",
                          @(~, ~) delete ([hicon hmarker]))
@@ -1165,6 +1168,8 @@ function [htxt, hicon] = create_item (hl, str, txtpval, hplt)
                    @(h, ~) set (htmp, "ydata", get (h, "innerydata")));
       addlistener (hicon, "xdata", ...
                    @(h, ~) set (htmp, "xdata", get (h, "innerxdata")));
+      addlistener (hicon, "visible", ...
+                   @(h, ~) set (htmp, "visible", get (h, "visible")));
       add_safe_listener (hl, hplt(1), "beingdeleted",
                          @(~, ~) delete ([hicon htmp]))
 
@@ -1180,12 +1185,14 @@ function [htxt, hicon] = create_item (hl, str, txtpval, hplt)
 endfunction
 
 function safe_property_link (h1, h2, props)
+
   for ii = 1:numel (props)
     prop = props{ii};
     lsn = {h1, prop, @(h, ~) set (h2, prop, get (h, prop))};
     addlistener (lsn{:});
     addlistener (h2, "beingdeleted", @(~, ~) dellistener (lsn{:}));
   endfor
+
 endfunction
 
 function update_displayname_cb (h, ~, hl)
@@ -1364,6 +1371,7 @@ function sz = update_texticon_position (hl, objlist)
 endfunction
 
 function update_icon_position (hicon, xdata, ydata)
+
   creator = getappdata (hicon, "__creator__");
   switch (creator)
     case "line"

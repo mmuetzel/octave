@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2013-2021 The Octave Project Developers
+## Copyright (C) 2013-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -25,16 +25,17 @@
 
 ## -*- texinfo -*-
 ## @deftypefn {} {} stop (@var{player})
-## Stop the playback for the audioplayer @var{player} and reset the
-## relevant variables to their starting values.
+## Stop playback of the audioplayer @var{player} and reset relevant variables
+## to their initial values.
+## @seealso{@audioplayer/pause, @audioplayer/resume, @audioplayer/audioplayer}
 ## @end deftypefn
 
 function stop (player)
 
-  if (nargin < 1)
-    print_usage ();
-  endif
-
   __player_stop__ (struct (player).player);
 
 endfunction
+
+
+## No tests possible for this function
+%!assert (1)

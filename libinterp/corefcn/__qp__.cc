@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2000-2021 The Octave Project Developers
+// Copyright (C) 2000-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -369,7 +369,7 @@ qp (const Matrix& H, const ColumnVector& q,
                     {
                       Wact(i) = Wact(i+1);
                       for (octave_idx_type j = 0; j < n; j++)
-                        Aact(n_eq+i,j) = Aact(n_eq+i+1,j);
+                        Aact(n_eq+i, j) = Aact(n_eq+i+1, j);
                       bact(n_eq+i) = bact(n_eq+i+1);
                     }
 

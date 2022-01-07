@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2005-2021 The Octave Project Developers
+// Copyright (C) 2005-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -31,13 +31,8 @@
 #include <memory>
 
 #include "oct-cmplx.h"
-
-class Matrix;
-class ComplexMatrix;
-class SparseMatrix;
-class SparseComplexMatrix;
-class ColumnVector;
-template <typename T> class MArray;
+#include "MArray-fwd.h"
+#include "mx-fwd.h"
 
 namespace octave
 {
@@ -97,7 +92,7 @@ namespace octave
 
     private:
 
-      template <typename RHS_T,typename RET_T>
+      template <typename RHS_T, typename RET_T>
       static OCTAVE_API RET_T
       min2norm_solve (const SPARSE_T& a, const RHS_T& b,
                       octave_idx_type& info, int order);

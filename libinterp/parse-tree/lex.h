@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -691,6 +691,12 @@ namespace octave
 
     void warn_language_extension_operator (const std::string& op);
 
+    void warn_deprecated_syntax (const std::string& msg);
+
+    void warn_deprecated_operator (const std::string& deprecated_op,
+                                   const std::string& recommended_op,
+                                   const std::string& version);
+
     void push_token (token *);
 
     token * current_token (void);
@@ -771,7 +777,8 @@ namespace octave
     { }
 
     lexer (FILE *file, interpreter& interp, const std::string& encoding)
-      : base_lexer (interp), m_reader (interp, file, encoding), m_initial_input (true)
+      : base_lexer (interp), m_reader (interp, file, encoding),
+        m_initial_input (true)
     { }
 
     lexer (const std::string& eval_string, interpreter& interp)

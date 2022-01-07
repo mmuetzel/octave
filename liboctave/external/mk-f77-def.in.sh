@@ -2,7 +2,7 @@
 
 ########################################################################
 ##
-## Copyright (C) 2006-2021 The Octave Project Developers
+## Copyright (C) 2006-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -28,7 +28,7 @@
 : ${SED=@SED@}
 : ${AWK=@AWK@}
 
-F77_TOLOWER="@F77_APPEND_UNDERSCORE@"
+F77_TOLOWER="@F77_TOLOWER@"
 F77_APPEND_UNDERSCORE="@F77_APPEND_UNDERSCORE@"
 F77_APPEND_EXTRA_UNDERSCORE="@F77_APPEND_EXTRA_UNDERSCORE@"
 

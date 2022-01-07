@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2021 The Octave Project Developers
+// Copyright (C) 2021-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -34,6 +34,7 @@
 #include "builtin-defun-decls.h"
 #include "dim-vector.h"
 #include "error.h"
+#include "graphics.h"
 #include "file-ops.h"
 #include "interpreter.h"
 #include "interpreter-private.h"
@@ -42,11 +43,6 @@
 
 namespace octave
 {
-  // FIXME: get rid of this global variable
-  // Store both the generated pixmap and the svg image
-  typedef std::pair<uint8NDArray /*pixels*/, std::string /*svg*/> latex_data;
-  std::unordered_map<std::string, latex_data> latex_cache;
-
   std::string
   quote_string (std::string str)
   {
@@ -56,7 +52,7 @@ namespace octave
   class
   OCTINTERP_API
   latex_renderer : public base_text_renderer
- {
+  {
 
   public:
 
@@ -65,27 +61,27 @@ namespace octave
         m_color (dim_vector (1, 3), 0), m_latex_binary ("latex"),
         m_dvipng_binary ("dvipng"), m_dvisvg_binary ("dvisvgm"),
         m_debug (false), m_testing (true)
-      {
-        std::string bin = sys::env::getenv ("OCTAVE_LATEX_BINARY");
-        if (! bin.empty ())
-          m_latex_binary = quote_string (bin);
+    {
+      std::string bin = sys::env::getenv ("OCTAVE_LATEX_BINARY");
+      if (! bin.empty ())
+        m_latex_binary = quote_string (bin);
 
-        bin = sys::env::getenv ("OCTAVE_DVIPNG_BINARY");
-        if (! bin.empty ())
-          m_dvipng_binary = quote_string (bin);
+      bin = sys::env::getenv ("OCTAVE_DVIPNG_BINARY");
+      if (! bin.empty ())
+        m_dvipng_binary = quote_string (bin);
 
-        bin = sys::env::getenv ("OCTAVE_DVISVG_BINARY");
-        if (! bin.empty ())
-          m_dvisvg_binary = quote_string (bin);
+      bin = sys::env::getenv ("OCTAVE_DVISVG_BINARY");
+      if (! bin.empty ())
+        m_dvisvg_binary = quote_string (bin);
 
-        m_debug = ! sys::env::getenv ("OCTAVE_LATEX_DEBUG_FLAG").empty ();
-      }
+      m_debug = ! sys::env::getenv ("OCTAVE_LATEX_DEBUG_FLAG").empty ();
+    }
 
     ~latex_renderer (void)
-      {
-        if (! m_tmp_dir.empty () && ! m_debug)
-          sys::recursive_rmdir (m_tmp_dir);
-      }
+    {
+      if (! m_tmp_dir.empty () && ! m_debug)
+        sys::recursive_rmdir (m_tmp_dir);
+    }
 
     void set_font (const std::string& /*name*/, const std::string& /*weight*/,
                    const std::string& /*angle*/, double size)
@@ -113,7 +109,9 @@ namespace octave
     {
       Matrix bbox;
       uint8NDArray pixels;
+
       text_to_pixels (txt, pixels, bbox, 0, 0, rotation, interpreter, false);
+
       return bbox.extract_n (0, 2, 1, 2);
     }
 
@@ -129,7 +127,13 @@ namespace octave
       text_renderer::font fnt;
       text_renderer::string str ("", fnt, 0.0, 0.0);
       str.set_color (m_color);
-      str.set_svg_element (latex_cache[key (txt, halign)].second);
+
+      gh_manager& gh_mgr = octave::__get_gh_manager__ ("text_to_strlist");
+
+      gh_manager::latex_data ldata = gh_mgr.get_latex_data (key (txt, halign));
+
+      str.set_svg_element (ldata.second);
+
       lst.push_back (str);
     }
 
@@ -156,7 +160,7 @@ namespace octave
               + std::to_string (m_color(2)));
     }
 
-    void warn_helper (std::string caller, std::string txt,std::string cmd,
+    void warn_helper (std::string caller, std::string txt, std::string cmd,
                       process_execution_result result);
 
     uint8NDArray render (const std::string& txt, int halign = 0);
@@ -248,8 +252,8 @@ namespace octave
       env = "flushright";
 
     latex_txt = std::string ("\\begin{" ) + env + "}\n"
-      + latex_txt + "\n"
-      + "\\end{" + env + "}\n";
+                + latex_txt + "\n"
+                + "\\end{" + env + "}\n";
 
     // Write to temporary .tex file
     std::ofstream file;
@@ -284,7 +288,7 @@ namespace octave
                                          "Wrong type for info");
         height = info.getfield ("rows").int_value ();
         width = info.getfield ("columns").int_value ();
-        Cell region (dim_vector(1,2));
+        Cell region (dim_vector(1, 2));
         region(0) = range<double> (1.0, height);
         region(1) = range<double> (1.0, width);
         info.setfield ("region", region);
@@ -311,7 +315,7 @@ namespace octave
       }
 
     data = uint8NDArray (dim_vector (4, width, height),
-                             static_cast<uint8_t> (0));
+                         static_cast<uint8_t> (0));
 
     for (int i = 0; i < height; i++)
       {
@@ -320,7 +324,7 @@ namespace octave
             data(0, j, i) = m_color(0);
             data(1, j, i) = m_color(1);
             data(2, j, i) = m_color(2);
-            data(3, j, i) = alpha(height-i-1,j);
+            data(3, j, i) = alpha(height-i-1, j);
           }
       }
 
@@ -351,10 +355,12 @@ namespace octave
   latex_renderer::render (const std::string& txt, int halign)
   {
     // Render if it was not already done
-    auto it = latex_cache.find (key (txt, halign));
+    gh_manager& gh_mgr = octave::__get_gh_manager__ ("latex_renderer::render");
 
-    if (it != latex_cache.end ())
-      return it->second.first;
+    gh_manager::latex_data ldata = gh_mgr.get_latex_data (key (txt, halign));
+
+    if (! ldata.first.isempty ())
+      return ldata.first;
 
     uint8NDArray data;
 
@@ -450,11 +456,13 @@ namespace octave
       return data;
 
     // Cache pixel and svg data for this string
-    latex_cache[key (txt, halign)] = latex_data (data, svg_string);
+    ldata.first = data;
+    ldata.second = svg_string;
+
+    gh_mgr.set_latex_data (key (txt, halign), ldata);
 
     if (m_debug)
-      std::cout << "* Caching " << key (txt, halign)
-                << " (numel: " << latex_cache.size () << ")\n";
+      std::cout << "* Caching " << key (txt, halign) << std::endl;
 
     return data;
   }
@@ -468,7 +476,10 @@ namespace octave
   {
     // Return early for empty strings
     if (txt.empty ())
-      return;
+      {
+        bbox = Matrix (1, 4, 0.0);
+        return;
+      }
 
     if (ok ())
       pixels = render (txt, halign);
@@ -494,7 +505,7 @@ namespace octave
     fix_bbox_anchor (bbox, halign, valign, rot_mode, handle_rotation);
   }
 
-  base_text_renderer*
+  base_text_renderer *
   make_latex_text_renderer (void)
   {
     latex_renderer *renderer = new latex_renderer ();

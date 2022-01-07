@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2000-2021 The Octave Project Developers
+## Copyright (C) 2000-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -112,7 +112,8 @@
 ## @var{sa}(2).bar(3).baz(1,4) = 5
 ## @end group
 ## @end example
-## @seealso{getfield, rmfield, orderfields, isfield, fieldnames, isstruct, struct}
+## @seealso{getfield, rmfield, orderfields, isfield, fieldnames, isstruct,
+## struct}
 ## @end deftypefn
 
 function sout = setfield (s, varargin)

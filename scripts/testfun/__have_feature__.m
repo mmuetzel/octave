@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2013-2021 The Octave Project Developers
+## Copyright (C) 2013-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -50,7 +50,7 @@ endfunction
 
 %!assert (islogical (__have_feature__ ("MAGICK")))
 %!assert (isscalar (__have_feature__ ("MAGICK")))
-%!assert (__have_feature__ ("MAGICK") == __have_feature__ ({"MAGICK", "MAGICK"}))
+%!assert (__have_feature__ ("MAGICK"), __have_feature__ ({"MAGICK", "MAGICK"}))
 
 ## Test that an empty feature set returns true
 %!assert (__have_feature__ ({}))

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2013-2021 The Octave Project Developers
+// Copyright (C) 2013-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -122,12 +122,12 @@ namespace octave
     endInsertRows ();
   }
 
-  int find_files_model::rowCount (const QModelIndex &) const
+  int find_files_model::rowCount (const QModelIndex&) const
   {
     return m_files.size ();
   }
 
-  int find_files_model::columnCount (const QModelIndex &) const
+  int find_files_model::columnCount (const QModelIndex&) const
   {
     return m_columnNames.size ();
   }
@@ -201,7 +201,7 @@ namespace octave
       }
   }
 
-  QFileInfo find_files_model::fileInfo (const QModelIndex & p) const
+  QFileInfo find_files_model::fileInfo (const QModelIndex& p) const
   {
     return p.isValid () ? m_files[p.row ()] : QFileInfo ();
   }

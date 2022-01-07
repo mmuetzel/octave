@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -53,7 +53,7 @@ namespace octave
     // handled here?
     if (dw_icon_set_names[icon_set_found].name != "NONE")
       m_release_notes_icon = dw_icon_set_names[icon_set_found].path
-        + "ReleaseWidget.png";
+                             + "ReleaseWidget.png";
     else
       m_release_notes_icon = ":/actions/icons/logo.png";
 #endif

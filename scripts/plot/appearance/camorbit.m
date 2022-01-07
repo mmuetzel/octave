@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2016-2021 The Octave Project Developers
+## Copyright (C) 2016-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -95,7 +95,7 @@
 ## (Note: the rotation by @var{phi} is unaffected by @qcode{"camera"}.)
 ##
 ## The @code{camorbit} command modifies two camera properties:
-## @ref{XREFcampos,,campos} and @ref{XREFcamup,,camup}.
+## @ref{XREFcampos,,@code{campos}} and @ref{XREFcamup,,@code{camup}}.
 ##
 ## By default, this command affects the current axis; alternatively, an axis
 ## can be specified by the optional argument @var{hax}.

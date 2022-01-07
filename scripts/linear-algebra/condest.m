@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2007-2021 The Octave Project Developers
+## Copyright (C) 2007-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -248,6 +248,7 @@ function [cest, v] = condest (varargin)
 endfunction
 
 function retval = inv_sparse_fcn (flag, x, varargin)
+
   ## FIXME: Sparse algorithm is less accurate than full matrix version.
   ##        See BIST test for asymmetric matrix where relative tolerance
   ##        of 1e-12 is used for sparse, but 4e-16 for full matrix.

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2008-2021 The Octave Project Developers
+## Copyright (C) 2008-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -51,7 +51,8 @@
 ## @qcode{"TolX"} specifies the termination tolerance for the solution @var{x}.
 ## The default is @code{1e-4}.
 ##
-## For a description of the other options, see @ref{XREFoptimset,,optimset}.
+## For a description of the other options,
+## @pxref{XREFoptimset,,@code{optimset}}.
 ## To initialize an options structure with default values for @code{fminbnd}
 ## use @code{options = optimset ("fminbnd")}.
 ##
@@ -275,6 +276,7 @@ endfunction
 
 ## A helper function that evaluates a function and checks for bad results.
 function fx = guarded_eval (fun, x)
+
   fx = fun (x);
   fx = fx(1);
   if (! isreal (fx))
@@ -282,6 +284,7 @@ function fx = guarded_eval (fun, x)
   elseif (isnan (fx))
     error ("Octave:fmindbnd:isnan", "fminbnd: NaN value encountered");
   endif
+
 endfunction
 
 ## A hack for printing a formatted table
@@ -297,6 +300,7 @@ endfunction
 
 ## Print either a success termination message or bad news
 function print_exit_msg (info, opt=struct ())
+
   printf ("");
   switch (info)
     case 1
@@ -312,6 +316,7 @@ function print_exit_msg (info, opt=struct ())
       error ("fminbnd: internal error, info return code was %d", info);
   endswitch
   printf ("\n");
+
 endfunction
 
 

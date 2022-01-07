@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2009-2021 The Octave Project Developers
+## Copyright (C) 2009-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## or <https://octave.org/copyright/>.
@@ -1129,7 +1129,8 @@ endfunction
 %!error <no valid format conversion specifiers> strread ("1.0", "%z")
 
 ## Test for false positives in check for non-supported format specifiers
-%!assert (strread ("Total: 32.5 % (of cm values)","Total: %f % (of cm values)"), 32.5, 1e-5)
+%!assert (strread ("Total: 32.5 % (of cm values)","Total: %f % (of cm values)"),
+%!        32.5, 1e-5)
 
 ## Test various forms of string format specifiers
 %!test <*45712>

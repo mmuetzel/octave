@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -54,7 +54,7 @@ namespace octave
     void notifyReceiversAfter (QObject *obj, QEvent *evt);
 
   private:
-    QSet<GenericEventNotifyReceiver*> m_receivers;
+    QSet<GenericEventNotifyReceiver *> m_receivers;
   };
 
   class GenericEventNotifyReceiver

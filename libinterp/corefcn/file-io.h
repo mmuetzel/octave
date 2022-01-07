@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -23,37 +23,9 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-// Written by John C. Campbell <jcc@bevo.che.wisc.edu>
-
 #if ! defined (octave_file_io_h)
 #define octave_file_io_h 1
 
-#include "octave-config.h"
-
-#include <string>
-
-OCTAVE_NAMESPACE_BEGIN
-
-extern OCTINTERP_API void mark_for_deletion (const std::string&);
-
-extern OCTINTERP_API void cleanup_tmp_files (void);
-
-OCTAVE_NAMESPACE_END
-
-#if defined (OCTAVE_PROVIDE_DEPRECATED_SYMBOLS)
-
-OCTAVE_DEPRECATED (6, "use 'interpreter::mark_for_deletion' instead")
-inline void mark_for_deletion (const std::string& fname)
-{
-  octave::mark_for_deletion (fname);
-}
-
-OCTAVE_DEPRECATED (6, "use 'interpreter::cleanup_tmp_files' instead")
-inline void cleanup_tmp_files (void)
-{
-  octave::cleanup_tmp_files ();
-}
-
-#endif
+#warning "file-io.h was deprecated in Octave 8 and will be removed in a future version."
 
 #endif

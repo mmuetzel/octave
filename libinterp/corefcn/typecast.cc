@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2007-2021 The Octave Project Developers
+// Copyright (C) 2007-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -239,8 +239,8 @@ typecast (@var{x}, "uint8")
     ;
   else if (numclass == "char")
     retval = octave_value (reinterpret_copy<charNDArray>
-                           (data, byte_size, old_dims), array.is_dq_string () ? '"'
-                           : '\'');
+                           (data, byte_size, old_dims),
+                           array.is_dq_string () ? '"' : '\'');
   else if (numclass[0] == 'i')
     {
       if (numclass == "int8")

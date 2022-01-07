@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1999-2021 The Octave Project Developers
+## Copyright (C) 1999-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -55,9 +55,9 @@ function a = polyarea (x, y, dim)
   endif
 
   if (nargin == 2)
-    a = abs (sum (x .* (shift (y, -1) - shift (y, 1)))) / 2;
+    a = abs (sum (x .* (circshift (y, -1) - circshift (y, 1)))) / 2;
   else
-    a = abs (sum (x .* (shift (y, -1, dim) - shift (y, 1, dim)), dim)) / 2;
+    a = abs (sum (x .* (circshift (y, -1, dim) - circshift (y, 1, dim)), dim)) / 2;
   endif
 
 endfunction

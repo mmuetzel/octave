@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -1551,7 +1551,7 @@ DEFUN (sparse_auto_mutate, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} sparse_auto_mutate ()
 @deftypefnx {} {@var{old_val} =} sparse_auto_mutate (@var{new_val})
-@deftypefnx {} {} sparse_auto_mutate (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} sparse_auto_mutate (@var{new_val}, "local")
 Query or set the internal variable that controls whether Octave will
 automatically mutate sparse matrices to full matrices to save memory.
 

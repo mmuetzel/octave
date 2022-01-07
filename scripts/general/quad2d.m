@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2017-2021 The Octave Project Developers
+## Copyright (C) 2017-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -357,6 +357,7 @@ function [q, err, iter] = quad2d (f, xa, xb, ya, yb, varargin)
 endfunction
 
 function [q, qerr] = tensorproduct (f, ya, yb, tile, xtrans, ytrans, ztrans, singular)
+
   ## The Shampine TwoD paper proposes using a G3,K7 rule in a tensor product.
   ## I couldn't find a tabulated abscissas and weights of a G3,K7 rule publicly
   ## available, so use a G7,K15 rule from Octave's implementation of quadgk.

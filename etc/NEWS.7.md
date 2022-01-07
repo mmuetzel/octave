@@ -1,5 +1,5 @@
-Summary of important user-visible changes for version 7 (yyyy-mm-dd):
-----------------------------------------------------------------------
+Summary of important user-visible changes for version 7 (2022-01-05)
+--------------------------------------------------------------------
 
 ### General improvements
 
@@ -76,6 +76,11 @@ constants in array expressions with leading zeros so that they use the
 same number of digits for each value such as
 `[0x00_00_01; 0x00_01_00; 0x01_00_00]`.
 
+- The increment and decrement operators `++` and `--` must "hug" their
+corresponding variables.  In previous versions of Octave, whitespaces
+between these operators and the variable they affect were allowed.  That
+is no longer the case.
+
 - The `mldivide` function (i.e., the `\` operator) now uses an LU
 decomposition to solve nearly singular full square matrices.  This is
 Matlab-compatible and yields results which more nearly minimize `norm
@@ -97,7 +102,7 @@ the variable is a sparse type.
 `jsondecode` and `jsonencode` functions to read and write JSON data.
 
 - As part of GSoC 2021, Abdallah K. Elshamy implemented the
-`JupyterNotebook` classdef class.  This class supports running and
+`jupyter_notebook` classdef class.  This class supports running and
 filling Jupyter Notebooks using the Octave language kernel from Octave
 itself.  Making the evaluation of long-running Jupyter Notebooks on a
 computing server without permanent browser connection possible.
@@ -114,23 +119,29 @@ API is now 6.1 (Windows 7 or newer).
 deprecated upstream.  Octave now (optionally) requires the re-entrant
 version of that library "libqhull_r" instead.
 
-- Octave's libraries are now built using symbol visibility by default.
-That means that less symbols are exported from these libraries.
-Configure with `--disable-lib-visibility-flags` to export all symbols
-(like in previous versions).
-
 - Octave's build system no longer appends "++" to the end of the
 "magick++" library name (set with the `--with-magick=` configure flag).
 The real name of the "magick++" library (including any potentially
 trailing "++") needs to be set in that option now.
 
+- The `pkg update` command now accepts options that are passed to `pkg
+install` for each updated package.  Specifying @option{-local} or
+@option{-global} will restrict update checks to local or global
+installed packages, respectively.
+
 ### Graphical User Interface
 
-- The graphical user interface is now available in Hungarian and in
+- The graphical user interface is now available in Hungarian and
 Turkish.
 
 - In debug mode, symbol values are now shown in tooltips when hovering
 variables in the editor panel.
+
+- The "Disable global shortcuts when Command Window has focus" GUI
+preference under the Shortcuts tab is now disabled by default.  This
+option disables keyboard shortcuts to avoid interference with readline
+key strokes in the Command Window.  Unlike versions prior to Octave 7,
+this preference now also affects the Ctrl-C/V shortcuts for copy/paste.
 
 ### Graphics backend
 
@@ -218,15 +229,15 @@ vectors with rows corresponding to the input coordinate matrix.
 dimensions greater than `ndims (x)`.
 
 - The function `iqr` now uses Matlab compatible interpolation for
-quantile values.  Dimension input now allows a vector, "all", and
-dimensions greater than `ndims (x)`.  The function compatibly handles
-`Inf` and `NaN` input values.
+quantile values.  The dimension input now allows a vector, "all", and
+dimensions greater than `ndims (x)`.  The function also handles
+`Inf` and `NaN` input values in a Matlab-compatible manner.
 
 - The function `importdata` now produces more compatible results when
 the file contains a 2-D text matrix.
 
 - The file functions `copyfile`, `mkdir`, `movefile`, `rmdir` now return
-a logical value (true/false) rather than a numeric value (1/0). 
+a logical value (true/false) rather than a numeric value (1/0).
 
 - `uimenu` now accepts property `"Text"` which is identical to
 `"Label"`.  Matlab recommends using `"Text"` in new code, although there
@@ -263,6 +274,10 @@ to true.
 - The function `repelem` now produces a row vector output when the input is
 a scalar.
 
+- The functions `var` and `std` now accept a weight vector as input and
+compute the weigthed variance.  Dimension input now allows a vector and
+the keyword "all".
+
 ### Alphabetical list of new functions added in Octave 7
 
 * `cospi`
@@ -271,7 +286,7 @@ a scalar.
 * `fill3`
 * `jsondecode`
 * `jsonencode`
-* `JupyterNotebook`
+* `jupyter_notebook`
 * `listfonts`
 * `matlab.net.base64decode`
 * `matlab.net.base64encode`
@@ -287,31 +302,28 @@ a scalar.
 * `ytickangle`
 * `ztickangle`
 
-### Deprecated functions, properties, and operators
+### Deprecated functions and operators
 
-The following functions and properties have been deprecated in Octave 7
+The following functions and operators have been deprecated in Octave 7
 and will be removed from Octave 9 (or whatever version is the second
 major release after 7):
 
 - Functions
 
-  Function                   | Replacement
-  -------------------------- |----------------------------
-  disable_diagonal_matrix    | optimize_diagonal_matrix
-  disable_permutation_matrix | optimize_permutation_matrix
-  disable_range              | optimize_range
+  Function                     | Replacement
+  ---------------------------- |----------------------------
+  `disable_diagonal_matrix`    | `optimize_diagonal_matrix`
+  `disable_permutation_matrix` | `optimize_permutation_matrix`
+  `disable_range`              | `optimize_range`
 
-- Properties
-
-  Object           | Property      | Value
-  -----------------|---------------|------------
-                   |               |
 - Operators
 
   Operator | Replacement | Description
   ---------|-------------|------------
-  **       | ^           | Matrix exponent
-  .**      | .^          | Element-by-element exponent
+  `**`     | `^`         | Matrix exponent
+  `.**`    | `.^`        | Element-by-element exponent
+  `.+`     | `+`         | Element-by-element addition
+  `.-`     | `-`         | Element-by-element subtraction
 
 - Interpreter
 

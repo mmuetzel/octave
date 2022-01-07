@@ -2,7 +2,7 @@
 
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2009-2021 The Octave Project Developers
+// Copyright (C) 2009-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // or <https://octave.org/copyright/>.
@@ -107,7 +107,7 @@ namespace octave
     void find_prev (void);
 
     //! Slot for updating the edit area when the active tab has changed
-    void update_edit_area (octave_qscintilla*);
+    void update_edit_area (octave_qscintilla *);
 
   private slots:
 
@@ -131,7 +131,7 @@ namespace octave
     void reject ();
 
     //! Reimplemented close event
-    void closeEvent (QCloseEvent* e);
+    void closeEvent (QCloseEvent *e);
 
     //! Update mru lists with new entry
     void mru_update (QComboBox *mru);

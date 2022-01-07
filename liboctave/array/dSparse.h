@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1998-2021 The Octave Project Developers
+// Copyright (C) 1998-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -28,6 +28,8 @@
 
 #include "octave-config.h"
 
+#include "mx-fwd.h"
+
 #include "CColVector.h"
 #include "CMatrix.h"
 #include "DET.h"
@@ -37,11 +39,6 @@
 #include "dColVector.h"
 #include "dMatrix.h"
 #include "dNDArray.h"
-
-class PermMatrix;
-class DiagMatrix;
-class SparseComplexMatrix;
-class SparseBoolMatrix;
 
 class
 SparseMatrix : public MSparse<double>

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2016-2021 The Octave Project Developers
+## Copyright (C) 2016-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -115,16 +115,19 @@ function outstr = do_output_file_extension ()
 endfunction
 
 function outstr = do_header (title_str, intro_str, toc_cstr)
+
   mathjax_str = sprintf ("%s\n",
-'<script type="text/x-mathjax-config">',
-"MathJax.Hub.Config({",
-"  tex2jax: { inlineMath: [['$','$'], ['\\\\(','\\\\)']] },",
-"  TeX: { equationNumbers: { autoNumber: 'all' } }",
-"});",
+"<script>",
+"MathJax = {",
+"  tex: {",
+"    inlineMath: [['$','$'], ['\\\\(','\\\\)']],",
+"    tags: 'all'",
+"  }",
+"};",
 "</script>",
-['<script type="text/javascript" async ', ...
- 'src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?', ...
- 'config=TeX-MML-AM_CHTML"></script>']);
+'<script type="text/javascript" async ',
+'src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">',
+"</script>");
 
   stylesheet_str = sprintf ("%s\n",
 "<style>",
@@ -198,6 +201,7 @@ intro_str);
 endfunction
 
 function outstr = do_footer (m_source_str)
+
   outstr = sprintf ("%s\n",
 "",
 "<footer>",
@@ -211,6 +215,7 @@ m_source_str,
 "-->",
 "</body>",
 "</html>");
+
 endfunction
 
 function outstr = do_code (str)
@@ -249,19 +254,23 @@ function outstr = do_preformatted_text (str)
 endfunction
 
 function outstr = do_bulleted_list (cstr)
+
   outstr = "\n<ul>\n";
   for i = 1:numel (cstr)
     outstr = [outstr, "<li>" cstr{i} "</li>\n"];
   endfor
   outstr = [outstr, "</ul>\n"];
+
 endfunction
 
 function outstr = do_numbered_list (cstr)
+
   outstr = "\n<ol>\n";
   for i = 1:numel (cstr)
     outstr = [outstr, "<li>" cstr{i} "</li>\n"];
   endfor
   outstr = [outstr, "</ol>\n"];
+
 endfunction
 
 function outstr = do_graphic (str)
@@ -322,6 +331,7 @@ endfunction
 ## SYNTAX_HIGHLIGHT: A primitive parser to highlight syntax via <span> tags.
 ## FIXME: Needs to be replaced by a better solution.
 function outstr = syntax_highlight (str)
+
   str = do_escape_special_chars (str);
   outstr = "";
   placeholder_cstr = {};

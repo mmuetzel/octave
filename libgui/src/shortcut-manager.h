@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2014-2021 The Octave Project Developers
+// Copyright (C) 2014-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -100,7 +100,7 @@ namespace octave
 
   protected slots:
 
-    void handle_double_clicked (QTreeWidgetItem*, int);
+    void handle_double_clicked (QTreeWidgetItem *, int);
     void shortcut_dialog_finished (int);
     void shortcut_dialog_set_default ();
 
@@ -160,9 +160,9 @@ namespace octave
     QList<shortcut_t> m_sc;
     QHash<QString, int> m_shortcut_hash;
     QHash<QString, int> m_action_hash;
-    QHash <QString, QTreeWidgetItem*> m_level_hash;
-    QHash<int, QTreeWidgetItem*> m_index_item_hash;
-    QHash<QTreeWidgetItem*, int> m_item_index_hash;
+    QHash <QString, QTreeWidgetItem *> m_level_hash;
+    QHash<int, QTreeWidgetItem *> m_index_item_hash;
+    QHash<QTreeWidgetItem *, int> m_item_index_hash;
 
     QDialog *m_dialog;
     enter_shortcut *m_edit_actual;

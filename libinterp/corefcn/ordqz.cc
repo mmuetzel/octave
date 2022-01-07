@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2020-2021 The Octave Project Developers
+// Copyright (C) 2020-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -117,7 +117,7 @@ selects the eigenvalues in the top left block of @var{AR} and @var{BR} in the
 following way:
 
 @table @asis
-@item @qcode{"S"}, @qcode{"udi"}
+@item @qcode{"S"}, @nospell{@qcode{"udi"}}
 small: leading block has all
 @tex
 $|\lambda| < 1$
@@ -126,7 +126,7 @@ $|\lambda| < 1$
 |@var{lambda}| < 1
 @end ifnottex
 
-@item @qcode{"B"}, @qcode{"udo"}
+@item @qcode{"B"}, @nospell{@qcode{"udo"}}
 big: leading block has all
 @tex
 $|\lambda| \geq 1$
@@ -135,11 +135,11 @@ $|\lambda| \geq 1$
 |@var{lambda}| @geq{} 1
 @end ifnottex
 
-@item @qcode{"-"}, @qcode{"lhp"}
+@item @qcode{"-"}, @nospell{@qcode{"lhp"}}
 negative real part: leading block has all eigenvalues in the open left
 half-plane
 
-@item @qcode{"+"}, @qcode{"rhp"}
+@item @qcode{"+"}, @nospell{@qcode{"rhp"}}
 non-negative real part: leading block has all eigenvalues in the closed right
 half-plane
 @end table
@@ -289,7 +289,7 @@ Note: The keywords are compatible with the ones from @code{qr}.
 
       for (k = 0; k < nn-1; k++)
         {
-          if (caa(k+1,k) != 0.0)
+          if (caa(k+1, k) != 0.0)
             error_with_id ("Octave:ordqz:unsupported_AA",
                            "ordqz: quasi upper triangular matrices are not "
                            "allowed with complex data");
@@ -297,8 +297,8 @@ Note: The keywords are compatible with the ones from @code{qr}.
 
       for (k = 0; k < nn; k++)
         {
-          alpha(k) = caa(k,k);
-          beta(k)  = cbb(k,k);
+          alpha(k) = caa(k, k);
+          beta(k)  = cbb(k, k);
         }
 
       for (k = 0; k < nn; k++)
@@ -377,11 +377,11 @@ Note: The keywords are compatible with the ones from @code{qr}.
 #ifdef DEBUG
           octave_stdout << "ordqz: k = " << k  << " nn = " << nn << " \n";
 #endif
-          if ((k < nn-1 && aa(k+1,k) == 0.0) || k == nn-1)
+          if ((k < nn-1 && aa(k+1, k) == 0.0) || k == nn-1)
             {
-              alphar(k) = aa(k,k);
+              alphar(k) = aa(k, k);
               alphai(k) = 0.0;
-              beta(k)   = bb(k,k);
+              beta(k)   = bb(k, k);
               k++;
             }
           else
@@ -403,7 +403,7 @@ Note: The keywords are compatible with the ones from @code{qr}.
                          F77_CONST_CHAR_ARG2 (&comp_q, 1),
                          F77_CONST_CHAR_ARG2 (&comp_z, 1),
                          nl, ilo, ihi,
-                         &aa_vec[k+k*nn] , nn,
+                         &aa_vec[k+k*nn], nn,
                          &bb_vec[k+k*nn], nn,
                          ar, ai, b,
                          nullptr, nn,

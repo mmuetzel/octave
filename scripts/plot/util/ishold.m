@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2005-2021 The Octave Project Developers
+## Copyright (C) 2005-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,9 +24,9 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn  {} {} ishold
-## @deftypefnx {} {} ishold (@var{hax})
-## @deftypefnx {} {} ishold (@var{hfig})
+## @deftypefn  {} {@var{tf} =} ishold
+## @deftypefnx {} {@var{tf} =} ishold (@var{hax})
+## @deftypefnx {} {@var{tf} =} ishold (@var{hfig})
 ## Return true if the next plot will be added to the current plot, or
 ## false if the plot device will be cleared before drawing the next plot.
 ##
@@ -35,7 +35,7 @@
 ## @seealso{hold, newplot}
 ## @end deftypefn
 
-function retval = ishold (h)
+function tf = ishold (h)
 
   if (nargin == 0)
     fig = gcf ();
@@ -60,7 +60,7 @@ function retval = ishold (h)
     endswitch
   endif
 
-  retval = (strcmp (get (fig, "nextplot"), "add")
+  tf = (strcmp (get (fig, "nextplot"), "add")
             && ! isempty (ax) && strcmp (get (ax, "nextplot"), "add"));
 
 endfunction

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -455,7 +455,7 @@ namespace octave
                pr, pvect);
 
         for (octave_idx_type j = 0; j < nt; j++)
-          m_A(i,j) = vect(j);
+          m_A(i, j) = vect(j);
       }
 
     // Second derivative weights.
@@ -467,7 +467,7 @@ namespace octave
                pr, pvect);
 
         for (octave_idx_type j = 0; j < nt; j++)
-          m_B(i,j) = vect(j);
+          m_B(i, j) = vect(j);
       }
 
     // Gaussian quadrature weights.

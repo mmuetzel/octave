@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2012-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -183,7 +183,7 @@ namespace octave
   }
 
   bool
-  cdef_method::cdef_method_rep::is_defined_in_class (const std::string &cname) const
+  cdef_method::cdef_method_rep::is_defined_in_class (const std::string& cname) const
   {
     return (m_function.is_function ()
             ? m_function.function_value ()->dispatch_class () == cname
@@ -218,7 +218,8 @@ namespace octave
     switch (type[0])
       {
       case '(':
-        retval = (execute (idx.front (), type.length () > 1 ? 1 : nargout, true));
+        retval = (execute (idx.front (),
+                           type.length () > 1 ? 1 : nargout, true));
         break;
 
       default:

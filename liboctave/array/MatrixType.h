@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2006-2021 The Octave Project Developers
+// Copyright (C) 2006-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -28,14 +28,9 @@
 
 #include "octave-config.h"
 
-#include "MSparse.h"
+#include "mx-fwd.h"
 
-class Matrix;
-class ComplexMatrix;
-class FloatMatrix;
-class FloatComplexMatrix;
-class SparseMatrix;
-class SparseComplexMatrix;
+#include "MSparse.h"
 
 class
 MatrixType
@@ -73,15 +68,15 @@ public:
 
   template <typename T>
   OCTAVE_API
-  MatrixType (const MSparse<T> &a);
+  MatrixType (const MSparse<T>& a);
 
   OCTAVE_API MatrixType (const matrix_type t, bool _full = false);
 
   OCTAVE_API MatrixType (const matrix_type t, const octave_idx_type np,
-              const octave_idx_type *p, bool _full = false);
+                         const octave_idx_type *p, bool _full = false);
 
   OCTAVE_API MatrixType (const matrix_type t, const octave_idx_type ku,
-              const octave_idx_type kl, bool _full = false);
+                         const octave_idx_type kl, bool _full = false);
 
   OCTAVE_API ~MatrixType (void);
 

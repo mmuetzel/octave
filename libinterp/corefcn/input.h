@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -47,11 +47,6 @@ extern bool octave_completion_matches_called;
 // TRUE if the plotting system has requested a call to drawnow at
 // the next user prompt.
 extern OCTINTERP_API bool Vdrawnow_requested;
-
-#if defined (OCTAVE_PROVIDE_DEPRECATED_SYMBOLS)
-OCTAVE_DEPRECATED (6, "'Vtrack_line_num' is an obsolete internal variable; any uses should be removed")
-extern OCTINTERP_API bool Vtrack_line_num;
-#endif
 
 extern OCTINTERP_API octave::sys::time Vlast_prompt_time;
 

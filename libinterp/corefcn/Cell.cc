@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1999-2021 The Octave Project Developers
+// Copyright (C) 1999-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -58,7 +58,7 @@ Cell::Cell (const string_vector& sv, bool trim)
               s = (pos == std::string::npos) ? "" : s.substr (0, pos+1);
             }
 
-          elem(i,0) = s;
+          elem (i, 0) = s;
         }
     }
 }

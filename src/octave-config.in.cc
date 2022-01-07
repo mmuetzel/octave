@@ -2,7 +2,7 @@
 
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2008-2021 The Octave Project Developers
+// Copyright (C) 2008-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -55,7 +55,7 @@
 
 #include "shared-fcns.h"
 
-static std::map<std::string,std::string> vars;
+static std::map<std::string, std::string> vars;
 
 static std::string usage_msg = "usage: octave-config [options]";
 

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1994-2021 The Octave Project Developers
+## Copyright (C) 1994-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -84,7 +84,9 @@
 ## @item ------------- @tab ---------------------------------------------------------------------------------------------
 ## @item white @tab all white colormap (no colors).
 ## @end multitable
-## @seealso{viridis, turbo, jet, cubehelix, hsv, rainbow, hot, cool, spring, summer, autumn, winter, gray, bone, copper, pink, ocean, colorcube, flag, lines, prism, white}
+## @seealso{viridis, turbo, jet, cubehelix, hsv, rainbow, hot, cool, spring,
+## summer, autumn, winter, gray, bone, copper, pink, ocean, colorcube, flag,
+## lines, prism, white}
 ## @end deftypefn
 
 function cmap = colormap (varargin)

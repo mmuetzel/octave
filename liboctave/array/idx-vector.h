@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -35,17 +35,15 @@
 #include <iosfwd>
 #include <memory>
 
+#include "Array-fwd.h"
 #include "dim-vector.h"
-#include "oct-inttypes-fwd.h"
+#include "oct-inttypes.h"
 #include "oct-refcount.h"
-
-template <typename T> class Array;
-template <typename T> class Sparse;
+#include "Sparse-fwd.h"
+#include "range-fwd.h"
 
 namespace octave
 {
-  template <typename T> class range;
-
   // Design rationale:
   //
   // idx_vector is a reference-counting, polymorphic pointer, that can
@@ -74,7 +72,7 @@ namespace octave
 
     template <typename T, typename D> friend class std::unique_ptr;
 
-    private:
+  private:
 
     class OCTAVE_API idx_base_rep
     {
@@ -291,8 +289,8 @@ namespace octave
       idx_vector_rep (octave_idx_type *data, octave_idx_type len,
                       octave_idx_type ext, const dim_vector& od, direct)
         : idx_base_rep (), m_data (data), m_len (len), m_ext (ext),
-        m_aowner (nullptr), m_orig_dims (od)
-        { }
+          m_aowner (nullptr), m_orig_dims (od)
+      { }
 
       // Zero-based constructor.
       OCTAVE_API idx_vector_rep (const Array<octave_idx_type>& inda);
@@ -371,8 +369,8 @@ namespace octave
       idx_mask_rep (bool *data, octave_idx_type len,
                     octave_idx_type ext, const dim_vector& od, direct)
         : idx_base_rep (), m_data (data), m_len (len), m_ext (ext),
-        m_lsti (-1), m_lste (-1), m_aowner (nullptr), m_orig_dims (od)
-        { }
+          m_lsti (-1), m_lste (-1), m_aowner (nullptr), m_orig_dims (od)
+      { }
 
       OCTAVE_API idx_mask_rep (bool);
 
@@ -442,9 +440,9 @@ namespace octave
 
     // The shared empty vector representation (for fast default
     // constructor).
-    static OCTAVE_API idx_vector_rep *nil_rep (void);
+    static OCTAVE_API idx_vector_rep * nil_rep (void);
 
-    public:
+  public:
 
     // Fast empty constructor.
     idx_vector (void) : m_rep (nil_rep ()) { m_rep->m_count++; }
@@ -465,7 +463,7 @@ namespace octave
 
     idx_vector (octave_idx_type start, octave_idx_type limit,
                 octave_idx_type step = 1)
-    : m_rep (new idx_range_rep (start, limit, step)) { }
+      : m_rep (new idx_range_rep (start, limit, step)) { }
 
     static idx_vector
     make_range (octave_idx_type start, octave_idx_type step,
@@ -475,11 +473,11 @@ namespace octave
     }
 
     idx_vector (const Array<octave_idx_type>& inda)
-    : m_rep (new idx_vector_rep (inda)) { }
+      : m_rep (new idx_vector_rep (inda)) { }
 
     // Directly pass extent, no checking.
     idx_vector (const Array<octave_idx_type>& inda, octave_idx_type ext)
-    : m_rep (new idx_vector_rep (inda, ext, DIRECT)) { }
+      : m_rep (new idx_vector_rep (inda, ext, DIRECT)) { }
 
     // Colon is best constructed by simply copying (or referencing) this member.
     static const idx_vector colon;
@@ -501,7 +499,7 @@ namespace octave
 
     template <typename T>
     idx_vector (const Array<octave_int<T>>& nda)
-    : m_rep (new idx_vector_rep (nda)) { }
+      : m_rep (new idx_vector_rep (nda)) { }
 
     idx_vector (const Array<double>& nda) : m_rep (new idx_vector_rep (nda)) { }
 
@@ -1026,7 +1024,7 @@ namespace octave
 
     octave_idx_type max (void) const { return extent (1) - 1; }
 
-    private:
+  private:
 
     idx_base_rep *m_rep;
 

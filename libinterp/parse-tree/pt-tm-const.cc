@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -507,7 +507,7 @@ namespace octave
       found_non_empty:
 
         if (! m_all_empty)
-          ctmp = ctmp.resize (dim_vector (0,0)).resize (m_dv);
+          ctmp = ctmp.resize (dim_vector (0, 0)).resize (m_dv);
       }
 
     // Now, extract the values from the individual elements and insert

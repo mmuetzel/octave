@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2012-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -41,6 +41,7 @@
 namespace octave
 {
   class
+  OCTINTERP_API
   cdef_property : public cdef_meta_object
   {
     friend class cdef_class;

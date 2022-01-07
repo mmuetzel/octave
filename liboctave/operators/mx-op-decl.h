@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -31,8 +31,7 @@
 #define BIN_OP_DECL(R, OP, X, Y, API)           \
   extern API R OP (const X&, const Y&)
 
-class boolMatrix;
-class boolNDArray;
+#include "mx-fwd.h"
 
 #define CMP_OP_DECL(OP, X, Y, API)              \
   extern API boolMatrix OP (const X&, const Y&)

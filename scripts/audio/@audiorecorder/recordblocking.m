@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2013-2021 The Octave Project Developers
+## Copyright (C) 2013-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -28,14 +28,19 @@
 ## Record audio with blocking (synchronous I/O).
 ##
 ## The length of the recording in seconds (@var{length}) must be specified.
+## @seealso{@audiorecorder/record, @audiorecorder/audiorecorder}
 ## @end deftypefn
 
-function recordblocking (varargin)
+function recordblocking (recorder, length)
 
   if (nargin != 2)
     print_usage ();
   endif
 
-  __recorder_recordblocking__ (struct (varargin{1}).recorder, varargin{2});
+  __recorder_recordblocking__ (struct (recorder).recorder, length);
 
 endfunction
+
+
+## No tests possible for this function
+%!assert (1)

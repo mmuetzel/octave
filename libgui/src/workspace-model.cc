@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -207,7 +207,7 @@ namespace octave
         QColor setting_color = settings->color_value (ws_colors[i], mode);
 
         QPalette p (setting_color);
-        m_storage_class_colors.replace (i,setting_color);
+        m_storage_class_colors.replace (i, setting_color);
 
         QColor fg_color = p.color (QPalette::WindowText);
         m_storage_class_colors.replace (i + ws_colors_count, fg_color);

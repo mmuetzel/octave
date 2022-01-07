@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2000-2021 The Octave Project Developers
+// Copyright (C) 2000-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -68,7 +68,7 @@ public:
 
   int_type pbackfail (int_type);
 
-  std::streamsize xsputn (const char*, std::streamsize);
+  std::streamsize xsputn (const char *, std::streamsize);
 
   std::streamsize xsgetn (char *, std::streamsize);
 
@@ -183,7 +183,7 @@ public:
 
   int_type pbackfail (int_type);
 
-  std::streamsize xsputn (const char*, std::streamsize);
+  std::streamsize xsputn (const char *, std::streamsize);
 
   std::streamsize xsgetn (char *, std::streamsize);
 

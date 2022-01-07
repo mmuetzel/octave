@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1994-2021 The Octave Project Developers
+// Copyright (C) 1994-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -28,7 +28,7 @@
 
 #include "octave-config.h"
 
-template <typename T> class Array;
+#include "Array-fwd.h"
 
 namespace octave
 {

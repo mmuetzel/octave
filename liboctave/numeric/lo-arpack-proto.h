@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2016-2021 The Octave Project Developers
+// Copyright (C) 2016-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -43,9 +43,9 @@ extern "C"
                              const F77_INT&,
                              F77_CONST_CHAR_ARG_DECL,
                              F77_INT&, const F77_DBLE&,
-                             F77_DBLE*, const F77_INT&, F77_DBLE*,
-                             const F77_INT&, F77_INT*,
-                             F77_INT*, F77_DBLE*, F77_DBLE*,
+                             F77_DBLE *, const F77_INT&, F77_DBLE *,
+                             const F77_INT&, F77_INT *,
+                             F77_INT *, F77_DBLE *, F77_DBLE *,
                              const F77_INT&, F77_INT&
                              F77_CHAR_ARG_LEN_DECL
                              F77_CHAR_ARG_LEN_DECL);
@@ -56,9 +56,9 @@ extern "C"
                              const F77_INT&,
                              F77_CONST_CHAR_ARG_DECL,
                              const F77_INT&, const F77_DBLE&,
-                             F77_DBLE_CMPLX*, const F77_INT&, F77_DBLE_CMPLX*,
-                             const F77_INT&, F77_INT*,
-                             F77_INT*, F77_DBLE_CMPLX*, F77_DBLE_CMPLX*,
+                             F77_DBLE_CMPLX *, const F77_INT&, F77_DBLE_CMPLX *,
+                             const F77_INT&, F77_INT *,
+                             F77_INT *, F77_DBLE_CMPLX *, F77_DBLE_CMPLX *,
                              const F77_INT&, F77_DBLE *, F77_INT&
                              F77_CHAR_ARG_LEN_DECL
                              F77_CHAR_ARG_LEN_DECL);
@@ -68,16 +68,16 @@ extern "C"
   F77_RET_T
   F77_FUNC (dneupd, DNEUPD) (const F77_INT&,
                              F77_CONST_CHAR_ARG_DECL,
-                             F77_INT*, F77_DBLE*, F77_DBLE*,
-                             F77_DBLE*, const F77_INT&, const F77_DBLE&,
-                             const F77_DBLE&, F77_DBLE*,
+                             F77_INT *, F77_DBLE *, F77_DBLE *,
+                             F77_DBLE *, const F77_INT&, const F77_DBLE&,
+                             const F77_DBLE&, F77_DBLE *,
                              F77_CONST_CHAR_ARG_DECL,
                              const F77_INT&,
                              F77_CONST_CHAR_ARG_DECL,
-                             F77_INT&, const F77_DBLE&, F77_DBLE*,
-                             const F77_INT&, F77_DBLE*,
-                             const F77_INT&, F77_INT*,
-                             F77_INT*, F77_DBLE*, F77_DBLE*,
+                             F77_INT&, const F77_DBLE&, F77_DBLE *,
+                             const F77_INT&, F77_DBLE *,
+                             const F77_INT&, F77_INT *,
+                             F77_INT *, F77_DBLE *, F77_DBLE *,
                              const F77_INT&, F77_INT&
                              F77_CHAR_ARG_LEN_DECL
                              F77_CHAR_ARG_LEN_DECL
@@ -86,16 +86,16 @@ extern "C"
   F77_RET_T
   F77_FUNC (zneupd, ZNEUPD) (const F77_INT&,
                              F77_CONST_CHAR_ARG_DECL,
-                             F77_INT*, F77_DBLE_CMPLX*, F77_DBLE_CMPLX*,
-                             const F77_INT&, const F77_DBLE_CMPLX*,
-                             F77_DBLE_CMPLX*,
+                             F77_INT *, F77_DBLE_CMPLX *, F77_DBLE_CMPLX *,
+                             const F77_INT&, const F77_DBLE_CMPLX *,
+                             F77_DBLE_CMPLX *,
                              F77_CONST_CHAR_ARG_DECL,
                              const F77_INT&,
                              F77_CONST_CHAR_ARG_DECL,
                              const F77_INT&, const F77_DBLE&,
-                             F77_DBLE_CMPLX*, const F77_INT&, F77_DBLE_CMPLX*,
-                             const F77_INT&, F77_INT*,
-                             F77_INT*, F77_DBLE_CMPLX*, F77_DBLE_CMPLX*,
+                             F77_DBLE_CMPLX *, const F77_INT&, F77_DBLE_CMPLX *,
+                             const F77_INT&, F77_INT *,
+                             F77_INT *, F77_DBLE_CMPLX *, F77_DBLE_CMPLX *,
                              const F77_INT&, F77_DBLE *, F77_INT&
                              F77_CHAR_ARG_LEN_DECL
                              F77_CHAR_ARG_LEN_DECL
@@ -109,9 +109,9 @@ extern "C"
                              const F77_INT&,
                              F77_CONST_CHAR_ARG_DECL,
                              const F77_INT&, const F77_DBLE&,
-                             F77_DBLE*, const F77_INT&, F77_DBLE*,
-                             const F77_INT&, F77_INT*,
-                             F77_INT*, F77_DBLE*, F77_DBLE*,
+                             F77_DBLE *, const F77_INT&, F77_DBLE *,
+                             const F77_INT&, F77_INT *,
+                             F77_INT *, F77_DBLE *, F77_DBLE *,
                              const F77_INT&, F77_INT&
                              F77_CHAR_ARG_LEN_DECL
                              F77_CHAR_ARG_LEN_DECL);
@@ -121,15 +121,15 @@ extern "C"
   F77_RET_T
   F77_FUNC (dseupd, DSEUPD) (const F77_INT&,
                              F77_CONST_CHAR_ARG_DECL,
-                             F77_INT*, F77_DBLE*, F77_DBLE*,
+                             F77_INT *, F77_DBLE *, F77_DBLE *,
                              const F77_INT&, const F77_DBLE&,
                              F77_CONST_CHAR_ARG_DECL,
                              const F77_INT&,
                              F77_CONST_CHAR_ARG_DECL,
-                             const F77_INT&, const F77_DBLE&, F77_DBLE*,
-                             const F77_INT&, F77_DBLE*,
-                             const F77_INT&, F77_INT*,
-                             F77_INT*, F77_DBLE*, F77_DBLE*,
+                             const F77_INT&, const F77_DBLE&, F77_DBLE *,
+                             const F77_INT&, F77_DBLE *,
+                             const F77_INT&, F77_INT *,
+                             F77_INT *, F77_DBLE *, F77_DBLE *,
                              const F77_INT&, F77_INT&
                              F77_CHAR_ARG_LEN_DECL
                              F77_CHAR_ARG_LEN_DECL

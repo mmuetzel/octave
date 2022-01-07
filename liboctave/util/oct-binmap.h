@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2010-2021 The Octave Project Developers
+// Copyright (C) 2010-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -286,9 +286,9 @@ Sparse<U>
 binmap (const Sparse<T>& xs, const Sparse<R>& ys, F fcn, const char *name)
 {
   if (xs.rows () == 1 && xs.cols () == 1)
-    return binmap<U, T, R, F> (xs(0,0), ys, fcn);
+    return binmap<U, T, R, F> (xs(0, 0), ys, fcn);
   else if (ys.rows () == 1 && ys.cols () == 1)
-    return binmap<U, T, R, F> (xs, ys(0,0), fcn);
+    return binmap<U, T, R, F> (xs, ys(0, 0), fcn);
   else if (xs.dims () != ys.dims ())
     octave::err_nonconformant (name, xs.dims (), ys.dims ());
 

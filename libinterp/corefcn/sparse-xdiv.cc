@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1998-2021 The Octave Project Developers
+// Copyright (C) 1998-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -336,28 +336,28 @@ RT do_rightdiv_sm_dm (const SM& a, const DM& d)
 
 // -*- 9 -*-
 SparseMatrix
-xdiv (const SparseMatrix& a, const DiagMatrix& b, MatrixType &)
+xdiv (const SparseMatrix& a, const DiagMatrix& b, MatrixType&)
 {
   return do_rightdiv_sm_dm<SparseMatrix> (a, b);
 }
 
 // -*- 10 -*-
 SparseComplexMatrix
-xdiv (const SparseMatrix& a, const ComplexDiagMatrix& b, MatrixType &)
+xdiv (const SparseMatrix& a, const ComplexDiagMatrix& b, MatrixType&)
 {
   return do_rightdiv_sm_dm<SparseComplexMatrix> (a, b);
 }
 
 // -*- 11 -*-
 SparseComplexMatrix
-xdiv (const SparseComplexMatrix& a, const DiagMatrix& b, MatrixType &)
+xdiv (const SparseComplexMatrix& a, const DiagMatrix& b, MatrixType&)
 {
   return do_rightdiv_sm_dm<SparseComplexMatrix> (a, b);
 }
 
 // -*- 12 -*-
 SparseComplexMatrix
-xdiv (const SparseComplexMatrix& a, const ComplexDiagMatrix& b, MatrixType &)
+xdiv (const SparseComplexMatrix& a, const ComplexDiagMatrix& b, MatrixType&)
 {
   return do_rightdiv_sm_dm<SparseComplexMatrix> (a, b);
 }

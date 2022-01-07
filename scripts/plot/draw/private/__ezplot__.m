@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2007-2021 The Octave Project Developers
+## Copyright (C) 2007-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -478,6 +478,7 @@ endfunction
 
 ## Eliminate bad data (complex values, infinities, singularities)
 function x = __eliminate_sing__ (x)
+
   if (iscomplex (x))
     x(imag (x) != 0) = NaN;
   endif
@@ -485,6 +486,7 @@ function x = __eliminate_sing__ (x)
   ## High rates of curvature are treated as singularities
   threshold = 0.2 * (max (x(:)) - min (x(:)));
   x(abs (del2 (x)) > threshold) = NaN;
+
 endfunction
 
 ## Find: 1) range of function where there are not NaN values,

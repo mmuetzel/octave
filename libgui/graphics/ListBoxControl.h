@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -62,8 +62,8 @@ namespace octave
 
   private slots:
     void itemSelectionChanged (void);
-    void itemActivated (const QModelIndex &);
-    void itemPressed (QListWidgetItem*);
+    void itemActivated (const QModelIndex&);
+    void itemPressed (QListWidgetItem *);
 
   private:
     bool m_blockCallback;

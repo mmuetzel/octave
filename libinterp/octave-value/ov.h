@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -302,14 +302,14 @@ public:
 
 #if defined (OCTAVE_PROVIDE_DEPRECATED_SYMBOLS)
   OCTAVE_DEPRECATED (7, "use 'octave_value (range<double>&)' instead")
-  OCTINTERP_API octave_value (double base, double limit, double inc)
+  octave_value (double base, double limit, double inc)
     : m_rep (make_range_rep_deprecated (base, inc, limit))
   {
     maybe_mutate ();
   }
 
   OCTAVE_DEPRECATED (7, "use 'octave_value (range<double>&)' instead")
-  OCTINTERP_API octave_value (const Range& r, bool force_range = false)
+  octave_value (const Range& r, bool force_range = false)
     : m_rep (make_range_rep_deprecated (r, force_range))
   {
     maybe_mutate ();
@@ -1507,7 +1507,7 @@ public:
 
   octave_value sort (octave_idx_type dim = 0, sortmode mode = ASCENDING) const
   { return m_rep->sort (dim, mode); }
-  octave_value sort (Array<octave_idx_type> &sidx, octave_idx_type dim = 0,
+  octave_value sort (Array<octave_idx_type>& sidx, octave_idx_type dim = 0,
                      sortmode mode = ASCENDING) const
   { return m_rep->sort (sidx, dim, mode); }
 
@@ -1526,7 +1526,8 @@ public:
 
   bool islocked (void) const { return m_rep->islocked (); }
 
-  void call_object_destructor (void) { return m_rep->call_object_destructor (); }
+  void call_object_destructor (void)
+  { return m_rep->call_object_destructor (); }
 
   octave_value dump (void) const { return m_rep->dump (); }
 
@@ -1638,7 +1639,7 @@ protected:
 
 private:
 
-  static OCTINTERP_API octave_base_value *nil_rep (void);
+  static OCTINTERP_API octave_base_value * nil_rep (void);
 
   OCTINTERP_API assign_op unary_op_to_assign_op (unary_op op);
 

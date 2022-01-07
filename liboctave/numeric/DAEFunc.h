@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -28,8 +28,7 @@
 
 #include "octave-config.h"
 
-class Matrix;
-class ColumnVector;
+#include "mx-fwd.h"
 
 class
 DAEFunc

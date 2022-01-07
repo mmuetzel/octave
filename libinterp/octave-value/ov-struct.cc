@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -470,13 +470,13 @@ octave_struct::subsasgn (const std::string& type,
               }
             else
               {
-                const octave_map& cmap = const_cast<const octave_map &> (m_map);
+                const octave_map& cmap = const_cast<const octave_map&> (m_map);
                 // cast to const reference, avoid forced key insertion.
                 if (idxf.all_scalars ()
                     || cmap.contents (key).index (idxf, true).numel () == 1)
                   {
                     m_map.assign (idxf,
-                                key, Cell (t_rhs.storable_value ()));
+                                  key, Cell (t_rhs.storable_value ()));
 
                     count++;
                     retval = octave_value (this);
@@ -699,7 +699,7 @@ octave_struct::edit_display (const float_display_format&,
       // 2-d struct array.  Rows and columns index individual
       // scalar structs.
 
-      val = m_map(r,c);
+      val = m_map(r, c);
     }
 
   std::string tname = val.type_name ();
@@ -1766,7 +1766,8 @@ to be an empty cell array.
 
 Finally, if the value is a non-scalar cell array, then @code{struct}
 produces a struct @strong{array}.
-@seealso{cell2struct, fieldnames, getfield, setfield, rmfield, isfield, orderfields, isstruct, structfun}
+@seealso{cell2struct, fieldnames, getfield, setfield, rmfield, isfield,
+orderfields, isstruct, structfun}
 @end deftypefn */)
 {
   int nargin = args.length ();
@@ -1884,14 +1885,16 @@ produces a struct @strong{array}.
 %!assert (size (x), [0,0])
 %!assert (isstruct (x))
 %!assert (isempty (fieldnames (x)))
-%!fail ('struct ("a",{1,2},"b",{1,2,3})', 'dimensions of parameter 2 do not match those of parameter 4')
+%!fail ('struct ("a",{1,2},"b",{1,2,3})',
+%!      'dimensions of parameter 2 do not match those of parameter 4')
 %!error <arguments must occur as "field", VALUE pairs> struct (1,2,3,4)
-%!fail ('struct ("1",2,"3")', 'struct: additional arguments must occur as "field", VALUE pairs')
+%!fail ('struct ("1",2,"3")',
+%!      'struct: additional arguments must occur as "field", VALUE pairs')
 */
 
 DEFUN (isstruct, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isstruct (@var{x})
+@deftypefn {} {@var{tf} =} isstruct (@var{x})
 Return true if @var{x} is a structure or a structure array.
 @seealso{ismatrix, iscell, isa}
 @end deftypefn */)
@@ -1931,8 +1934,8 @@ Implements @code{fieldnames()} for structures and Octave objects.
 
 DEFUN (isfield, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn  {} {} isfield (@var{x}, "@var{name}")
-@deftypefnx {} {} isfield (@var{x}, @var{name})
+@deftypefn  {} {@var{tf} =} isfield (@var{x}, "@var{name}")
+@deftypefnx {} {@var{tf} =} isfield (@var{x}, @var{name})
 Return true if the @var{x} is a structure and it includes an element named
 @var{name}.
 
@@ -2212,7 +2215,7 @@ DEFUN (struct_levels_to_print, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} struct_levels_to_print ()
 @deftypefnx {} {@var{old_val} =} struct_levels_to_print (@var{new_val})
-@deftypefnx {} {} struct_levels_to_print (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} struct_levels_to_print (@var{new_val}, "local")
 Query or set the internal variable that specifies the number of
 structure levels to display.
 
@@ -2231,7 +2234,7 @@ DEFUN (print_struct_array_contents, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} print_struct_array_contents ()
 @deftypefnx {} {@var{old_val} =} print_struct_array_contents (@var{new_val})
-@deftypefnx {} {} print_struct_array_contents (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} print_struct_array_contents (@var{new_val}, "local")
 Query or set the internal variable that specifies whether to print struct
 array contents.
 

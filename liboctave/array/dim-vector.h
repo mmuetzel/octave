@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2003-2021 The Octave Project Developers
+// Copyright (C) 2003-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // or <https://octave.org/copyright/>.
@@ -36,10 +36,9 @@
 #include <initializer_list>
 #include <string>
 
+#include "Array-fwd.h"
 #include "oct-atomic.h"
 #include "oct-refcount.h"
-
-template <typename T> class Array;
 
 //! Vector representing the dimensions (size) of an Array.
 //!

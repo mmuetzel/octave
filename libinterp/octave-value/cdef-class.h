@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2012-2021 The Octave Project Developers
+// Copyright (C) 2012-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -34,6 +34,7 @@
 
 #include "oct-refcount.h"
 
+#include "cdef-fwd.h"
 #include "cdef-method.h"
 #include "cdef-object.h"
 #include "cdef-package.h"
@@ -48,6 +49,7 @@ namespace octave
   class tree_classdef;
 
   class
+  OCTINTERP_API
   cdef_class : public cdef_meta_object
   {
   private:
@@ -172,7 +174,7 @@ namespace octave
       OCTINTERP_API void find_names (std::set<std::string>& names, bool all);
 
       OCTINTERP_API void
-      find_properties (std::map<std::string,cdef_property>& props,
+      find_properties (std::map<std::string, cdef_property>& props,
                        int mode = 0);
 
       OCTINTERP_API void
@@ -196,11 +198,11 @@ namespace octave
 
       // The methods defined by this class.
 
-      std::map<std::string,cdef_method> m_method_map;
+      std::map<std::string, cdef_method> m_method_map;
 
       // The properties defined by this class.
 
-      std::map<std::string,cdef_property> m_property_map;
+      std::map<std::string, cdef_property> m_property_map;
 
       // The number of members in this class (methods, properties...)
 
@@ -212,7 +214,7 @@ namespace octave
       bool m_handle_class;
 
       // The list of super-class constructors that are called implicitly by the
-      // the classdef engine when creating an object.  These constructors are not
+      // classdef engine when creating an object.  These constructors are not
       // called explicitly by the class constructor.
 
       std::list<cdef_class> m_implicit_ctor_list;
@@ -223,10 +225,10 @@ namespace octave
 
       // Utility iterator typedefs.
 
-      typedef std::map<std::string,cdef_method>::iterator method_iterator;
-      typedef std::map<std::string,cdef_method>::const_iterator method_const_iterator;
-      typedef std::map<std::string,cdef_property>::iterator property_iterator;
-      typedef std::map<std::string,cdef_property>::const_iterator property_const_iterator;
+      typedef std::map<std::string, cdef_method>::iterator method_iterator;
+      typedef std::map<std::string, cdef_method>::const_iterator method_const_iterator;
+      typedef std::map<std::string, cdef_property>::iterator property_iterator;
+      typedef std::map<std::string, cdef_property>::const_iterator property_const_iterator;
 
       cdef_class_rep (const cdef_class_rep& c) = default;
     };
@@ -237,7 +239,8 @@ namespace octave
 
     cdef_class (void) : cdef_meta_object () { }
 
-    cdef_class (const std::string& nm, const std::list<cdef_class>& superclasses)
+    cdef_class (const std::string& nm,
+                const std::list<cdef_class>& superclasses)
       : cdef_meta_object (new cdef_class_rep (superclasses))
     {
       get_rep ()->set_name (nm);
@@ -406,11 +409,11 @@ namespace octave
   public:
 
     enum
-      {
-       property_normal,
-       property_inherited,
-       property_all
-      };
+    {
+      property_normal,
+      property_inherited,
+      property_all
+    };
 
   private:
 

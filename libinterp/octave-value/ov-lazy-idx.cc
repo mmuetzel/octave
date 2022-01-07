@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2010-2021 The Octave Project Developers
+// Copyright (C) 2010-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -99,7 +99,8 @@ octave_lazy_index::permute (const Array<int>& vec, bool inv) const
 octave_value
 octave_lazy_index::squeeze (void) const
 {
-  return octave::idx_vector (m_index.as_array ().squeeze (), m_index.extent (0));
+  return octave::idx_vector (m_index.as_array ().squeeze (),
+                             m_index.extent (0));
 }
 
 octave_value
@@ -116,7 +117,7 @@ octave_lazy_index::sort (octave_idx_type dim, sortmode mode) const
 }
 
 octave_value
-octave_lazy_index::sort (Array<octave_idx_type> &sidx, octave_idx_type dim,
+octave_lazy_index::sort (Array<octave_idx_type>& sidx, octave_idx_type dim,
                          sortmode mode) const
 {
   const dim_vector odims = m_index.orig_dimensions ();

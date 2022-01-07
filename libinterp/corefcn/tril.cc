@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2004-2021 The Octave Project Developers
+// Copyright (C) 2004-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -291,7 +291,7 @@ do_trilu (const std::string& name,
         ov_idx(0) = range<double> (1, nr);
         idx_tmp.push_back (ov_idx);
         ov_idx(1) = static_cast<double> (nc);
-        tmp = tmp.resize (dim_vector (0,0));
+        tmp = tmp.resize (dim_vector (0, 0));
         tmp = tmp.subsasgn ("(", idx_tmp, arg.index_op (ov_idx));
         tmp = tmp.resize (dims);
 

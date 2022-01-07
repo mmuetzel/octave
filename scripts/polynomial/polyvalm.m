@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1994-2021 The Octave Project Developers
+## Copyright (C) 1994-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -64,6 +64,7 @@ endfunction
 
 
 %!assert (! any (polyvalm ([], [1, 2; 3, 4]))(:))
-%!assert (polyvalm ([1, 2, 3, 4], [3, -4, 1; -2, 0, 2; -1, 4, -3]), [117, -124, 11; -70, 36, 38; -43, 92, -45])
+%!assert (polyvalm ([1, 2, 3, 4], [3, -4, 1; -2, 0, 2; -1, 4, -3]),
+%!        [117, -124, 11; -70, 36, 38; -43, 92, -45])
 
 %!error <must be a square matrix> polyvalm ([1, 1, 1], [1, 2; 3, 4; 5, 6])

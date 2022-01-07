@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2013-2021 The Octave Project Developers
+// Copyright (C) 2013-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -56,7 +56,7 @@ namespace octave
 
   protected slots:
 
-    virtual QMenu* createPopupMenu ();
+    virtual QMenu * createPopupMenu ();
 
     virtual bool event (QEvent *ev);
 
@@ -73,8 +73,8 @@ namespace octave
 
     void request_switch (int direction);
 
-    QAction *add_action (QMenu *menu, const QIcon& icon, const QString& text,
-                         const char *member, QWidget *receiver);
+    QAction * add_action (QMenu *menu, const QIcon& icon, const QString& text,
+                          const char *member, QWidget *receiver);
 
     base_qobject& m_octave_qobj;
 

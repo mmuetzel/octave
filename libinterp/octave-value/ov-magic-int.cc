@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2020-2021 The Octave Project Developers
+// Copyright (C) 2020-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -30,7 +30,7 @@
 #include <istream>
 #include <ostream>
 
-#include "oct-inttypes.h"
+#include "oct-inttypes-fwd.h"
 
 #include "data-conv.h"
 #include "mach-info.h"

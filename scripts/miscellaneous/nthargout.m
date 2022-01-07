@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2012-2021 The Octave Project Developers
+## Copyright (C) 2012-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -117,5 +117,6 @@ endfunction
 
 %!shared m
 %! m = magic (5);
-%!assert (nthargout ([1,2], @ind2sub, size (m), nthargout (2, @max, m(:))), {5,3})
+%!assert (nthargout ([1,2], @ind2sub, size (m), nthargout (2, @max, m(:))),
+%!        {5,3})
 %!assert (nthargout (3, @find, m(m>20)), [23, 24, 25, 21, 22]')

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2008-2021 The Octave Project Developers
+## Copyright (C) 2008-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -81,9 +81,7 @@
 ## This is implemented from Lawson and Hanson's 1973 algorithm on page 161 of
 ## Solving Least Squares Problems.
 
-function [x, resnorm, residual, exitflag, output, lambda] = lsqnonneg (c, d,
-                                                                       x0 = [],
-                                                                       options = struct ())
+function [x, resnorm, residual, exitflag, output, lambda] = lsqnonneg (c, d, x0 = [], options = struct ())
 
   ## Special case: called to find default optimization options
   if (nargin == 1 && ischar (c) && strcmp (c, "defaults"))

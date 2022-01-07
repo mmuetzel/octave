@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1998-2021 The Octave Project Developers
+## Copyright (C) 1998-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -119,6 +119,7 @@ endfunction
 
 function [q, nfun, hmin] = adaptlobstp (f, a, b, fa, fb, q0, nfun, hmin,
                                         tol, trace, varargin)
+
   persistent alpha = sqrt (2/3);
   persistent beta = 1 / sqrt (5);
 

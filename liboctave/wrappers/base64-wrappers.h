@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2016-2021 The Octave Project Developers
+// Copyright (C) 2016-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -37,12 +37,12 @@
 extern "C" {
 #endif
 
-extern OCTAVE_API size_t
-octave_base64_encode_alloc_wrapper (const char *in, size_t inlen, char **out);
+extern OCTAVE_API ptrdiff_t
+octave_base64_encode_alloc_wrapper (const char *in, ptrdiff_t inlen, char **out);
 
 extern OCTAVE_API bool
-octave_base64_decode_alloc_wrapper (const char *in, size_t inlen,
-                                    char **out, size_t *outlen);
+octave_base64_decode_alloc_wrapper (const char *in, ptrdiff_t inlen,
+                                    char **out, ptrdiff_t *outlen);
 
 #if defined __cplusplus
 }

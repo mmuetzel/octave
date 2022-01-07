@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -88,11 +88,6 @@ bool octave_completion_matches_called = false;
 // TRUE if the plotting system has requested a call to drawnow at
 // the next user prompt.
 bool Vdrawnow_requested = false;
-
-// TRUE if we are recording line numbers in a source file.
-// Always true except when debugging and taking input directly from
-// the terminal.
-bool Vtrack_line_num = true;
 
 OCTAVE_NAMESPACE_BEGIN
 
@@ -966,7 +961,8 @@ OCTAVE_NAMESPACE_BEGIN
     : m_rep (new file_reader (interp, file))
   { }
 
-  input_reader::input_reader (interpreter& interp, FILE *file, const std::string& enc)
+  input_reader::input_reader (interpreter& interp, FILE *file,
+                              const std::string& enc)
     : m_rep (new file_reader (interp, file, enc))
   { }
 
@@ -1342,7 +1338,7 @@ Read the readline library initialization file @var{file}.
 If @var{file} is omitted, read the default initialization file
 (normally @file{~/.inputrc}).
 
-@xref{Readline Init File, , , readline, GNU Readline Library},
+@xref{Readline Init File,,,readline, GNU Readline Library},
 for details.
 @seealso{readline_re_read_init_file}
 @end deftypefn */)
@@ -1369,7 +1365,7 @@ DEFUN (readline_re_read_init_file, args, ,
 @deftypefn {} {} readline_re_read_init_file ()
 Re-read the last readline library initialization file that was read.
 
-@xref{Readline Init File, , , readline, GNU Readline Library},
+@xref{Readline Init File,,,readline, GNU Readline Library},
 for details.
 @seealso{readline_read_init_file}
 @end deftypefn */)
@@ -1453,7 +1449,7 @@ DEFMETHOD (PS1, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} PS1 ()
 @deftypefnx {} {@var{old_val} =} PS1 (@var{new_val})
-@deftypefnx {} {} PS1 (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} PS1 (@var{new_val}, "local")
 Query or set the primary prompt string.
 
 When executing interactively, Octave displays the primary prompt when it is
@@ -1497,7 +1493,7 @@ DEFMETHOD (PS2, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} PS2 ()
 @deftypefnx {} {@var{old_val} =} PS2 (@var{new_val})
-@deftypefnx {} {} PS2 (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} PS2 (@var{new_val}, "local")
 Query or set the secondary prompt string.
 
 The secondary prompt is printed when Octave is expecting additional input to
@@ -1521,7 +1517,7 @@ DEFMETHOD (completion_append_char, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} completion_append_char ()
 @deftypefnx {} {@var{old_val} =} completion_append_char (@var{new_val})
-@deftypefnx {} {} completion_append_char (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} completion_append_char (@var{new_val}, "local")
 Query or set the internal character variable that is appended to
 successful command-line completion attempts.
 
@@ -1581,7 +1577,7 @@ Set and query the codepage that is used for reading .m files.
 
 DEFMETHOD (dir_encoding, interp, args, nargout,
            doc: /* -*- texinfo -*-
-@deftypefn {}  {@var{current_encoding} =} dir_encoding (@var{dir})
+@deftypefn  {} {@var{current_encoding} =} dir_encoding (@var{dir})
 @deftypefnx {} {@var{prev_encoding} =} dir_encoding (@var{dir}, @var{encoding})
 @deftypefnx {} {} dir_encoding (@dots{})
 Set and query the @var{encoding} that is used for reading m-files in @var{dir}.
@@ -1591,7 +1587,7 @@ That encoding overrides the (globally set) m-file encoding.
 The string @var{DIR} must match the form how the directory would appear in the
 load path.
 
-The @var{encoding} must be a valid encoding identifier or @code{"delete"}.  In
+The @var{encoding} must be a valid encoding identifier or @qcode{"delete"}.  In
 the latter case, the (globally set) m-file encoding will be used for the given
 @var{dir}.
 
@@ -1602,7 +1598,7 @@ requested.
 The directory encoding is automatically read from the file @file{.oct-config}
 when a new path is added to the load path (for example with @code{addpath}).
 To set the encoding for all files in the same folder, that file must contain
-a line starting with @code{"encoding="} followed by the encoding identifier.
+a line starting with @qcode{"encoding="} followed by the encoding identifier.
 
 For example to set the file encoding for all files in the same folder to
 ISO 8859-1 (Latin-1), create a file @file{.oct-config} with the following
@@ -1650,7 +1646,7 @@ DEFMETHOD (auto_repeat_debug_command, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} auto_repeat_debug_command ()
 @deftypefnx {} {@var{old_val} =} auto_repeat_debug_command (@var{new_val})
-@deftypefnx {} {} auto_repeat_debug_command (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} auto_repeat_debug_command (@var{new_val}, "local")
 Query or set the internal variable that controls whether debugging
 commands are automatically repeated when the input line is empty (typing
 just @key{RET}).

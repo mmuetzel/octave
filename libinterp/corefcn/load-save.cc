@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1994-2021 The Octave Project Developers
+// Copyright (C) 1994-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -855,7 +855,8 @@ OCTAVE_NAMESPACE_BEGIN
                                       OCTAVE_VERSION ", %Y-%m-%d %T UTC";
           std::string comment_string = now.strftime (matlab_format);
 
-          std::size_t len = std::min (comment_string.length (), static_cast<std::size_t> (124));
+          std::size_t len = std::min (comment_string.length (),
+                                      static_cast<std::size_t> (124));
           memset (headertext, ' ', 124);
           memcpy (headertext, comment_string.data (), len);
 
@@ -1805,7 +1806,8 @@ save -binary data a b*
 @noindent
 saves the variable @samp{a} and all variables beginning with @samp{b} to the
 file @file{data} in Octave's binary format.
-@seealso{load, save_default_options, save_header_format_string, save_precision, dlmread, csvread, fread}
+@seealso{load, save_default_options, save_header_format_string, save_precision,
+dlmread, csvread, fread}
 @end deftypefn */)
 {
   load_save_system& load_save_sys = interp.get_load_save_system ();
@@ -1914,7 +1916,7 @@ DEFMETHOD (crash_dumps_octave_core, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} crash_dumps_octave_core ()
 @deftypefnx {} {@var{old_val} =} crash_dumps_octave_core (@var{new_val})
-@deftypefnx {} {} crash_dumps_octave_core (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} crash_dumps_octave_core (@var{new_val}, "local")
 Query or set the internal variable that controls whether Octave tries
 to save all current variables to the file @file{octave-workspace} if it
 crashes or receives a hangup, terminate or similar signal.
@@ -1922,7 +1924,8 @@ crashes or receives a hangup, terminate or similar signal.
 When called from inside a function with the @qcode{"local"} option, the
 variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
-@seealso{octave_core_file_limit, octave_core_file_name, octave_core_file_options}
+@seealso{octave_core_file_limit, octave_core_file_name,
+octave_core_file_options}
 @end deftypefn */)
 {
   load_save_system& load_save_sys = interp.get_load_save_system ();
@@ -1934,7 +1937,7 @@ DEFMETHOD (save_default_options, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} save_default_options ()
 @deftypefnx {} {@var{old_val} =} save_default_options (@var{new_val})
-@deftypefnx {} {} save_default_options (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} save_default_options (@var{new_val}, "local")
 Query or set the internal variable that specifies the default options
 for the @code{save} command, and defines the default format.
 
@@ -1956,7 +1959,7 @@ DEFMETHOD (octave_core_file_limit, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} octave_core_file_limit ()
 @deftypefnx {} {@var{old_val} =} octave_core_file_limit (@var{new_val})
-@deftypefnx {} {} octave_core_file_limit (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} octave_core_file_limit (@var{new_val}, "local")
 Query or set the internal variable that specifies the maximum amount of memory
 that Octave will save when writing a crash dump file.
 
@@ -1972,7 +1975,8 @@ the limit.  The default value is -1 (unlimited).
 When called from inside a function with the @qcode{"local"} option, the
 variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
-@seealso{crash_dumps_octave_core, octave_core_file_name, octave_core_file_options}
+@seealso{crash_dumps_octave_core, octave_core_file_name,
+octave_core_file_options}
 @end deftypefn */)
 {
   load_save_system& load_save_sys = interp.get_load_save_system ();
@@ -1984,7 +1988,7 @@ DEFMETHOD (octave_core_file_name, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} octave_core_file_name ()
 @deftypefnx {} {@var{old_val} =} octave_core_file_name (@var{new_val})
-@deftypefnx {} {} octave_core_file_name (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} octave_core_file_name (@var{new_val}, "local")
 Query or set the internal variable that specifies the name of the file
 used for saving data from the top-level workspace if Octave aborts.
 
@@ -1993,7 +1997,8 @@ The default value is @qcode{"octave-workspace"}
 When called from inside a function with the @qcode{"local"} option, the
 variable is changed locally for the function and any subroutines it calls.
 The original variable value is restored when exiting the function.
-@seealso{crash_dumps_octave_core, octave_core_file_name, octave_core_file_options}
+@seealso{crash_dumps_octave_core, octave_core_file_name,
+octave_core_file_options}
 @end deftypefn */)
 {
   load_save_system& load_save_sys = interp.get_load_save_system ();
@@ -2005,7 +2010,7 @@ DEFMETHOD (octave_core_file_options, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} octave_core_file_options ()
 @deftypefnx {} {@var{old_val} =} octave_core_file_options (@var{new_val})
-@deftypefnx {} {} octave_core_file_options (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} octave_core_file_options (@var{new_val}, "local")
 Query or set the internal variable that specifies the options used for
 saving the workspace data if Octave aborts.
 
@@ -2028,7 +2033,7 @@ DEFMETHOD (save_header_format_string, interp, args, nargout,
            doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} save_header_format_string ()
 @deftypefnx {} {@var{old_val} =} save_header_format_string (@var{new_val})
-@deftypefnx {} {} save_header_format_string (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} save_header_format_string (@var{new_val}, "local")
 Query or set the internal variable that specifies the format string used for
 the comment line written at the beginning of text-format data files saved by
 Octave.

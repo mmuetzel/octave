@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2003-2021 The Octave Project Developers
+// Copyright (C) 2003-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -53,7 +53,8 @@ public:
 
   ~hdf5_fstreambase () { close (); }
 
-  OCTINTERP_API hdf5_fstreambase (const char *name, int mode, int /* prot */ = 0);
+  OCTINTERP_API hdf5_fstreambase (const char *name, int mode,
+                                  int /* prot */ = 0);
 
   OCTINTERP_API void close (void);
 

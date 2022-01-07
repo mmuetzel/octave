@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -171,7 +171,7 @@ void MArray<T>::idx_add_nd (const octave::idx_vector& idx,
       ext = ddv(dim);
     }
 
-  octave_idx_type l,n,u,ns;
+  octave_idx_type l, n, u, ns;
   get_extent_triplet (ddv, dim, l, n, u);
   ns = sdv(dim);
 
@@ -372,8 +372,24 @@ operator - (const MArray<T>& a)
   return do_mx_unary_op<T, T> (a, mx_inline_uminus);
 }
 
+template <typename T>
+void MArray<T>::instantiation_guard ()
+{
+  // This guards against accidental implicit instantiations.
+  // Array<T, Alloc> instances should always be explicit and use INSTANTIATE_ARRAY.
+  T::__xXxXx__ ();
+}
+
 #if defined (__clang__)
-#  define INSTANTIATE_MARRAY(T) template class OCTAVE_API MArray<T>
+#  define INSTANTIATE_MARRAY(T, API)            \
+  template <> API void                          \
+  MArray<T>::instantiation_guard () { }         \
+                                                \
+  template class API MArray<T>
 #else
-#  define INSTANTIATE_MARRAY(T) template class MArray<T>
+#  define INSTANTIATE_MARRAY(T, API)            \
+  template <> API void                          \
+  MArray<T>::instantiation_guard () { }         \
+                                                \
+  template class MArray<T>
 #endif

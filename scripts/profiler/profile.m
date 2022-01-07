@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2012-2021 The Octave Project Developers
+## Copyright (C) 2012-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -65,14 +65,13 @@
 ## @end table
 ## @end deftypefn
 
-## Built-in profiler.
-function retval = profile (option)
+function retval = profile (arg)
 
   if (nargin < 1)
     print_usage ();
   endif
 
-  switch (option)
+  switch (arg)
     case "on"
       __profiler_enable__ (true);
 
@@ -99,7 +98,7 @@ function retval = profile (option)
       retval = struct ("FunctionTable", flat, "Hierarchical", tree);
 
     otherwise
-      warning ("profile: Unrecognized option '%s'", option);
+      warning ("profile: Unrecognized option '%s'", arg);
       print_usage ();
 
   endswitch

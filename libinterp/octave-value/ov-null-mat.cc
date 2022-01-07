@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2008-2021 The Octave Project Developers
+// Copyright (C) 2008-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -100,7 +100,7 @@ OCTAVE_NAMESPACE_BEGIN
 
 DEFUN (isnull, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isnull (@var{x})
+@deftypefn {} {@var{tf} =} isnull (@var{x})
 Return true if @var{x} is a special null matrix, string, or single quoted
 string.
 

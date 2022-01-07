@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -30,12 +30,14 @@
 
 #include <iosfwd>
 
+#include "Array-fwd.h"
+#include "intNDArray-fwd.h"
 #include "oct-cmplx.h"
 #include "oct-inttypes-fwd.h"
+#include "range-fwd.h"
 
 #include "pr-flt-fmt.h"
 
-template <typename T> class Array;
 class ComplexMatrix;
 class FloatComplexMatrix;
 class ComplexDiagMatrix;
@@ -55,13 +57,6 @@ class charNDArray;
 class PermMatrix;
 class Cell;
 class octave_value;
-
-namespace octave
-{
-  template <typename T> class range;
-}
-
-template <typename T> class intNDArray;
 
 template <typename T>
 float_display_format

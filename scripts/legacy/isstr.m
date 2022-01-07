@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2003-2021 The Octave Project Developers
+## Copyright (C) 2003-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,7 +24,7 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} isstr (@var{x})
+## @deftypefn {} {@var{tf} =} isstr (@var{x})
 ## This function is obsolete.  Use @code{ischar} instead.
 ## @seealso{ischar}
 ## @end deftypefn
@@ -33,7 +33,7 @@
 ## removed in some future version.  Now users are told that it should be
 ## avoided, but there is no mention of possible future removal.
 
-function retval = isstr (varargin)
+function tf = isstr (varargin)
 
   persistent warned = false;
   if (! warned)
@@ -42,6 +42,6 @@ function retval = isstr (varargin)
              "isstr is obsolete; please use ischar instead");
   endif
 
-  retval = ischar (varargin{:});
+  tf = ischar (varargin{:});
 
 endfunction

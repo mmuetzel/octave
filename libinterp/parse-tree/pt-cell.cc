@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1999-2021 The Octave Project Developers
+// Copyright (C) 1999-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -91,7 +91,7 @@ namespace octave
           }
 
         for (octave_idx_type j = 0; j < nc; j++)
-          val(i,j) = row(j);
+          val(i, j) = row(j);
 
         i++;
       }

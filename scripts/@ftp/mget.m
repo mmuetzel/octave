@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2009-2021 The Octave Project Developers
+## Copyright (C) 2009-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -38,6 +38,7 @@
 ## If a third string argument @var{target} is given, then it must indicate
 ## the path to the local destination directory.  @var{target} may be a
 ## relative or absolute path.
+## @seealso{@ftp/mput, @ftp/ftp}
 ## @end deftypefn
 
 function mget (f, file, target = "")

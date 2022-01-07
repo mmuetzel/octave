@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2017-2021 The Octave Project Developers
+## Copyright (C) 2017-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -26,13 +26,10 @@
 ## -*- texinfo -*-
 ## @deftypefn {} {} disp (@var{recorder})
 ## Display the properties of the audiorecorder object @var{recorder}.
+## @seealso{@audiorecorder/audiorecorder}
 ## @end deftypefn
 
 function disp (recorder)
-
-  if (nargin < 1)
-    print_usage ();
-  endif
 
   printf ("audiorecorder object with properties:\n\n");
   for [val, prop] = __get_properties__ (recorder)
@@ -40,3 +37,7 @@ function disp (recorder)
   endfor
 
 endfunction
+
+
+## No tests possible/needed for this function
+%!assert (1)

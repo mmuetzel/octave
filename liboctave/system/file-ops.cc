@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -722,10 +722,10 @@ namespace octave
       DWORD len = GetFinalPathNameByHandleW (h_file, buffer, buf_size,
                                              FILE_NAME_NORMALIZED);
       if (len >= buf_size)
-      {
+        {
           msg = "Error querying normalized name for \"" + name + "\"";
           return retval;
-      }
+        }
 
       retval = u8_from_wstring (std::wstring (buffer, len));
 

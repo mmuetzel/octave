@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2013-2021 The Octave Project Developers
+## Copyright (C) 2013-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -28,9 +28,14 @@
 ## Perform subscripted assignment on the audio player object @var{player}.
 ##
 ## Assign the value of @var{rhs} to the player property named by @var{idx}.
+## @seealso{@audioplayer/audioplayer}
 ## @end deftypefn
 
 function value = subsasgn (player, idx, rhs)
+
+  if (nargin != 3)
+    print_usage ();
+  endif
 
   if (isempty (idx))
     error ("audioplayer: missing index");
@@ -45,3 +50,15 @@ function value = subsasgn (player, idx, rhs)
   endif
 
 endfunction
+
+
+%!testif HAVE_PORTAUDIO; audiodevinfo (0) > 0
+%! player = audioplayer ([-1, 1], 44100, 8);
+%! player.Tag = "mytag";
+%! assert (get (player, "Tag"), "mytag");
+
+## Test input validation
+%!testif HAVE_PORTAUDIO; audiodevinfo (0) > 0
+%! player = audioplayer ([-1, 1], 44100, 8);
+%! fail ("player(1).Tag = 5", "invalid subscript type");
+%! fail ("player{1}.Tag = 5", "invalid subscript type");

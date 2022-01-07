@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2007-2021 The Octave Project Developers
+// Copyright (C) 2007-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -322,7 +322,7 @@ update_index (Array<int>& idx, const dim_vector& dv, octave_idx_type i)
 
 OCTAVE_NAMESPACE_BEGIN
 
-DEFMETHOD (bsxfun, interp,args, ,
+DEFMETHOD (bsxfun, interp, args, ,
            doc: /* -*- texinfo -*-
 @deftypefn {} {} bsxfun (@var{f}, @var{A}, @var{B})
 Apply a binary function @var{f} element-by-element to two array arguments
@@ -719,10 +719,12 @@ as the other array.
 %!assert (bsxfun (f, a, b), a - repmat (b, [4, 1, 1]))
 %!assert (bsxfun (f, a, c), a - repmat (c, [1, 4, 1]))
 %!assert (bsxfun (f, a, d), a - repmat (d, [1, 1, 4]))
-%!assert (bsxfun ("minus", ones ([4, 0, 4]), ones ([4, 1, 4])), zeros ([4, 0, 4]))
+%!assert (bsxfun ("minus", ones ([4, 0, 4]), ones ([4, 1, 4])),
+%!        zeros ([4, 0, 4]))
 
 ## The test below is a very hard case to treat
-%!assert (bsxfun (f, ones ([4, 1, 4, 1]), ones ([1, 4, 1, 4])), zeros ([4, 4, 4, 4]))
+%!assert (bsxfun (f, ones ([4, 1, 4, 1]), ones ([1, 4, 1, 4])),
+%!        zeros ([4, 4, 4, 4]))
 
 %!shared a, b, aa, bb
 %! ## FIXME: Set a known "good" random seed.  See bug #51779.
@@ -797,13 +799,13 @@ as the other array.
 %! endfor
 
 ## Automatic broadcasting with zero length dimensions
-%!assert <*47085> ([1 2 3] .+ zeros (0, 3), zeros (0, 3))
-%!assert <*47085> (rand (3, 3, 1) .+ rand (3, 3, 0), zeros (3, 3, 0))
+%!assert <*47085> ([1 2 3] + zeros (0, 3), zeros (0, 3))
+%!assert <*47085> (rand (3, 3, 1) + rand (3, 3, 0), zeros (3, 3, 0))
 
 ## In-place broadcasting with zero length dimensions
 %!test <*47085>
 %! a = zeros (0, 3);
-%! a .+= [1 2 3];
+%! a += [1 2 3];
 %! assert (a, zeros (0, 3));
 
 %!test <*53179>

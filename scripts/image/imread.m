@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2002-2021 The Octave Project Developers
+## Copyright (C) 2002-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -192,7 +192,8 @@ endfunction
 %!   extra_inputs = {"some", 89, i, {6 7 8}};
 %!   assert (imread (fname, extra_inputs{:}), {fname, extra_inputs{:}});
 %!   assert (imread (fname, "jpg", extra_inputs{:}), {fname, extra_inputs{:}});
-%!   assert (imread (fname(1:end-4), "jpg", extra_inputs{:}), {fname, extra_inputs{:}});
+%!   assert (imread (fname(1:end-4), "jpg", extra_inputs{:}),
+%!           {fname, extra_inputs{:}});
 %! unwind_protect_cleanup
 %!   fclose (fid);
 %!   unlink (fname);

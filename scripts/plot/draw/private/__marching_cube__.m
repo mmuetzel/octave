@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2009-2021 The Octave Project Developers
+## Copyright (C) 2009-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -215,7 +215,7 @@ function p = vertex_interp (isolevel, p1x, p1y, p1z,
     error ("__marching_cube__: wrong number of arguments");
   endif
 
-  id = abs (valp1-valp2) < (10*eps) .* (abs (valp1) .+ abs (valp2));
+  id = abs (valp1-valp2) < (10*eps) .* (abs (valp1) + abs (valp2));
   if (any (id))
     p(id, 1:3) = [ p1x(id), p1y(id), p1z(id) ];
     if (nargin == 11)

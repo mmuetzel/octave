@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2007-2021 The Octave Project Developers
+## Copyright (C) 2007-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -183,6 +183,7 @@ function [h, failed] = __patch__ (p, varargin)
 endfunction
 
 function retval = iscolorspec (arg)
+
   retval = false;
   if (ischar (arg))
     persistent colors = {"y", "yellow", "r", "red", "m", "magenta", ...
@@ -192,4 +193,5 @@ function retval = iscolorspec (arg)
       retval = true;
     endif
   endif
+
 endfunction

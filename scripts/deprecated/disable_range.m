@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2021 The Octave Project Developers
+## Copyright (C) 2021-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -26,16 +26,20 @@
 ## -*- texinfo -*-
 ## @deftypefn  {} {@var{val} =} disable_range ()
 ## @deftypefnx {} {@var{old_val} =} disable_range (@var{new_val})
-## @deftypefnx {} {} disable_range (@var{new_val}, "local")
+## @deftypefnx {} {@var{old_val} =} disable_range (@var{new_val}, "local")
+##
+## @code{disable_range} is deprecated and will be removed in Octave version 9.
+## Use @code{optimize_range} instead.
+##
 ## Query or set whether storing ranges in a special space-efficient format is
 ## disabled.
-## 
-## The default value is false.  If this option is set to true, Octave will store
-## ranges as full matrices.
-## 
-## When called from inside a function with the @qcode{"local"} option, the setting
-## is changed locally for the function and any subroutines it calls.  The original
-## setting is restored when exiting the function.
+##
+## The default value is false.  If this option is set to true, Octave will
+## store ranges as full matrices.
+##
+## When called from inside a function with the @qcode{"local"} option, the
+## setting is changed locally for the function and any subroutines it calls.
+## The original setting is restored when exiting the function.
 ## @seealso{disable_diagonal_matrix, disable_permutation_matrix}
 ## @end deftypefn
 

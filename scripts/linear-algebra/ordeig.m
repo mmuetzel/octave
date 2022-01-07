@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2018-2021 The Octave Project Developers
+## Copyright (C) 2018-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -107,12 +107,14 @@ endfunction
 
 ## Check whether a matrix is quasi-triangular
 function retval = is_quasitri (A)
+
   if (length (A) <= 2)
     retval = true;
   else
     v = diag (A, -1) != 0;
     retval = (all (tril (A, -2)(:) == 0) && all (v(1:end-1) + v(2:end) < 2));
   endif
+
 endfunction
 
 

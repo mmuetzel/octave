@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2011-2021 The Octave Project Developers
+// Copyright (C) 2011-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -40,7 +40,7 @@
 namespace octave
 {
 
-  ContextMenu*
+  ContextMenu *
   ContextMenu::create (octave::base_qobject& oct_qobj,
                        octave::interpreter& interp, const graphics_object& go)
   {
@@ -113,7 +113,7 @@ namespace octave
     emit gh_set_event (m_handle, "visible", "off", false);
   }
 
-  QWidget*
+  QWidget *
   ContextMenu::menu (void)
   {
     return qWidget<QWidget> ();

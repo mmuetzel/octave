@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2006-2021 The Octave Project Developers
+// Copyright (C) 2006-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -27,6 +27,12 @@
 #  include "config.h"
 #endif
 
+// #define DEBUG 1
+
+#if defined (DEBUG)
+#  include <iostream>
+#endif
+
 #include <cstdarg>
 #include <cstdlib>
 #include <cstring>
@@ -34,9 +40,14 @@
 
 #include <limits>
 #include <map>
+#if defined (OCTAVE_HAVE_STD_PMR_POLYMORPHIC_ALLOCATOR)
+#  include <memory_resource>
+#endif
 #include <set>
 #include <string>
 
+// Needed to instantiate Array objects with custom allocator.
+#include "Array.cc"
 #include "f77-fcn.h"
 #include "lo-ieee.h"
 #include "oct-locbuf.h"
@@ -253,12 +264,39 @@ extern "C"
   extern OCTINTERP_API void mxSetImagData (mxArray *ptr, void *pi);
 }
 
-// #define DEBUG 1
+static void *
+xmalloc (size_t n)
+{
+  void *ptr = std::malloc (n);
+
+#if defined (DEBUG)
+  std::cerr << "xmalloc (" << n << ") = " << ptr << std::endl;
+#endif
+
+  return ptr;
+}
+
+static void *
+xrealloc (void *ptr, size_t n)
+{
+  void *newptr = std::realloc (ptr, n);
+
+#if defined (DEBUG)
+  std::cerr << "xrealloc (" << ptr << ", " << n << ") = " << newptr
+            << std::endl;
+#endif
+
+  return newptr;
+}
 
 static void
 xfree (void *ptr)
 {
-  ::free (ptr);
+#if defined (DEBUG)
+  std::cerr << "xfree (" << ptr << ")" << std::endl;
+#endif
+
+  std::free (ptr);
 }
 
 static mwSize
@@ -277,29 +315,62 @@ max_str_len (mwSize m, const char **str)
   return max_len;
 }
 
-static int
-valid_key (const char *key)
+// FIXME: Is there a better/standard way to do this job?
+
+template <typename T>
+class fp_type_traits
 {
-  int retval = 0;
+public:
+  static const bool is_complex = false;
+};
 
-  int nel = strlen (key);
+template <>
+class fp_type_traits<Complex>
+{
+public:
+  static const bool is_complex = true;
+};
 
-  if (nel > 0)
-    {
-      if (isalpha (key[0]))
-        {
-          for (int i = 1; i < nel; i++)
-            {
-              if (! (isalnum (key[i]) || key[i] == '_'))
-                return retval;
-            }
+template <>
+class fp_type_traits <FloatComplex>
+{
+public:
+  static const bool is_complex = true;
+};
 
-          retval = 1;
-        }
-    }
+#if defined (OCTAVE_HAVE_STD_PMR_POLYMORPHIC_ALLOCATOR)
 
-  return retval;
-}
+class mx_memory_resource : public std::pmr::memory_resource
+{
+private:
+
+  void * do_allocate (std::size_t bytes, size_t /*alignment*/)
+  {
+    void *ptr = xmalloc (bytes);
+
+    if (! ptr)
+      throw std::bad_alloc ();
+
+    return ptr;
+  }
+
+  void do_deallocate (void* ptr, std::size_t /*bytes*/,
+                      std::size_t /*alignment*/)
+  {
+    xfree (ptr);
+  }
+
+  bool do_is_equal (const std::pmr::memory_resource& other) const noexcept
+  {
+    return this == dynamic_cast<const mx_memory_resource *> (&other);
+  }
+};
+
+// FIXME: Is it OK for the memory resource object to be defined this
+// way?
+static mx_memory_resource the_mx_memory_resource;
+
+#endif
 
 // ------------------------------------------------------------------
 
@@ -701,9 +772,11 @@ public:
 
   GET_DATA_METHOD (mxUint64, get_uint64s, mxUINT64_CLASS, mxREAL);
 
-  GET_DATA_METHOD (mxComplexDouble, get_complex_doubles, mxDOUBLE_CLASS, mxCOMPLEX);
+  GET_DATA_METHOD (mxComplexDouble, get_complex_doubles,
+                   mxDOUBLE_CLASS, mxCOMPLEX);
 
-  GET_DATA_METHOD (mxComplexSingle, get_complex_singles, mxDOUBLE_CLASS, mxCOMPLEX);
+  GET_DATA_METHOD (mxComplexSingle, get_complex_singles,
+                   mxDOUBLE_CLASS, mxCOMPLEX);
 
 #if 0
   /* We don't have these yet. */
@@ -1460,8 +1533,8 @@ public:
 protected:
 
   mxArray_matlab (bool interleaved, mxClassID id = mxUNKNOWN_CLASS)
-    : mxArray_base (interleaved), m_class_name (nullptr), m_id (id), m_ndims (0),
-      m_dims (nullptr)
+    : mxArray_base (interleaved), m_class_name (nullptr), m_id (id),
+      m_ndims (0), m_dims (nullptr)
   { }
 
   mxArray_matlab (bool interleaved, mxClassID id, mwSize ndims,
@@ -1511,7 +1584,8 @@ protected:
   }
 
   mxArray_matlab (bool interleaved, mxClassID id, mwSize m, mwSize n)
-    : mxArray_base (interleaved), m_class_name (nullptr), m_id (id), m_ndims (2),
+    : mxArray_base (interleaved), m_class_name (nullptr), m_id (id),
+      m_ndims (2),
       m_dims (static_cast<mwSize *> (mxArray::malloc (m_ndims * sizeof (mwSize))))
   {
     m_dims[0] = m;
@@ -2067,13 +2141,46 @@ protected:
   octave_value
   fp_to_ov (const dim_vector& dv) const
   {
+    octave_value retval;
+
     ELT_T *ppr = static_cast<ELT_T *> (m_pr);
 
-    Array<ELT_T> val (ppr, dv);
+#if defined (OCTAVE_HAVE_STD_PMR_POLYMORPHIC_ALLOCATOR)
 
-    maybe_disown_ptr (m_pr);
+    octave::unwind_action act ([=] () { maybe_disown_ptr (m_pr); });
 
-    return octave_value (val);
+    return octave_value (Array<ELT_T> (ppr, dv, &the_mx_memory_resource));
+
+#else
+
+    if (fp_type_traits<ELT_T>::is_complex)
+      {
+        // Mixing malloc and delete[] for arrays of Complex and
+        // FloatComplex objects is not possible.
+
+        Array<ELT_T> val (dv);
+
+        ELT_T *ptr = val.fortran_vec ();
+
+        mwSize nel = get_number_of_elements ();
+
+        for (mwIndex i = 0; i < nel; i++)
+          ptr[i] = ppr[i];
+
+        return octave_value (val);
+      }
+    else
+      {
+        // Although behavior is not specified by the standard, it should
+        // work to mix malloc and delete[] for arrays of float and
+        // double.
+
+        octave::unwind_action act ([=] () { maybe_disown_ptr (m_pr); });
+
+        return octave_value (Array<ELT_T> (ppr, dv));
+      }
+
+#endif
   }
 
   template <typename ELT_T, typename ARRAY_T, typename ARRAY_ELT_T>
@@ -2085,11 +2192,17 @@ protected:
 
     ELT_T *ppr = static_cast<ELT_T *> (m_pr);
 
-#if 0
-    ARRAY_T val (ppr, dv);
+#if 0 && defined (OCTAVE_HAVE_STD_PMR_POLYMORPHIC_ALLOCATOR)
 
-    maybe_disown_ptr (m_pr);
+    octave::unwind_action act ([=] () { maybe_disown_ptr (m_pr); });
+
+    return ARRAY_T (ppr, dv, &the_mx_memory_resource);
+
 #else
+
+    // All octave_int types are objects so we can't mix malloc and
+    // delete[] and we always have to copy.
+
     ARRAY_T val (dv);
 
     ARRAY_ELT_T *ptr = val.fortran_vec ();
@@ -2098,9 +2211,10 @@ protected:
 
     for (mwIndex i = 0; i < nel; i++)
       ptr[i] = ppr[i];
-#endif
 
     return octave_value (val);
+
+#endif
   }
 
 protected:
@@ -2350,6 +2464,9 @@ private:
     mwSize nel = get_number_of_elements ();
 
     T *ppr = static_cast<T *> (m_pr);
+
+    // We allocate in the Array<T> constructor and copy here, so we
+    // don't need the custom allocator for this object.
 
     Array<std::complex<T>> val (dv);
 
@@ -2767,48 +2884,45 @@ public:
   {
     int retval = -1;
 
-    if (valid_key (key))
+    m_nfields++;
+
+    m_fields = static_cast<char **>
+      (mxRealloc (m_fields, m_nfields * sizeof (char *)));
+
+    if (m_fields)
       {
-        m_nfields++;
+        m_fields[m_nfields-1] = mxArray::strsave (key);
 
-        m_fields = static_cast<char **>
-                    (mxRealloc (m_fields, m_nfields * sizeof (char *)));
+        mwSize nel = get_number_of_elements ();
 
-        if (m_fields)
+        mwSize ntot = m_nfields * nel;
+
+        mxArray **new_data;
+        new_data = static_cast<mxArray **>
+          (mxArray::malloc (ntot * sizeof (mxArray *)));
+
+        if (new_data)
           {
-            m_fields[m_nfields-1] = mxArray::strsave (key);
+            mwIndex j = 0;
+            mwIndex k = 0;
+            mwIndex n = 0;
 
-            mwSize nel = get_number_of_elements ();
-
-            mwSize ntot = m_nfields * nel;
-
-            mxArray **new_data;
-            new_data = static_cast<mxArray **>
-                        (mxArray::malloc (ntot * sizeof (mxArray *)));
-
-            if (new_data)
+            for (mwIndex i = 0; i < ntot; i++)
               {
-                mwIndex j = 0;
-                mwIndex k = 0;
-                mwIndex n = 0;
-
-                for (mwIndex i = 0; i < ntot; i++)
+                if (++n == m_nfields)
                   {
-                    if (++n == m_nfields)
-                      {
-                        new_data[j++] = nullptr;
-                        n = 0;
-                      }
-                    else
-                      new_data[j++] = m_data[k++];
+                    new_data[j++] = nullptr;
+                    n = 0;
                   }
-
-                mxFree (m_data);
-
-                m_data = new_data;
-
-                retval = m_nfields - 1;
+                else
+                  new_data[j++] = m_data[k++];
               }
+
+            mxFree (m_data);
+
+            m_data = new_data;
+
+            retval = m_nfields - 1;
           }
       }
 
@@ -3300,7 +3414,7 @@ public:
   // Allocate memory.
   void * malloc_unmarked (std::size_t n)
   {
-    void *ptr = std::malloc (n);
+    void *ptr = xmalloc (n);
 
     if (! ptr)
       {
@@ -3356,7 +3470,7 @@ public:
         auto p_local = m_memlist.find (ptr);
         auto p_global = s_global_memlist.find (ptr);
 
-        v = std::realloc (ptr, n);
+        v = xrealloc (ptr, n);
 
         if (v)
           {
@@ -3566,7 +3680,7 @@ mex *mex_context = nullptr;
 void *
 mxArray::malloc (std::size_t n)
 {
-  return mex_context ? mex_context->malloc_unmarked (n) : std::malloc (n);
+  return mex_context ? mex_context->malloc_unmarked (n) : xmalloc (n);
 }
 
 void *
@@ -3686,14 +3800,14 @@ mxCalloc (std::size_t n, std::size_t size)
 void *
 mxMalloc (std::size_t n)
 {
-  return mex_context ? mex_context->malloc (n) : std::malloc (n);
+  return mex_context ? mex_context->malloc (n) : xmalloc (n);
 }
 
 void *
 mxRealloc (void *ptr, std::size_t size)
 {
-  return mex_context ? mex_context->realloc (ptr, size)
-                     : std::realloc (ptr, size);
+  return (mex_context
+          ? mex_context->realloc (ptr, size) : xrealloc (ptr, size));
 }
 
 void
@@ -3843,7 +3957,7 @@ mxCreateNumericMatrix_interleaved (mwSize m, mwSize n, mxClassID class_id,
 
 mxArray *
 mxCreateNumericMatrix (mwSize m, mwSize n, mxClassID class_id,
-                                mxComplexity flag)
+                       mxComplexity flag)
 {
   return maybe_mark_array (new mxArray (false, class_id, m, n, flag));
 }
@@ -3858,7 +3972,7 @@ mxCreateUninitNumericArray_interleaved (mwSize ndims, const mwSize *dims,
 
 mxArray *
 mxCreateUninitNumericArray (mwSize ndims, const mwSize *dims,
-                                     mxClassID class_id, mxComplexity flag)
+                            mxClassID class_id, mxComplexity flag)
 {
   return maybe_mark_array (new mxArray (false, class_id, ndims, dims, flag,
                                         false));
@@ -3873,7 +3987,7 @@ mxCreateUninitNumericMatrix_interleaved (mwSize m, mwSize n,
 
 mxArray *
 mxCreateUninitNumericMatrix (mwSize m, mwSize n, mxClassID class_id,
-                                      mxComplexity flag)
+                             mxComplexity flag)
 {
   return maybe_mark_array (new mxArray (false, class_id, m, n, flag, false));
 }
@@ -5144,7 +5258,7 @@ mexIsLocked (void)
   return retval;
 }
 
-std::map<std::string,int> mex_lock_count;
+std::map<std::string, int> mex_lock_count;
 
 void
 mexLock (void)

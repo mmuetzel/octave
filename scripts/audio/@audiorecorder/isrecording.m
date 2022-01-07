@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2013-2021 The Octave Project Developers
+## Copyright (C) 2013-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,17 +24,19 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} isrecording (@var{recorder})
+## @deftypefn {} {@var{tf} =} isrecording (@var{recorder})
 ## Return true if the audiorecorder object @var{recorder} is currently
 ## recording audio and false otherwise.
+## @seealso{@audiorecorder/pause, @audiorecorder/audiorecorder}
 ## @end deftypefn
 
-function result = isrecording (recorder)
+function tf = isrecording (recorder)
 
-  if (nargin < 1)
-    print_usage ();
-  endif
-
-  result = __recorder_isrecording__ (struct (recorder).recorder);
+  tf = __recorder_isrecording__ (struct (recorder).recorder);
 
 endfunction
+
+
+%!testif HAVE_PORTAUDIO; audiodevinfo (1) > 0
+%! recorder = audiorecorder (44100, 16, 2);
+%! assert (isrecording (recorder), false);

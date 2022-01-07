@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 1994-2021 The Octave Project Developers
+## Copyright (C) 1994-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -60,7 +60,7 @@ function Z = null (A, tol)
       s = diag (S);
     else
       s = S(1);
-    end
+    endif
     if (nargin == 1)
       tol = max (size (A)) * s(1) * eps (out_cls);
     endif

@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2013-2021 The Octave Project Developers
+## Copyright (C) 2013-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -24,24 +24,25 @@
 ########################################################################
 
 ## -*- texinfo -*-
-## @deftypefn {} {} atan2d (@var{y}, @var{x})
+## @deftypefn {} {@var{d} =} atan2d (@var{y}, @var{x})
 ## Compute atan (@var{y} / @var{x}) in degrees for corresponding elements
 ## from @var{y} and @var{x}.
 ## @seealso{tand, atan2}
 ## @end deftypefn
 
-function retval = atan2d (y, x)
+function d = atan2d (y, x)
 
   if (nargin != 2)
     print_usage ();
   endif
 
-  retval = 180 ./ pi .* atan2 (y, x);
+  d = 180 ./ pi .* atan2 (y, x);
 
 endfunction
 
 
-%!assert (atan2d (-1:.1:1, 1:-.1:-1), 180/pi * atan2 (-1:.1:1, 1:-.1:-1), -10*eps)
+%!assert (atan2d (-1:.1:1, 1:-.1:-1),
+%!        180/pi * atan2 (-1:.1:1, 1:-.1:-1), -10*eps)
 
 %!error <Invalid call> atan2d ()
 %!error <Invalid call> atan2d (1)

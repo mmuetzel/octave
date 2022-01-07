@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2004-2021 The Octave Project Developers
+// Copyright (C) 2004-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -28,14 +28,13 @@
 
 #include "octave-config.h"
 
+#include "intNDArray-fwd.h"
+#include "mx-fwd.h"
 #include "MArray.h"
 #include "boolNDArray.h"
 
-class NDArray;
-
 template <typename T>
 class
-OCTAVE_API
 intNDArray : public MArray<T>
 {
 public:

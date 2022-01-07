@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1996-2021 The Octave Project Developers
+// Copyright (C) 1996-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -143,7 +143,7 @@ public:
   octave_value sort (octave_idx_type dim = 0, sortmode mode = ASCENDING) const
   { return octave_value (matrix.sort (dim, mode)); }
 
-  octave_value sort (Array<octave_idx_type> &sidx, octave_idx_type dim = 0,
+  octave_value sort (Array<octave_idx_type>& sidx, octave_idx_type dim = 0,
                      sortmode mode = ASCENDING) const
   { return octave_value (matrix.sort (sidx, dim, mode)); }
 
@@ -261,7 +261,7 @@ public:
   octave_value sort (octave_idx_type dim = 0, sortmode mode = ASCENDING) const
   { return octave_value (matrix.sort (dim, mode), '\''); }
 
-  octave_value sort (Array<octave_idx_type> &sidx, octave_idx_type dim = 0,
+  octave_value sort (Array<octave_idx_type>& sidx, octave_idx_type dim = 0,
                      sortmode mode = ASCENDING) const
   { return octave_value (matrix.sort (sidx, dim, mode), '\''); }
 

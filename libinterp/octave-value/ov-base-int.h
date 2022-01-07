@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2004-2021 The Octave Project Developers
+// Copyright (C) 2004-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -171,7 +171,7 @@ public:
   OCTINTERP_API bool save_binary (std::ostream& os, bool);
 
   OCTINTERP_API bool load_binary (std::istream& is, bool swap,
-                    octave::mach_info::float_format);
+                                  octave::mach_info::float_format);
 protected:
 
   OCTINTERP_API bool

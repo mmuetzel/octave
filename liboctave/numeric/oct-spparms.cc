@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1998-2021 The Octave Project Developers
+// Copyright (C) 1998-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -197,7 +197,7 @@ namespace octave
   }
 
   void sparse_params::do_print_info (std::ostream& os,
-                                const std::string& prefix) const
+                                     const std::string& prefix) const
   {
     for (int i = 0; i < OCTAVE_SPARSE_CONTROLS_SIZE; i++)
       os << prefix << m_keys(i) << ": " << m_params(i) << "\n";

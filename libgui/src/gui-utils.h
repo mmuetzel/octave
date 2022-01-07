@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -25,6 +25,8 @@
 
 #if ! defined (octave_gui_utils_h)
 #define octave_gui_utils_h 1
+
+#include "octave-config.h"
 
 #include <QColor>
 

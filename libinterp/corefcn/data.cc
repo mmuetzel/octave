@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1994-2021 The Octave Project Developers
+// Copyright (C) 1994-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -703,8 +703,10 @@ periodic, @code{mod} is a better choice.
 %!assert (rem ([1, 2, 3; -1, -2, -3], 2), [1, 0, 1; -1, 0, -1])
 %!assert (rem ([1, 2, 3; -1, -2, -3], 2 * ones (2, 3)),[1, 0, 1; -1, 0, -1])
 %!assert (rem ([0, 1, 2], [0, 0, 1]), [NaN, NaN, 0])
-%!assert (rem (uint8 ([1, 2, 3; -1, -2, -3]), uint8 (2)), uint8 ([1, 0, 1; -1, 0, -1]))
-%!assert (uint8 (rem ([1, 2, 3; -1, -2, -3], 2 * ones (2, 3))),uint8 ([1, 0, 1; -1, 0, -1]))
+%!assert (rem (uint8 ([1, 2, 3; -1, -2, -3]), uint8 (2)),
+%!        uint8 ([1, 0, 1; -1, 0, -1]))
+%!assert (uint8 (rem ([1, 2, 3; -1, -2, -3], 2 * ones (2, 3))),
+%!        uint8 ([1, 0, 1; -1, 0, -1]))
 %!assert (rem (uint8 ([0, 1, 2]), [0, 0, 1]), uint8 ([0, 0, 0]))
 
 ## Test sparse implementations
@@ -1020,12 +1022,15 @@ cumprod ([1, 2; 3, 4; 5, 6])
 %!assert (cumprod ([1, 2, 3]), [1, 2, 6])
 %!assert (cumprod ([-1; -2; -3]), [-1; 2; -6])
 %!assert (cumprod ([i, 2+i, -3+2i, 4]), [i, -1+2i, -1-8i, -4-32i])
-%!assert (cumprod ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i]), [1, 2, 3; i, 4i, 9i; -1+i, -8+8i, -27+27i])
+%!assert (cumprod ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i]),
+%!        [1, 2, 3; i, 4i, 9i; -1+i, -8+8i, -27+27i])
 
 %!assert (cumprod (single ([1, 2, 3])), single ([1, 2, 6]))
 %!assert (cumprod (single ([-1; -2; -3])), single ([-1; 2; -6]))
-%!assert (cumprod (single ([i, 2+i, -3+2i, 4])), single ([i, -1+2i, -1-8i, -4-32i]))
-%!assert (cumprod (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])), single ([1, 2, 3; i, 4i, 9i; -1+i, -8+8i, -27+27i]))
+%!assert (cumprod (single ([i, 2+i, -3+2i, 4])),
+%!        single ([i, -1+2i, -1-8i, -4-32i]))
+%!assert (cumprod (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])),
+%!        single ([1, 2, 3; i, 4i, 9i; -1+i, -8+8i, -27+27i]))
 
 %!assert (cumprod ([2, 3; 4, 5], 1), [2, 3; 8, 15])
 %!assert (cumprod ([2, 3; 4, 5], 2), [2, 6; 4, 20])
@@ -1170,12 +1175,15 @@ For an explanation of the optional parameters @qcode{"native"} and
 %!assert (cumsum ([1, 2, 3]), [1, 3, 6])
 %!assert (cumsum ([-1; -2; -3]), [-1; -3; -6])
 %!assert (cumsum ([i, 2+i, -3+2i, 4]), [i, 2+2i, -1+4i, 3+4i])
-%!assert (cumsum ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i]), [1, 2, 3; 1+i, 2+2i, 3+3i; 2+2i, 4+4i, 6+6i])
+%!assert (cumsum ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i]),
+%!        [1, 2, 3; 1+i, 2+2i, 3+3i; 2+2i, 4+4i, 6+6i])
 
 %!assert (cumsum (single ([1, 2, 3])), single ([1, 3, 6]))
 %!assert (cumsum (single ([-1; -2; -3])), single ([-1; -3; -6]))
-%!assert (cumsum (single ([i, 2+i, -3+2i, 4])), single ([i, 2+2i, -1+4i, 3+4i]))
-%!assert (cumsum (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])), single ([1, 2, 3; 1+i, 2+2i, 3+3i; 2+2i, 4+4i, 6+6i]))
+%!assert (cumsum (single ([i, 2+i, -3+2i, 4])),
+%!        single ([i, 2+2i, -1+4i, 3+4i]))
+%!assert (cumsum (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])),
+%!        single ([1, 2, 3; 1+i, 2+2i, 3+3i; 2+2i, 4+4i, 6+6i]))
 
 %!assert (cumsum ([1, 2; 3, 4], 1), [1, 2; 4, 6])
 %!assert (cumsum ([1, 2; 3, 4], 2), [1, 3; 3, 7])
@@ -1254,35 +1262,53 @@ Given a matrix argument, instead of a vector, @code{diag} extracts the
 
 %!assert (full (diag ([1; 2; 3])), [1, 0, 0; 0, 2, 0; 0, 0, 3])
 %!assert (diag ([1; 2; 3], 1), [0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0])
-%!assert (diag ([1; 2; 3], 2), [0, 0, 1, 0, 0; 0, 0, 0, 2, 0; 0, 0, 0, 0, 3; 0, 0, 0, 0, 0; 0, 0, 0, 0, 0])
-%!assert (diag ([1; 2; 3],-1), [0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0])
-%!assert (diag ([1; 2; 3],-2), [0, 0, 0, 0, 0; 0, 0, 0, 0, 0; 1, 0, 0, 0, 0; 0, 2, 0, 0, 0; 0, 0, 3, 0, 0])
+%!assert (diag ([1; 2; 3], 2),
+%!        [0 0 1 0 0; 0 0 0 2 0; 0 0 0 0 3; 0 0 0 0 0; 0 0 0 0 0])
+%!assert (diag ([1; 2; 3],-1),
+%!       [0 0 0 0; 1 0 0 0; 0 2 0 0; 0 0 3 0])
+%!assert (diag ([1; 2; 3],-2),
+%!        [0 0 0 0 0; 0 0 0 0 0; 1 0 0 0 0; 0 2 0 0 0; 0 0 3 0 0])
 
 %!assert (diag ([1, 0, 0; 0, 2, 0; 0, 0, 3]), [1; 2; 3])
-%!assert (diag ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0], 1), [1; 2; 3])
-%!assert (diag ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0], -1), [1; 2; 3])
+%!assert (diag ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0], 1),
+%!        [1; 2; 3])
+%!assert (diag ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0], -1),
+%!        [1; 2; 3])
 %!assert (diag (ones (1, 0), 2), zeros (2))
 %!assert (diag (1:3, 4, 2), [1, 0; 0, 2; 0, 0; 0, 0])
 
-%!assert (full (diag (single ([1; 2; 3]))), single ([1, 0, 0; 0, 2, 0; 0, 0, 3]))
-%!assert (diag (single ([1; 2; 3]), 1), single ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]))
-%!assert (diag (single ([1; 2; 3]), 2), single ([0, 0, 1, 0, 0; 0, 0, 0, 2, 0; 0, 0, 0, 0, 3; 0, 0, 0, 0, 0; 0, 0, 0, 0, 0]))
-%!assert (diag (single ([1; 2; 3]),-1), single ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0]))
-%!assert (diag (single ([1; 2; 3]),-2), single ([0, 0, 0, 0, 0; 0, 0, 0, 0, 0; 1, 0, 0, 0, 0; 0, 2, 0, 0, 0; 0, 0, 3, 0, 0]))
+%!assert (full (diag (single ([1; 2; 3]))),
+%!        single ([1, 0, 0; 0, 2, 0; 0, 0, 3]))
+%!assert (diag (single ([1; 2; 3]), 1),
+%!        single ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]))
+%!assert (diag (single ([1; 2; 3]), 2),
+%!        single ([0 0 1 0 0; 0 0 0 2 0; 0 0 0 0 3; 0 0 0 0 0; 0 0 0 0 0]))
+%!assert (diag (single ([1; 2; 3]),-1),
+%!        single ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0]))
+%!assert (diag (single ([1; 2; 3]),-2),
+%!        single ([0 0 0 0 0; 0 0 0 0 0; 1 0 0 0 0; 0 2 0 0 0; 0 0 3 0 0]))
 
 %!assert (diag (single ([1, 0, 0; 0, 2, 0; 0, 0, 3])), single ([1; 2; 3]))
-%!assert (diag (single ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]), 1), single ([1; 2; 3]))
-%!assert (diag (single ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0]), -1), single ([1; 2; 3]))
+%!assert (diag (single ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]), 1),
+%!        single ([1; 2; 3]))
+%!assert (diag (single ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0]), -1),
+%!        single ([1; 2; 3]))
 
 %!assert (diag (int8 ([1; 2; 3])), int8 ([1, 0, 0; 0, 2, 0; 0, 0, 3]))
-%!assert (diag (int8 ([1; 2; 3]), 1), int8 ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]))
-%!assert (diag (int8 ([1; 2; 3]), 2), int8 ([0, 0, 1, 0, 0; 0, 0, 0, 2, 0; 0, 0, 0, 0, 3; 0, 0, 0, 0, 0; 0, 0, 0, 0, 0]))
-%!assert (diag (int8 ([1; 2; 3]),-1), int8 ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0]))
-%!assert (diag (int8 ([1; 2; 3]),-2), int8 ([0, 0, 0, 0, 0; 0, 0, 0, 0, 0; 1, 0, 0, 0, 0; 0, 2, 0, 0, 0; 0, 0, 3, 0, 0]))
+%!assert (diag (int8 ([1; 2; 3]), 1),
+%!        int8 ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]))
+%!assert (diag (int8 ([1; 2; 3]), 2),
+%!        int8 ([0 0 1 0 0; 0 0 0 2 0; 0 0 0 0 3; 0 0 0 0 0; 0 0 0 0 0]))
+%!assert (diag (int8 ([1; 2; 3]),-1),
+%!        int8 ([0 0 0 0; 1 0 0 0; 0 2 0 0; 0 0 3 0]))
+%!assert (diag (int8 ([1; 2; 3]),-2),
+%!        int8 ([0 0 0 0 0; 0 0 0 0 0; 1 0 0 0 0; 0 2 0 0 0; 0 0 3 0 0]))
 
 %!assert (diag (int8 ([1, 0, 0; 0, 2, 0; 0, 0, 3])), int8 ([1; 2; 3]))
-%!assert (diag (int8 ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]), 1), int8 ([1; 2; 3]))
-%!assert (diag (int8 ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0]), -1), int8 ([1; 2; 3]))
+%!assert (diag (int8 ([0, 1, 0, 0; 0, 0, 2, 0; 0, 0, 0, 3; 0, 0, 0, 0]), 1),
+%!        int8 ([1; 2; 3]))
+%!assert (diag (int8 ([0, 0, 0, 0; 1, 0, 0, 0; 0, 2, 0, 0; 0, 0, 3, 0]), -1),
+%!        int8 ([1; 2; 3]))
 
 %!assert (diag (1, 3, 3), diag ([1, 0, 0]))
 %!assert (diag (i, 3, 3), diag ([i, 0, 0]))
@@ -1295,7 +1321,8 @@ Given a matrix argument, instead of a vector, @code{diag} extracts the
 
 %!assert <*37411> (diag (diag ([5, 2, 3])(:,1)), diag([5 0 0 ]))
 %!assert <*37411> (diag (diag ([5, 2, 3])(:,1), 2),  [0 0 5 0 0; zeros(4, 5)])
-%!assert <*37411> (diag (diag ([5, 2, 3])(:,1), -2), [[0 0 5 0 0]', zeros(5, 4)])
+%!assert <*37411> (diag (diag ([5, 2, 3])(:,1), -2),
+%!                 [[0 0 5 0 0]', zeros(5, 4)])
 
 ## Test non-square size
 %!assert (diag ([1,2,3], 6, 3), [1 0 0; 0 2 0; 0 0 3; 0 0 0; 0 0 0; 0 0 0])
@@ -1464,14 +1491,16 @@ in double precision even for single precision inputs.
 %!assert (prod (single ([1, 2, 3])), single (6))
 %!assert (prod (single ([-1; -2; -3])), single (-6))
 %!assert (prod (single ([i, 2+i, -3+2i, 4])), single (-4 - 32i))
-%!assert (prod (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])), single ([-1+i, -8+8i, -27+27i]))
+%!assert (prod (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])),
+%!        single ([-1+i, -8+8i, -27+27i]))
 
 ## Test sparse
 %!assert (prod (sparse ([1, 2, 3])), sparse (6))
 %!assert (prod (sparse ([-1; -2; -3])), sparse (-6))
 ## Commented out until bug #42290 is fixed
 #%!assert (prod (sparse ([i, 2+i, -3+2i, 4])), sparse (-4 - 32i))
-#%!assert (prod (sparse ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])), sparse ([-1+i, -8+8i, -27+27i]))
+#%!assert (prod (sparse ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])),
+#%!         sparse ([-1+i, -8+8i, -27+27i]))
 
 %!assert (prod ([1, 2; 3, 4], 1), [3, 8])
 %!assert (prod ([1, 2; 3, 4], 2), [2; 12])
@@ -1507,7 +1536,8 @@ in double precision even for single precision inputs.
 %!assert (prod (single ([1, 2, 3]), "double"), 6)
 %!assert (prod (single ([-1; -2; -3]), "double"), -6)
 %!assert (prod (single ([i, 2+i, -3+2i, 4]), "double"), -4 - 32i)
-%!assert (prod (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i]), "double"), [-1+i, -8+8i, -27+27i])
+%!assert (prod (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i]), "double"),
+%!        [-1+i, -8+8i, -27+27i])
 
 ## Test "native" type argument
 %!assert (prod (uint8 ([1, 2, 3]), "native"), uint8 (6))
@@ -1961,7 +1991,7 @@ do_cat (const octave_value_list& xargs, int dim, std::string fname)
           // be some additional setup needed, and so this should be avoided.
 
           octave_value tmp = args(0);
-          tmp = tmp.resize (dim_vector (0,0)).resize (dv);
+          tmp = tmp.resize (dim_vector (0, 0)).resize (dv);
 
           int dv_len = dv.ndims ();
           Array<octave_idx_type> ra_idx (dim_vector (dv_len, 1), 0);
@@ -2254,7 +2284,8 @@ new matrices.  For example:
 /*
 %!test
 %! c = {"foo"; "bar"; "bazoloa"};
-%! assert (vertcat (c, "a", "bc", "def"), {"foo"; "bar"; "bazoloa"; "a"; "bc"; "def"});
+%! assert (vertcat (c, "a", "bc", "def"),
+%!         {"foo"; "bar"; "bazoloa"; "a"; "bc"; "def"});
 */
 
 DEFUN (cat, args, ,
@@ -2321,11 +2352,13 @@ cat (4, ones (2, 2), zeros (2, 2))
 %!  assert (cat (1, cast (1, t1), cast (2, t2)), cast ([1; 2], tr));
 %!  assert (cat (1, cast (1, t1), cast ([2; 3], t2)), cast ([1; 2; 3], tr));
 %!  assert (cat (1, cast ([1; 2], t1), cast (3, t2)), cast ([1; 2; 3], tr));
-%!  assert (cat (1, cast ([1; 2], t1), cast ([3; 4], t2)), cast ([1; 2; 3; 4], tr));
+%!  assert (cat (1, cast ([1; 2], t1), cast ([3; 4], t2)),
+%!          cast ([1; 2; 3; 4], tr));
 %!  assert (cat (2, cast (1, t1), cast (2, t2)), cast ([1, 2], tr));
 %!  assert (cat (2, cast (1, t1), cast ([2, 3], t2)), cast ([1, 2, 3], tr));
 %!  assert (cat (2, cast ([1, 2], t1), cast (3, t2)), cast ([1, 2, 3], tr));
-%!  assert (cat (2, cast ([1, 2], t1), cast ([3, 4], t2)), cast ([1, 2, 3, 4], tr));
+%!  assert (cat (2, cast ([1, 2], t1), cast ([3, 4], t2)),
+%!          cast ([1, 2, 3, 4], tr));
 %!
 %!  assert ([cast(1, t1); cast(2, t2)], cast ([1; 2], tr));
 %!  assert ([cast(1, t1); cast([2; 3], t2)], cast ([1; 2; 3], tr));
@@ -2340,12 +2373,13 @@ cat (4, ones (2, 2), zeros (2, 2))
 %!    assert (cat (1, cast (1i, t1), cast (2, t2)), cast ([1i; 2], tr));
 %!    assert (cat (1, cast (1i, t1), cast ([2; 3], t2)), cast ([1i; 2; 3], tr));
 %!    assert (cat (1, cast ([1i; 2], t1), cast (3, t2)), cast ([1i; 2; 3], tr));
-%!    assert (cat (1, cast ([1i; 2], t1), cast ([3; 4], t2)), cast ([1i; 2; 3; 4], tr));
+%!    assert (cat (1, cast ([1i; 2], t1), cast ([3; 4], t2)),
+%!            cast ([1i; 2; 3; 4], tr));
 %!    assert (cat (2, cast (1i, t1), cast (2, t2)), cast ([1i, 2], tr));
 %!    assert (cat (2, cast (1i, t1), cast ([2, 3], t2)), cast ([1i, 2, 3], tr));
 %!    assert (cat (2, cast ([1i, 2], t1), cast (3, t2)), cast ([1i, 2, 3], tr));
-%!    assert (cat (2, cast ([1i, 2], t1), cast ([3, 4], t2)), cast ([1i, 2, 3, 4], tr));
-%!
+%!    assert (cat (2, cast ([1i, 2], t1), cast ([3, 4], t2)),
+%!            cast ([1i, 2, 3, 4], tr));
 %!    assert ([cast(1i, t1); cast(2, t2)], cast ([1i; 2], tr));
 %!    assert ([cast(1i, t1); cast([2; 3], t2)], cast ([1i; 2; 3], tr));
 %!    assert ([cast([1i; 2], t1); cast(3, t2)], cast ([1i; 2; 3], tr));
@@ -2358,12 +2392,13 @@ cat (4, ones (2, 2), zeros (2, 2))
 %!    assert (cat (1, cast (1, t1), cast (2i, t2)), cast ([1; 2i], tr));
 %!    assert (cat (1, cast (1, t1), cast ([2i; 3], t2)), cast ([1; 2i; 3], tr));
 %!    assert (cat (1, cast ([1; 2], t1), cast (3i, t2)), cast ([1; 2; 3i], tr));
-%!    assert (cat (1, cast ([1; 2], t1), cast ([3i; 4], t2)), cast ([1; 2; 3i; 4], tr));
+%!    assert (cat (1, cast ([1; 2], t1), cast ([3i; 4], t2)),
+%!            cast ([1; 2; 3i; 4], tr));
 %!    assert (cat (2, cast (1, t1), cast (2i, t2)), cast ([1, 2i], tr));
 %!    assert (cat (2, cast (1, t1), cast ([2i, 3], t2)), cast ([1, 2i, 3], tr));
 %!    assert (cat (2, cast ([1, 2], t1), cast (3i, t2)), cast ([1, 2, 3i], tr));
-%!    assert (cat (2, cast ([1, 2], t1), cast ([3i, 4], t2)), cast ([1, 2, 3i, 4], tr));
-%!
+%!    assert (cat (2, cast ([1, 2], t1), cast ([3i, 4], t2)),
+%!            cast ([1, 2, 3i, 4], tr));
 %!    assert ([cast(1, t1); cast(2i, t2)], cast ([1; 2i], tr));
 %!    assert ([cast(1, t1); cast([2i; 3], t2)], cast ([1; 2i; 3], tr));
 %!    assert ([cast([1; 2], t1); cast(3i, t2)], cast ([1; 2; 3i], tr));
@@ -2374,22 +2409,30 @@ cat (4, ones (2, 2), zeros (2, 2))
 %!    assert ([cast([1, 2], t1), cast([3i, 4], t2)], cast ([1, 2, 3i, 4], tr));
 %!
 %!    assert (cat (1, cast (1i, t1), cast (2i, t2)), cast ([1i; 2i], tr));
-%!    assert (cat (1, cast (1i, t1), cast ([2i; 3], t2)), cast ([1i; 2i; 3], tr));
-%!    assert (cat (1, cast ([1i; 2], t1), cast (3i, t2)), cast ([1i; 2; 3i], tr));
-%!    assert (cat (1, cast ([1i; 2], t1), cast ([3i; 4], t2)), cast ([1i; 2; 3i; 4], tr));
+%!    assert (cat (1, cast (1i, t1), cast ([2i; 3], t2)),
+%!            cast ([1i; 2i; 3], tr));
+%!    assert (cat (1, cast ([1i; 2], t1), cast (3i, t2)),
+%!            cast ([1i; 2; 3i], tr));
+%!    assert (cat (1, cast ([1i; 2], t1), cast ([3i; 4], t2)),
+%!            cast ([1i; 2; 3i; 4], tr));
 %!    assert (cat (2, cast (1i, t1), cast (2i, t2)), cast ([1i, 2i], tr));
-%!    assert (cat (2, cast (1i, t1), cast ([2i, 3], t2)), cast ([1i, 2i, 3], tr));
-%!    assert (cat (2, cast ([1i, 2], t1), cast (3i, t2)), cast ([1i, 2, 3i], tr));
-%!    assert (cat (2, cast ([1i, 2], t1), cast ([3i, 4], t2)), cast ([1i, 2, 3i, 4], tr));
+%!    assert (cat (2, cast (1i, t1), cast ([2i, 3], t2)),
+%!            cast ([1i, 2i, 3], tr));
+%!    assert (cat (2, cast ([1i, 2], t1), cast (3i, t2)),
+%!            cast ([1i, 2, 3i], tr));
+%!    assert (cat (2, cast ([1i, 2], t1), cast ([3i, 4], t2)),
+%!            cast ([1i, 2, 3i, 4], tr));
 %!
 %!    assert ([cast(1i, t1); cast(2i, t2)], cast ([1i; 2i], tr));
 %!    assert ([cast(1i, t1); cast([2i; 3], t2)], cast ([1i; 2i; 3], tr));
 %!    assert ([cast([1i; 2], t1); cast(3i, t2)], cast ([1i; 2; 3i], tr));
-%!    assert ([cast([1i; 2], t1); cast([3i; 4], t2)], cast ([1i; 2; 3i; 4], tr));
+%!    assert ([cast([1i; 2], t1); cast([3i; 4], t2)],
+%!            cast ([1i; 2; 3i; 4], tr));
 %!    assert ([cast(1i, t1), cast(2i, t2)], cast ([1i, 2i], tr));
 %!    assert ([cast(1i, t1), cast([2i, 3], t2)], cast ([1i, 2i, 3], tr));
 %!    assert ([cast([1i, 2], t1), cast(3i, t2)], cast ([1i, 2, 3i], tr));
-%!    assert ([cast([1i, 2], t1), cast([3i, 4], t2)], cast ([1i, 2, 3i, 4], tr));
+%!    assert ([cast([1i, 2], t1), cast([3i, 4], t2)],
+%!            cast ([1i, 2, 3i, 4], tr));
 %!  endif
 %!  ret = true;
 %!endfunction
@@ -3173,7 +3216,8 @@ type @qcode{"extra"} has no effect.
 %!assert (sum (single ([1, 2, 3])), single (6))
 %!assert (sum (single ([-1; -2; -3])), single (-6))
 %!assert (sum (single ([i, 2+i, -3+2i, 4])), single (3+4i))
-%!assert (sum (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])), single ([2+2i, 4+4i, 6+6i]))
+%!assert (sum (single ([1, 2, 3; i, 2i, 3i; 1+i, 2+2i, 3+3i])),
+%!        single ([2+2i, 4+4i, 6+6i]))
 
 %!assert (sum ([1, 2; 3, 4], 1), [4, 6])
 %!assert (sum ([1, 2; 3, 4], 2), [3; 7])
@@ -3271,8 +3315,8 @@ but it uses less memory and avoids calling @code{conj} if @var{x} is real.
 
 DEFUN (islogical, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn  {} {} islogical (@var{x})
-@deftypefnx {} {} isbool (@var{x})
+@deftypefn  {} {@var{tf} =} islogical (@var{x})
+@deftypefnx {} {@var{tf} =} isbool (@var{x})
 Return true if @var{x} is a logical object.
 @seealso{ischar, isfloat, isinteger, isstring, isnumeric, isa}
 @end deftypefn */)
@@ -3301,7 +3345,7 @@ DEFALIAS (isbool, islogical);
 
 DEFUN (isinteger, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isinteger (@var{x})
+@deftypefn {} {@var{tf} =} isinteger (@var{x})
 Return true if @var{x} is an integer object (int8, uint8, int16, etc.).
 
 Note that @w{@code{isinteger (14)}} is false because numeric constants in
@@ -3359,7 +3403,7 @@ Octave are double precision floating point values.
 
 DEFUN (iscomplex, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} iscomplex (@var{x})
+@deftypefn {} {@var{tf} =} iscomplex (@var{x})
 Return true if @var{x} is a complex-valued numeric object.
 @seealso{isreal, isnumeric, ischar, isfloat, islogical, isstring, isa}
 @end deftypefn */)
@@ -3389,7 +3433,7 @@ Return true if @var{x} is a complex-valued numeric object.
 
 DEFUN (isfloat, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isfloat (@var{x})
+@deftypefn {} {@var{tf} =} isfloat (@var{x})
 Return true if @var{x} is a floating-point numeric object.
 
 Objects of class double or single are floating-point objects.
@@ -3714,7 +3758,7 @@ complex ([1, 2], [3, 4])
 
 DEFUN (isreal, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isreal (@var{x})
+@deftypefn {} {@var{tf} =} isreal (@var{x})
 Return true if @var{x} is a non-complex matrix or scalar.
 
 For compatibility with @sc{matlab}, this includes logical and character
@@ -3730,7 +3774,7 @@ matrices.
 
 DEFUN (isempty, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isempty (@var{a})
+@deftypefn {} {@var{tf} =} isempty (@var{a})
 Return true if @var{a} is an empty matrix (any one of its dimensions is
 zero).
 @seealso{isnull, isa}
@@ -3749,12 +3793,13 @@ zero).
 
 DEFUN (isnumeric, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isnumeric (@var{x})
+@deftypefn {} {@var{tf} =} isnumeric (@var{x})
 Return true if @var{x} is a numeric object, i.e., an integer, real, or
 complex array.
 
 Logical and character arrays are not considered to be numeric.
-@seealso{isinteger, isfloat, isreal, iscomplex, ischar, islogical, isstring, iscell, isstruct, isa}
+@seealso{isinteger, isfloat, isreal, iscomplex, ischar, islogical, isstring,
+iscell, isstruct, isa}
 @end deftypefn */)
 {
   if (args.length () != 1)
@@ -3781,7 +3826,7 @@ Logical and character arrays are not considered to be numeric.
 
 DEFUN (isscalar, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isscalar (@var{x})
+@deftypefn {} {@var{tf} =} isscalar (@var{x})
 Return true if @var{x} is a scalar.
 
 A scalar is an object with two dimensions for which @code{size (@var{x})}
@@ -3820,7 +3865,7 @@ returns @w{@code{[1, 1]}}.
 
 DEFUN (isvector, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isvector (@var{x})
+@deftypefn {} {@var{tf} =} isvector (@var{x})
 Return true if @var{x} is a vector.
 
 A vector is a 2-D array where one of the dimensions is equal to 1 (either
@@ -3861,7 +3906,7 @@ array (a scalar) is also a vector.
 
 DEFUN (isrow, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} isrow (@var{x})
+@deftypefn {} {@var{tf} =} isrow (@var{x})
 Return true if @var{x} is a row vector.
 
 A row vector is a 2-D array for which @code{size (@var{x})} returns
@@ -3910,7 +3955,7 @@ A row vector is a 2-D array for which @code{size (@var{x})} returns
 
 DEFUN (iscolumn, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} iscolumn (@var{x})
+@deftypefn {} {@var{tf} =} iscolumn (@var{x})
 Return true if @var{x} is a column vector.
 
 A column vector is a 2-D array for which @code{size (@var{x})} returns
@@ -3959,7 +4004,7 @@ A column vector is a 2-D array for which @code{size (@var{x})} returns
 
 DEFUN (ismatrix, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} ismatrix (@var{x})
+@deftypefn {} {@var{tf} =} ismatrix (@var{x})
 Return true if @var{x} is a 2-D array.
 
 A matrix is an object with two dimensions (@code{ndims (@var{x}) == 2}) for
@@ -4008,7 +4053,7 @@ N.
 
 DEFUN (issquare, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn {} {} issquare (@var{x})
+@deftypefn {} {@var{tf} =} issquare (@var{x})
 Return true if @var{x} is a 2-D square array.
 
 A square array is a 2-D object for which @code{size (@var{x})} returns
@@ -4465,13 +4510,13 @@ fill_matrix (const octave_value_list& args, bool val, const char *fcn)
 
   if (nargin > 1 && args(nargin-2).is_string ()
       && args(nargin-2).string_value () == "like")
-  {
-    if (! args(nargin-1).islogical ())
-      error (R"(%s: input followed by "like" must be logical)", fcn);
+    {
+      if (! args(nargin-1).islogical ())
+        error (R"(%s: input followed by "like" must be logical)", fcn);
 
-    issparse = args(nargin-1).issparse ();
-    nargin -= 2;
-  }
+      issparse = args(nargin-1).issparse ();
+      nargin -= 2;
+    }
 
   switch (nargin)
     {
@@ -4714,7 +4759,8 @@ DEFALIAS (inf, Inf);
 %!assert (Inf (3, 2), [Inf, Inf; Inf, Inf; Inf, Inf])
 %!assert (size (Inf (3, 4, 5)), [3, 4, 5])
 
-%!assert (Inf (3, "single"), single ([Inf, Inf, Inf; Inf, Inf, Inf; Inf, Inf, Inf]))
+%!assert (Inf (3, "single"),
+%!        single ([Inf, Inf, Inf; Inf, Inf, Inf; Inf, Inf, Inf]))
 %!assert (Inf (2, 3, "single"), single ([Inf, Inf, Inf; Inf, Inf, Inf]))
 %!assert (Inf (3, 2, "single"), single ([Inf, Inf; Inf, Inf; Inf, Inf]))
 %!assert (size (inf (3, 4, 5, "single")), [3, 4, 5])
@@ -4722,7 +4768,8 @@ DEFALIAS (inf, Inf);
 %!assert (Inf (2, 2, "like", speye (2)), sparse ([Inf, Inf; Inf, Inf]))
 %!assert (Inf (2, 2, "like", complex (ones (2, 2))), [Inf, Inf; Inf, Inf])
 %!assert (Inf (2, 2, "like", double (1)), double ([Inf, Inf; Inf, Inf]))
-%!assert (Inf (3, 3, "like", single (1)), single ([Inf, Inf, Inf; Inf, Inf, Inf; Inf, Inf, Inf]))
+%!assert (Inf (3, 3, "like", single (1)),
+%!        single ([Inf, Inf, Inf; Inf, Inf, Inf; Inf, Inf, Inf]))
 %!assert (Inf (2, "like", single (1i)), single ([Inf, Inf; Inf, Inf]))
 
 %!error Inf (3, "like", int8 (1))
@@ -4793,14 +4840,16 @@ DEFALIAS (nan, NaN);
 %!assert (NaN (3, 2), [NaN, NaN; NaN, NaN; NaN, NaN])
 %!assert (size (NaN (3, 4, 5)), [3, 4, 5])
 
-%!assert (NaN (3, "single"), single ([NaN, NaN, NaN; NaN, NaN, NaN; NaN, NaN, NaN]))
+%!assert (NaN (3, "single"),
+%!        single ([NaN, NaN, NaN; NaN, NaN, NaN; NaN, NaN, NaN]))
 %!assert (NaN (2, 3, "single"), single ([NaN, NaN, NaN; NaN, NaN, NaN]))
 %!assert (NaN (3, 2, "single"), single ([NaN, NaN; NaN, NaN; NaN, NaN]))
 %!assert (size (NaN (3, 4, 5, "single")), [3, 4, 5])
 
 %!assert (NaN (2, 2, "like", double (1)), double ([NaN, NaN; NaN, NaN]))
 %!assert (NaN (2, 2, "like", complex (ones(2, 2))), [NaN, NaN; NaN, NaN])
-%!assert (NaN (3, 3, "like", single (1)), single ([NaN, NaN, NaN; NaN, NaN, NaN; NaN, NaN, NaN]))
+%!assert (NaN (3, 3, "like", single (1)),
+%!        single ([NaN, NaN, NaN; NaN, NaN, NaN; NaN, NaN, NaN]))
 %!assert (NaN (2, "like", single (1i)), single ([NaN, NaN; NaN, NaN]))
 %!assert (NaN (2, 2, "like", speye (2)), sparse ([NaN, NaN; NaN, NaN]))
 
@@ -4951,7 +5000,7 @@ type and may be either @qcode{"double"} or @qcode{"single"}.
 %!assert (eps (Inf), NaN)
 %!assert (eps (NaN), NaN)
 %!assert (eps ([1/2 1 2 realmax 0 realmin/2 realmin/16 Inf NaN]),
-%!             [2^(-53) 2^(-52) 2^(-51) 2^971 2^(-1074) 2^(-1074) 2^(-1074) NaN NaN])
+%!        [2^-53 2^-52 2^-51 2^971 2^-1074 2^-1074 2^-1074 NaN NaN])
 %!assert (eps (single (1/2)), single (2^(-24)))
 %!assert (eps (single (1)), single (2^(-23)))
 %!assert (eps (single (2)), single (2^(-22)))
@@ -4962,7 +5011,7 @@ type and may be either @qcode{"double"} or @qcode{"single"}.
 %!assert (eps (single (Inf)), single (NaN))
 %!assert (eps (single (NaN)), single (NaN))
 %!assert (eps (single ([1/2 1 2 realmax("single") 0 realmin("single")/2 realmin("single")/16 Inf NaN])),
-%!             single ([2^(-24) 2^(-23) 2^(-22) 2^104 2^(-149) 2^(-149) 2^(-149) NaN NaN]))
+%!        single ([2^-24 2^-23 2^-22 2^104 2^-149 2^-149 2^-149 NaN NaN]))
 %!error <X must be of a floating point type> eps (uint8 ([0 1 2]))
 */
 
@@ -5263,7 +5312,7 @@ identity_matrix (int nr, int nc)
           int n = std::min (nr, nc);
 
           for (int i = 0; i < n; i++)
-            m(i,i) = one;
+            m(i, i) = one;
         }
 
       retval = m;
@@ -6764,7 +6813,7 @@ since the last call to @code{tic}.
 When given the identifier @var{id} of a specific timer, return the number of
 seconds elapsed since the timer @var{id} was initialized.
 
-@xref{XREFtic, , tic}, for examples of the use of @code{tic}/@code{toc}.
+@xref{XREFtic,,@code{tic}}, for examples of the use of @code{tic}/@code{toc}.
 
 @seealso{tic, cputime}
 @end deftypefn */)
@@ -7025,16 +7074,26 @@ ordered lists.
 
 ## Single
 %!assert (sort (single ([NaN, 1, -1, 2, Inf])), single ([-1, 1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 1), single ([NaN, 1, -1, 2, Inf]))
-%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 2), single ([-1, 1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 3), single ([NaN, 1, -1, 2, Inf]))
-%!assert (sort (single ([NaN, 1, -1, 2, Inf]), "ascend"), single ([-1, 1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 2, "ascend"), single ([-1, 1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1, -1, 2, Inf]), "descend"), single ([NaN, Inf, 2, 1, -1]))
-%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 2, "descend"), single ([NaN, Inf, 2, 1, -1]))
-%!assert (sort (single ([3, 1, 7, 5; 8, 2, 6, 4])), single ([3, 1, 6, 4; 8, 2, 7, 5]))
-%!assert (sort (single ([3, 1, 7, 5; 8, 2, 6, 4]), 1), single ([3, 1, 6, 4; 8, 2, 7, 5]))
-%!assert (sort (single ([3, 1, 7, 5; 8, 2, 6, 4]), 2), single ([1, 3, 5, 7; 2, 4, 6, 8]))
+%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 1),
+%!        single ([NaN, 1, -1, 2, Inf]))
+%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 2),
+%!        single ([-1, 1, 2, Inf, NaN]))
+%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 3),
+%!        single ([NaN, 1, -1, 2, Inf]))
+%!assert (sort (single ([NaN, 1, -1, 2, Inf]), "ascend"),
+%!        single ([-1, 1, 2, Inf, NaN]))
+%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 2, "ascend"),
+%!        single ([-1, 1, 2, Inf, NaN]))
+%!assert (sort (single ([NaN, 1, -1, 2, Inf]), "descend"),
+%!        single ([NaN, Inf, 2, 1, -1]))
+%!assert (sort (single ([NaN, 1, -1, 2, Inf]), 2, "descend"),
+%!        single ([NaN, Inf, 2, 1, -1]))
+%!assert (sort (single ([3, 1, 7, 5; 8, 2, 6, 4])),
+%!        single ([3, 1, 6, 4; 8, 2, 7, 5]))
+%!assert (sort (single ([3, 1, 7, 5; 8, 2, 6, 4]), 1),
+%!        single ([3, 1, 6, 4; 8, 2, 7, 5]))
+%!assert (sort (single ([3, 1, 7, 5; 8, 2, 6, 4]), 2),
+%!        single ([1, 3, 5, 7; 2, 4, 6, 8]))
 %!assert (sort (single (1)), single (1))
 
 %!test
@@ -7044,16 +7103,26 @@ ordered lists.
 
 ## Single Complex
 %!assert (sort (single ([NaN, 1i, -1, 2, Inf])), single ([1i, -1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 1), single ([NaN, 1i, -1, 2, Inf]))
-%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 2), single ([1i, -1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 3), single ([NaN, 1i, -1, 2, Inf]))
-%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), "ascend"), single ([1i, -1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 2, "ascend"), single ([1i, -1, 2, Inf, NaN]))
-%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), "descend"), single ([NaN, Inf, 2, -1, 1i]))
-%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 2, "descend"), single ([NaN, Inf, 2, -1, 1i]))
-%!assert (sort (single ([3, 1i, 7, 5; 8, 2, 6, 4])), single ([3, 1i, 6, 4; 8, 2, 7, 5]))
-%!assert (sort (single ([3, 1i, 7, 5; 8, 2, 6, 4]), 1), single ([3, 1i, 6, 4; 8, 2, 7, 5]))
-%!assert (sort (single ([3, 1i, 7, 5; 8, 2, 6, 4]), 2), single ([1i, 3, 5, 7; 2, 4, 6, 8]))
+%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 1),
+%!        single ([NaN, 1i, -1, 2, Inf]))
+%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 2),
+%!        single ([1i, -1, 2, Inf, NaN]))
+%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 3),
+%!        single ([NaN, 1i, -1, 2, Inf]))
+%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), "ascend"),
+%!        single ([1i, -1, 2, Inf, NaN]))
+%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 2, "ascend"),
+%!        single ([1i, -1, 2, Inf, NaN]))
+%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), "descend"),
+%!        single ([NaN, Inf, 2, -1, 1i]))
+%!assert (sort (single ([NaN, 1i, -1, 2, Inf]), 2, "descend"),
+%!        single ([NaN, Inf, 2, -1, 1i]))
+%!assert (sort (single ([3, 1i, 7, 5; 8, 2, 6, 4])),
+%!        single ([3, 1i, 6, 4; 8, 2, 7, 5]))
+%!assert (sort (single ([3, 1i, 7, 5; 8, 2, 6, 4]), 1),
+%!        single ([3, 1i, 6, 4; 8, 2, 7, 5]))
+%!assert (sort (single ([3, 1i, 7, 5; 8, 2, 6, 4]), 2),
+%!        single ([1i, 3, 5, 7; 2, 4, 6, 8]))
 %!assert (sort (single (1i)), single (1i))
 
 %!test
@@ -7066,10 +7135,14 @@ ordered lists.
 %!assert (sort ([true, false, true, false], 1), [true, false, true, false])
 %!assert (sort ([true, false, true, false], 2), [false, false, true, true])
 %!assert (sort ([true, false, true, false], 3), [true, false, true, false])
-%!assert (sort ([true, false, true, false], "ascend"), [false, false, true, true])
-%!assert (sort ([true, false, true, false], 2, "ascend"), [false, false, true, true])
-%!assert (sort ([true, false, true, false], "descend"), [true, true, false, false])
-%!assert (sort ([true, false, true, false], 2, "descend"), [true, true, false, false])
+%!assert (sort ([true, false, true, false], "ascend"),
+%!        [false, false, true, true])
+%!assert (sort ([true, false, true, false], 2, "ascend"),
+%!        [false, false, true, true])
+%!assert (sort ([true, false, true, false], "descend"),
+%!        [true, true, false, false])
+%!assert (sort ([true, false, true, false], 2, "descend"),
+%!        [true, true, false, false])
 %!assert (sort (true), true)
 
 %!test
@@ -7078,14 +7151,22 @@ ordered lists.
 %! assert (i, [2, 4, 1, 3]);
 
 ## Sparse Double
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf])), sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 1), sparse ([0, NaN, 1, 0, -1, 2, Inf]))
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 2), sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 3), sparse ([0, NaN, 1, 0, -1, 2, Inf]))
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), "ascend"), sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 2, "ascend"), sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), "descend"), sparse ([NaN, Inf, 2, 1, 0, 0, -1]))
-%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 2, "descend"), sparse ([NaN, Inf, 2, 1, 0, 0, -1]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf])),
+%!        sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 1),
+%!        sparse ([0, NaN, 1, 0, -1, 2, Inf]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 2),
+%!        sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 3),
+%!        sparse ([0, NaN, 1, 0, -1, 2, Inf]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), "ascend"),
+%!        sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 2, "ascend"),
+%!        sparse ([-1, 0, 0, 1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), "descend"),
+%!        sparse ([NaN, Inf, 2, 1, 0, 0, -1]))
+%!assert (sort (sparse ([0, NaN, 1, 0, -1, 2, Inf]), 2, "descend"),
+%!        sparse ([NaN, Inf, 2, 1, 0, 0, -1]))
 
 %!shared a
 %! a = randn (10, 10);
@@ -7100,14 +7181,22 @@ ordered lists.
 %! assert (is, i);
 
 ## Sparse Complex
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf])), sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 1), sparse ([0, NaN, 1i, 0, -1, 2, Inf]))
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 2), sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 3), sparse ([0, NaN, 1i, 0, -1, 2, Inf]))
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), "ascend"), sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 2, "ascend"), sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), "descend"), sparse ([NaN, Inf, 2, -1, 1i, 0, 0]))
-%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 2, "descend"), sparse ([NaN, Inf, 2, -1, 1i, 0, 0]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf])),
+%!        sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 1),
+%!        sparse ([0, NaN, 1i, 0, -1, 2, Inf]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 2),
+%!        sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 3),
+%!        sparse ([0, NaN, 1i, 0, -1, 2, Inf]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), "ascend"),
+%!        sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 2, "ascend"),
+%!        sparse ([0, 0, 1i, -1, 2, Inf, NaN]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), "descend"),
+%!        sparse ([NaN, Inf, 2, -1, 1i, 0, 0]))
+%!assert (sort (sparse ([0, NaN, 1i, 0, -1, 2, Inf]), 2, "descend"),
+%!        sparse ([NaN, Inf, 2, -1, 1i, 0, 0]))
 
 %!shared a
 %! a = randn (10, 10);
@@ -7123,14 +7212,22 @@ ordered lists.
 %! assert (is, i);
 
 ## Sparse Bool
-%!assert (sort (sparse ([true, false, true, false])), sparse ([false, false, true, true]))
-%!assert (sort (sparse ([true, false, true, false]), 1), sparse ([true, false, true, false]))
-%!assert (sort (sparse ([true, false, true, false]), 2), sparse ([false, false, true, true]))
-%!assert (sort (sparse ([true, false, true, false]), 3), sparse ([true, false, true, false]))
-%!assert (sort (sparse ([true, false, true, false]), "ascend"), sparse ([false, false, true, true]))
-%!assert (sort (sparse ([true, false, true, false]), 2, "ascend"), sparse ([false, false, true, true]))
-%!assert (sort (sparse ([true, false, true, false]), "descend"), sparse ([true, true, false, false]))
-%!assert (sort (sparse ([true, false, true, false]), 2, "descend"), sparse ([true, true, false, false]))
+%!assert (sort (sparse ([true, false, true, false])),
+%!        sparse ([false, false, true, true]))
+%!assert (sort (sparse ([true, false, true, false]), 1),
+%!        sparse ([true, false, true, false]))
+%!assert (sort (sparse ([true, false, true, false]), 2),
+%!        sparse ([false, false, true, true]))
+%!assert (sort (sparse ([true, false, true, false]), 3),
+%!        sparse ([true, false, true, false]))
+%!assert (sort (sparse ([true, false, true, false]), "ascend"),
+%!        sparse ([false, false, true, true]))
+%!assert (sort (sparse ([true, false, true, false]), 2, "ascend"),
+%!        sparse ([false, false, true, true]))
+%!assert (sort (sparse ([true, false, true, false]), "descend"),
+%!        sparse ([true, true, false, false]))
+%!assert (sort (sparse ([true, false, true, false]), 2, "descend"),
+%!        sparse ([true, true, false, false]))
 
 %!test
 %! [v, i] = sort (sparse ([true, false, true, false]));
@@ -7230,17 +7327,17 @@ get_sort_mode_option (const octave_value& arg)
 
 DEFUN (issorted, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn  {} {} issorted (@var{a})
-@deftypefnx {} {} issorted (@var{a}, @var{mode})
-@deftypefnx {} {} issorted (@var{a}, "rows", @var{mode})
-Return true if the array is sorted according to @var{mode}, which may be either
-@qcode{"ascend"}, @qcode{"descend"}, or @qcode{"either"}.
+@deftypefn  {} {@var{tf} =} issorted (@var{a})
+@deftypefnx {} {@var{tf} =} issorted (@var{a}, @var{mode})
+@deftypefnx {} {@var{tf} =} issorted (@var{a}, "rows", @var{mode})
+Return true if the vector @var{a} is sorted according to @var{mode}, which
+may be either @qcode{"ascend"}, @qcode{"descend"}, or @qcode{"either"}.
 
 By default, @var{mode} is @qcode{"ascend"}.  NaNs are treated in the same
 manner as @code{sort}.
 
-If the optional argument @qcode{"rows"} is supplied, check whether the array is
-sorted by rows as output by the function @code{sortrows} (with no options).
+If the optional argument @qcode{"rows"} is supplied, check whether the matrix
+is sorted by rows as output by the function @code{sortrows} (with no options).
 
 This function does not support sparse matrices.
 @seealso{sort, sortrows}
@@ -8311,7 +8408,7 @@ Encode a double matrix or array @var{x} into the base64 format string
       const Array<float> in = args(0).float_array_value ();
       std::size_t inlen;
       inlen = in.numel () * sizeof (float) / sizeof (char);
-      const char*  inc;
+      const char *inc;
       inc = reinterpret_cast<const char *> (in.data ());
       char *out;
       if (base64_encode (inc, inlen, &out))
@@ -8325,7 +8422,7 @@ Encode a double matrix or array @var{x} into the base64 format string
       const Array<double> in = args(0).array_value ();
       std::size_t inlen;
       inlen = in.numel () * sizeof (double) / sizeof (char);
-      const char*  inc;
+      const char *inc;
       inc = reinterpret_cast<const char *> (in.data ());
       char *out;
       if (base64_encode (inc, inlen, &out))

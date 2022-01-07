@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2007-2021 The Octave Project Developers
+## Copyright (C) 2007-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -130,7 +130,8 @@ endfunction
 ## Test 3-D input
 %!testif HAVE_QHULL
 %! x = [-1, -1, 1, 0, -1]; y = [-1, 1, 1, 0, -1]; z = [0, 0, 0, 1, 1];
-%! assert (sortrows (sort (delaunayn ([x(:) y(:) z(:)]), 2)), [1,2,3,4;1,2,4,5]);
+%! assert (sortrows (sort (delaunayn ([x(:) y(:) z(:)]), 2)),
+%!         [1,2,3,4;1,2,4,5]);
 
 ## FIXME: Need tests for delaunayn
 

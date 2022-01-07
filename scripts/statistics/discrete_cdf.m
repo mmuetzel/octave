@@ -1,6 +1,6 @@
 ########################################################################
 ##
-## Copyright (C) 2010-2021 The Octave Project Developers
+## Copyright (C) 2010-2022 The Octave Project Developers
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -69,9 +69,12 @@ endfunction
 %!assert (discrete_cdf ([x, NaN], v, p), [y, NaN], eps)
 
 ## Test class of input preserved
-%!assert (discrete_cdf (single ([x, NaN]), v, p), single ([y, NaN]), 2*eps ("single"))
-%!assert (discrete_cdf ([x, NaN], single (v), p), single ([y, NaN]), 2*eps ("single"))
-%!assert (discrete_cdf ([x, NaN], v, single (p)), single ([y, NaN]), 2*eps ("single"))
+%!assert (discrete_cdf (single ([x, NaN]), v, p),
+%!        single ([y, NaN]), 2*eps ("single"))
+%!assert (discrete_cdf ([x, NaN], single (v), p),
+%!        single ([y, NaN]), 2*eps ("single"))
+%!assert (discrete_cdf ([x, NaN], v, single (p)),
+%!        single ([y, NaN]), 2*eps ("single"))
 
 ## Test input validation
 %!error <Invalid call> discrete_cdf ()

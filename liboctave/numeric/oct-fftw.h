@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 2001-2021 The Octave Project Developers
+// Copyright (C) 2001-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -354,10 +354,10 @@ namespace octave
                      std::size_t nsamples = 1, octave_idx_type stride = 1,
                      octave_idx_type dist = -1);
 
-    static int fftNd (const double*, Complex*, const int, const dim_vector&);
-    static int fftNd (const Complex*, Complex*, const int,
+    static int fftNd (const double *, Complex *, const int, const dim_vector&);
+    static int fftNd (const Complex *, Complex *, const int,
                       const dim_vector&);
-    static int ifftNd (const Complex*, Complex*, const int,
+    static int ifftNd (const Complex *, Complex *, const int,
                        const dim_vector&);
 
     static int fft (const float *in, FloatComplex *out, std::size_t npts,
@@ -370,11 +370,11 @@ namespace octave
                      std::size_t nsamples = 1, octave_idx_type stride = 1,
                      octave_idx_type dist = -1);
 
-    static int fftNd (const float*, FloatComplex*, const int,
+    static int fftNd (const float *, FloatComplex *, const int,
                       const dim_vector&);
-    static int fftNd (const FloatComplex*, FloatComplex*, const int,
+    static int fftNd (const FloatComplex *, FloatComplex *, const int,
                       const dim_vector&);
-    static int ifftNd (const FloatComplex*, FloatComplex*, const int,
+    static int ifftNd (const FloatComplex *, FloatComplex *, const int,
                        const dim_vector&);
   };
 

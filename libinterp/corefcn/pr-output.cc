@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1993-2021 The Octave Project Developers
+// Copyright (C) 1993-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -312,7 +312,7 @@ pr_max_internal (const MArray<T>& m)
   for (octave_idx_type j = 0; j < nc; j++)
     for (octave_idx_type i = 0; i < nr; i++)
       {
-        T val = m(i,j);
+        T val = m(i, j);
         if (! octave::math::isfinite (val))
           continue;
 
@@ -342,7 +342,7 @@ pr_min_internal (const MArray<T>& m)
   for (octave_idx_type j = 0; j < nc; j++)
     for (octave_idx_type i = 0; i < nr; i++)
       {
-        T val = m(i,j);
+        T val = m(i, j);
         if (! octave::math::isfinite (val))
           continue;
 
@@ -1825,7 +1825,7 @@ octave_print_free (std::ostream& os, const MT& m, bool pr_as_read_syntax)
   for (octave_idx_type i = 0; i < nr; i++)
     {
       for (octave_idx_type j = 0; j < nc; j++)
-        os << ' ' << m.elem(i,j);
+        os << ' ' << m.elem (i, j);
 
       if (i < nr - 1)
         os << "\n";
@@ -1848,7 +1848,7 @@ pr_plus_format_matrix (std::ostream& os, const MT& m)
         {
           octave_quit ();
 
-          pr_plus_format (os, m(i,j));
+          pr_plus_format (os, m(i, j));
         }
 
       if (i < nr - 1)
@@ -1934,7 +1934,7 @@ octave_print_matrix_internal (std::ostream& os, const MT& m,
                             os << "  ";
                         }
 
-                      pr_float (os, fmt, m(i,j));
+                      pr_float (os, fmt, m(i, j));
                     }
 
                   col += inc;
@@ -1974,7 +1974,7 @@ octave_print_matrix_internal (std::ostream& os, const MT& m,
 
                       os << "  ";
 
-                      pr_float (os, fmt, m(i,j));
+                      pr_float (os, fmt, m(i, j));
                     }
 
                   if (i < nr - 1)
@@ -2050,7 +2050,7 @@ octave_print_diag_matrix_internal (std::ostream& os, const DMT& m,
                         os << "  ";
                     }
 
-                  pr_float (os, fmt, m(j,j));
+                  pr_float (os, fmt, m(j, j));
                 }
 
               col += inc;
@@ -2099,7 +2099,7 @@ octave_print_diag_matrix_internal (std::ostream& os, const DMT& m,
                       os << "  ";
 
                       if (i == j)
-                        pr_float (os, fmt, m(i,j));
+                        pr_float (os, fmt, m(i, j));
                       else
                         os << std::setw (zero_fw) << '0';
                     }
@@ -2380,7 +2380,7 @@ octave_print_internal (std::ostream& os, const PermMatrix& m,
 
                       os << "  ";
 
-                      os << std::setw (fw) << m(i,j);
+                      os << std::setw (fw) << m(i, j);
                     }
 
                   if (i < nr - 1)
@@ -2536,7 +2536,7 @@ octave_print_internal (std::ostream& os, const octave::range<double>& r,
             {
               os << ' ';
               for (octave_idx_type i = 0; i < num_elem; i++)
-                os << ' ' << r.elem(i);
+                os << ' ' << r.elem (i);
               return;
             }
 
@@ -2558,7 +2558,8 @@ octave_print_internal (std::ostream& os, const octave::range<double>& r,
           octave_idx_type col = 0;
           while (col < num_elem)
             {
-              octave_idx_type lim = (col + inc < num_elem ? col + inc : num_elem);
+              octave_idx_type lim = (col + inc < num_elem ? col + inc
+                                                          : num_elem);
 
               pr_col_num_header (os, total_width, max_width, lim, col,
                                  extra_indent);
@@ -2769,7 +2770,7 @@ octave_print_internal (std::ostream& os, const Array<std::string>& nda,
           for (octave_idx_type ii = 0; ii < n_rows; ii++)
             {
               for (octave_idx_type jj = 0; jj < n_cols; jj++)
-                os << "  " << page(ii,jj);
+                os << "  " << page(ii, jj);
 
               os << "\n";
             }
@@ -2917,7 +2918,7 @@ octave_print_internal_template (std::ostream& os,
 }
 
 #define PRINT_INT_SCALAR_INTERNAL(TYPE)                                 \
-  OCTINTERP_API void                                                    \
+  void                                                                  \
   octave_print_internal (std::ostream& os,                              \
                          const float_display_format& fmt,               \
                          const octave_int<TYPE>& val, bool dummy)       \
@@ -3004,7 +3005,7 @@ octave_print_internal_template (std::ostream& os, const intNDArray<T>& nda,
                 {
                   octave_quit ();
 
-                  pr_plus_format (os, page(ii,jj));
+                  pr_plus_format (os, page(ii, jj));
                 }
 
               if ((ii < nr - 1) || (i < m -1))
@@ -3148,7 +3149,7 @@ octave_print_internal_template (std::ostream& os, const intNDArray<T>& nda,
                         {
                           octave_quit ();
                           os << "  ";
-                          pr_int (os, page(ii,jj), fw);
+                          pr_int (os, page(ii, jj), fw);
                         }
                       if ((ii < n_rows - 1) || (i < m -1))
                         os << "\n";
@@ -3974,7 +3975,8 @@ is used.  In case of an error the format remains unchanged.
 If called with one to three output arguments, and no inputs, return the current
 format, format spacing, and uppercase preference.
 
-@seealso{fixed_point_format, output_precision, split_long_rows, print_empty_dimensions, rats}
+@seealso{fixed_point_format, output_precision, split_long_rows,
+print_empty_dimensions, rats}
 @end deftypefn */)
 {
   octave_value_list retval (std::min (nargout, 2));
@@ -4058,7 +4060,7 @@ DEFUN (fixed_point_format, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} fixed_point_format ()
 @deftypefnx {} {@var{old_val} =} fixed_point_format (@var{new_val})
-@deftypefnx {} {} fixed_point_format (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} fixed_point_format (@var{new_val}, "local")
 Query or set the internal variable that controls whether Octave will
 use a scaled format to print matrix values.
 
@@ -4101,7 +4103,7 @@ DEFUN (print_empty_dimensions, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} print_empty_dimensions ()
 @deftypefnx {} {@var{old_val} =} print_empty_dimensions (@var{new_val})
-@deftypefnx {} {} print_empty_dimensions (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} print_empty_dimensions (@var{new_val}, "local")
 Query or set the internal variable that controls whether the dimensions of
 empty matrices are printed along with the empty matrix symbol, @samp{[]}.
 
@@ -4132,7 +4134,7 @@ DEFUN (split_long_rows, args, nargout,
        doc: /* -*- texinfo -*-
 @deftypefn  {} {@var{val} =} split_long_rows ()
 @deftypefnx {} {@var{old_val} =} split_long_rows (@var{new_val})
-@deftypefnx {} {} split_long_rows (@var{new_val}, "local")
+@deftypefnx {} {@var{old_val} =} split_long_rows (@var{new_val}, "local")
 Query or set the internal variable that controls whether rows of a matrix
 may be split when displayed to a terminal window.
 

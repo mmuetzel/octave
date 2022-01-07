@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// Copyright (C) 1994-2021 The Octave Project Developers
+// Copyright (C) 1994-2022 The Octave Project Developers
 //
 // See the file COPYRIGHT.md in the top-level directory of this
 // distribution or <https://octave.org/copyright/>.
@@ -23,18 +23,21 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#if defined (HAVE_CONFIG_H)
+#  include "config.h"
+#endif
+
 #include "defun.h"
 #include "error.h"
 #include "ovl.h"
-
-#include <iostream>
 
 OCTAVE_NAMESPACE_BEGIN
 
 // This function implements the Schrage technique for modular multiplication.
 // The returned value is equivalent to "mod (a*b, modulus)"
 // but calculated without overflow.
-uint64_t safemultiply (uint64_t a, uint64_t b, uint64_t modulus)
+uint64_t
+safemultiply (uint64_t a, uint64_t b, uint64_t modulus)
 {
   if (! a || ! b)
     return 0;
@@ -58,7 +61,8 @@ uint64_t safemultiply (uint64_t a, uint64_t b, uint64_t modulus)
 
 // This function returns "mod (a^b, modulus)"
 // but calculated without overflow.
-uint64_t safepower (uint64_t a, uint64_t b, uint64_t modulus)
+uint64_t
+safepower (uint64_t a, uint64_t b, uint64_t modulus)
 {
   uint64_t retval = 1;
   while (b > 0)
@@ -73,7 +77,8 @@ uint64_t safepower (uint64_t a, uint64_t b, uint64_t modulus)
 
 // This function implements a single round of Miller-Rabin primality testing.
 // Returns false if composite, true if pseudoprime for this divisor.
-bool millerrabin (uint64_t div, uint64_t d, uint64_t r, uint64_t n)
+bool
+millerrabin (uint64_t div, uint64_t d, uint64_t r, uint64_t n)
 {
   uint64_t x = safepower (div, d, n);
   if (x == 1 || x == n-1)
@@ -90,9 +95,11 @@ bool millerrabin (uint64_t div, uint64_t d, uint64_t r, uint64_t n)
 
 // This function uses the Miller-Rabin test to find out whether the input is
 // prime or composite. The input is required to be a scalar 64-bit integer.
-bool isprimescalar (uint64_t n)
+bool
+isprimescalar (uint64_t n)
 {
-  // Fast return for even numbers. n==2 is excluded by the time this function is called.
+  // Fast return for even numbers.
+  // n==2 is excluded by the time this function is called.
   if (! (n & 1))
     return false;
 
@@ -100,10 +107,10 @@ bool isprimescalar (uint64_t n)
   uint64_t d = n-1;
   uint64_t r = 0;
   while (! (d & 1))
-  {
-    d >>= 1;
-    r++;
-  }
+    {
+      d >>= 1;
+      r++;
+    }
 
   // Miller-Rabin test with the first 12 primes.
   // If the number passes all 12 tests, then it is prime.
@@ -148,9 +155,9 @@ bool isprimescalar (uint64_t n)
 
 DEFUN (__isprimelarge__, args, ,
        doc: /* -*- texinfo -*-
-@deftypefn  {} {@var{x} =} __isprimelarge__ (@var{n})
+@deftypefn {} {@var{x} =} __isprimelarge__ (@var{n})
 Use the Miller-Rabin test to find out whether the elements of N are prime or
-composite. The input N is required to be a vector or array of 64-bit integers.
+composite.  The input N is required to be a vector or array of 64-bit integers.
 You should call isprime(N) instead of directly calling this function.
 
 @seealso{isprime, factor}
@@ -191,7 +198,10 @@ You should call isprime(N) instead of directly calling this function.
 %!assert (__isprimelarge__ (uint64 (2305843009213693951)), true)
 %!assert (__isprimelarge__ (uint64 (18446744073709551557)), true)
 
-%!assert (__isprimelarge__ ([uint64(12345), uint64(2147483647), uint64(2305843009213693951), uint64(18446744073709551557)]), logical ([0 1 1 1]))
+%!assert (__isprimelarge__ ([uint64(12345), uint64(2147483647), ...
+%!                           uint64(2305843009213693951), ...
+%!                           uint64(18446744073709551557)]),
+%!        logical ([0 1 1 1]))
 
 %!error <unable to convert input> (__isprimelarge__ ({'foo'; 'bar'}))
 */
