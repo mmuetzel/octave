@@ -101,6 +101,9 @@ cat << EOF
 
 #if ! defined (OCTAVE_AUTOCONFIG_H_INCLUDED)
 
+/* Octave assumes XSI/POSIX compatibility */
+#  define _XOPEN_SOURCE 700
+
 #  if defined (__cplusplus)
 #    include <cinttypes>
 #  else
