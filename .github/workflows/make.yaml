@@ -31,7 +31,9 @@ jobs:
         id: cache_timestamp
         shell: powershell
         run: |
-          echo "timestamp=$(Get-Date -Format "yyyy-MM-dd_HH-mm-ss")" >> $GITHUB_OUTPUT
+          echo "timestamp=$(Get-Date -Format "yyyy-MM-dd_HH-mm-ss")" >> $Env:GITHUB_OUTPUT
+          echo $Env:GITHUB_OUTPUT
+          cat $Env:GITHUB_OUTPUT
 
       - name: setup cache for Cygwin packages
         uses: pat-s/always-upload-cache@v3
@@ -110,11 +112,12 @@ jobs:
 
       - name: trust git repositories
         # The checkout action uses a Windows path to add the repo as a safe
-        # directory.  But Cygwin's git expects a Unix path.
+        # directory.  But that doesn't seem to work for Cygwin's git.
         run: |
           echo $GITHUB_WORKSPACE
           cygpath -u $GITHUB_WORKSPACE
-          git config --global --add safe.directory $(cygpath -u $GITHUB_WORKSPACE)
+          # git config --global --add safe.directory $(cygpath -u $GITHUB_WORKSPACE)
+          git config --global --add safe.directory '*'
 
       - name: checkout repository
         uses: actions/checkout@v3
