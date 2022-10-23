@@ -10,7 +10,7 @@ jobs:
     defaults:
       run:
         # Use cygwin bash as default shell
-        shell: C:\tools\cygwin\bin\bash.exe --login -eo pipefail -o igncr '{0}'
+        shell: C:\cygwin\bin\bash.exe --login -eo pipefail -o igncr '{0}'
 
     strategy:
       # Allow other runners in the matrix to continue if some fail
@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: install Cygwin build environment
-        uses: egor-tensin/setup-cygwin@v3
+        uses: cygwin/cygwin-install-action@v2
         with:
           # The packages are listed in (alphabetically sorted) blocks:
           # The first block is for mandatory dependencies.
@@ -37,6 +37,7 @@ jobs:
           # The fourth block is for additional run-time dependencies (to run test suite) that aren't needed to build.
           packages: >-
             autoconf
+            automake
             make
             gcc-core
             gcc-g++
@@ -103,7 +104,7 @@ jobs:
           echo "timestamp=$(date +"%Y-%m-%d_%H-%M-%S")" >> $GITHUB_OUTPUT
 
       - name: restore ccache
-        # Setup the github cache used to maintain the ccache from one job to the next
+        # Setup a github cache used to maintain the ccache from one job to the next
         uses: actions/cache@v3
         with:
           path: ${{ steps.ccache_cache_timestamp.outputs.ccachedir }}
