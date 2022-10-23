@@ -21,18 +21,31 @@ jobs:
         os: [windows-latest]
 
     env:
-      CHERE_INVOKING: 1
+      CHERE_INVOKING: "1"
       CC:  gcc
       CXX:  g++
       F77:  gfortran
+      # ccache 3.1 doesn't read configuration files
+      CCACHE_COMPRESS: "1"
 
     steps:
+      - name: get CPU name
+        # The runners for the 32-bit target sometimes get stuck in configure
+        # when using the Fortran compiler.
+        # Does that error depend on the processor of the selected runner?
+        shell: pwsh
+        run : |
+          Get-CIMInstance -Class Win32_Processor | Select-Object -Property Name
+          git config --global core.autocrlf false
+
       - name: checkout repository
+        # This must be done before installing Cygwin because their git is
+        # incompatible with this action.
         uses: actions/checkout@v3
 
       - name: get string with time
         id: cache_timestamp
-        shell: powershell
+        shell: pwsh
         run: |
           echo "timestamp=$(Get-Date -Format "yyyy-MM-dd_HH-mm-ss")" >> $Env:GITHUB_OUTPUT
           echo $Env:GITHUB_OUTPUT
@@ -42,9 +55,9 @@ jobs:
         uses: pat-s/always-upload-cache@v3
         with:
           path: C:/cygwin-packages
-          key: ccache:${{ matrix.os }}:cygwin-packages:${{ steps.cache_timestamp.outputs.timestamp }}
+          key: cygwin-packages:${{ steps.cache_timestamp.outputs.timestamp }}
           restore-keys: |
-            ccache:${{ matrix.os }}:cygwin-packages
+            cygwin-packages
 
       - name: install Cygwin build environment
         uses: cygwin/cygwin-install-action@v2
@@ -113,14 +126,14 @@ jobs:
             unzip
             zip
 
-      - name: trust git repositories
-        # The checkout action uses a Windows path to add the repo as a safe
-        # directory.  But that doesn't seem to work for Cygwin's git.
-        run: |
-          echo $GITHUB_WORKSPACE
-          cygpath -u $GITHUB_WORKSPACE
-          # git config --global --add safe.directory $(cygpath -u $GITHUB_WORKSPACE)
-          git config --global --add safe.directory '*'
+#      - name: trust git repositories
+#        # The checkout action uses a Windows path to add the repo as a safe
+#        # directory.  But that doesn't seem to work for Cygwin's git.
+#        run: |
+#          echo $GITHUB_WORKSPACE
+#          cygpath -u $GITHUB_WORKSPACE
+#          # git config --global --add safe.directory $(cygpath -u $GITHUB_WORKSPACE)
+#          git config --global --add safe.directory '*'
 
       - name: prepare ccache
         # Create human readable timestamp
@@ -142,9 +155,12 @@ jobs:
         # Limit the maximum size and switch on compression to avoid exceeding the total disk or cache quota.
         run: |
           which ccache
-          test -d ${{ steps.ccache_cache_dir.outputs.ccachedir }} || mkdir -p ${{ steps.ccache_cache_dir.outputs.ccachedir }}
-          echo "max_size = 0.9G" > ${{ steps.ccache_cache_dir.outputs.ccachedir }}/ccache.conf
-          echo "compression = true" >> ${{ steps.ccache_cache_dir.outputs.ccachedir }}/ccache.conf
+          ccache -V
+          # ccache 3.1 doesn't read configuration files
+          # test -d ${{ steps.ccache_cache_dir.outputs.ccachedir }} || mkdir -p ${{ steps.ccache_cache_dir.outputs.ccachedir }}
+          # echo "max_size = 0.9G" > ${{ steps.ccache_cache_dir.outputs.ccachedir }}/ccache.conf
+          # echo "compression = true" >> ${{ steps.ccache_cache_dir.outputs.ccachedir }}/ccache.conf
+          ccache -M 0.9G
           ccache -s
           # create ccache helper scripts for compilers
           test -d /usr/lib/ccache/bin || mkdir -p /usr/lib/ccache/bin
