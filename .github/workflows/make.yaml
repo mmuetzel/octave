@@ -82,6 +82,7 @@ jobs:
             liblapack-devel
             libpcre-devel
             libreadline-devel
+            perl
 
             ghostscript
             gnuplot-base
@@ -211,9 +212,6 @@ jobs:
         # job summary (see below).
         continue-on-error: true
         timeout-minutes: 60
-
-        # Perl scripts cannot be run as executables on Windows (no shebang mechanism).
-        # We need to wrap them by calling the perl executable explicitly.
 
         # mkoctfile seems to have trouble when gcc is called via ccache. So,
         # remove the directory with the ccache wrappers from PATH.
