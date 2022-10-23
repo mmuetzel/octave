@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: get string with time
-        id: timestamp
+        id: cache_timestamp
         shell: powershell
         run: |
           echo "timestamp=$(Get-Date -Format "yyyy-MM-dd_HH-mm-ss")" >> $GITHUB_OUTPUT
@@ -37,7 +37,7 @@ jobs:
         uses: pat-s/always-upload-cache@v3
         with:
           path: C:/cygwin-packages
-          key: ccache:${{ matrix.os }}:cygwin-packages:${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+          key: ccache:${{ matrix.os }}:cygwin-packages:${{ steps.cache_timestamp.outputs.timestamp }}
           restore-keys: |
             ccache:${{ matrix.os }}:cygwin-packages
 
@@ -117,17 +117,16 @@ jobs:
 
       - name: prepare ccache
         # Create human readable timestamp
-        id: ccache_cache_timestamp
+        id: ccache_cache_dir
         run: |
           echo "ccachedir=$(cygpath -m ~/.ccache)" >> $GITHUB_OUTPUT
-          echo "timestamp=$(date +"%Y-%m-%d_%H-%M-%S")" >> $GITHUB_OUTPUT
 
       - name: restore ccache
         # Setup a github cache used to maintain the ccache from one job to the next
         uses: actions/cache@v3
         with:
-          path: ${{ steps.ccache_cache_timestamp.outputs.ccachedir }}
-          key: ccache:${{ matrix.os }}:cygwin:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
+          path: ${{ steps.ccache_cache_dir.outputs.ccachedir }}
+          key: ccache:${{ matrix.os }}:cygwin:${{ github.ref }}:${{ steps.cache_timestamp.outputs.timestamp }}:${{ github.sha }}
           restore-keys: |
             ccache:${{ matrix.os }}:cygwin:${{ github.ref }}
             ccache:${{ matrix.os }}:cygwin:refs/heads/default
@@ -136,9 +135,9 @@ jobs:
         # Limit the maximum size and switch on compression to avoid exceeding the total disk or cache quota.
         run: |
           which ccache
-          test -d ${{ steps.ccache_cache_timestamp.outputs.ccachedir }} || mkdir -p ${{ steps.ccache_cache_timestamp.outputs.ccachedir }}
-          echo "max_size = 0.9G" > ${{ steps.ccache_cache_timestamp.outputs.ccachedir }}/ccache.conf
-          echo "compression = true" >> ${{ steps.ccache_cache_timestamp.outputs.ccachedir }}/ccache.conf
+          test -d ${{ steps.ccache_cache_dir.outputs.ccachedir }} || mkdir -p ${{ steps.ccache_cache_dir.outputs.ccachedir }}
+          echo "max_size = 0.9G" > ${{ steps.ccache_cache_dir.outputs.ccachedir }}/ccache.conf
+          echo "compression = true" >> ${{ steps.ccache_cache_dir.outputs.ccachedir }}/ccache.conf
           ccache -s
           # create ccache helper scripts for compilers
           test -d /usr/lib/ccache/bin || mkdir -p /usr/lib/ccache/bin
