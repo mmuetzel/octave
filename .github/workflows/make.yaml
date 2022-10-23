@@ -27,6 +27,8 @@ jobs:
       F77:  gfortran
       # ccache 3.1 doesn't read configuration files
       CCACHE_COMPRESS: "1"
+      # perl uses cmd shell by default
+      PERL5SHELL: bash -l -c
 
     steps:
       - name: get CPU name
