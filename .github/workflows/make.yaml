@@ -10,7 +10,7 @@ jobs:
     defaults:
       run:
         # Use cygwin bash as default shell
-        shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        shell: C:\tools\cygwin\bin\bash.exe --login -eo pipefail -o igncr '{0}'
 
     strategy:
       # Allow other runners in the matrix to continue if some fail
@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: install Cygwin build environment
-        uses: cygwin/cygwin-install-action@v2
+        uses: egor-tensin/setup-cygwin@v3
         with:
           # The packages are listed in (alphabetically sorted) blocks:
           # The first block is for mandatory dependencies.
