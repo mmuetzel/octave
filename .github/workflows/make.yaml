@@ -10,7 +10,7 @@ jobs:
     defaults:
       run:
         # Use cygwin bash as default shell
-        shell: C:\cygwin\bin\bash.exe --login -eo pipefail '{0}'
+        shell: C:\cygwin\bin\bash.exe --login -eo pipefail -o igncr '{0}'
 
     strategy:
       # Allow other runners in the matrix to continue if some fail
@@ -192,7 +192,7 @@ jobs:
       - name: build
         # Spawning processes seems to have a big overhead on this platform. Use a somewhat larger number of parallel processes to compensate for that.
         run: |
-          EGREP="grep -E" make -C ./.build all -j8 V=1
+          EGREP="grep -E" make -C ./.build all -j1 V=1
 
       - name: ccache status
         continue-on-error: true
