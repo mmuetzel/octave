@@ -27,6 +27,20 @@ jobs:
       F77:  gfortran
 
     steps:
+      - name: get string with time
+        id: timestamp
+        shell: powershell
+        run: |
+          echo "timestamp=$(Get-Date -Format "yyyy-MM-dd_HH-mm-ss")" >> $GITHUB_OUTPUT
+
+      - name: setup cache for Cygwin packages
+        uses: pat-s/always-upload-cache@v3
+        with:
+          path: C:/cygwin-packages
+          key: ccache:${{ matrix.os }}:cygwin-packages:${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+          restore-keys: |
+            ccache:${{ matrix.os }}:cygwin-packages
+
       - name: install Cygwin build environment
         uses: cygwin/cygwin-install-action@v2
         with:
@@ -86,12 +100,17 @@ jobs:
             rapidjson-devel
 
             ccache
+            git
             icoutils
             librsvg
             texinfo
 
             unzip
             zip
+
+      - name: trust git repositories
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
 
       - name: checkout repository
         uses: actions/checkout@v3
