@@ -27,16 +27,16 @@ jobs:
       F77:  gfortran
       # ccache 3.1 doesn't read configuration files
       CCACHE_COMPRESS: "1"
-      # perl uses cmd shell by default
-      PERL5SHELL: bash -l -c
+#      # perl uses cmd shell by default
+#      PERL5SHELL: bash -l -c
 
     steps:
       - name: get CPU name
         shell: pwsh
         run : |
           Get-CIMInstance -Class Win32_Processor | Select-Object -Property Name
-          (Get-Command git).Path
-          git config --global core.autocrlf false
+#          (Get-Command git).Path
+#          git config --global core.autocrlf false
 
       - name: checkout repository
         # This must be done before installing Cygwin because their git is
@@ -48,8 +48,6 @@ jobs:
         shell: pwsh
         run: |
           echo "timestamp=$(Get-Date -Format "yyyy-MM-dd_HH-mm-ss")" >> $Env:GITHUB_OUTPUT
-          echo $Env:GITHUB_OUTPUT
-          cat $Env:GITHUB_OUTPUT
 
       - name: setup cache for Cygwin packages
         uses: pat-s/always-upload-cache@v3
@@ -71,7 +69,6 @@ jobs:
             autoconf
             automake
             make
-            gcc-core
             gcc-g++
             gcc-fortran
             bison
@@ -82,7 +79,6 @@ jobs:
             liblapack-devel
             libpcre-devel
             libreadline-devel
-            perl
 
             ghostscript
             gnuplot-base
@@ -114,6 +110,7 @@ jobs:
             libQt5Gui-devel
             libQt5Help-devel
             libsndfile-devel
+            libsuitesparseconfig-devel
             libsundials-devel
             libspqr-devel
             qt5-doc-tools
@@ -195,16 +192,10 @@ jobs:
             EGREP="grep -E" \
             FLIBS="-lgfortran -lquadmath"
 
-      - name: display config.log
-        run: cat .build/config.log
-
-      - name: display config.status
-        run: cat .build/config.status
-
       - name: build
         # Spawning processes seems to have a big overhead on this platform. Use a somewhat larger number of parallel processes to compensate for that.
         run: |
-          EGREP="grep -E" make -C ./.build all -j1 V=1
+          EGREP="grep -E" make -C ./.build all -j8 V=1
 
       - name: ccache status
         continue-on-error: true
@@ -213,7 +204,7 @@ jobs:
       - name: check
         # Continuing on error in this step means that jobs will be "green" even
         # if the test suite crashes.  But if we don't continue, we'll loose the
-        # ccache and other jobs will be cancelled, too.
+        # ccache.
         # It would be nice if we could mark the job as "yellow" (and continue)
         # in that case.  The second best thing is to display a warning in the
         # job summary (see below).
