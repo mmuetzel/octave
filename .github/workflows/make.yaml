@@ -143,6 +143,8 @@ jobs:
 
       - name: configure ccache
         run: |
+          # work around issue with ccache calling itself recursively
+          [ -f /usr/bin/ccache.exe ] && mv /usr/bin/ccache.exe /usr/bin/ccache
           which ccache
           ccache -V
           # ccache 3.1 doesn't read configuration files
@@ -154,9 +156,9 @@ jobs:
           ccache -s
           # create ccache symlinks for all compilers
           test -d /usr/lib/ccache/bin || mkdir -p /usr/lib/ccache/bin
-          ln -s /usr/bin/ccache.exe /usr/lib/ccache/bin/$CC
-          ln -s /usr/bin/ccache.exe /usr/lib/ccache/bin/$CXX
-          ln -s /usr/bin/ccache.exe /usr/lib/ccache/bin/$F77
+          ln -s /usr/bin/ccache /usr/lib/ccache/bin/${CC}.exe
+          ln -s /usr/bin/ccache /usr/lib/ccache/bin/${CXX}.exe
+          ln -s /usr/bin/ccache /usr/lib/ccache/bin/${F77}.exe
           # prepend path to ccache symlinks to PATH
           echo 'export PATH="/usr/lib/ccache/bin:$PATH"' >> ~/.bash_profile
 
