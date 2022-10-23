@@ -194,6 +194,12 @@ jobs:
             EGREP="grep -E" \
             FLIBS="-lgfortran -lquadmath"
 
+      - name: display config.log
+        run: cat .build/config.log
+
+      - name: display config.status
+        run: cat .build/config.status
+
       - name: build
         # Spawning processes seems to have a big overhead on this platform. Use a somewhat larger number of parallel processes to compensate for that.
         run: |
