@@ -10,7 +10,7 @@ jobs:
     defaults:
       run:
         # Use cygwin bash as default shell
-        shell: C:\cygwin\bin\bash.exe --login -eo pipefail -o igncr '{0}'
+        shell: C:\cygwin\bin\bash.exe --login -eo pipefail '{0}'
 
     strategy:
       # Allow other runners in the matrix to continue if some fail
@@ -30,12 +30,10 @@ jobs:
 
     steps:
       - name: get CPU name
-        # The runners for the 32-bit target sometimes get stuck in configure
-        # when using the Fortran compiler.
-        # Does that error depend on the processor of the selected runner?
         shell: pwsh
         run : |
           Get-CIMInstance -Class Win32_Processor | Select-Object -Property Name
+          (Get-Command git).Path
           git config --global core.autocrlf false
 
       - name: checkout repository
@@ -115,6 +113,7 @@ jobs:
             libsndfile-devel
             libsundials-devel
             libspqr-devel
+            qt5-doc-tools
             rapidjson-devel
 
             ccache
@@ -126,15 +125,6 @@ jobs:
             unzip
             zip
 
-#      - name: trust git repositories
-#        # The checkout action uses a Windows path to add the repo as a safe
-#        # directory.  But that doesn't seem to work for Cygwin's git.
-#        run: |
-#          echo $GITHUB_WORKSPACE
-#          cygpath -u $GITHUB_WORKSPACE
-#          # git config --global --add safe.directory $(cygpath -u $GITHUB_WORKSPACE)
-#          git config --global --add safe.directory '*'
-
       - name: prepare ccache
         # Create human readable timestamp
         id: ccache_cache_dir
@@ -142,7 +132,7 @@ jobs:
           echo "ccachedir=$(cygpath -m ~/.ccache)" >> $GITHUB_OUTPUT
 
       - name: restore ccache
-        # Setup a github cache used to maintain the ccache from one job to the next
+        # Setup a github cache used to maintain the ccache from one run to the next
         uses: actions/cache@v3
         with:
           path: ${{ steps.ccache_cache_dir.outputs.ccachedir }}
@@ -152,7 +142,6 @@ jobs:
             ccache:${{ matrix.os }}:cygwin:refs/heads/default
 
       - name: configure ccache
-        # Limit the maximum size and switch on compression to avoid exceeding the total disk or cache quota.
         run: |
           which ccache
           ccache -V
@@ -160,14 +149,15 @@ jobs:
           # test -d ${{ steps.ccache_cache_dir.outputs.ccachedir }} || mkdir -p ${{ steps.ccache_cache_dir.outputs.ccachedir }}
           # echo "max_size = 0.9G" > ${{ steps.ccache_cache_dir.outputs.ccachedir }}/ccache.conf
           # echo "compression = true" >> ${{ steps.ccache_cache_dir.outputs.ccachedir }}/ccache.conf
+          # limit maximum cache size to avoid exceeding the total disk or cache quota
           ccache -M 0.9G
           ccache -s
-          # create ccache helper scripts for compilers
+          # create ccache symlinks for all compilers
           test -d /usr/lib/ccache/bin || mkdir -p /usr/lib/ccache/bin
-          echo -e '#!/usr/bin/bash\nccache /usr/bin/'$CC' "$@"' > /usr/lib/ccache/bin/$CC
-          echo -e '#!/usr/bin/bash\nccache /usr/bin/'$CXX' "$@"' > /usr/lib/ccache/bin/$CXX
-          echo -e '#!/usr/bin/bash\nccache /usr/bin/'$F77' "$@"' > /usr/lib/ccache/bin/$F77
-          # prepend path to ccache helper scripts to PATH
+          ln -s /usr/bin/ccache.exe /usr/lib/ccache/bin/$CC
+          ln -s /usr/bin/ccache.exe /usr/lib/ccache/bin/$CXX
+          ln -s /usr/bin/ccache.exe /usr/lib/ccache/bin/$F77
+          # prepend path to ccache symlinks to PATH
           echo 'export PATH="/usr/lib/ccache/bin:$PATH"' >> ~/.bash_profile
 
       - name: bootstrap
