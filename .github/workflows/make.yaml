@@ -102,15 +102,19 @@ jobs:
             ccache
             git
             icoutils
-            librsvg
+            rsvg
             texinfo
 
             unzip
             zip
 
       - name: trust git repositories
+        # The checkout action uses a Windows path to add the repo as a safe
+        # directory.  But Cygwin's git expects a Unix path.
         run: |
-          git config --global --add safe.directory $GITHUB_WORKSPACE
+          echo $GITHUB_WORKSPACE
+          cygpath -u $GITHUB_WORKSPACE
+          git config --global --add safe.directory $(cygpath -u $GITHUB_WORKSPACE)
 
       - name: checkout repository
         uses: actions/checkout@v3
