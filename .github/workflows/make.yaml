@@ -84,7 +84,6 @@ jobs:
             libspqr-devel
             rapidjson-devel
 
-            git
             ccache
             icoutils
             librsvg
