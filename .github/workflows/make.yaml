@@ -39,20 +39,6 @@ jobs:
         # incompatible with this action.
         uses: actions/checkout@v3
 
-#      - name: get string with time
-#        id: cache_timestamp
-#        shell: pwsh
-#        run: |
-#          echo "timestamp=$(Get-Date -Format "yyyy-MM-dd_HH-mm-ss")" >> $Env:GITHUB_OUTPUT
-
-#      - name: setup cache for Cygwin packages
-#        uses: pat-s/always-upload-cache@v3
-#        with:
-#          path: C:/cygwin-packages
-#          key: cygwin-packages:${{ steps.cache_timestamp.outputs.timestamp }}
-#          restore-keys: |
-#            cygwin-packages
-
       - name: install Cygwin build environment
         uses: cygwin/cygwin-install-action@v2
         with:
@@ -62,7 +48,7 @@ jobs:
           # The third block is for additional dependencies needed when building from a repository checkout.
           # The fourth block is for additional run-time dependencies (to run test suite) that aren't needed to build.
 
-          # FIXME: libklu-devel should depend on libbtf-devel. Install it manually even if Octave doesn't explicitly use it.
+          # FIXME: libklu-devel should depend on libbtf-devel.  Install it manually even if Octave doesn't explicitly use it.
           packages: >-
             autoconf
             automake
@@ -169,8 +155,8 @@ jobs:
         run: GNULIB_URL=https://github.com/coreutils/gnulib.git ./bootstrap
 
       - name: configure
-        # FIXME: Fix building with Java support. Override JAVA_HOME for now.
-        # FIXME: How do we get a working TeX environment in Cygwin? Disable building the documentation for now.
+        # FIXME: Fix building with Java support.  Override JAVA_HOME for now.
+        # FIXME: How do we get a working TeX environment in Cygwin?  Disable building the documentation for now.
         run: |
           which $CC
           echo $CC --version
@@ -192,7 +178,7 @@ jobs:
             FLIBS="-lgfortran -lquadmath"
 
       - name: build
-        # Spawning processes seems to have a big overhead on this platform. Use a somewhat larger number of parallel processes to compensate for that.
+        # Spawning processes seems to have a big overhead on this platform.  Use a somewhat larger number of parallel processes to compensate for that.
         run: |
           EGREP="grep -E" make -C ./.build all -j8 V=1
 
@@ -210,7 +196,7 @@ jobs:
         continue-on-error: true
         timeout-minutes: 60
 
-        # mkoctfile seems to have trouble when gcc is called via ccache. So,
+        # mkoctfile seems to have trouble when gcc is called via ccache.  So,
         # remove the directory with the ccache wrappers from PATH.
 
         run: |
@@ -219,7 +205,7 @@ jobs:
 
       - name: display test log
         continue-on-error: true
-        # Displaying the log shouldn't take long. Cancel the step if it does.
+        # Displaying the log shouldn't take long.  Cancel the step if it does.
         timeout-minutes: 5
         run: cat ./.build/test/fntests.log
 
