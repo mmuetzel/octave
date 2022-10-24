@@ -27,16 +27,12 @@ jobs:
       F77:  gfortran
       # ccache 3.1 doesn't read configuration files
       CCACHE_COMPRESS: "1"
-#      # perl uses cmd shell by default
-#      PERL5SHELL: bash -l -c
 
     steps:
       - name: get CPU name
         shell: pwsh
         run : |
           Get-CIMInstance -Class Win32_Processor | Select-Object -Property Name
-#          (Get-Command git).Path
-#          git config --global core.autocrlf false
 
       - name: checkout repository
         # This must be done before installing Cygwin because their git is
@@ -85,6 +81,7 @@ jobs:
             libamd-devel
             libarpack-devel
             libbz2-devel
+            libcamd-devel
             libccolamd-devel
             libcholmod-devel
             libcolamd-devel
@@ -102,6 +99,7 @@ jobs:
             libGraphicsMagick-devel
             libhdf5-devel
             libiconv-devel
+            libklu-devel
             libportaudio-devel
             libqhull-devel
             libqrupdate-devel
@@ -113,6 +111,7 @@ jobs:
             libsuitesparseconfig-devel
             libsundials-devel
             libspqr-devel
+            libumfpack-devel
             qt5-doc-tools
             rapidjson-devel
 
@@ -166,12 +165,8 @@ jobs:
         run: GNULIB_URL=https://github.com/coreutils/gnulib.git ./bootstrap
 
       - name: configure
-        # configure sometimes hangs while compiling 32bit Fortran.
-        # It should take much less than 30 minutes. Cancel the step if it takes longer.
-        timeout-minutes: 30
         # FIXME: Fix building with Java support. Override JAVA_HOME for now.
-        # FIXME: How do we get a working TeX environment in MSYS2? Disable building the documentation for now.
-        # Linking with ncurses fails. Use termcap library instead.
+        # FIXME: How do we get a working TeX environment in Cygwin? Disable building the documentation for now.
         run: |
           which $CC
           echo $CC --version
