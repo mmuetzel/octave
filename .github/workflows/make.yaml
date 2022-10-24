@@ -39,19 +39,19 @@ jobs:
         # incompatible with this action.
         uses: actions/checkout@v3
 
-      - name: get string with time
-        id: cache_timestamp
-        shell: pwsh
-        run: |
-          echo "timestamp=$(Get-Date -Format "yyyy-MM-dd_HH-mm-ss")" >> $Env:GITHUB_OUTPUT
+#      - name: get string with time
+#        id: cache_timestamp
+#        shell: pwsh
+#        run: |
+#          echo "timestamp=$(Get-Date -Format "yyyy-MM-dd_HH-mm-ss")" >> $Env:GITHUB_OUTPUT
 
-      - name: setup cache for Cygwin packages
-        uses: pat-s/always-upload-cache@v3
-        with:
-          path: C:/cygwin-packages
-          key: cygwin-packages:${{ steps.cache_timestamp.outputs.timestamp }}
-          restore-keys: |
-            cygwin-packages
+#      - name: setup cache for Cygwin packages
+#        uses: pat-s/always-upload-cache@v3
+#        with:
+#          path: C:/cygwin-packages
+#          key: cygwin-packages:${{ steps.cache_timestamp.outputs.timestamp }}
+#          restore-keys: |
+#            cygwin-packages
 
       - name: install Cygwin build environment
         uses: cygwin/cygwin-install-action@v2
@@ -61,6 +61,8 @@ jobs:
           # The second block is for optional dependencies needed when building from a release tarball.
           # The third block is for additional dependencies needed when building from a repository checkout.
           # The fourth block is for additional run-time dependencies (to run test suite) that aren't needed to build.
+
+          # FIXME: libklu-devel should depend on libbtf-devel. Install it manually even if Octave doesn't explicitly use it.
           packages: >-
             autoconf
             automake
@@ -80,6 +82,7 @@ jobs:
             gnuplot-base
             libamd-devel
             libarpack-devel
+            libbtf-devel
             libbz2-devel
             libcamd-devel
             libccolamd-devel
@@ -126,16 +129,17 @@ jobs:
 
       - name: prepare ccache
         # Create human readable timestamp
-        id: ccache_cache_dir
+        id: ccache_cache_timestamp
         run: |
           echo "ccachedir=$(cygpath -m ~/.ccache)" >> $GITHUB_OUTPUT
+          echo "timestamp=$(date +"%Y-%m-%d_%H-%M-%S")" >> $GITHUB_OUTPUT
 
       - name: restore ccache
         # Setup a github cache used to maintain the ccache from one run to the next
         uses: actions/cache@v3
         with:
-          path: ${{ steps.ccache_cache_dir.outputs.ccachedir }}
-          key: ccache:${{ matrix.os }}:cygwin:${{ github.ref }}:${{ steps.cache_timestamp.outputs.timestamp }}:${{ github.sha }}
+          path: ${{ steps.ccache_cache_timestamp.outputs.ccachedir }}
+          key: ccache:${{ matrix.os }}:cygwin:${{ github.ref }}:${{ steps.ccache_cache_timestamp.outputs.timestamp }}:${{ github.sha }}
           restore-keys: |
             ccache:${{ matrix.os }}:cygwin:${{ github.ref }}
             ccache:${{ matrix.os }}:cygwin:refs/heads/default
@@ -147,9 +151,9 @@ jobs:
           which ccache
           ccache -V
           # ccache 3.1 doesn't read configuration files
-          # test -d ${{ steps.ccache_cache_dir.outputs.ccachedir }} || mkdir -p ${{ steps.ccache_cache_dir.outputs.ccachedir }}
-          # echo "max_size = 0.9G" > ${{ steps.ccache_cache_dir.outputs.ccachedir }}/ccache.conf
-          # echo "compression = true" >> ${{ steps.ccache_cache_dir.outputs.ccachedir }}/ccache.conf
+          # test -d ${{ steps.ccache_cache_timestamp.outputs.ccachedir }} || mkdir -p ${{ steps.ccache_cache_timestamp.outputs.ccachedir }}
+          # echo "max_size = 0.9G" > ${{ steps.ccache_cache_timestamp.outputs.ccachedir }}/ccache.conf
+          # echo "compression = true" >> ${{ steps.ccache_cache_timestamp.outputs.ccachedir }}/ccache.conf
           # limit maximum cache size to avoid exceeding the total disk or cache quota
           ccache -M 0.9G
           ccache -s
@@ -230,6 +234,6 @@ jobs:
         # see bug #62365
         # Pipe to an interactive session to trigger appending the command to
         # the history.  This will trigger the creation of a history file.
-        run:  |
+        run: |
           echo "history_file (make_absolute_filename ('./a/b/c/history')); disp ('test')" | ./.build/run-octave -i
           [ -f ./a/b/c/history ] || echo "::warning::Creating history file failed"
