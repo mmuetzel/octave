@@ -409,6 +409,7 @@ jobs:
             ${{ matrix.target-prefix }}-graphicsmagick
             ${{ matrix.target-prefix }}-hdf5
             ${{ matrix.target-prefix }}-libsndfile
+            ${{ matrix.target-prefix }}-ncurses
             ${{ matrix.target-prefix }}-portaudio
             ${{ matrix.target-prefix }}-qhull
             ${{ matrix.target-prefix }}-qrupdate
@@ -486,7 +487,6 @@ jobs:
         timeout-minutes: 30
         # FIXME: Fix building with Java support. Override JAVA_HOME for now.
         # FIXME: How do we get a working TeX environment in MSYS2? Disable building the documentation for now.
-        # Linking with ncurses fails. Use termcap library instead.
         run: |
           which $CC
           echo $CC --version
@@ -501,7 +501,7 @@ jobs:
           cd .build && ../configure \
             JAVA_HOME="" \
             --disable-docs \
-            ac_cv_search_tputs=-ltermcap
+            ac_cv_search_tputs="`pkgconf --libs-only-l ncursesw`"
 
       - name: build
         # Spawning processes seems to have a big overhead on this platform. Use a somewhat larger number of parallel processes to compensate for that.
