@@ -372,6 +372,8 @@ jobs:
       TARGET_TRIPLET:  ${{ matrix.target-triplet }}
       # perl uses cmd shell by default
       PERL5SHELL: bash -l -c
+      # enable JIT debugger in context of cygwin
+      MSYS: winjitdebug
 
     steps:
       - name: get CPU name
