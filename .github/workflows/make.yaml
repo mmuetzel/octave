@@ -16,7 +16,6 @@ jobs:
         # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners
         os: [ubuntu-22.04, ubuntu-20.04]
         compiler: [gcc, clang]
-        name: ${{ matrix.os }} ${{ matrix.compiler }}
         include:
           - compiler: gcc
             compiler-pkgs: "g++ gcc"
@@ -43,6 +42,8 @@ jobs:
           - os: ubuntu-22.04
             compiler: clang
             ccache-max: 400M
+
+    name: ${{ matrix.os }} ${{ matrix.compiler }}
 
     env:
       CC: ${{ matrix.cc }}
