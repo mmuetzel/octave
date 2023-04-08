@@ -16,15 +16,18 @@ jobs:
         # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners
         os: [ubuntu-22.04, ubuntu-20.04]
         compiler: [gcc, clang]
+        name: ${{ matrix.os }} ${{ matrix.compiler }}
         include:
           - compiler: gcc
             compiler-pkgs: "g++ gcc"
             cc: "gcc"
             cxx: "g++"
+            extra-config-flags: ""
           - compiler: clang
-            compiler-pkgs: "clang"
+            compiler-pkgs: "clang libc++-dev libc++abi-dev libunwind-dev"
             cc: "clang"
-            cxx: "clang++"
+            cxx: "clang++ -stdlib=libc++"
+            extra-config-flags: "--without-spqr --without-magick"
           # "ccache" on Ubuntu 20.04 doesn't compress the cache.
           # Clang seems to generally require less cache size (smaller object files?).
           - ccache-max: 1.2G
@@ -114,7 +117,8 @@ jobs:
           mkdir .build
           cd .build && ../configure \
             CPPFLAGS="-I/usr/include/hdf5/serial -I/usr/include/suitesparse" \
-            LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial"
+            LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/hdf5/serial" \
+            ${{ matrix.extra-config-flags }}
 
       - name: build
         # Parallel make seems to fail intermittently when creating the figures
