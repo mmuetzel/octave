@@ -23,7 +23,7 @@ jobs:
             cxx: "g++"
             extra-config-flags: ""
           - compiler: clang
-            compiler-pkgs: "clang libc++-dev libc++abi-dev libunwind-dev"
+            compiler-pkgs: "clang libc++-dev libc++abi-dev"
             cc: "clang"
             cxx: "clang++ -stdlib=libc++"
             extra-config-flags: "--without-spqr --without-magick"
