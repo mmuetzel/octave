@@ -142,41 +142,43 @@ jobs:
         timeout-minutes: 60
         run: XDG_RUNTIME_DIR=$RUNNER_TEMP xvfb-run -a make -C ./.build check | tee ./test-suite.log
 
-      - name: display test log
+      - name: display test suite log
         continue-on-error: true
         # Displaying the log shouldn't take long. Cancel the step if it does.
         timeout-minutes: 5
         run: cat ./.build/test/fntests.log
 
-      - name: check VM
+      - name: check with VM
         timeout-minutes: 60
         run: |
           mv ./.build/test/fntests.log ./.build/test/fntests-no-vm.log
-          XDG_RUNTIME_DIR=$RUNNER_TEMP xvfb-run -a make -C ./.build check | tee ./test-suite-no-vm.log
+          XDG_RUNTIME_DIR=$RUNNER_TEMP xvfb-run -a make -C ./.build check | tee ./test-suite-vm.log
 
-      - name: display test log VM
+      - name: display test suite log with VM
         continue-on-error: true
         # Displaying the log shouldn't take long. Cancel the step if it does.
         timeout-minutes: 5
         run: cat ./.build/test/fntests.log
 
-      - name: difference between test with and without VM
+      - name: difference between logs with and without VM
         continue-on-error: true
         run: |
           echo "::group::diff test-suite.log"
-          diff -urN ./.build/test/test-suite.log ./.build/test/test-suite-no-vm.log
+          echo "diff -urN ./test-suite-vm.log ./test-suite.log"
+          diff -urN ./test-suite-vm.log ./test-suite.log
           echo "::endgroup::"
           echo "::group::diff fntests.log"
+          echo "diff -urN ./.build/test/fntests.log ./.build/test/fntests-no-vm.log"
           diff -urN ./.build/test/fntests.log ./.build/test/fntests-no-vm.log
           echo "::endgroup::"
 
       - name: analyze test suite results
         # Make sure the test summary lists 0 "FAIL"s and no "REGRESSION"
         run:  |
-          [ -n "$(grep -e "FAIL\s*0" ./test-suite-no-vm.log)" ] || exit 1
-          [ -z "$(grep -e "REGRESSION" ./test-suite-no-vm.log)" ] || exit 1
           [ -n "$(grep -e "FAIL\s*0" ./test-suite.log)" ] || exit 1
           [ -z "$(grep -e "REGRESSION" ./test-suite.log)" ] || exit 1
+          [ -n "$(grep -e "FAIL\s*0" ./test-suite-vm.log)" ] || exit 1
+          [ -z "$(grep -e "REGRESSION" ./test-suite-vm.log)" ] || exit 1
           echo No unknown failing tests.
 
       - name: test history file creation
