@@ -165,11 +165,11 @@ jobs:
         run: |
           echo "::group::diff test-suite.log"
           echo "diff -urN ./test-suite-vm.log ./test-suite.log"
-          diff -urN ./test-suite-vm.log ./test-suite.log
+          diff -urN ./test-suite-vm.log ./test-suite.log || true
           echo "::endgroup::"
           echo "::group::diff fntests.log"
           echo "diff -urN ./.build/test/fntests.log ./.build/test/fntests-no-vm.log"
-          diff -urN ./.build/test/fntests.log ./.build/test/fntests-no-vm.log
+          diff -urN ./.build/test/fntests.log ./.build/test/fntests-no-vm.log || true
           echo "::endgroup::"
 
       - name: analyze test suite results
