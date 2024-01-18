@@ -479,7 +479,7 @@ jobs:
             libtool openblas pcre2 portaudio pstoedit qhull qrupdate \
             qscintilla2 qt@${{ matrix.qt }} rapidjson readline suite-sparse sundials texinfo \
             ccache gnu-sed openjdk pkg-config \
-            automake autoconf bison gettext icoutils librsvg mactex-no-gui
+            automake autoconf bison font-freefont gettext icoutils librsvg mactex-no-gui
           eval "$(/usr/libexec/path_helper)"
           HOMEBREW_PREFIX=$(brew --prefix)
           echo "HOMEBREW_PREFIX=$(brew --prefix)" >> $GITHUB_ENV
