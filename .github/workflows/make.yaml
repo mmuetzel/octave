@@ -232,6 +232,7 @@ jobs:
             texlive-dvi
             arpack-dev
             bison
+            blas-dev
             curl-dev
             fftw-dev
             fltk-dev
@@ -243,10 +244,10 @@ jobs:
             gnuplot
             graphicsmagick-dev
             hdf5-dev
+            lapack-dev
             lcms2-dev
             libsm-dev
             libsndfile-dev
-            openblas-dev
             pcre2-dev
             perl
             portaudio-dev
