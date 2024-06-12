@@ -367,7 +367,7 @@ jobs:
       - name: check
         timeout-minutes: 60
         run: |
-          XDG_RUNTIME_DIR=$RUNNER_TEMP \
+          LD_PRELOAD="/usr/lib/liblapack.so:/usr/lib/libblas.so" XDG_RUNTIME_DIR=$RUNNER_TEMP \
             xvfb-run -a make -C ./.build check | tee ./test-suite.log
 
       - name: display test suite log
