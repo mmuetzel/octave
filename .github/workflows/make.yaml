@@ -215,6 +215,7 @@ jobs:
           # libpng
           # sudo
           #   arpack-dev
+          #   suitesparse-dev
           packages: >
             build-base
             autoconf
@@ -259,7 +260,6 @@ jobs:
             qscintilla-dev
             rapidjson-dev
             readline-dev
-            suitesparse-dev
             texinfo
             texmf-dist-lang
             texmf-dist-latexrecommended
@@ -375,7 +375,8 @@ jobs:
           echo gfortran --version
           gfortran --version
           mkdir .build
-          cd .build && ../configure
+          cd .build && ../configure \
+            --disable-docs
 
       - name: build
         # Parallel make seems to fail intermittently when creating the figures
