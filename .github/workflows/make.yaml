@@ -204,7 +204,7 @@ jobs:
           # For available CPU architectures, see:
           # https://github.com/marketplace/actions/setup-alpine-linux-environment
           arch: x86
-          branch: v3.20
+          # branch: v3.20
           # QScintilla-Qt6 is currently not distributed by Alpine Linux. When
           # it is, consider switching to Qt6 packages:
           # qt6-qt5compat-dev
@@ -214,6 +214,7 @@ jobs:
           # wget
           # libpng
           # sudo
+          #   arpack-dev
           packages: >
             build-base
             autoconf
@@ -231,7 +232,6 @@ jobs:
             libltdl
             rsvg-convert
             texlive-dvi
-            arpack-dev
             bison
             blas-dev
             curl-dev
@@ -318,6 +318,28 @@ jobs:
           printf "::group::\033[0;32m==>\033[0m Configure\n"
           mkdir -p build && cd build
           cmake -DCMAKE_BUILD_TYPE=Release ../gl2ps-1.4.2
+          echo "::endgroup::"
+          printf "::group::\033[0;32m==>\033[0m Build\n"
+          cmake --build .
+          echo "::endgroup::"
+          printf "::group::\033[0;32m==>\033[0m Install\n"
+          sudo cmake --install .
+          echo "::endgroup::"
+
+      - name: build arpack
+        # Build ARPACK manually against reference LAPACK and BLAS
+        run: |
+          mkdir -p arpack && cd arpack
+          printf "::group::\033[0;32m==>\033[0m Download tarball\n"
+          wget -O arpack-ng-3.9.1.tgz https://github.com/opencollab/arpack-ng/archive/refs/tags/3.9.1.tar.gz
+          echo "::endgroup::"
+          printf "::group::\033[0;32m==>\033[0m Unpack tarball\n"
+          tar zxvf arpack-ng-3.9.1.tgz
+          echo "::endgroup::"
+          printf "::group::\033[0;32m==>\033[0m Configure\n"
+          ls
+          mkdir -p build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DBLA_VENDOR=Generic ../arpack-ng-3.9.1
           echo "::endgroup::"
           printf "::group::\033[0;32m==>\033[0m Build\n"
           cmake --build .
