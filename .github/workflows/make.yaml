@@ -215,7 +215,6 @@ jobs:
           # libpng
           # sudo
           #   arpack-dev
-          #   suitesparse-dev
           packages: >
             build-base
             autoconf
@@ -260,6 +259,7 @@ jobs:
             qscintilla-dev
             rapidjson-dev
             readline-dev
+            suitesparse-dev
             texinfo
             texmf-dist-lang
             texmf-dist-latexrecommended
@@ -347,8 +347,6 @@ jobs:
           cmake \
             -DCMAKE_BUILD_TYPE=Release \
             -DBLA_VENDOR=Generic \
-            -DLAPACK_LIBRARIES=/usr/lib/liblapack.so \
-            -DBLAS_LIBRARIES=/usr/lib/libblas.so \
             ../arpack-ng-3.9.1
           echo "::endgroup::"
           printf "::group::\033[0;32m==>\033[0m Build\n"
