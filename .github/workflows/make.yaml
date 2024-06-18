@@ -216,6 +216,8 @@ jobs:
           # sudo
           #   arpack-dev
           #   suitesparse-dev
+          #   blas-dev
+          #   lapack-dev=3.12.0-r0
           packages: >
             build-base
             autoconf
@@ -234,7 +236,6 @@ jobs:
             rsvg-convert
             texlive-dvi
             bison
-            blas-dev
             curl-dev
             fftw-dev
             fltk-dev
@@ -246,10 +247,10 @@ jobs:
             gnuplot
             graphicsmagick-dev
             hdf5-dev
-            lapack-dev=3.12.0-r0
             lcms2-dev
             libsm-dev
             libsndfile-dev
+            openblas-dev
             pcre2-dev
             perl
             portaudio-dev
@@ -329,11 +330,6 @@ jobs:
       - name: build arpack
         # Build ARPACK manually against reference LAPACK and BLAS
         run: |
-          echo "ls /usr/lib/liblapack*"
-          ls /usr/lib/liblapack*
-          echo "ls /usr/lib/libblas*"
-          ls /usr/lib/libblas*
-          
           mkdir -p arpack && cd arpack
           printf "::group::\033[0;32m==>\033[0m Download tarball\n"
           wget -O arpack-ng-3.9.1.tgz https://github.com/opencollab/arpack-ng/archive/refs/tags/3.9.1.tar.gz
@@ -346,7 +342,7 @@ jobs:
           mkdir -p build && cd build
           cmake \
             -DCMAKE_BUILD_TYPE=Release \
-            -DBLA_VENDOR=Generic \
+            -DBLA_VENDOR=OpenBLAS \
             ../arpack-ng-3.9.1
           echo "::endgroup::"
           printf "::group::\033[0;32m==>\033[0m Build\n"
@@ -399,7 +395,8 @@ jobs:
       - name: check
         timeout-minutes: 60
         run: |
-          LD_PRELOAD="/usr/lib/liblapack.so:/usr/lib/libblas.so" XDG_RUNTIME_DIR=$RUNNER_TEMP \
+          # LD_PRELOAD="/usr/lib/liblapack.so:/usr/lib/libblas.so"
+          XDG_RUNTIME_DIR=$RUNNER_TEMP \
             xvfb-run -a make -C ./.build check | tee ./test-suite.log
 
       - name: display test suite log
