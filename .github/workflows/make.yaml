@@ -246,7 +246,7 @@ jobs:
             gnuplot
             graphicsmagick-dev
             hdf5-dev
-            lapack-dev-3.12.0-r0
+            lapack-dev=3.12.0-r0
             lcms2-dev
             libsm-dev
             libsndfile-dev
