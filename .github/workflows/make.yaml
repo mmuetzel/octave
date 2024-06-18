@@ -233,7 +233,6 @@ jobs:
             rsvg-convert
             texlive-dvi
             bison
-            blas
             blas-dev
             curl-dev
             fftw-dev
@@ -246,8 +245,7 @@ jobs:
             gnuplot
             graphicsmagick-dev
             hdf5-dev
-            lapack
-            lapack-dev
+            lapack-dev=3.12
             lcms2-dev
             libsm-dev
             libsndfile-dev
