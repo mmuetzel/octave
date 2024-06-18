@@ -329,6 +329,11 @@ jobs:
       - name: build arpack
         # Build ARPACK manually against reference LAPACK and BLAS
         run: |
+          echo "ls /usr/lib/liblapack*"
+          ls /usr/lib/liblapack*
+          echo "ls /usr/lib/libblas*"
+          ls /usr/lib/libblas*
+          
           mkdir -p arpack && cd arpack
           printf "::group::\033[0;32m==>\033[0m Download tarball\n"
           wget -O arpack-ng-3.9.1.tgz https://github.com/opencollab/arpack-ng/archive/refs/tags/3.9.1.tar.gz
