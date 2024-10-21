@@ -214,6 +214,13 @@ jobs:
             mkoctfile --link-stand-alone embedded.cc -o embedded
           ./embedded
 
+      - name: test installing control package
+        run: |
+          unset CC
+          unset CXX
+          PATH="/Users/runner/usr/bin:$PATH" \
+            octave --eval "pkg install -verbose https://github.com/gnu-octave/pkg-control/releases/download/control-4.0.1/control-4.0.1.tar.gz"
+
       - name: analyze test suite results
         # Make sure the test summary lists 0 "FAIL"s and no "REGRESSION"
         run: |
