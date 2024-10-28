@@ -269,7 +269,7 @@ jobs:
           export PATH=$(echo "$PATH" | sed -e "s|$MINGW_PREFIX/lib/ccache/bin:||g")
           export PATH="/c/octave/pkg/${{ matrix.mingw-prefix }}/bin:$PATH"
           cd examples/code
-          mkoctfile --link-stand-alone embedded.cc -o embedded
+          mkoctfile --link-stand-alone --verbose embedded.cc -o embedded
           ./embedded.exe
 
       - name: test Octave packages
