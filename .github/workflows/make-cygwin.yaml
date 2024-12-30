@@ -103,6 +103,7 @@ jobs:
             libsundials-devel
             libspqr-devel
             libumfpack-devel
+            libuuid-devel
             qt5-doc-tools
             rapidjson-devel
 
