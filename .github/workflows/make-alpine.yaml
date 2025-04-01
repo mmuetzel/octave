@@ -5,14 +5,21 @@ concurrency: ci-alpine-${{ github.ref }}
 jobs:
 
   alpine:
-    runs-on: ubuntu-latest
+    # Run armv7 on aarch64 runners
+    runs-on: ${{ matrix.arch == 'armv7' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
 
-    name: Alpine (x86, musl)
+    name: Alpine (${{ matrix.arch }}, musl)
 
     defaults:
       run:
         # Use emulated shell as default
         shell: alpine.sh {0}
+
+    strategy:
+      # Allow other runners in the matrix to continue if some fail
+      fail-fast: false
+      matrix:
+        arch: [x86, armv7]
 
     env:
       LIBGL_ALWAYS_SOFTWARE: "1"
@@ -21,7 +28,14 @@ jobs:
       - name: get CPU information
         shell: bash
         run: |
-          cat /proc/cpuinfo
+          lscpu
+
+      - name: disable QEMU emulation
+        if: matrix.arch == 'armv7'
+        shell: bash
+        run: |
+          sudo apt install -y binfmt-support
+          sudo update-binfmts --disable qemu-arm
 
       - name: checkout repository
         uses: actions/checkout@v4
@@ -31,7 +45,10 @@ jobs:
         with:
           # For available CPU architectures, see:
           # https://github.com/marketplace/actions/setup-alpine-linux-environment
-          arch: x86
+          arch: ${{ matrix.arch }}
+          apk-tools-url: ${{ matrix.arch == 'armv7'
+              && 'https://gitlab.alpinelinux.org/api/v4/projects/5/packages/generic/v2.14.7/aarch64/apk.static#!sha256!27a975638ddc95a411c9f17c63383e335da9edf6bb7de2281d950c291a11f878'
+              || 'https://gitlab.alpinelinux.org/api/v4/projects/5/packages/generic/v2.14.7/x86_64/apk.static#!sha256!bdd044e0fd6cc388c5e571e1093efa5f35f7767cc5aa338b0a2576a429009a62' }}
           # QScintilla-Qt6 is currently not distributed by Alpine Linux. When
           # it is, consider switching to Qt6 packages:
           # qt6-qt5compat-dev
@@ -103,23 +120,29 @@ jobs:
             libpng
             sudo
 
+      - name: disable QEMU emulation (again)
+        if: matrix.arch == 'armv7'
+        shell: bash
+        run: |
+          sudo update-binfmts --disable qemu-arm
+
       - name: prepare ccache
         # create key with human readable timestamp
         # used in action/cache/restore and action/cache/save steps
         id: ccache-prepare
         run: |
-          echo "key=ccache:alpine:x86:${{ github.ref }}:$(date +"%Y-%m-%d_%H-%M-%S"):${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "key=ccache:alpine:${{ matrix.arch }}:${{ github.ref }}:$(date +"%Y-%m-%d_%H-%M-%S"):${{ github.sha }}" >> $GITHUB_OUTPUT
 
       - name: restore ccache
         # setup the github cache used to maintain the ccache from one job to the next
         uses: actions/cache/restore@v4
         with:
           # location of the ccache of the chroot in the root file system
-          path: /home/runner/rootfs/alpine-latest-x86/home/runner/.ccache
+          path: /home/runner/rootfs/alpine-latest-${{ matrix.arch }}/home/runner/.ccache
           key: ${{ steps.ccache-prepare.outputs.key }}
           restore-keys: |
-            ccache:alpine:x86:${{ github.ref }}
-            ccache:alpine:x86:refs/heads/default
+            ccache:alpine:${{ matrix.arch }}:${{ github.ref }}
+            ccache:alpine:${{ matrix.arch }}:refs/heads/default
 
       - name: configure ccache
         run: |
@@ -199,7 +222,7 @@ jobs:
         # Save the cache after we are done (successfully) building
         uses: actions/cache/save@v4
         with:
-          path: /home/runner/rootfs/alpine-latest-x86/home/runner/.ccache
+          path: /home/runner/rootfs/alpine-latest-${{ matrix.arch }}/home/runner/.ccache
           key: ${{ steps.ccache-prepare.outputs.key }}
 
       - name: check
