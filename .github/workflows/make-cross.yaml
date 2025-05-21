@@ -244,6 +244,7 @@ jobs:
         # or xvfb-run or a combination of the two or an actual issue in Octave.
         run: |
           ./.build/run-octave --no-init-file --no-history --eval "version -blas, version -lapack"
+          echo "format bit; xyz = NA, xyz-1, NaN" | ./.build/run-octave
           XDG_RUNTIME_DIR=$RUNNER_TEMP RUN_OCTAVE_OPTIONS="-cli" \
             make -C ./.build check | tee ./test-suite.log
 
