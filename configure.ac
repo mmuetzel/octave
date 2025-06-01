@@ -2304,6 +2304,10 @@ AC_SUBST(SPARSE_XCPPFLAGS)
 AC_SUBST(SPARSE_XLDFLAGS)
 AC_SUBST(SPARSE_XLIBS)
 
+### Check sizes of integer types that are used for indexing for SuiteSparse.
+
+OCTAVE_CHECK_SUITESPARSE_SIZEOF_IDX_TYPES
+
 ## Check for UMFPACK separately split complex matrix and RHS.
 if test -n "$UMFPACK_LIBS"; then
   save_CPPFLAGS="$CPPFLAGS"
