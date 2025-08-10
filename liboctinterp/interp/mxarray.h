@@ -796,12 +796,7 @@ public:
 
   // Make a new array value and initialize from an octave value; it will be
   // freed on exit unless marked as persistent.
-  mxArray * make_value (const octave_value& ov)
-  {
-    bool interleaved = m_curr_mex_fcn.use_interleaved_complex ();
-
-    return mark_array (new mxArray (interleaved, ov));
-  }
+  mxArray * make_value (const octave_value& ov);
 
   // Free an array and its contents.
   bool free_value (mxArray *ptr)

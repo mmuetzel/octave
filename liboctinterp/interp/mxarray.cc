@@ -3347,6 +3347,20 @@ void mex::free (void *ptr)
     }
 }
 
+mxArray *
+mex::make_value (const octave_value& ov)
+{
+#if defined (OCTAVE_HAVE_STD_PMR_POLYMORPHIC_ALLOCATOR)
+  // Always use the preserving memory resource for return values
+  octave::unwind_protect_var<std::pmr::memory_resource *>
+  upv (current_mx_memory_resource, &the_mx_preserving_memory_resource);
+#endif
+
+  bool interleaved = m_curr_mex_fcn.use_interleaved_complex ();
+
+  return mark_array (new mxArray (interleaved, ov));
+}
+
 // List of memory resources we allocated.
 std::set<void *> mex::s_global_memlist;
 
